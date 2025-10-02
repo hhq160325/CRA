@@ -118,7 +118,24 @@ export const logout = async () => {
   }
 };
 
-// Export token utilities for convenience
-export const getCurrentUser = tokenUtils.getCurrentUser;
-export const isAuthenticated = tokenUtils.isAuthenticated;
-export const getAccessToken = tokenUtils.getAccessToken;
+// Get current user from localStorage
+export const getCurrentUser = () => {
+  try {
+    const user = localStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
+  } catch (error) {
+    console.error("Error parsing user data:", error);
+    return null;
+  }
+};
+
+// Check if user is authenticated
+export const isAuthenticated = () => {
+  const token = localStorage.getItem("accessToken");
+  return !!token;
+};
+
+// Get access token
+export const getAccessToken = () => {
+  return localStorage.getItem("accessToken");
+};

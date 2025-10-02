@@ -5,13 +5,15 @@ import { authApiCall, tokenUtils } from "./utils";
 // Login function
 export const login = async (credentials) => {
   try {
-    const data = await authApiCall(AUTH_ENDPOINTS.LOGIN, {
+    const data = await apiCall(API_ENDPOINTS.AUTH.LOGIN, {
       body: credentials,
     });
 
     // Store tokens
     if (data.accessToken) {
-      tokenUtils.storeTokens(data.accessToken, data.refreshToken, data.user);
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("refreshToken", data.refreshToken);
+      localStorage.setItem("user", JSON.stringify(data.user));
     }
 
     return data;
@@ -23,13 +25,15 @@ export const login = async (credentials) => {
 // Register function
 export const register = async (userData) => {
   try {
-    const data = await authApiCall(AUTH_ENDPOINTS.REGISTER, {
+    const data = await apiCall(API_ENDPOINTS.AUTH.REGISTER, {
       body: userData,
     });
 
     // Optionally auto-login after registration
     if (data.autoLogin && data.accessToken) {
-      tokenUtils.storeTokens(data.accessToken, data.refreshToken, data.user);
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("refreshToken", data.refreshToken);
+      localStorage.setItem("user", JSON.stringify(data.user));
     }
 
     return data;
@@ -41,7 +45,7 @@ export const register = async (userData) => {
 // Forgot password function
 export const forgotPassword = async (email) => {
   try {
-    const data = await authApiCall(AUTH_ENDPOINTS.FORGOT_PASSWORD, {
+    const data = await apiCall(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, {
       body: { email },
     });
 
@@ -54,7 +58,7 @@ export const forgotPassword = async (email) => {
 // Reset password function
 export const resetPassword = async (token, newPassword) => {
   try {
-    const data = await authApiCall(AUTH_ENDPOINTS.RESET_PASSWORD, {
+    const data = await apiCall(API_ENDPOINTS.AUTH.RESET_PASSWORD, {
       body: { token, newPassword },
     });
 
@@ -67,7 +71,7 @@ export const resetPassword = async (token, newPassword) => {
 // Verify token function
 export const verifyToken = async (token) => {
   try {
-    const data = await authApiCall(AUTH_ENDPOINTS.VERIFY_TOKEN, {
+    const data = await apiCall(API_ENDPOINTS.AUTH.VERIFY_TOKEN, {
       body: { token },
     });
 
@@ -80,23 +84,22 @@ export const verifyToken = async (token) => {
 // Refresh token function
 export const refreshToken = async () => {
   try {
-    const refreshToken = tokenUtils.getRefreshToken();
+    const refreshToken = localStorage.getItem("refreshToken");
 
     if (!refreshToken) {
       throw new Error("No refresh token available");
     }
 
-    const data = await authApiCall(AUTH_ENDPOINTS.REFRESH_TOKEN, {
+    const data = await apiCall(API_ENDPOINTS.AUTH.REFRESH_TOKEN, {
       body: { refreshToken },
     });
 
     // Update stored tokens
     if (data.accessToken) {
-      tokenUtils.storeTokens(
-        data.accessToken, 
-        data.refreshToken || refreshToken, 
-        tokenUtils.getCurrentUser()
-      );
+      localStorage.setItem("accessToken", data.accessToken);
+      if (data.refreshToken) {
+        localStorage.setItem("refreshToken", data.refreshToken);
+      }
     }
 
     return data;
@@ -109,16 +112,35 @@ export const refreshToken = async () => {
 export const logout = async () => {
   try {
     // Call logout endpoint to invalidate token on server
-    await authApiCall(AUTH_ENDPOINTS.LOGOUT);
+    await apiCall(API_ENDPOINTS.AUTH.LOGOUT);
   } catch (error) {
     console.error("Logout error:", error);
   } finally {
     // Clear local storage regardless of API call success
-    tokenUtils.clearTokens();
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
   }
 };
 
-// Export token utilities for convenience
-export const getCurrentUser = tokenUtils.getCurrentUser;
-export const isAuthenticated = tokenUtils.isAuthenticated;
-export const getAccessToken = tokenUtils.getAccessToken;
+// Get current user from localStorage
+export const getCurrentUser = () => {
+  try {
+    const user = localStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
+  } catch (error) {
+    console.error("Error parsing user data:", error);
+    return null;
+  }
+};
+
+// Check if user is authenticated
+export const isAuthenticated = () => {
+  const token = localStorage.getItem("accessToken");
+  return !!token;
+};
+
+// Get access token
+export const getAccessToken = () => {
+  return localStorage.getItem("accessToken");
+};

@@ -80,23 +80,22 @@ export const verifyToken = async (token) => {
 // Refresh token function
 export const refreshToken = async () => {
   try {
-    const refreshToken = tokenUtils.getRefreshToken();
+    const refreshToken = localStorage.getItem("refreshToken");
 
     if (!refreshToken) {
       throw new Error("No refresh token available");
     }
 
-    const data = await authApiCall(AUTH_ENDPOINTS.REFRESH_TOKEN, {
+    const data = await apiCall(API_ENDPOINTS.AUTH.REFRESH_TOKEN, {
       body: { refreshToken },
     });
 
     // Update stored tokens
     if (data.accessToken) {
-      tokenUtils.storeTokens(
-        data.accessToken, 
-        data.refreshToken || refreshToken, 
-        tokenUtils.getCurrentUser()
-      );
+      localStorage.setItem("accessToken", data.accessToken);
+      if (data.refreshToken) {
+        localStorage.setItem("refreshToken", data.refreshToken);
+      }
     }
 
     return data;
@@ -109,16 +108,35 @@ export const refreshToken = async () => {
 export const logout = async () => {
   try {
     // Call logout endpoint to invalidate token on server
-    await authApiCall(AUTH_ENDPOINTS.LOGOUT);
+    await apiCall(API_ENDPOINTS.AUTH.LOGOUT);
   } catch (error) {
     console.error("Logout error:", error);
   } finally {
     // Clear local storage regardless of API call success
-    tokenUtils.clearTokens();
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
   }
 };
 
-// Export token utilities for convenience
-export const getCurrentUser = tokenUtils.getCurrentUser;
-export const isAuthenticated = tokenUtils.isAuthenticated;
-export const getAccessToken = tokenUtils.getAccessToken;
+// Get current user from localStorage
+export const getCurrentUser = () => {
+  try {
+    const user = localStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
+  } catch (error) {
+    console.error("Error parsing user data:", error);
+    return null;
+  }
+};
+
+// Check if user is authenticated
+export const isAuthenticated = () => {
+  const token = localStorage.getItem("accessToken");
+  return !!token;
+};
+
+// Get access token
+export const getAccessToken = () => {
+  return localStorage.getItem("accessToken");
+};

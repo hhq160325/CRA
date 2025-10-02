@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { RegisterCar, RegisterCarStep2, RegisterCarStep3 } from '../features/cars';
+import { RegisterCar } from '../features/cars';
 
 // Placeholder components - replace with your actual pages
 const HomePage = () => (
@@ -15,8 +15,6 @@ const AppRouter = () => {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/register-car" element={<RegisterCar />} />
-      <Route path="/register-car/step-2" element={<RegisterCarStep2 />} />
-      <Route path="/register-car/step-3" element={<RegisterCarStep3 />} />
       {/* Add your other routes here */}
     </Routes>
   );

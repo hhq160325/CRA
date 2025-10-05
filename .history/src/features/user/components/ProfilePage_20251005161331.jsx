@@ -168,7 +168,7 @@ const ProfilePage = () => {
           <div className="bg-white rounded-lg shadow-sm p-8 max-w-4xl">
             <div className="flex items-center justify-between mb-8">
               <h1 className="text-2xl font-semibold text-gray-900">Account Information</h1>
-              <button
+              <button 
                 onClick={() => handleEdit('profile')}
                 className="text-blue-600 hover:text-blue-700"
               >

@@ -2,7 +2,8 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { RegisterCar, RegisterCarStep2, RegisterCarStep3 } from '../features/cars';
 import { ProfilePage } from '../features/user';
-
+import { FavouriteCarPage } from '../features/user/components';
+import { RentalHistoryPage } from '../features/user/components';
 // Placeholder components - replace with your actual pages
 const HomePage = () => (
   <div className="container mx-auto px-6 py-8">
@@ -19,6 +20,8 @@ const AppRouter = () => {
       <Route path="/register-car" element={<RegisterCar />} />
       <Route path="/register-car/step-2" element={<RegisterCarStep2 />} />
       <Route path="/register-car/step-3" element={<RegisterCarStep3 />} />
+      <Route path="/profile/favourite-car" element={<FavouriteCarPage />} />
+      <Route path="/profile/rental-history" element={<RentalHistoryPage />} />
       {/* Add your other routes here */}
     </Routes>
   );

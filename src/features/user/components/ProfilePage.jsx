@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import UpdateProfileDialog from './UpdateProfileDialog';
 import UpdatePhoneDialog from './UpdatePhoneDialog';
 import UpdateEmailDialog from './UpdateEmailDialog';
@@ -81,24 +82,24 @@ const ProfilePage = () => {
             <div className="mb-8">
               <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wide mb-4">MAIN MENU</h2>
               <nav className="space-y-2">
-                <a href="#" className="flex items-center px-3 py-2 text-white bg-blue-600 rounded-lg">
+                <Link to="/profile" className="flex items-center px-3 py-2 text-white bg-blue-600 rounded-lg">
                   <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                   My Profile
-                </a>
-                <a href="#" className="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+                </Link>
+                <Link to="/profile/rental-history" className="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
                   <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                   Rental History
-                </a>
-                <a href="#" className="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+                </Link>
+                <Link to="/profile/favourite-car" className="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
                   <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                   </svg>
                   Favourite Car
-                </a>
+                </Link>
                 <a href="#" className="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
                   <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -167,7 +168,7 @@ const ProfilePage = () => {
           <div className="bg-white rounded-lg shadow-sm p-8 max-w-4xl">
             <div className="flex items-center justify-between mb-8">
               <h1 className="text-2xl font-semibold text-gray-900">Account Information</h1>
-              <button 
+              <button
                 onClick={() => handleEdit('profile')}
                 className="text-blue-600 hover:text-blue-700"
               >

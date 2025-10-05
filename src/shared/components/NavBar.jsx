@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const NavBar = () => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -63,13 +64,13 @@ const NavBar = () => {
                     </button>
 
                     {/* Profile */}
-                    <div className="flex items-center">
+                    <Link to="/profile" className="flex items-center">
                         <img
-                            src="https://via.placeholder.com/40x40/3B82F6/FFFFFF?text=U"
+                            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
                             alt="Profile"
-                            className="h-10 w-10 rounded-full border-2 border-gray-200"
+                            className="h-10 w-10 rounded-full border-2 border-gray-200 hover:border-blue-500 transition-colors cursor-pointer"
                         />
-                    </div>
+                    </Link>
                 </div>
             </div>
         </nav>

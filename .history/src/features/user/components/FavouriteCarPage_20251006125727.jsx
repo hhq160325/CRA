@@ -1,14 +1,44 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { removeFromFavorites, selectFavoriteCars } from '../../favorites/favoritesSlice';
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchFavorites, removeFromFavorites } from '../../favorites/favoritesSlice';
 
 const FavouriteCarPage = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const favouriteCars = useSelector(selectFavoriteCars);
+  const { favoriteCars, loading, error } = useSelector((state) => state.favorites);
 
-  const toggleFavourite = (carId) => {
-    dispatch(removeFromFavorites(carId));
+  useEffect(() => {
+    // For now, we'll use mock data since the API isn't implemented yet
+    // dispatch(fetchFavorites());
+    
+    // Mock data - this would normally come from the API
+    const mockFavorites = [
+      {
+        id: 1,
+        name: 'MITSUBISHI XPANDER 2024',
+        price: 930.00,
+        image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=300&h=200&fit=crop',
+      },
+      {
+        id: 2,
+        name: 'Nissan GT-R',
+        price: 80.00,
+        image: 'https://via.placeholder.com/300x200/374151/ffffff?text=Nissan+GT-R',
+      }
+    ];
+    
+    // Simulate API call delay
+    setTimeout(() => {
+      dispatch({ type: 'favorites/fetchFavorites/fulfilled', payload: mockFavorites });
+    }, 500);
+  }, [dispatch]);
+
+  const toggleFavourite = async (carId) => {
+    try {
+      await dispatch(removeFromFavorites(carId)).unwrap();
+    } catch (error) {
+      console.error('Failed to remove from favorites:', error);
+    }
   };
 
   const handleRentCar = (carId) => {
@@ -16,7 +46,7 @@ const FavouriteCarPage = () => {
   };
 
   const handleViewDetails = (carId) => {
-    navigate(`/cars/${carId}`);
+    console.log(`View details for car ${carId}`);
   };
 
   return (
@@ -115,74 +145,76 @@ const FavouriteCarPage = () => {
             <h1 className="text-2xl font-semibold text-gray-900">Favourite Car</h1>
           </div>
           
-          {favouriteCars.length === 0 ? (
-            <div className="text-center py-12">
-              <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Favourite Cars</h3>
-              <p className="text-gray-500 mb-4">You haven't added any cars to your favorites yet.</p>
-              <Link 
-                to="/" 
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Browse Cars
-              </Link>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {favouriteCars.map((car) => (
-                <div key={car.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
-                  <div className="relative">
-                    <img
-                      src={car.image}
-                      alt={car.name}
-                      className="w-full h-48 object-cover"
-                    />
-                    <button
-                      onClick={() => toggleFavourite(car.id)}
-                      className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors"
-                    >
-                      <svg 
-                        className="w-5 h-5 text-red-500 fill-current" 
-                        fill="currentColor" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                    </button>
-                  </div>
-                  
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{car.name}</h3>
-                    <div className="mb-4">
-                      <span className="text-xl font-bold text-blue-600">${car.price ? car.price.toFixed(2) : '0.00'}/</span>
-                      <span className="text-gray-500">day</span>
-                      {car.originalPrice && (
-                        <span className="text-gray-400 line-through ml-2">${car.originalPrice.toFixed(2)}</span>
-                      )}
-                    </div>
-                    
-                    <div className="flex space-x-3">
-                      <button
-                        onClick={() => handleRentCar(car.id)}
-                        className="flex-1 bg-gray-800 text-white py-2 px-4 rounded-lg hover:bg-gray-900 transition-colors"
-                      >
-                        Rent Car
-                      </button>
-                      <button
-                        onClick={() => handleViewDetails(car.id)}
-                        className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors"
-                      >
-                        Detail
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+          {loading && (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
           )}
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <p className="text-red-600">Error loading favorites: {error}</p>
+            </div>
+          )}
+
+          {!loading && favoriteCars.length === 0 && (
+            <div className="text-center py-12">
+              <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No favorite cars yet</h3>
+              <p className="text-gray-500">Start adding cars to your favorites to see them here.</p>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {favoriteCars.map((car) => (
+              <div key={car.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div className="relative">
+                  <img
+                    src={car.image}
+                    alt={car.name}
+                    className="w-full h-48 object-cover"
+                  />
+                  <button
+                    onClick={() => toggleFavourite(car.id)}
+                    className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-50"
+                  >
+                    <svg 
+                      className="w-5 h-5 text-red-500 fill-current" 
+                      fill="currentColor" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  </button>
+                </div>
+                
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{car.name}</h3>
+                  <p className="text-blue-600 font-medium mb-4">
+                    ${typeof car.price === 'number' ? car.price.toFixed(2) : car.price}/day
+                  </p>
+                  
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => handleRentCar(car.id)}
+                      className="flex-1 bg-gray-800 text-white py-2 px-4 rounded-lg hover:bg-gray-900 transition-colors"
+                    >
+                      Rent Car
+                    </button>
+                    <button
+                      onClick={() => handleViewDetails(car.id)}
+                      className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Detail
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

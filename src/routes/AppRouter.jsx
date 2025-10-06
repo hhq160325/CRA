@@ -1,9 +1,10 @@
-import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { RegisterCar, RegisterCarStep2, RegisterCarStep3, CarDetail } from '../features/cars';
 import { ProfilePage } from '../features/user';
 import { FavouriteCarPage } from '../features/user/components';
 import { RentalHistoryPage } from '../features/user/components';
+import { PaymentPage } from '../features/payment';
+import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring } from '../features/admin';
 // Placeholder components - replace with your actual pages
 const HomePage = () => (
   <div className="container mx-auto px-6 py-8">
@@ -21,6 +22,12 @@ const HomePage = () => (
         <a href="/profile" className="block text-blue-600 hover:text-blue-700 underline">
           View Profile
         </a>
+        <a href="/payment" className="block text-blue-600 hover:text-blue-700 underline">
+          Payment Page
+        </a>
+        <a href="/admin" className="block text-blue-600 hover:text-blue-700 underline">
+          Admin Dashboard
+        </a>
       </div>
     </div>
   </div>
@@ -37,6 +44,15 @@ const AppRouter = () => {
       <Route path="/profile/favourite-car" element={<FavouriteCarPage />} />
       <Route path="/profile/rental-history" element={<RentalHistoryPage />} />
       <Route path="/cars/:id" element={<CarDetail />} />
+      <Route path="/payment" element={<PaymentPage />} />
+      
+      {/* Admin Routes */}
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="operations" element={<OperationsDashboard />} />
+        <Route path="transactions" element={<TransactionMonitoring />} />
+      </Route>
+      
       {/* Add your other routes here */}
     </Routes>
   );

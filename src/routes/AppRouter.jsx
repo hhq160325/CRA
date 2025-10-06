@@ -5,6 +5,7 @@ import { FavouriteCarPage } from '../features/user/components';
 import { RentalHistoryPage } from '../features/user/components';
 import { PaymentPage } from '../features/payment';
 import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring } from '../features/admin';
+import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter } from '../features/staff';
 // Placeholder components - replace with your actual pages
 const HomePage = () => (
   <div className="container mx-auto px-6 py-8">
@@ -27,6 +28,9 @@ const HomePage = () => (
         </a>
         <a href="/admin" className="block text-blue-600 hover:text-blue-700 underline">
           Admin Dashboard
+        </a>
+        <a href="/staff" className="block text-blue-600 hover:text-blue-700 underline">
+          Staff Dashboard
         </a>
       </div>
     </div>
@@ -51,6 +55,15 @@ const AppRouter = () => {
         <Route index element={<AdminDashboard />} />
         <Route path="operations" element={<OperationsDashboard />} />
         <Route path="transactions" element={<TransactionMonitoring />} />
+      </Route>
+      
+      {/* Staff Routes */}
+      <Route path="/staff" element={<StaffLayout />}>
+        <Route index element={<StaffDashboard />} />
+        <Route path="car-owners" element={<CarOwnerManagement />} />
+        <Route path="customers" element={<CustomerManagement />} />
+        <Route path="bookings" element={<BookingMonitoring />} />
+        <Route path="notifications" element={<NotificationCenter />} />
       </Route>
       
       {/* Add your other routes here */}

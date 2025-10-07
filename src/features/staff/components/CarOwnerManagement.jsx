@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { updateCarOwnerStatus } from '../staffSlice';
+import { CarOwnerModal } from './modals/carOwnerModal';
 
 const CarOwnerManagement = () => {
   const dispatch = useDispatch();
@@ -94,6 +95,8 @@ const CarOwnerManagement = () => {
     dispatch(updateCarOwnerStatus({ id: ownerId, status: newStatus }));
   };
 
+  // Modal Func S
+
   const openModal = (owner, type) => {
     setSelectedOwner(owner);
     setModalType(type);
@@ -119,9 +122,15 @@ const CarOwnerManagement = () => {
     closeModal();
   };
 
+  const handleChangeModalType = (type) => {
+    setModalType(type);
+  };
+
+   // Modal Func E
+
   const filteredOwners = carOwners.filter(owner => {
     const matchesSearch = owner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         owner.email.toLowerCase().includes(searchTerm.toLowerCase());
+      owner.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || owner.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -208,7 +217,7 @@ const CarOwnerManagement = () => {
                     </span>
                   </td>
                   <td className="py-4 px-6 text-gray-600 text-sm">{owner.carsListed}</td>
-                  <td className="py-4 px-6 text-gray-600 text-sm">${owner.totalEarnings.toLocaleString()}</td>
+                  <td className="py-4 px-6 text-gray-600 text-sm">${(owner.totalEarnings || 0).toLocaleString()}</td>
                   <td className="py-4 px-6 text-gray-600 text-sm">{owner.lastActive}</td>
                   <td className="py-4 px-6">
                     <div className="flex items-center space-x-2">
@@ -218,7 +227,7 @@ const CarOwnerManagement = () => {
                       >
                         View
                       </button>
-                      <button 
+                      <button
                         onClick={() => openModal(owner, 'edit')}
                         className="text-gray-600 hover:text-gray-700 text-sm font-medium"
                       >
@@ -262,208 +271,17 @@ const CarOwnerManagement = () => {
       </div>
 
       {/* Modal */}
-      {isModalOpen && selectedOwner && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 [--tw-space-y-reverse:false!important]">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">
-                {modalType === 'view' && 'Car Owner Details'}
-                {modalType === 'edit' && 'Edit Car Owner'}
-                {modalType === 'suspend' && 'Suspend Car Owner'}
-              </h2>
-              <button
-                onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Modal Content */}
-            {modalType === 'view' && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <p className="text-gray-900">{selectedOwner.name}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <p className="text-gray-900">{selectedOwner.email}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                    <p className="text-gray-900">{selectedOwner.phone}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <span className={getStatusBadge(selectedOwner.status)}>
-                      {selectedOwner.status}
-                    </span>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Registration Date</label>
-                    <p className="text-gray-900">{selectedOwner.registrationDate}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Verification Status</label>
-                    <span className={getVerificationBadge(selectedOwner.verificationStatus)}>
-                      {selectedOwner.verificationStatus}
-                    </span>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Cars Listed</label>
-                    <p className="text-gray-900">{selectedOwner.carsListed}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Total Earnings</label>
-                    <p className="text-gray-900">${selectedOwner.totalEarnings.toLocaleString()}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Last Active</label>
-                    <p className="text-gray-900">{selectedOwner.lastActive}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {modalType === 'edit' && (
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.target);
-                handleEdit(Object.fromEntries(formData));
-              }}>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                      <input
-                        type="text"
-                        name="name"
-                        defaultValue={selectedOwner.name}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                      <input
-                        type="email"
-                        name="email"
-                        defaultValue={selectedOwner.email}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        defaultValue={selectedOwner.phone}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                      <select
-                        name="status"
-                        defaultValue={selectedOwner.status}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="active">Active</option>
-                        <option value="pending">Pending</option>
-                        <option value="suspended">Suspended</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="flex justify-end space-x-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={closeModal}
-                      className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      Save Changes
-                    </button>
-                  </div>
-                </div>
-              </form>
-            )}
-
-            {modalType === 'suspend' && (
-              <div className="space-y-4">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <div className="flex">
-                    <svg className="w-5 h-5 text-red-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
-                    <div className="ml-3">
-                      <h3 className="text-sm font-medium text-red-800">
-                        Suspend Car Owner Account
-                      </h3>
-                      <p className="mt-2 text-sm text-red-700">
-                        Are you sure you want to suspend <strong>{selectedOwner.name}</strong>'s account? 
-                        This will prevent them from accessing their account and listing new cars.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-2">Account Details:</h4>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <p><span className="font-medium">Email:</span> {selectedOwner.email}</p>
-                    <p><span className="font-medium">Cars Listed:</span> {selectedOwner.carsListed}</p>
-                    <p><span className="font-medium">Total Earnings:</span> ${selectedOwner.totalEarnings.toLocaleString()}</p>
-                  </div>
-                </div>
-
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    onClick={closeModal}
-                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleSuspend}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                  >
-                    Suspend Account
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* View Mode Action Buttons */}
-            {modalType === 'view' && (
-              <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-                <button
-                  onClick={() => setModalType('edit')}
-                  className="px-4 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
-                >
-                  Edit
-                </button>
-                {selectedOwner.status === 'active' && (
-                  <button
-                    onClick={() => setModalType('suspend')}
-                    className="px-4 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-                  >
-                    Suspend
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <CarOwnerModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        selectedOwner={selectedOwner}
+        modalType={modalType}
+        onEdit={handleEdit}
+        onSuspend={handleSuspend}
+        onChangeModalType={handleChangeModalType}
+        getStatusBadge={getStatusBadge}
+        getVerificationBadge={getVerificationBadge}
+      />
     </div>
   );
 };

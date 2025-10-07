@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateBookingStatus } from '../staffSlice';
+import BookingModal from './modals/bookingModal/BookingModal';
 
 const BookingMonitoring = () => {
   const dispatch = useDispatch();
@@ -153,6 +154,10 @@ const BookingMonitoring = () => {
     // Handle edit logic here
     console.log('Editing booking:', selectedBooking.id, formData);
     closeModal();
+  };
+
+  const handleChangeModalType = (newType) => {
+    setModalType(newType);
   };
 
   const filteredBookings = bookingActivities.filter(booking => {
@@ -326,318 +331,18 @@ const BookingMonitoring = () => {
       </div>
 
       {/* Modal */}
-      {isModalOpen && selectedBooking && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">
-                {modalType === 'view' && 'Booking Details'}
-                {modalType === 'edit' && 'Edit Booking'}
-                {modalType === 'cancel' && 'Cancel Booking'}
-                {modalType === 'resolve' && 'Resolve Overdue Booking'}
-              </h2>
-              <button
-                onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Modal Content */}
-            {modalType === 'view' && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Booking ID</label>
-                    <p className="text-gray-900">{selectedBooking.bookingId}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <span className={getStatusBadge(selectedBooking.status)}>
-                      {selectedBooking.status}
-                    </span>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Customer</label>
-                    <p className="text-gray-900">{selectedBooking.customer}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Car Owner</label>
-                    <p className="text-gray-900">{selectedBooking.carOwner}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Car</label>
-                    <p className="text-gray-900">{selectedBooking.car}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
-                    <p className="text-gray-900">${selectedBooking.totalAmount}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                    <p className="text-gray-900">{selectedBooking.startDate}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                    <p className="text-gray-900">{selectedBooking.endDate}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
-                    <span className={getPaymentBadge(selectedBooking.paymentStatus)}>
-                      {selectedBooking.paymentStatus}
-                    </span>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Created At</label>
-                    <p className="text-gray-900">{selectedBooking.createdAt}</p>
-                  </div>
-                </div>
-                {selectedBooking.notes && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                    <p className="text-gray-900 bg-gray-50 p-3 rounded-lg">{selectedBooking.notes}</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {modalType === 'edit' && (
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.target);
-                handleEdit(Object.fromEntries(formData));
-              }}>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Customer</label>
-                      <input
-                        type="text"
-                        name="customer"
-                        defaultValue={selectedBooking.customer}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Car Owner</label>
-                      <input
-                        type="text"
-                        name="carOwner"
-                        defaultValue={selectedBooking.carOwner}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                      <input
-                        type="date"
-                        name="startDate"
-                        defaultValue={selectedBooking.startDate}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                      <input
-                        type="date"
-                        name="endDate"
-                        defaultValue={selectedBooking.endDate}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
-                      <input
-                        type="number"
-                        name="totalAmount"
-                        defaultValue={selectedBooking.totalAmount}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                      <select
-                        name="status"
-                        defaultValue={selectedBooking.status}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="active">Active</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="overdue">Overdue</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                    <textarea
-                      name="notes"
-                      rows={3}
-                      defaultValue={selectedBooking.notes}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Add any notes about this booking..."
-                    />
-                  </div>
-                  <div className="flex justify-end space-x-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={closeModal}
-                      className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      Save Changes
-                    </button>
-                  </div>
-                </div>
-              </form>
-            )}
-
-            {modalType === 'cancel' && (
-              <div className="space-y-4">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <div className="flex">
-                    <svg className="w-5 h-5 text-red-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
-                    <div className="ml-3">
-                      <h3 className="text-sm font-medium text-red-800">
-                        Cancel Booking
-                      </h3>
-                      <p className="mt-2 text-sm text-red-700">
-                        Are you sure you want to cancel booking <strong>{selectedBooking.bookingId}</strong>?
-                        This action cannot be undone.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-2">Booking Details:</h4>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <p><span className="font-medium">Customer:</span> {selectedBooking.customer}</p>
-                    <p><span className="font-medium">Car:</span> {selectedBooking.car}</p>
-                    <p><span className="font-medium">Duration:</span> {selectedBooking.startDate} to {selectedBooking.endDate}</p>
-                    <p><span className="font-medium">Amount:</span> ${selectedBooking.totalAmount}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Cancellation Reason</label>
-                  <textarea
-                    id="cancellationReason"
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Please provide a reason for cancellation..."
-                  />
-                </div>
-
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    onClick={closeModal}
-                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                  >
-                    Keep Booking
-                  </button>
-                  <button
-                    onClick={() => {
-                      const reason = document.getElementById('cancellationReason').value;
-                      handleCancel(reason);
-                    }}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                  >
-                    Cancel Booking
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {modalType === 'resolve' && (
-              <div className="space-y-4">
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <div className="flex">
-                    <svg className="w-5 h-5 text-yellow-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
-                    <div className="ml-3">
-                      <h3 className="text-sm font-medium text-yellow-800">
-                        Resolve Overdue Booking
-                      </h3>
-                      <p className="mt-2 text-sm text-yellow-700">
-                        Mark booking <strong>{selectedBooking.bookingId}</strong> as completed.
-                        This will resolve the overdue status.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-2">Booking Details:</h4>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <p><span className="font-medium">Customer:</span> {selectedBooking.customer}</p>
-                    <p><span className="font-medium">Car:</span> {selectedBooking.car}</p>
-                    <p><span className="font-medium">Expected End:</span> {selectedBooking.endDate}</p>
-                    <p><span className="font-medium">Amount:</span> ${selectedBooking.totalAmount}</p>
-                    <p><span className="font-medium">Current Notes:</span> {selectedBooking.notes || 'No notes'}</p>
-                  </div>
-                </div>
-
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    onClick={closeModal}
-                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleResolve}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                  >
-                    Mark as Completed
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* View Mode Action Buttons */}
-            {modalType === 'view' && (
-              <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-                <button
-                  onClick={() => setModalType('edit')}
-                  className="px-4 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
-                >
-                  Edit
-                </button>
-                {selectedBooking.status === 'overdue' && (
-                  <button
-                    onClick={() => setModalType('resolve')}
-                    className="px-4 py-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
-                  >
-                    Resolve
-                  </button>
-                )}
-                {(selectedBooking.status === 'pending' || selectedBooking.status === 'active') && (
-                  <button
-                    onClick={() => setModalType('cancel')}
-                    className="px-4 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <BookingModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        selectedBooking={selectedBooking}
+        modalType={modalType}
+        onEdit={handleEdit}
+        onCancel={handleCancel}
+        onResolve={handleResolve}
+        onChangeModalType={handleChangeModalType}
+        getStatusBadge={getStatusBadge}
+        getPaymentBadge={getPaymentBadge}
+      />
     </div>
   );
 };

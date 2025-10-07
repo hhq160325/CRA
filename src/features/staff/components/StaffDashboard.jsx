@@ -1,4 +1,4 @@
-import { useSelector } from 'react-redux';
+
 import DashboardMetrics from './DashboardMetrics';
 import RecentActivities from './RecentActivities';
 import PendingVerifications from './PendingVerifications';

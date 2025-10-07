@@ -11,7 +11,7 @@ const DashboardMetrics = () => {
   const metricCards = [
     {
       title: 'Total Bookings',
-      value: metrics.totalBookings.toLocaleString(),
+      value: (metrics.totalBookings || 0).toLocaleString(),
       change: '+12%',
       changeType: 'positive',
       icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -20,7 +20,7 @@ const DashboardMetrics = () => {
     },
     {
       title: 'Active Users',
-      value: metrics.activeUsers.toLocaleString(),
+      value: (metrics.activeUsers || 0).toLocaleString(),
       change: '+8%',
       changeType: 'positive',
       icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,7 +38,7 @@ const DashboardMetrics = () => {
     },
     {
       title: 'Total Revenue',
-      value: `$${metrics.totalRevenue.toLocaleString()}`,
+      value: `$${(metrics.totalRevenue || 0).toLocaleString()}`,
       change: '+15%',
       changeType: 'positive',
       icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

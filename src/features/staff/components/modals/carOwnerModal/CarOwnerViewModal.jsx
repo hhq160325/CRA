@@ -1,8 +1,8 @@
-const CarOwnerViewModal = ({ 
-  selectedOwner, 
-  getStatusBadge, 
-  getVerificationBadge, 
-  onChangeModalType 
+const CarOwnerViewModal = ({
+  selectedOwner,
+  getStatusBadge,
+  getVerificationBadge,
+  onChangeModalType
 }) => {
   return (
     <>

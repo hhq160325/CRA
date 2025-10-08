@@ -28,32 +28,43 @@ Dự án này là một hệ thống authentication hoàn chỉnh được xây 
 - Optimized re-renders
 - Persistent authentication state
 
-## Cấu trúc dự án
+## Cấu trúc dự án (Feature-based Architecture)
 
 ```
 src/
 ├── app/
 │   └── store.js                 # Redux store configuration
 ├── config/
-│   └── api.js                   # API endpoints và configuration
-├── features/
-│   ├── auth/
+│   └── api.js                   # Legacy API config (deprecated)
+├── features/                    # Feature-based organization
+│   ├── auth/                    # Authentication feature
+│   │   ├── components/
+│   │   │   ├── Login.jsx        # Login component
+│   │   │   ├── Register.jsx     # Register component
+│   │   │   ├── ForgotPassword.jsx # Forgot password component
+│   │   │   └── ResetPassword.jsx # Reset password component
+│   │   ├── api.js               # Auth-specific API endpoints
+│   │   ├── utils.js             # Auth-specific utilities
 │   │   ├── authService.js       # Authentication service functions
 │   │   ├── authSlice.js         # Redux slice cho auth
-│   │   └── components/
-│   │       ├── Login.jsx        # Login component
-│   │       ├── Register.jsx     # Register component
-│   │       ├── ForgotPassword.jsx # Forgot password component
-│   │       └── ResetPassword.jsx # Reset password component
-│   └── dashboard/
-│       ├── dashboardSlice.js    # Dashboard state management
-│       └── components/
-│           └── Dashboard.jsx    # Dashboard component
+│   │   └── index.js             # Feature exports
+│   ├── dashboard/               # Dashboard feature
+│   │   ├── components/
+│   │   │   └── Dashboard.jsx    # Dashboard component
+│   │   ├── dashboardSlice.js    # Dashboard state management
+│   │   └── index.js             # Feature exports
+│   └── user/                    # User feature (future)
+│       └── api.js               # User-specific API endpoints
 ├── routes/
-│   ├── AppRouter.jsx            # Main router configuration
-│   └── ProtectedRoute.jsx       # Route protection component
-├── utils/
-│   └── helpers.js               # Utility functions
+│   └── AppRouter.jsx            # Main router configuration
+├── shared/                      # Shared/reusable code
+│   ├── components/
+│   │   └── ProtectedRoute.jsx   # Route protection component
+│   ├── utils/
+│   │   └── common.js            # Cross-feature utilities
+│   ├── constants/
+│   │   └── index.js             # Global constants
+│   └── index.js                 # Shared exports
 ├── App.js                       # Main App component
 └── index.js                     # Entry point
 ```

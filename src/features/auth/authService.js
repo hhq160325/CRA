@@ -1,50 +1,17 @@
 // Service functions for auth
-import { API_ENDPOINTS } from "../../config/api";
-
-// Helper function to make API calls
-const apiCall = async (endpoint, options = {}) => {
-  try {
-    const token = localStorage.getItem("accessToken");
-
-    const config = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token && { Authorization: `Bearer ${token}` }),
-        ...options.headers,
-      },
-      ...options,
-    };
-
-    if (options.body) {
-      config.body = JSON.stringify(options.body);
-    }
-
-    const response = await fetch(endpoint, config);
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || "Something went wrong");
-    }
-
-    return data;
-  } catch (error) {
-    throw error;
-  }
-};
+import { AUTH_ENDPOINTS } from "./api";
+import { authApiCall, tokenUtils } from "./utils";
 
 // Login function
 export const login = async (credentials) => {
   try {
-    const data = await apiCall(API_ENDPOINTS.AUTH.LOGIN, {
+    const data = await authApiCall(AUTH_ENDPOINTS.LOGIN, {
       body: credentials,
     });
 
     // Store tokens
     if (data.accessToken) {
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      tokenUtils.storeTokens(data.accessToken, data.refreshToken, data.user);
     }
 
     return data;
@@ -56,15 +23,13 @@ export const login = async (credentials) => {
 // Register function
 export const register = async (userData) => {
   try {
-    const data = await apiCall(API_ENDPOINTS.AUTH.REGISTER, {
+    const data = await authApiCall(AUTH_ENDPOINTS.REGISTER, {
       body: userData,
     });
 
     // Optionally auto-login after registration
     if (data.autoLogin && data.accessToken) {
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      tokenUtils.storeTokens(data.accessToken, data.refreshToken, data.user);
     }
 
     return data;
@@ -76,7 +41,7 @@ export const register = async (userData) => {
 // Forgot password function
 export const forgotPassword = async (email) => {
   try {
-    const data = await apiCall(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, {
+    const data = await authApiCall(AUTH_ENDPOINTS.FORGOT_PASSWORD, {
       body: { email },
     });
 
@@ -89,7 +54,7 @@ export const forgotPassword = async (email) => {
 // Reset password function
 export const resetPassword = async (token, newPassword) => {
   try {
-    const data = await apiCall(API_ENDPOINTS.AUTH.RESET_PASSWORD, {
+    const data = await authApiCall(AUTH_ENDPOINTS.RESET_PASSWORD, {
       body: { token, newPassword },
     });
 
@@ -102,7 +67,7 @@ export const resetPassword = async (token, newPassword) => {
 // Verify token function
 export const verifyToken = async (token) => {
   try {
-    const data = await apiCall(API_ENDPOINTS.AUTH.VERIFY_TOKEN, {
+    const data = await authApiCall(AUTH_ENDPOINTS.VERIFY_TOKEN, {
       body: { token },
     });
 
@@ -115,22 +80,23 @@ export const verifyToken = async (token) => {
 // Refresh token function
 export const refreshToken = async () => {
   try {
-    const refreshToken = localStorage.getItem("refreshToken");
+    const refreshToken = tokenUtils.getRefreshToken();
 
     if (!refreshToken) {
       throw new Error("No refresh token available");
     }
 
-    const data = await apiCall(API_ENDPOINTS.AUTH.REFRESH_TOKEN, {
+    const data = await authApiCall(AUTH_ENDPOINTS.REFRESH_TOKEN, {
       body: { refreshToken },
     });
 
     // Update stored tokens
     if (data.accessToken) {
-      localStorage.setItem("accessToken", data.accessToken);
-      if (data.refreshToken) {
-        localStorage.setItem("refreshToken", data.refreshToken);
-      }
+      tokenUtils.storeTokens(
+        data.accessToken, 
+        data.refreshToken || refreshToken, 
+        tokenUtils.getCurrentUser()
+      );
     }
 
     return data;
@@ -143,35 +109,16 @@ export const refreshToken = async () => {
 export const logout = async () => {
   try {
     // Call logout endpoint to invalidate token on server
-    await apiCall(API_ENDPOINTS.AUTH.LOGOUT);
+    await authApiCall(AUTH_ENDPOINTS.LOGOUT);
   } catch (error) {
     console.error("Logout error:", error);
   } finally {
     // Clear local storage regardless of API call success
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
+    tokenUtils.clearTokens();
   }
 };
 
-// Get current user from localStorage
-export const getCurrentUser = () => {
-  try {
-    const user = localStorage.getItem("user");
-    return user ? JSON.parse(user) : null;
-  } catch (error) {
-    console.error("Error parsing user data:", error);
-    return null;
-  }
-};
-
-// Check if user is authenticated
-export const isAuthenticated = () => {
-  const token = localStorage.getItem("accessToken");
-  return !!token;
-};
-
-// Get access token
-export const getAccessToken = () => {
-  return localStorage.getItem("accessToken");
-};
+// Export token utilities for convenience
+export const getCurrentUser = tokenUtils.getCurrentUser;
+export const isAuthenticated = tokenUtils.isAuthenticated;
+export const getAccessToken = tokenUtils.getAccessToken;

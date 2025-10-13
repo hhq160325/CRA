@@ -27,19 +27,19 @@ const HomePage = () => {
   const CarCard = ({ car }) => (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
       <div className="relative">
-        <img 
-          src={car.image} 
+        <img
+          src={car.image}
           alt={car.name}
           className="w-full h-48 object-cover"
         />
-        <button 
+        <button
           onClick={() => toggleFavorite(car.id)}
           className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow"
         >
-          <svg 
-            className={`w-5 h-5 ${isFavorited[car.id] ? 'text-red-500 fill-current' : 'text-gray-400'}`} 
-            fill={isFavorited[car.id] ? 'currentColor' : 'none'} 
-            stroke="currentColor" 
+          <svg
+            className={`w-5 h-5 ${isFavorited[car.id] ? 'text-red-500 fill-current' : 'text-gray-400'}`}
+            fill={isFavorited[car.id] ? 'currentColor' : 'none'}
+            stroke="currentColor"
             viewBox="0 0 24 24"
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -49,10 +49,10 @@ const HomePage = () => {
           {car.type}
         </div>
       </div>
-      
+
       <div className="p-4">
         <h3 className="text-lg font-semibold text-gray-900 mb-2">{car.name}</h3>
-        
+
         <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
           <div className="flex items-center">
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,7 +73,7 @@ const HomePage = () => {
             {car.capacity}
           </div>
         </div>
-        
+
         <div className="flex items-center justify-between">
           <div>
             <div className="text-xl font-bold text-gray-900">${car.price}</div>
@@ -82,7 +82,7 @@ const HomePage = () => {
             )}
             <div className="text-sm text-gray-500">/day</div>
           </div>
-          <Link 
+          <Link
             to={`/cars/${car.id}`}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
           >
@@ -241,7 +241,7 @@ const HomePage = () => {
               </button>
             </div>
             <div className="absolute bottom-0 right-0 w-64 h-48">
-              <img 
+              <img
                 src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=300&fit=crop"
                 alt="Koenigsegg"
                 className="w-full h-full object-cover rounded-lg"
@@ -271,7 +271,7 @@ const HomePage = () => {
               </button>
             </div>
             <div className="absolute bottom-0 right-0 w-64 h-48">
-              <img 
+              <img
                 src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop"
                 alt="Nissan GT-R"
                 className="w-full h-full object-cover rounded-lg"
@@ -281,64 +281,86 @@ const HomePage = () => {
         </div>
 
         {/* Search Section */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Pick-Up */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Pick-Up</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <select className="border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option>Select your city</option>
-                  <option>Ho Chi Minh City</option>
-                  <option>Ha Noi</option>
-                  <option>Da Nang</option>
-                </select>
-                <select className="border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option>Select your date</option>
-                  <option>Today</option>
-                  <option>Tomorrow</option>
-                  <option>Next week</option>
-                </select>
-                <select className="border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option>Select your time</option>
-                  <option>08:00 AM</option>
-                  <option>10:00 AM</option>
-                  <option>12:00 PM</option>
-                </select>
+        <div className='bg-white rounded-2xl p-6 shadow-sm mb-8'>
+          <div className='grid grid-cols-1 lg:grid-cols-7 gap-6 items-end'>
+            {/* Pick-up */}
+            <div className='lg:col-span-3 space-y-4'>
+              <div className='flex items-center space-x-2'>
+                <div className='w-3 h-3 bg-blue-600 rounded-full'></div>
+                <h3 className='text-lg font-semibold text-gray-900'>Pick-up</h3>
+              </div>
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                <div>
+                  <label className='block-text-sm font-medium text-gray-700 mb-2'>Location</label>
+                  <select className='w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500'>
+                    <option>Select your city</option>
+                    <option>Ho Chi Minh City</option>
+                    <option>Hanoi</option>
+                    <option>Da Nang</option>
+                  </select>
+                </div>
+                <div>
+                  <label className='block-text-sm font-medium text-gray-700 mb-2'>Date</label>
+                  <select className='w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500'>
+                    <option>Select your date</option>
+                    <option>Today</option>
+                    <option>Tomorrow</option>
+                    <option>Next week</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
+                  <select className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500">
+                    <option>Select your time</option>
+                    <option>08:00 AM</option>
+                    <option>10:00 AM</option>
+                    <option>12:00 PM</option>
+                  </select>
+                </div>
               </div>
             </div>
-
             {/* Swap Button */}
-            <div className="flex items-center justify-center">
-              <button className="bg-gray-900 text-white p-3 rounded-lg hover:bg-gray-800 transition-colors">
+            <div className='lg:col-span-1 flex justify-center'>
+              <button className='bg-blue-600 text-white p-3 rounded-lg hove:bg-blue-700 transition-colors'>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                 </svg>
               </button>
             </div>
-
-            {/* Drop-Off */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Drop-Off</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <select className="border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option>Select your city</option>
-                  <option>Ho Chi Minh City</option>
-                  <option>Ha Noi</option>
-                  <option>Da Nang</option>
-                </select>
-                <select className="border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option>Select your date</option>
-                  <option>Today</option>
-                  <option>Tomorrow</option>
-                  <option>Next week</option>
-                </select>
-                <select className="border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option>Select your time</option>
-                  <option>08:00 AM</option>
-                  <option>10:00 AM</option>
-                  <option>12:00 PM</option>
-                </select>
+            {/* Drop-off */}
+            <div className='lg:col-span-3 space-y-4'>
+              <div className='flex items-center space-x-2'>
+                <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                <h3 className="text-lg font-semibold text-gray-900">Drop - Off</h3>
+              </div>
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                <div>
+                  <label className='block-text-sm font-medium text-gray-700 mb-2'>Location</label>
+                  <select className='w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500'>
+                    <option>Select your city</option>
+                    <option>Ho Chi Minh City</option>
+                    <option>Hanoi</option>
+                    <option>Da Nang</option>
+                  </select>
+                </div>
+                <div>
+                  <label className='block-text-sm font-medium text-gray-700 mb-2'>Date</label>
+                  <select className='w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500'>
+                    <option>Select your date</option>
+                    <option>Today</option>
+                    <option>Tomorrow</option>
+                    <option>Next week</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
+                  <select className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500">
+                    <option>Select your time</option>
+                    <option>08:00 AM</option>
+                    <option>10:00 AM</option>
+                    <option>12:00 PM</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
@@ -367,7 +389,7 @@ const HomePage = () => {
               <CarCard key={car.id} car={car} />
             ))}
           </div>
-          
+
           <div className="text-center">
             <button className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium mr-4">
               Show more car

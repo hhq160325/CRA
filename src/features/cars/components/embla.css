@@ -1,0 +1,17 @@
+.embla {
+  overflow: hidden;
+}
+
+.embla__container {
+  display: flex;
+}
+
+.embla__slide {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+/* Optional: Add smooth scrolling behavior */
+.embla__container {
+  scroll-behavior: smooth;
+}

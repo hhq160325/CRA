@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-const NavBar = () => {
+const NavBar = ({ onLoginClick, onRegisterClick }) => {
     const [searchQuery, setSearchQuery] = useState('');
 
     return (
@@ -9,7 +9,9 @@ const NavBar = () => {
             <div className="max-w-7xl mx-auto flex items-center justify-between">
                 {/* Logo */}
                 <div className="flex items-center">
-                    <h1 className="text-2xl font-bold text-blue-600">MORENT</h1>
+                    <Link to="/" className="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                        MORENT
+                    </Link>
                 </div>
 
                 {/* Search Bar */}
@@ -63,14 +65,31 @@ const NavBar = () => {
                         </svg>
                     </button>
 
-                    {/* Profile */}
-                    <Link to="/profile" className="flex items-center">
-                        <img
-                            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
-                            alt="Profile"
-                            className="h-10 w-10 rounded-full border-2 border-gray-200 hover:border-blue-500 transition-colors cursor-pointer"
-                        />
-                    </Link>
+                    {/* Auth buttons or Profile */}
+                    {onLoginClick && onRegisterClick ? (
+                        <div className="flex items-center space-x-3">
+                            <button
+                                onClick={onLoginClick}
+                                className="text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                            >
+                                Log in
+                            </button>
+                            <button
+                                onClick={onRegisterClick}
+                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                            >
+                                Sign up
+                            </button>
+                        </div>
+                    ) : (
+                        <Link to="/profile" className="flex items-center">
+                            <img
+                                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
+                                alt="Profile"
+                                className="h-10 w-10 rounded-full border-2 border-gray-200 hover:border-blue-500 transition-colors cursor-pointer"
+                            />
+                        </Link>
+                    )}
                 </div>
             </div>
         </nav>

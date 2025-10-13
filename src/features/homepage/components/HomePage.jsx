@@ -1,31 +1,117 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-
+import { useParams } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { toggleFavorite, selectIsFavorite } from '../../favorites/favoritesSlice';
 const HomePage = () => {
-  const [isFavorited, setIsFavorited] = useState({
-    koenigsegg: true,
-    nissan1: false,
-    rolls: true,
-    nissan2: false,
-    rush: false,
-    crv1: true,
-    terios: false,
-    crv2: true,
-    mg1: true,
-    mg2: false,
-    mg3: true,
-    mg4: false
-  });
+  // const [isCarFavorite, setIsFavorited] = useState({
+  //   koenigsegg: true,
+  //   nissan1: false,
+  //   rolls: true,
+  //   nissan2: false,
+  //   rush: false,
+  //   crv1: true,
+  //   terios: false,
+  //   crv2: true,
+  //   mg1: true,
+  //   mg2: false,
+  //   mg3: true,
+  //   mg4: false
+  // });
 
-  const toggleFavorite = (carId) => {
-    setIsFavorited(prev => ({
-      ...prev,
-      [carId]: !prev[carId]
+  // const handleCarToggleFavorite = (carId) => {
+  //   setIsFavorited(prev => ({
+  //     ...prev,
+  //     [carId]: !prev[carId]
+  //   }));
+  // };
+  const { id } = useParams();
+  const dispatch = useDispatch();
+
+  const popularCars = [
+    {
+      id: 1,
+      name: 'Koenigsegg',
+      type: 'Sport',
+      image: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=300&fit=crop',
+      fuel: '90L',
+      transmission: 'Manual',
+      capacity: '2 People',
+      price: '99.00',
+      originalPrice: '100.00'
+    },
+    {
+      id: 2,
+      name: 'Nissan GT-R',
+      type: 'Sport',
+      image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop',
+      fuel: '90L',
+      transmission: 'Manual',
+      capacity: '2 People',
+      price: '80.00',
+      originalPrice: '100.00'
+    },
+    {
+      id: 3,
+      name: 'Rolls-Royce',
+      type: 'Sedan',
+      image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop',
+      fuel: '70L',
+      transmission: 'Manual',
+      capacity: '4 People',
+      price: '96.00'
+    },
+    {
+      id: 4,
+      name: 'Nissan GT-R',
+      type: 'Sport',
+      image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop',
+      fuel: '80L',
+      transmission: 'Manual',
+      capacity: '2 People',
+      price: '80.00',
+      originalPrice: '100.00'
+    }
+  ];
+
+  const handleToggleFavorite = (carId, carData = null) => {
+    dispatch(toggleFavorite({
+      carId,
+      carData
     }));
   };
+  // const handleMainCarToggleFavorite = () => {
+  //   const mainCarData = {
+  //     id: parseInt(id) || 1,
+  //     name: popularCars.name,
+  //     type: popularCars.type,
+  //     price: popularCars.price,
+  //     originalPrice: popularCars.originalPrice,
+  //     image: popularCars.images[0],
+  //     specifications: popularCars.specifications,
+  //   };
+  //   handleToggleFavorite(parseInt(id) || 1, mainCarData);
+  // };
 
-  const CarCard = ({ car }) => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+  const CarCard = ({ car }) => {
+    const isCarFavorite = useSelector(selectIsFavorite(car.id));
+
+    const handleCarToggleFavorite = () => {
+      const carData = {
+        id: car.id,
+        name: car.name,
+        type: car.type,
+        image: car.image,
+        fuel: car.fuel,
+        transmission: car.transmission,
+        capacity: car.capacity,
+        price: car.price,
+        originalPrice: car.originalPrice
+      };
+      handleToggleFavorite(car.id, carData);
+    };
+
+    return (<div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
       <div className="relative">
         <img
           src={car.image}
@@ -33,12 +119,12 @@ const HomePage = () => {
           className="w-full h-48 object-cover"
         />
         <button
-          onClick={() => toggleFavorite(car.id)}
-          className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow"
+          onClick={handleCarToggleFavorite}
+          className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow text-red-500 hover:text-red-600"
         >
           <svg
-            className={`w-5 h-5 ${isFavorited[car.id] ? 'text-red-500 fill-current' : 'text-gray-400'}`}
-            fill={isFavorited[car.id] ? 'currentColor' : 'none'}
+            className={`w-5 h-5`}
+            fill={isCarFavorite ? 'currentColor' : 'none'}
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
@@ -90,54 +176,10 @@ const HomePage = () => {
           </Link>
         </div>
       </div>
-    </div>
-  );
+    </div>)
+  }
 
-  const popularCars = [
-    {
-      id: 'koenigsegg',
-      name: 'Koenigsegg',
-      type: 'Sport',
-      image: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=300&fit=crop',
-      fuel: '90L',
-      transmission: 'Manual',
-      capacity: '2 People',
-      price: '99.00',
-      originalPrice: '100.00'
-    },
-    {
-      id: 'nissan1',
-      name: 'Nissan GT-R',
-      type: 'Sport',
-      image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop',
-      fuel: '90L',
-      transmission: 'Manual',
-      capacity: '2 People',
-      price: '80.00',
-      originalPrice: '100.00'
-    },
-    {
-      id: 'rolls',
-      name: 'Rolls-Royce',
-      type: 'Sedan',
-      image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop',
-      fuel: '70L',
-      transmission: 'Manual',
-      capacity: '4 People',
-      price: '96.00'
-    },
-    {
-      id: 'nissan2',
-      name: 'Nissan GT-R',
-      type: 'Sport',
-      image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop',
-      fuel: '80L',
-      transmission: 'Manual',
-      capacity: '2 People',
-      price: '80.00',
-      originalPrice: '100.00'
-    }
-  ];
+
 
   const recommendationCars = [
     {

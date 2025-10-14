@@ -107,7 +107,7 @@ const CarRental = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto py-8">
         <div className="flex gap-8">
           {/* Sidebar Filters */}
           <div className="w-72 flex-shrink-0">
@@ -117,67 +117,72 @@ const CarRental = () => {
           {/* Main Content */}
           <div className="flex-1">
             {/* Pick-Up and Drop-Off Section */}
-            <div className="bg-white rounded-xl p-6 mb-8 shadow-sm">
-              <div className="grid grid-cols-2 gap-8">
-                <div>
-                  <div className="flex items-center mb-6">
-                    <div className="w-4 h-4 bg-blue-500 rounded-full mr-3 flex-shrink-0"></div>
-                    <span className="font-semibold text-gray-900">Pick - Up</span>
+            <div className="relative mb-8">
+              <div className="bg-white rounded-xl p-8 shadow-sm">
+                <div className="grid grid-cols-2 gap-16 relative">
+                  {/* Pick-Up Section */}
+                  <div>
+                    <div className="flex items-center mb-6">
+                      <div className="w-4 h-4 bg-blue-500 rounded-full mr-3 flex-shrink-0"></div>
+                      <span className="font-semibold text-gray-900">Pick-Up</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Locations</label>
+                        <select className="w-full p-3 border-0 bg-gray-50 rounded-lg text-sm text-gray-500 focus:outline-none">
+                          <option>Select city</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Date</label>
+                        <select className="w-full p-3 border-0 bg-gray-50 rounded-lg text-sm text-gray-500 focus:outline-none">
+                          <option>Select date</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Time</label>
+                        <select className="w-full p-3 border-0 bg-gray-50 rounded-lg text-sm text-gray-500 focus:outline-none">
+                          <option>Select time</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">Locations</label>
-                      <select className="w-full p-3 border-0 bg-gray-50 rounded-lg text-sm text-gray-500 focus:outline-none">
-                        <option>Select your city</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">Date</label>
-                      <select className="w-full p-3 border-0 bg-gray-50 rounded-lg text-sm text-gray-500 focus:outline-none">
-                        <option>Select your date</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">Time</label>
-                      <select className="w-full p-3 border-0 bg-gray-50 rounded-lg text-sm text-gray-500 focus:outline-none">
-                        <option>Select your time</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
 
-                <div>
-                  <div className="flex items-center mb-6">
-                    <div className="w-4 h-4 bg-blue-300 rounded-full mr-3 flex-shrink-0"></div>
-                    <span className="font-semibold text-gray-900">Drop - Off</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">Locations</label>
-                      <select className="w-full p-3 border-0 bg-gray-50 rounded-lg text-sm text-gray-500 focus:outline-none">
-                        <option>Select your city</option>
-                      </select>
+                  {/* Drop-Off Section */}
+                  <div>
+                    <div className="flex items-center mb-6">
+                      <div className="w-4 h-4 bg-blue-300 rounded-full mr-3 flex-shrink-0"></div>
+                      <span className="font-semibold text-gray-900">Drop-Off</span>
                     </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">Date</label>
-                      <select className="w-full p-3 border-0 bg-gray-50 rounded-lg text-sm text-gray-500 focus:outline-none">
-                        <option>Select your date</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">Time</label>
-                      <select className="w-full p-3 border-0 bg-gray-50 rounded-lg text-sm text-gray-500 focus:outline-none">
-                        <option>Select your time</option>
-                      </select>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Locations</label>
+                        <select className="w-full p-3 border-0 bg-gray-50 rounded-lg text-sm text-gray-500 focus:outline-none">
+                          <option>Select city</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Date</label>
+                        <select className="w-full p-3 border-0 bg-gray-50 rounded-lg text-sm text-gray-500 focus:outline-none">
+                          <option>Select date</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Time</label>
+                        <select className="w-full p-3 border-0 bg-gray-50 rounded-lg text-sm text-gray-500 focus:outline-none">
+                          <option>Select time</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-center mt-8">
-                <button className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-700 transition-colors">
+              {/* Overlapping Swap Button */}
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                <button className="bg-gray-900 text-white p-4 rounded-xl hover:bg-blue-700 shadow-xl drop-shadow-(color:<#103293>)">
                   <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                   </svg>
                 </button>
               </div>
@@ -193,7 +198,7 @@ const CarRental = () => {
             {/* Show More Button */}
             {/* style="display: flex;justify-content: space-between;align-items: center;" */}
             <div className="text-center flex justify-between items-center">
-                <div></div>
+              <div></div>
               <button className="bg-blue-600 text-white px-8 py-4 rounded-xl hover:bg-blue-700 font-semibold transition-colors">
                 Show more car
               </button>

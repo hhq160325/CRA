@@ -21,20 +21,24 @@ const CarFilters = () => {
     { name: '8 or More', count: 16 }
   ];
 
-  const handleTypeChange = (type) => {
-    setSelectedTypes(prev => 
-      prev.includes(type) 
+  const handleTypeChange = (type, event) => {
+    setSelectedTypes(prev =>
+      prev.includes(type)
         ? prev.filter(t => t !== type)
         : [...prev, type]
     );
+    // Remove focus to prevent blue border from persisting
+    event.target.blur();
   };
 
-  const handleCapacityChange = (capacity) => {
-    setSelectedCapacities(prev => 
-      prev.includes(capacity) 
+  const handleCapacityChange = (capacity, event) => {
+    setSelectedCapacities(prev =>
+      prev.includes(capacity)
         ? prev.filter(c => c !== capacity)
         : [...prev, capacity]
     );
+    // Remove focus to prevent blue border from persisting
+    event.target.blur();
   };
 
   return (
@@ -49,13 +53,16 @@ const CarFilters = () => {
                 <input
                   type="checkbox"
                   checked={selectedTypes.includes(type.name)}
-                  onChange={() => handleTypeChange(type.name)}
+                  onChange={(e) => handleTypeChange(type.name, e)}
                   className="w-5 h-5 text-blue-600 border-2 border-gray-200 rounded focus:ring-blue-500 focus:ring-2"
                 />
                 {selectedTypes.includes(type.name) && (
                   <svg className="absolute inset-0 w-5 h-5 text-blue-600 pointer-events-none" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                    <path d="M1827.701 303.065 698.835 1431.801 92.299 825.266 0 917.564 698.835 1616.4 1919.869 395.234z" fill-rule="evenodd"></path>
                   </svg>
+                  // <svg className="absolute inset-0 w-5 h-5 text-blue-600 pointer-events-none" fill="currentColor" viewBox="0 0 20 20">
+                  //   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  // </svg>
                 )}
               </div>
               <span className="ml-4 text-gray-600 flex-1 font-medium group-hover:text-gray-900 transition-colors">{type.name}</span>
@@ -75,12 +82,12 @@ const CarFilters = () => {
                 <input
                   type="checkbox"
                   checked={selectedCapacities.includes(capacity.name)}
-                  onChange={() => handleCapacityChange(capacity.name)}
+                  onChange={(e) => handleCapacityChange(capacity.name, e)}
                   className="w-5 h-5 text-blue-600 border-2 border-gray-200 rounded focus:ring-blue-500 focus:ring-2"
                 />
                 {selectedCapacities.includes(capacity.name) && (
                   <svg className="absolute inset-0 w-5 h-5 text-blue-600 pointer-events-none" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                    <path d="M1827.701 303.065 698.835 1431.801 92.299 825.266 0 917.564 698.835 1616.4 1919.869 395.234z" fill-rule="evenodd"></path>
                   </svg>
                 )}
               </div>

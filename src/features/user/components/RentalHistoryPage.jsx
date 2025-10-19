@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const RentalHistoryPage = () => {
+  const [showSidebar, setShowSidebar] = useState(false);
   const [rentalHistory] = useState([
     {
       id: 1,
@@ -107,9 +108,22 @@ const RentalHistoryPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+      <div className="flex flex-col lg:flex-row">
+        {/* Mobile Header */}
+        <div className="lg:hidden bg-white shadow-sm p-4 flex items-center justify-between">
+          <h1 className="text-xl font-semibold text-gray-900">Rental History</h1>
+          <button
+            onClick={() => setShowSidebar(!showSidebar)}
+            className="p-2 rounded-lg hover:bg-gray-100"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+
         {/* Sidebar */}
-        <div className="w-64 bg-white shadow-sm min-h-screen">
+        <div className={`${showSidebar ? 'block' : 'hidden'} lg:block w-full lg:w-64 bg-white shadow-sm min-h-screen lg:min-h-screen`}>
           <div className="px-6 pt-4">
             <div className="mb-8">
               <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wide mb-4">MAIN MENU</h2>
@@ -196,13 +210,55 @@ const RentalHistoryPage = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-4 sm:p-6 lg:p-8">
           <div className="bg-white rounded-lg shadow-sm">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h1 className="text-xl font-semibold text-gray-900">Rental History</h1>
+            <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+              <h1 className="hidden lg:block text-xl font-semibold text-gray-900">Rental History</h1>
+              <h1 className="lg:hidden text-lg font-semibold text-gray-900">Rental History</h1>
             </div>
             
-            <div className="overflow-x-auto">
+            {/* Mobile Card View */}
+            <div className="lg:hidden">
+              {rentalHistory.map((rental) => (
+                <div key={rental.id} className="border-b border-gray-200 p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-semibold text-gray-900 text-sm">{rental.carName}</h3>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      rental.status === 'Paid' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {rental.status}
+                    </span>
+                  </div>
+                  <div className="space-y-1 text-sm text-gray-600">
+                    <div className="flex justify-between">
+                      <span>Type:</span>
+                      <span>{rental.type}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Brand:</span>
+                      <span>{rental.brand}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Plate No:</span>
+                      <span>{rental.plateNo}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Rent Day:</span>
+                      <span>{rental.rentDay}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Payment Date:</span>
+                      <span>{rental.paymentDate}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden lg:block overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>

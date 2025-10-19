@@ -22,6 +22,8 @@ const ProfilePage = () => {
     email: false
   });
 
+  const [showSidebar, setShowSidebar] = useState(false);
+
   const openDialog = (type) => {
     setDialogs(prev => ({
       ...prev,
@@ -75,9 +77,22 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+      <div className="flex flex-col lg:flex-row">
+        {/* Mobile Header */}
+        <div className="lg:hidden bg-white shadow-sm p-4 flex items-center justify-between">
+          <h1 className="text-xl font-semibold text-gray-900">My Profile</h1>
+          <button
+            onClick={() => setShowSidebar(!showSidebar)}
+            className="p-2 rounded-lg hover:bg-gray-100"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+
         {/* Sidebar */}
-        <div className="w-64 bg-white shadow-sm min-h-screen">
+        <div className={`${showSidebar ? 'block' : 'hidden'} lg:block w-full lg:w-64 bg-white shadow-sm min-h-screen lg:min-h-screen`}>
           <div className="px-6 pt-4">
             <div className="mb-8">
               <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wide mb-4">MAIN MENU</h2>
@@ -164,13 +179,14 @@ const ProfilePage = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-8">
-          <div className="bg-white rounded-lg shadow-sm p-8 max-w-4xl">
-            <div className="flex items-center justify-between mb-8">
-              <h1 className="text-2xl font-semibold text-gray-900">Account Information</h1>
+        <div className="flex-1 p-4 sm:p-6 lg:p-8">
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 lg:p-8 max-w-4xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 lg:mb-8">
+              <h1 className="hidden lg:block text-2xl font-semibold text-gray-900">Account Information</h1>
+              <h1 className="lg:hidden text-xl font-semibold text-gray-900 mb-4 sm:mb-0">Account Information</h1>
               <button
                 onClick={() => handleEdit('profile')}
-                className="text-blue-600 hover:text-blue-700"
+                className="text-blue-600 hover:text-blue-700 self-start sm:self-auto"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -178,24 +194,24 @@ const ProfilePage = () => {
               </button>
             </div>
 
-            <div className="flex items-start space-x-8">
+            <div className="flex flex-col lg:flex-row lg:items-start space-y-6 lg:space-y-0 lg:space-x-8">
               {/* Profile Image and Info */}
-              <div className="flex-shrink-0">
-                <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 mb-4">
+              <div className="flex-shrink-0 flex flex-col items-center lg:items-start">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-gray-200 mb-4">
                   <img
                     src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="text-center">
-                  <h2 className="text-xl font-semibold text-gray-900">{userInfo.name}</h2>
+                <div className="text-center lg:text-left">
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">{userInfo.name}</h2>
                   <p className="text-sm text-gray-500">{userInfo.joinDate}</p>
                 </div>
               </div>
 
               {/* Profile Information */}
-              <div className="flex-1 grid grid-cols-2 gap-6">
+              <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
                   <div className="text-gray-900">{userInfo.dateOfBirth}</div>
@@ -206,17 +222,17 @@ const ProfilePage = () => {
                   <div className="text-gray-900">{userInfo.gender}</div>
                 </div>
 
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
                   <div className="flex items-center justify-between">
                     {userInfo.phoneNumber ? (
-                      <span className="text-gray-900">{userInfo.phoneNumber}</span>
+                      <span className="text-gray-900 break-all">{userInfo.phoneNumber}</span>
                     ) : (
                       <span className="text-red-500 text-sm">Add Phone Number</span>
                     )}
                     <button
                       onClick={() => handleEdit('phoneNumber')}
-                      className="text-blue-600 hover:text-blue-700"
+                      className="text-blue-600 hover:text-blue-700 ml-2 flex-shrink-0"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -225,16 +241,16 @@ const ProfilePage = () => {
                   </div>
                 </div>
 
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-gray-900">{userInfo.email}</span>
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Verified</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 min-w-0 flex-1">
+                      <span className="text-gray-900 break-all">{userInfo.email}</span>
+                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded self-start">Verified</span>
                     </div>
                     <button
                       onClick={() => handleEdit('email')}
-                      className="text-blue-600 hover:text-blue-700"
+                      className="text-blue-600 hover:text-blue-700 ml-2 flex-shrink-0"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -243,17 +259,17 @@ const ProfilePage = () => {
                   </div>
                 </div>
 
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Facebook</label>
                   <div className="flex items-center justify-between">
                     {userInfo.facebook ? (
-                      <span className="text-gray-900">{userInfo.facebook}</span>
+                      <span className="text-gray-900 break-all">{userInfo.facebook}</span>
                     ) : (
                       <span className="text-blue-600 text-sm cursor-pointer">Add link</span>
                     )}
                     <button
                       onClick={() => handleEdit('facebook')}
-                      className="text-blue-600 hover:text-blue-700"
+                      className="text-blue-600 hover:text-blue-700 ml-2 flex-shrink-0"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -262,13 +278,13 @@ const ProfilePage = () => {
                   </div>
                 </div>
 
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Google</label>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-900">{userInfo.google}</span>
+                    <span className="text-gray-900 break-all">{userInfo.google}</span>
                     <button
                       onClick={() => handleEdit('google')}
-                      className="text-blue-600 hover:text-blue-700"
+                      className="text-blue-600 hover:text-blue-700 ml-2 flex-shrink-0"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />

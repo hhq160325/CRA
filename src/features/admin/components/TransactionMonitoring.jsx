@@ -323,7 +323,7 @@ const TransactionMonitoring = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">${transaction.amount.toFixed(2)}</div>
+                      <div className="text-sm font-medium text-gray-900">${typeof transaction.amount === 'number' ? transaction.amount.toFixed(2) : (parseFloat(transaction.amount) || 0).toFixed(2)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(transaction.status)}`}>
@@ -374,7 +374,7 @@ const TransactionMonitoring = () => {
                   <p className="text-sm mb-2">{alert.message}</p>
                   <div className="flex justify-between items-center text-xs opacity-75">
                     <span>{alert.user}</span>
-                    <span>${alert.amount.toFixed(2)}</span>
+                    <span>${typeof alert.amount === 'number' ? alert.amount.toFixed(2) : (parseFloat(alert.amount) || 0).toFixed(2)}</span>
                   </div>
                   <div className="text-xs opacity-75 mt-1">{alert.timestamp}</div>
                 </div>

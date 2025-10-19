@@ -71,10 +71,10 @@ const CarCard = ({ car, onToggleFavorite }) => {
 
             <div className="flex justify-between items-center">
                 <div>
-                    <span className="text-xl font-bold text-gray-900">${car.price.toFixed(2)}/</span>
+                    <span className="text-xl font-bold text-gray-900">${typeof car.price === 'number' ? car.price.toFixed(2) : (parseFloat(car.price) || 0).toFixed(2)}/</span>
                     <span className="text-gray-500">day</span>
                     {car.originalPrice && (
-                        <span className="text-gray-400 line-through ml-2">${car.originalPrice.toFixed(2)}</span>
+                        <span className="text-gray-400 line-through ml-2">${typeof car.originalPrice === 'number' ? car.originalPrice.toFixed(2) : (parseFloat(car.originalPrice) || 0).toFixed(2)}</span>
                     )}
                 </div>
                 <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
@@ -92,27 +92,8 @@ const RecentCarsCarousel = ({ cars, onToggleFavorite }) => {
         containScroll: 'trimSnaps',
         keyboard: true
     });
-    const [selectedIndex, setSelectedIndex] = useState(0);
-    const [scrollSnaps, setScrollSnaps] = useState([]);
 
-    const scrollTo = useCallback((index) => emblaApi && emblaApi.scrollTo(index), [emblaApi]);
 
-    const onInit = useCallback((emblaApi) => {
-        setScrollSnaps(emblaApi.scrollSnapList());
-    }, []);
-
-    const onSelect = useCallback((emblaApi) => {
-        setSelectedIndex(emblaApi.selectedScrollSnap());
-    }, []);
-
-    useEffect(() => {
-        if (!emblaApi) return;
-
-        onInit(emblaApi);
-        onSelect(emblaApi);
-        emblaApi.on('reInit', onInit);
-        emblaApi.on('select', onSelect);
-    }, [emblaApi, onInit, onSelect]);
 
     return (
         <div className="relative">
@@ -132,33 +113,12 @@ const RecentCarsCarousel = ({ cars, onToggleFavorite }) => {
 };
 
 const RecommendationCarsCarousel = ({ cars, onToggleFavorite }) => {
-    const [emblaRef, emblaApi] = useEmblaCarousel({
+    const [emblaRef] = useEmblaCarousel({
         align: 'start',
         dragFree: true,
         containScroll: 'trimSnaps',
         keyboard: true
     });
-    const [selectedIndex, setSelectedIndex] = useState(0);
-    const [scrollSnaps, setScrollSnaps] = useState([]);
-
-    const scrollTo = useCallback((index) => emblaApi && emblaApi.scrollTo(index), [emblaApi]);
-
-    const onInit = useCallback((emblaApi) => {
-        setScrollSnaps(emblaApi.scrollSnapList());
-    }, []);
-
-    const onSelect = useCallback((emblaApi) => {
-        setSelectedIndex(emblaApi.selectedScrollSnap());
-    }, []);
-
-    useEffect(() => {
-        if (!emblaApi) return;
-
-        onInit(emblaApi);
-        onSelect(emblaApi);
-        emblaApi.on('reInit', onInit);
-        emblaApi.on('select', onSelect);
-    }, [emblaApi, onInit, onSelect]);
 
     return (
         <div className="relative">
@@ -505,11 +465,11 @@ const CarDetail = () => {
                         <div className="flex items-center justify-between">
                             <div>
                                 <div className="flex items-baseline gap-1">
-                                    <span className="text-4xl font-bold text-gray-900">${carData.price.toFixed(2)}/</span>
+                                    <span className="text-4xl font-bold text-gray-900">${typeof carData.price === 'number' ? carData.price.toFixed(2) : (parseFloat(carData.price) || 0).toFixed(2)}/</span>
                                     <span className="text-gray-500 text-lg">day</span>
                                 </div>
                                 {carData.originalPrice && (
-                                    <div className="text-gray-400 line-through text-lg mt-1">${carData.originalPrice.toFixed(2)}</div>
+                                    <div className="text-gray-400 line-through text-lg mt-1">${typeof carData.originalPrice === 'number' ? carData.originalPrice.toFixed(2) : (parseFloat(carData.originalPrice) || 0).toFixed(2)}</div>
                                 )}
                             </div>
                             <button className="bg-blue-600 text-white px-10 py-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg">

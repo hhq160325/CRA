@@ -76,11 +76,11 @@ const CarCard = ({ car }) => {
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
                 <div>
                     <div className="flex items-baseline">
-                        <span className="text-xl font-bold text-gray-900">${car.price.toFixed(2)}/</span>
+                        <span className="text-xl font-bold text-gray-900">${typeof car.price === 'number' ? car.price.toFixed(2) : (parseFloat(car.price) || 0).toFixed(2)}/</span>
                         <span className="text-gray-500">day</span>
                     </div>
                     {car.originalPrice && (
-                        <div className="text-gray-400 line-through text-sm mt-1">${car.originalPrice.toFixed(2)}</div>
+                        <div className="text-gray-400 line-through text-sm mt-1">${typeof car.originalPrice === 'number' ? car.originalPrice.toFixed(2) : (parseFloat(car.originalPrice) || 0).toFixed(2)}</div>
                     )}
                 </div>
                 <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto">

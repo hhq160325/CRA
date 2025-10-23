@@ -31,7 +31,7 @@ const RecentTransaction = () => {
             <div className="flex items-center space-x-4">
               {/* Car Image */}
               {getCarImage(transaction.car)}
-              
+
               <div>
                 <h3 className="font-semibold text-gray-900 text-sm">{transaction.car}</h3>
                 <p className="text-sm text-gray-500">{transaction.type}</p>
@@ -41,7 +41,7 @@ const RecentTransaction = () => {
             <div className="text-right">
               <div className="text-sm text-gray-500 mb-1">{transaction.date}</div>
               <div className="font-semibold text-gray-900">
-                ${transaction.price.toFixed(2)}
+                ${typeof transaction.price === 'number' ? transaction.price.toFixed(2) : (parseFloat(transaction.price) || 0).toFixed(2)}
               </div>
             </div>
           </div>

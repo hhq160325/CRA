@@ -162,11 +162,10 @@ const HomePage = () => {
 
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xl font-bold text-gray-900">${car.price}</div>
+            <div className='flex items-center'><div className="text-xl font-bold text-gray-900">${car.price}</div><div className="text-sm text-slate-400">/day</div></div>
             {car.originalPrice && (
               <div className="text-sm text-gray-500 line-through">${car.originalPrice}</div>
             )}
-            <div className="text-sm text-gray-500">/day</div>
           </div>
           <Link
             to={`/cars/${car.id}`}

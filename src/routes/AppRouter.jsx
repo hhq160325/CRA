@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import { RegisterCar, RegisterCarStep2, RegisterCarStep3, CarDetail } from '../features/cars';
+import { RegisterCar, RegisterCarStep2, RegisterCarStep3, CarDetail, CarRental } from '../features/cars';
 import { ProfilePage } from '../features/user';
 import { FavouriteCarPage } from '../features/user/components';
 import { RentalHistoryPage } from '../features/user/components';
@@ -20,7 +20,7 @@ const AppRouter = () => {
       <Route path="/register-car/step-3" element={<RegisterCarStep3 />} />
       <Route path="/profile/favourite-car" element={<FavouriteCarPage />} />
       <Route path="/profile/rental-history" element={<RentalHistoryPage />} />
-      <Route path="/cars" element={<HomePage />} />
+      <Route path="/cars" element={<CarRental />} />
       <Route path="/cars/:id" element={<CarDetail />} />
       <Route path="/payment" element={<PaymentPage />} />
       

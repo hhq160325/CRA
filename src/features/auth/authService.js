@@ -2,9 +2,39 @@
 import { AUTH_ENDPOINTS } from "./api";
 import { authApiCall, tokenUtils } from "./utils";
 
+// Mock user data for testing
+const MOCK_USER = {
+  email: "khangTEST02@gmail.com",
+  password: "123456"
+};
+
 // Login function
 export const login = async (credentials) => {
   try {
+    // Check for mock credentials first
+    if (credentials.email === MOCK_USER.email && credentials.password === MOCK_USER.password) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const mockResponse = {
+        success: true,
+        message: "Login successful",
+        accessToken: "mock_access_token_" + Date.now(),
+        refreshToken: "mock_refresh_token_" + Date.now(),
+        user: {
+          id: 1,
+          email: MOCK_USER.email,
+          name: "Khang Test User",
+          role: "user",
+          avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
+        }
+      };
+
+      // Store tokens
+      tokenUtils.storeTokens(mockResponse.accessToken, mockResponse.refreshToken, mockResponse.user);
+      
+      return mockResponse;
+    }
+
+    // For non-mock credentials, proceed with actual API call
     const data = await authApiCall(AUTH_ENDPOINTS.LOGIN, {
       body: credentials,
     });

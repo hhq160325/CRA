@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { logout } from '../../auth/authService';
 import UpdateProfileDialog from './UpdateProfileDialog';
 import UpdatePhoneDialog from './UpdatePhoneDialog';
 import UpdateEmailDialog from './UpdateEmailDialog';
@@ -24,6 +25,18 @@ const ProfilePage = () => {
 
   const [showSidebar, setShowSidebar] = useState(false);
 
+  const navigate = useNavigate();
+
+  const handleLogout = async () =>{
+    try {
+      await logout();
+      navigate ('/auth'); //REturn to homepage after login
+    } catch (error) {
+      console.error('Logout failed:',error)
+      //Still redirect even if logout API call fails
+      navigate('/auth');
+    }
+  }
   const openDialog = (type) => {
     setDialogs(prev => ({
       ...prev,
@@ -168,12 +181,15 @@ const ProfilePage = () => {
             </div>
 
             <div className="pt-4 border-t">
-              <a href="#" className="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+              <button 
+                onClick={handleLogout}
+                className="w-full flex items-center px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+              >
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
                 Log Out
-              </a>
+              </button>
             </div>
           </div>
         </div>

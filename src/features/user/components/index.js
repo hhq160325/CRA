@@ -1,6 +1,6 @@
 export { default as ProfilePage } from './ProfilePage';
-export { default as RentalHistoryPage } from './RentalHistoryPage';
-export { default as FavouriteCarPage } from './FavouriteCarPage';
-export { default as UpdateProfileDialog } from './UpdateProfileDialog';
-export { default as UpdateEmailDialog } from './UpdateEmailDialog';
-export { default as UpdatePhoneDialog } from './UpdatePhoneDialog';
+export { default as RentalHistoryPage } from './ProfilePageTabs/RentalHistoryPage';
+export { default as FavouriteCarPage } from './ProfilePageTabs/FavouriteCarPage';
+export { default as UpdateProfileDialog } from './ProfilePageTabs/MyProfileDialog/UpdateProfileDialog';
+export { default as UpdateEmailDialog } from './ProfilePageTabs/MyProfileDialog/UpdateEmailDialog';
+export { default as UpdatePhoneDialog } from './ProfilePageTabs/MyProfileDialog/UpdatePhoneDialog';

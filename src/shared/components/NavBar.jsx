@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { selectIsAuthenticated } from '../../features/auth/authSlice';
 
-const NavBar = ({ onLoginClick, onRegisterClick }) => {
+const NavBar = () => {
     const [searchQuery, setSearchQuery] = useState('');
+    const isAuthenticated = useSelector(selectIsAuthenticated);
 
     return (
         <nav className="bg-white shadow-sm border-b border-gray-100 px-6 py-4">
@@ -42,7 +45,10 @@ const NavBar = ({ onLoginClick, onRegisterClick }) => {
                 {/* Right Side Icons */}
                 <div className="flex items-center space-x-4">
                     {/* Heart/Favorites */}
-                    <Link to="/profile/favourite-car" className="p-2 text-gray-400 hover:text-gray-600 relative">
+                    <Link
+                        to={isAuthenticated ? "/profile/favourite-car" : "/auth"}
+                        className="p-2 text-gray-400 hover:text-gray-600 relative"
+                    >
                         <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
@@ -53,7 +59,7 @@ const NavBar = ({ onLoginClick, onRegisterClick }) => {
                         {/* <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4 19h10a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg> */}
-                        <svg fill="#9ca3af"  stroke="currentColor" className="h-6 w-6" viewBox="0 0 24 24" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
+                        <svg fill="#9ca3af" stroke="currentColor" className="h-6 w-6" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 611.999 611.999">
                             <g>
                                 <g>
@@ -89,20 +95,20 @@ const NavBar = ({ onLoginClick, onRegisterClick }) => {
                     </button>
 
                     {/* Auth buttons or Profile */}
-                    {onLoginClick && onRegisterClick ? (
+                    {!isAuthenticated ? (
                         <div className="flex items-center space-x-3">
-                            <button
-                                onClick={onLoginClick}
+                            <Link
+                                to="/auth"
                                 className="text-gray-700 hover:text-gray-900 font-medium transition-colors"
                             >
-                                Log in
-                            </button>
-                            <button
-                                onClick={onRegisterClick}
+                                Sign In
+                            </Link>
+                            <Link
+                                to="/auth"
                                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
                             >
-                                Sign up
-                            </button>
+                                Sign Up
+                            </Link>
                         </div>
                     ) : (
                         <Link to="/profile" className="flex items-center">

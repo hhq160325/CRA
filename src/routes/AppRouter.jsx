@@ -2,8 +2,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RegisterCar, RegisterCarStep2, RegisterCarStep3, CarDetail, CarRental } from '../features/cars';
 import { ProfilePage } from '../features/user';
-import { FavouriteCarPage } from '../features/user/components';
-import { RentalHistoryPage } from '../features/user/components';
 import { PaymentPage } from '../features/payment';
 import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring } from '../features/admin';
 import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter } from '../features/staff';
@@ -26,11 +24,11 @@ const AppRouter = () => {
       
       {/* Protected routes - authentication required */}
       <Route path="/profile" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
+      <Route path="/profile/favourite-car" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
+      <Route path="/profile/rental-history" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/register-car" element={isAuthenticated ? <RegisterCar /> : <Navigate to="/auth" replace />} />
       <Route path="/register-car/step-2" element={isAuthenticated ? <RegisterCarStep2 /> : <Navigate to="/auth" replace />} />
       <Route path="/register-car/step-3" element={isAuthenticated ? <RegisterCarStep3 /> : <Navigate to="/auth" replace />} />
-      <Route path="/profile/favourite-car" element={isAuthenticated ? <FavouriteCarPage /> : <Navigate to="/auth" replace />} />
-      <Route path="/profile/rental-history" element={isAuthenticated ? <RentalHistoryPage /> : <Navigate to="/auth" replace />} />
       <Route path="/payment" element={isAuthenticated ? <PaymentPage /> : <Navigate to="/auth" replace />} />
       
       {/* Admin Routes */}

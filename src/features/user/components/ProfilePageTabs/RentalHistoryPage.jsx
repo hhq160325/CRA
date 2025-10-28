@@ -198,14 +198,7 @@ const RentalHistoryPage = () => {
               </nav>
             </div>
 
-            <div className="pt-4 border-t">
-              <a href="#" className="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
-                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                Log Out
-              </a>
-            </div>
+
           </div>
         </div>
 
@@ -216,18 +209,17 @@ const RentalHistoryPage = () => {
               <h1 className="hidden lg:block text-xl font-semibold text-gray-900">Rental History</h1>
               <h1 className="lg:hidden text-lg font-semibold text-gray-900">Rental History</h1>
             </div>
-            
+
             {/* Mobile Card View */}
             <div className="lg:hidden">
               {rentalHistory.map((rental) => (
                 <div key={rental.id} className="border-b border-gray-200 p-4">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="font-semibold text-gray-900 text-sm">{rental.carName}</h3>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      rental.status === 'Paid' 
-                        ? 'bg-green-100 text-green-800' 
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${rental.status === 'Paid'
+                        ? 'bg-green-100 text-green-800'
                         : 'bg-red-100 text-red-800'
-                    }`}>
+                      }`}>
                       {rental.status}
                     </span>
                   </div>
@@ -282,11 +274,10 @@ const RentalHistoryPage = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.plateNo}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.rentDay}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          rental.status === 'Paid' 
-                            ? 'bg-green-100 text-green-800' 
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${rental.status === 'Paid'
+                            ? 'bg-green-100 text-green-800'
                             : 'bg-red-100 text-red-800'
-                        }`}>
+                          }`}>
                           {rental.status}
                         </span>
                       </td>

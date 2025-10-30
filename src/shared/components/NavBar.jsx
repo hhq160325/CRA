@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectIsAuthenticated } from '../../features/auth/authSlice';
+import Modal from './Modal';
 
 const NavBar = () => {
     const [searchQuery, setSearchQuery] = useState('');
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
     const isAuthenticated = useSelector(selectIsAuthenticated);
 
     return (
@@ -33,9 +35,15 @@ const NavBar = () => {
                             className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
                         />
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                            <button className="p-1 text-gray-400 hover:text-gray-600">
+                            <button
+                                type="button"
+                                onClick={() => setIsFilterOpen(true)}
+                                aria-label="Open filters"
+                                className="p-1 text-gray-400 hover:text-gray-600"
+                            >
+                                {/* Filter funnel icon */}
                                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18M6 10h12M10 16h4" />
                                 </svg>
                             </button>
                         </div>
@@ -122,6 +130,61 @@ const NavBar = () => {
                 </div>
             </div>
         </nav>
+
+        {/* Filter Modal */}
+        <Modal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)}>
+            <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Car type</label>
+                        <select className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Any</option>
+                            <option value="sedan">Sedan</option>
+                            <option value="suv">SUV</option>
+                            <option value="hatchback">Hatchback</option>
+                            <option value="luxury">Luxury</option>
+                        </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Min price</label>
+                            <input type="number" placeholder="$0" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Max price</label>
+                            <input type="number" placeholder="$500" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                            <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                            Automatic
+                        </label>
+                        <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                            <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                            Manual
+                        </label>
+                    </div>
+                </div>
+                <div className="mt-6 flex items-center justify-end gap-3">
+                    <button
+                        type="button"
+                        onClick={() => setIsFilterOpen(false)}
+                        className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setIsFilterOpen(false)}
+                        className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                    >
+                        Apply
+                    </button>
+                </div>
+            </div>
+        </Modal>
     );
 };
 

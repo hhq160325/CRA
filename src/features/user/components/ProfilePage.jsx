@@ -5,6 +5,9 @@ import { logoutUser } from '../../auth/authSlice';
 import MyProfile from './ProfilePageTabs/MyProfile';
 import FavouriteCarPage from './ProfilePageTabs/FavouriteCarPage';
 import RentalHistoryPage from './ProfilePageTabs/RentalHistoryPage';
+import InboxPage from './ProfilePageTabs/InboxPage';
+import CalendarPage from './ProfilePageTabs/CalendarPage';
+import ReimbursePage from './ProfilePageTabs/ReimbursePage';
 
 // Combined ProfileSidebar component (previously separate)
 const ProfileSidebar = () => {
@@ -31,6 +34,12 @@ const ProfileSidebar = () => {
         return 'Rental History';
       case '/profile/favourite-car':
         return 'Favourite Cars';
+      case '/profile/inbox':
+        return 'Inbox';
+      case '/profile/calendar':
+        return 'Calendar';
+      case '/profile/reimburse':
+        return 'Reimburse';
       default:
         return 'My Profile';
     }
@@ -95,24 +104,33 @@ const ProfileSidebar = () => {
                 </svg>
                 Favourite Car
               </Link>
-              <a href="#" className="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+              <Link to="/profile/reimburse" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/reimburse')
+                  ? 'text-white bg-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+                  }`}>
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 Reimburse
-              </a>
-              <a href="#" className="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+              </Link>
+              <Link to="/profile/inbox" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/inbox')
+                  ? 'text-white bg-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+                  }`}>
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
                 Inbox
-              </a>
-              <a href="#" className="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+              </Link>
+              <Link to="/profile/calendar" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/calendar')
+                  ? 'text-white bg-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+                  }`}>
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 Calendar
-              </a>
+              </Link>
             </nav>
           </div>
 
@@ -173,6 +191,12 @@ const ProfilePage = () => {
         return <RentalHistoryPage />;
       case '/profile/favourite-car':
         return <FavouriteCarPage />;
+      case '/profile/inbox':
+        return <InboxPage />;
+      case '/profile/calendar':
+        return <CalendarPage />;
+      case '/profile/reimburse':
+        return <ReimbursePage />;
       case '/profile':
       default:
         return <MyProfile />;

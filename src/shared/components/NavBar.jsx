@@ -10,6 +10,7 @@ const NavBar = () => {
     const isAuthenticated = useSelector(selectIsAuthenticated);
 
     return (
+        <>
         <nav className="bg-white shadow-sm border-b border-gray-100 px-6 py-4">
             <div className="max-w-7xl mx-auto flex items-center justify-between">
                 {/* Logo */}
@@ -185,6 +186,7 @@ const NavBar = () => {
                 </div>
             </div>
         </Modal>
+        </>
     );
 };
 

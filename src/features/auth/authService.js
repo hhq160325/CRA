@@ -1,6 +1,7 @@
 // Service functions for auth
 import { AUTH_ENDPOINTS } from "./api";
 import { authApiCall, tokenUtils } from "./utils";
+import { logout } from "../../shared/authGlobal";
 
 // Mock user data for testing
 const MOCK_USER = {
@@ -135,18 +136,8 @@ export const refreshToken = async () => {
   }
 };
 
-// Logout function
-export const logout = async () => {
-  try {
-    // Call logout endpoint to invalidate token on server
-    await authApiCall(AUTH_ENDPOINTS.LOGOUT);
-  } catch (error) {
-    console.error("Logout error:", error);
-  } finally {
-    // Clear local storage regardless of API call success
-    tokenUtils.clearTokens();
-  }
-};
+// Export logout function from shared location
+export { logout };
 
 // Export token utilities for convenience
 export const getCurrentUser = tokenUtils.getCurrentUser;

@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser, clearError, selectIsLoading, selectError } from '../authSlice';
 
 const Login = ({ onSwitchToRegister }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const isLoading = useSelector(selectIsLoading);
   const error = useSelector(selectError);
   
@@ -124,6 +126,7 @@ const Login = ({ onSwitchToRegister }) => {
             <button
               type="button"
               className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+              onClick={() => navigate('/auth/forgot-password')}
             >
               Forgot password?
             </button>

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import Modal from '../../../../shared/components/Modal';
 
 const sampleMessages = [
   { id: 1, sender: 'Support', subject: 'Welcome to MORENT', body: 'Thanks for joining!', date: '2025-10-01T09:15:00Z', read: true, tag: 'system' },
@@ -40,12 +41,19 @@ const InboxPage = () => {
     setMessages(prev => prev.map(m => m.id === id ? { ...m, read: !m.read } : m));
   };
 
-  const deleteMsg = (id) => {
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [confirmTitle, setConfirmTitle] = useState('');
+
+  const requestDelete = (id) => {
     const msg = messages.find(m => m.id === id);
-    const title = msg ? `“${msg.subject}”` : 'this message';
-    const confirmed = window.confirm(`Delete ${title}? This action cannot be undone.`);
-    if (!confirmed) return;
-    setMessages(prev => prev.filter(m => m.id !== id));
+    setConfirmDeleteId(id);
+    setConfirmTitle(msg ? `“${msg.subject}”` : 'this message');
+  };
+
+  const confirmDelete = () => {
+    if (confirmDeleteId == null) return;
+    setMessages(prev => prev.filter(m => m.id !== confirmDeleteId));
+    setConfirmDeleteId(null);
   };
 
   const markAllAsRead = () => setMessages(prev => prev.map(m => ({ ...m, read: true })));
@@ -99,7 +107,7 @@ const InboxPage = () => {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <button onClick={()=>toggleRead(m.id)} className="px-2 py-1 text-xs rounded border border-gray-300 text-gray-700 hover:bg-gray-50">{m.read ? 'Mark unread' : 'Mark read'}</button>
-              <button onClick={()=>deleteMsg(m.id)} className="px-2 py-1 text-xs rounded border border-red-300 text-red-600 hover:bg-red-50">Delete</button>
+              <button onClick={()=>requestDelete(m.id)} className="px-2 py-1 text-xs rounded border border-red-300 text-red-600 hover:bg-red-50">Delete</button>
             </div>
           </div>
         ))}
@@ -112,6 +120,17 @@ const InboxPage = () => {
           <button disabled={page===totalPages} onClick={()=>setPage(p=>Math.min(totalPages, p+1))} className={`px-3 py-1 rounded border ${page===totalPages ? 'text-gray-300 border-gray-200' : 'text-gray-700 border-gray-300 hover:bg-gray-50'}`}>Next</button>
         </div>
       </div>
+
+      <Modal isOpen={confirmDeleteId != null} onClose={() => setConfirmDeleteId(null)}>
+        <div className="p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete message</h3>
+          <p className="text-sm text-gray-600 mb-6">Delete {confirmTitle}? This action cannot be undone.</p>
+          <div className="flex items-center justify-end gap-3">
+            <button onClick={() => setConfirmDeleteId(null)} className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">Cancel</button>
+            <button onClick={confirmDelete} className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">Delete</button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

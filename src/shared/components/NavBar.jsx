@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectIsAuthenticated } from '../../features/auth/authSlice';
@@ -7,7 +7,25 @@ import Modal from './Modal';
 const NavBar = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
     const isAuthenticated = useSelector(selectIsAuthenticated);
+
+    // Simple mock notifications; replace with real data when wired to backend
+    const notifications = [
+        { id: 1, title: 'Booking successful', type: 'success' }
+    ];
+
+    const notificationRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+                setIsNotificationOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     return (
         <>
@@ -64,7 +82,14 @@ const NavBar = () => {
                     </Link>
 
                     {/* Notifications */}
-                    <button className="p-2 text-gray-400 hover:text-gray-600 relative">
+                    <div className="relative" ref={notificationRef}>
+                    <button
+                        type="button"
+                        onClick={() => setIsNotificationOpen((v) => !v)}
+                        aria-haspopup="menu"
+                        aria-expanded={isNotificationOpen}
+                        className="p-2 text-gray-400 hover:text-gray-600 relative"
+                    >
                         {/* <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4 19h10a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg> */}
@@ -94,6 +119,37 @@ const NavBar = () => {
                         {/* Notification badge */}
                         <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
                     </button>
+
+                    {isNotificationOpen && (
+                        <div
+                            role="menu"
+                            aria-label="Notifications"
+                            className="absolute right-0 mt-3 w-72 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50"
+                        >
+                            <div className="px-4 py-3 border-b border-gray-100">
+                                <p className="text-sm font-semibold text-gray-900">Notification</p>
+                            </div>
+                            <ul className="max-h-80 overflow-auto">
+                                {notifications.length === 0 && (
+                                    <li className="px-4 py-4 text-sm text-gray-500">No notifications</li>
+                                )}
+                                {notifications.map((n) => (
+                                    <li key={n.id} className="px-4 py-3 hover:bg-gray-50 flex items-start gap-3">
+                                        {/* success icon */}
+                                        <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-green-100">
+                                            <svg className="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M20 6L9 17l-5-5" />
+                                            </svg>
+                                        </span>
+                                        <div className="min-w-0">
+                                            <p className="text-sm text-gray-900">{n.title}</p>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                    </div>
 
                     {/* Settings */}
                     <button className="p-2 text-gray-400 hover:text-gray-600">

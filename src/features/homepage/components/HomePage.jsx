@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleFavorite, selectIsFavorite } from '../../favorites/favoritesSlice';
 const HomePage = () => {
@@ -25,7 +24,6 @@ const HomePage = () => {
   //     [carId]: !prev[carId]
   //   }));
   // };
-  const { id } = useParams();
   const dispatch = useDispatch();
 
   const popularCars = [

@@ -17,24 +17,24 @@ const Footer = () => {
                         <h3 className="font-semibold text-gray-900 mb-4">About</h3>
                         <ul className="space-y-3">
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                                <button type="button" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
                                     How it works
-                                </a>
+                                </button>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                                <button type="button" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
                                     Featured
-                                </a>
+                                </button>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                                <button type="button" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
                                     Partnership
-                                </a>
+                                </button>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                                <button type="button" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
                                     Business Relation
-                                </a>
+                                </button>
                             </li>
                         </ul>
                     </div>
@@ -44,24 +44,24 @@ const Footer = () => {
                         <h3 className="font-semibold text-gray-900 mb-4">Community</h3>
                         <ul className="space-y-3">
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                                <button type="button" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
                                     Events
-                                </a>
+                                </button>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                                <button type="button" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
                                     Blog
-                                </a>
+                                </button>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                                <button type="button" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
                                     Podcast
-                                </a>
+                                </button>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                                <button type="button" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
                                     Invite a friend
-                                </a>
+                                </button>
                             </li>
                         </ul>
                     </div>
@@ -71,24 +71,24 @@ const Footer = () => {
                         <h3 className="font-semibold text-gray-900 mb-4">Socials</h3>
                         <ul className="space-y-3">
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                                <button type="button" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
                                     Discord
-                                </a>
+                                </button>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                                <button type="button" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
                                     Instagram
-                                </a>
+                                </button>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                                <button type="button" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
                                     Twitter
-                                </a>
+                                </button>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                                <button type="button" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
                                     Facebook
-                                </a>
+                                </button>
                             </li>
                         </ul>
                     </div>
@@ -101,12 +101,12 @@ const Footer = () => {
                             ©2022 MORENT. All rights reserved
                         </p>
                         <div className="flex space-x-8 mt-4 md:mt-0">
-                            <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                            <button type="button" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
                                 Privacy & Policy
-                            </a>
-                            <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                            </button>
+                            <button type="button" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
                                 Terms & Condition
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>

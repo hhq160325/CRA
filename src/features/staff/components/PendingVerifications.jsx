@@ -1,4 +1,3 @@
-import { useSelector } from 'react-redux';
 
 const PendingVerifications = () => {
   // Mock data for pending verifications

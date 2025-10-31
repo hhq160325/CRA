@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectIsAuthenticated } from '../../features/auth/authSlice';
 import Modal from './Modal';
@@ -8,7 +8,11 @@ const NavBar = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    const [filterName, setFilterName] = useState('');
+    const [filterFuel, setFilterFuel] = useState('');
+    const [filterSeats, setFilterSeats] = useState('');
     const isAuthenticated = useSelector(selectIsAuthenticated);
+    const navigate = useNavigate();
 
     // Simple mock notifications; replace with real data when wired to backend
     const notifications = [
@@ -51,6 +55,13 @@ const NavBar = () => {
                             placeholder="Search something here"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    const params = new URLSearchParams();
+                                    if (searchQuery.trim()) params.set('q', searchQuery.trim());
+                                    navigate(`/search?${params.toString()}`);
+                                }
+                            }}
                             className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
                         />
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -194,14 +205,14 @@ const NavBar = () => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Car type</label>
-                        <select className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="">Any</option>
-                            <option value="sedan">Sedan</option>
-                            <option value="suv">SUV</option>
-                            <option value="hatchback">Hatchback</option>
-                            <option value="luxury">Luxury</option>
-                        </select>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Car name</label>
+                        <input
+                            type="text"
+                            value={filterName}
+                            onChange={(e) => setFilterName(e.target.value)}
+                            placeholder="e.g. Nissan, CR-V"
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <div>
@@ -214,14 +225,35 @@ const NavBar = () => {
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                        <label className="inline-flex items-center gap-2 text-sm text-gray-700">
-                            <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                            Automatic
-                        </label>
-                        <label className="inline-flex items-center gap-2 text-sm text-gray-700">
-                            <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                            Manual
-                        </label>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Fuel type</label>
+                            <select
+                                value={filterFuel}
+                                onChange={(e) => setFilterFuel(e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                                <option value="">Any</option>
+                                <option value="electric">Electric</option>
+                                <option value="hybrid">Hybrid</option>
+                                <option value="gasoline">Gasoline</option>
+                                <option value="diesel">Diesel</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Seats</label>
+                            <select
+                                value={filterSeats}
+                                onChange={(e) => setFilterSeats(e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                                <option value="">Any</option>
+                                <option value="2">2</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7+</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div className="mt-6 flex items-center justify-end gap-3">
@@ -234,7 +266,15 @@ const NavBar = () => {
                     </button>
                     <button
                         type="button"
-                        onClick={() => setIsFilterOpen(false)}
+                        onClick={() => {
+                            const params = new URLSearchParams();
+                            const q = (filterName || searchQuery).trim();
+                            if (q) params.set('q', q);
+                            if (filterFuel) params.set('fuel', filterFuel);
+                            if (filterSeats) params.set('seats', filterSeats);
+                            setIsFilterOpen(false);
+                            navigate(`/search?${params.toString()}`);
+                        }}
                         className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
                     >
                         Apply

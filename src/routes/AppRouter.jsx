@@ -5,6 +5,7 @@ import { ProfilePage } from '../features/user';
 import { PaymentPage } from '../features/payment';
 import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring } from '../features/admin';
 import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter } from '../features/staff';
+import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments } from '../features/owner';
 import { AuthPage } from '../features/auth';
 import SearchResult from '../features/search/components/SearchResult';
 import { HomePage } from '../features/homepage';
@@ -50,6 +51,18 @@ const AppRouter = () => {
         <Route path="customers" element={<CustomerManagement />} />
         <Route path="bookings" element={<BookingMonitoring />} />
         <Route path="notifications" element={<NotificationCenter />} />
+      </Route>
+
+      {/* Car Owner (Manager) Routes */}
+      <Route path="/owner" element={isAuthenticated ? <OwnerLayout /> : <Navigate to="/auth" replace />}>
+        <Route index element={<OwnerDashboard />} />
+        <Route path="maintenance" element={<MaintenanceSchedule />} />
+        <Route path="usage" element={<UsageTracking />} />
+        <Route path="rentals" element={<RentalHistory />} />
+        <Route path="feedback" element={<CustomerFeedback />} />
+        <Route path="inquiries" element={<Inquiries />} />
+        <Route path="bookings" element={<BookingManagement />} />
+        <Route path="payments" element={<Payments />} />
       </Route>
       
       {/* Add your other routes here */}

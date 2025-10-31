@@ -6,6 +6,7 @@ import { PaymentPage } from '../features/payment';
 import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring } from '../features/admin';
 import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter } from '../features/staff';
 import { AuthPage } from '../features/auth';
+import SearchResult from '../features/search/components/SearchResult';
 import { HomePage } from '../features/homepage';
 import { selectIsAuthenticated } from '../features/auth/authSlice';
 
@@ -18,6 +19,7 @@ const AppRouter = () => {
       <Route path="/" element={<HomePage />} />
       <Route path="/cars" element={<CarRental />} />
       <Route path="/cars/:id" element={<CarDetail />} />
+      <Route path="/search" element={<SearchResult />} />
       
       {/* Auth route */}
       <Route path="/auth" element={!isAuthenticated ? <AuthPage /> : <Navigate to="/" replace />} />

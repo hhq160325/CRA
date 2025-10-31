@@ -41,6 +41,10 @@ const InboxPage = () => {
   };
 
   const deleteMsg = (id) => {
+    const msg = messages.find(m => m.id === id);
+    const title = msg ? `“${msg.subject}”` : 'this message';
+    const confirmed = window.confirm(`Delete ${title}? This action cannot be undone.`);
+    if (!confirmed) return;
     setMessages(prev => prev.filter(m => m.id !== id));
   };
 

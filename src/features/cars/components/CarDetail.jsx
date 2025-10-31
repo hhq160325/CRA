@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleFavorite, selectIsFavorite } from '../../favorites/favoritesSlice';
@@ -95,7 +95,7 @@ const CarCard = ({ car, onToggleFavorite }) => {
 };
 
 const RecentCarsCarousel = ({ cars, onToggleFavorite }) => {
-    const [emblaRef, emblaApi] = useEmblaCarousel({
+    const [emblaRef] = useEmblaCarousel({
         align: 'start',
         dragFree: true,
         containScroll: 'trimSnaps',

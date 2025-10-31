@@ -31,14 +31,7 @@ const Register = ({ onSwitchToLogin }) => {
     }
   };
 
-  const handleToggleEmail = () => {
-    setFormData(prev => ({
-      ...prev,
-      useEmail: !prev.useEmail,
-      phoneNumber: '',
-      email: ''
-    }));
-  };
+  
 
 
   const handleSubmit = async (e) => {

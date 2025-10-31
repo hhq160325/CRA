@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { updateBookingStatus } from '../staffSlice';
 import BookingModal from './modals/bookingModal/BookingModal';
 

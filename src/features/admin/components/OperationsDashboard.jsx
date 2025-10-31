@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 const OperationsDashboard = () => {
     const [selectedTimeRange, setSelectedTimeRange] = useState('24h');
-    const [selectedStatus, setSelectedStatus] = useState('all');
 
     // Mock data for operations
     const systemMetrics = {

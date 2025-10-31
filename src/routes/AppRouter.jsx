@@ -7,6 +7,7 @@ import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring
 import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter } from '../features/staff';
 import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments } from '../features/owner';
 import { AuthPage } from '../features/auth';
+import ForgotPassword from '../features/auth/components/ForgotPassword';
 import SearchResult from '../features/search/components/SearchResult';
 import { HomePage } from '../features/homepage';
 import { selectIsAuthenticated } from '../features/auth/authSlice';
@@ -24,6 +25,7 @@ const AppRouter = () => {
       
       {/* Auth route */}
       <Route path="/auth" element={!isAuthenticated ? <AuthPage /> : <Navigate to="/" replace />} />
+      <Route path="/auth/forgot-password" element={<ForgotPassword />} />
       
       {/* Protected routes - authentication required */}
       <Route path="/profile" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
@@ -32,6 +34,8 @@ const AppRouter = () => {
       <Route path="/profile/inbox" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/profile/calendar" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/profile/reimburse" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
+      <Route path="/profile/settings" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
+      <Route path="/profile/help-center" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/register-car" element={isAuthenticated ? <RegisterCar /> : <Navigate to="/auth" replace />} />
       <Route path="/register-car/step-2" element={isAuthenticated ? <RegisterCarStep2 /> : <Navigate to="/auth" replace />} />
       <Route path="/register-car/step-3" element={isAuthenticated ? <RegisterCarStep3 /> : <Navigate to="/auth" replace />} />

@@ -17,8 +17,6 @@ const Modal = ({ isOpen, onClose, children, className = '' }) => {
           className={`relative bg-white rounded-3xl shadow-xl max-w-md w-full mx-auto transform transition-all ${className}`}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Placeholder circle at top */}
-          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-gray-300 rounded-full"></div>
           
           {/* Close button */}
           <button

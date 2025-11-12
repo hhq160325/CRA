@@ -481,9 +481,12 @@ const CarDetail = () => {
                                     <div className="text-gray-400 line-through text-lg mt-1">${typeof carData.originalPrice === 'number' ? carData.originalPrice.toFixed(2) : (parseFloat(carData.originalPrice) || 0).toFixed(2)}</div>
                                 )}
                             </div>
-                            <button className="bg-blue-600 text-white px-10 py-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg">
+                            <Link 
+                                to="/payment" 
+                                className="bg-blue-600 text-white px-10 py-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg inline-block text-center"
+                            >
                                 Rent Now
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </div>

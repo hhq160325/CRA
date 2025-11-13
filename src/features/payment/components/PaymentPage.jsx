@@ -218,10 +218,14 @@ const PaymentPage = () => {
                                         />
                                         <label htmlFor="credit-card" className="font-medium text-gray-900">Credit Card</label>
                                     </div>
-                                    <div className="flex space-x-2">
-                                        <img src="/api/placeholder/32/20" alt="Visa" className="h-5" />
-                                        <img src="/api/placeholder/32/20" alt="Mastercard" className="h-5" />
-                                    </div>
+                                    <svg className="h-6 w-10" viewBox="0 0 40 24" fill="none">
+                                        <rect width="40" height="24" rx="4" fill="#374151" stroke="#6B7280" strokeWidth="1"/>
+                                        <rect x="4" y="6" width="32" height="3" fill="#9CA3AF"/>
+                                        <rect x="4" y="12" width="12" height="2" fill="#D1D5DB"/>
+                                        <rect x="4" y="16" width="8" height="2" fill="#D1D5DB"/>
+                                        <rect x="28" y="12" width="8" height="6" fill="#E5E7EB" rx="1"/>
+                                        <text x="32" y="16" fontSize="3" fill="#6B7280" textAnchor="middle">****</text>
+                                    </svg>
                                 </div>
 
                                 {paymentMethod === 'credit-card' && (
@@ -270,42 +274,54 @@ const PaymentPage = () => {
                                 )}
                             </div>
 
-                            {/* PayPal */}
-                            <div className="mb-4">
-                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                    <div className="flex items-center">
-                                        <input
-                                            type="radio"
-                                            id="paypal"
-                                            name="payment-method"
-                                            value="paypal"
-                                            checked={paymentMethod === 'paypal'}
-                                            onChange={(e) => setPaymentMethod(e.target.value)}
-                                            className="mr-3"
-                                        />
-                                        <label htmlFor="paypal" className="font-medium text-gray-900">PayPal</label>
-                                    </div>
-                                    <img src="/api/placeholder/60/24" alt="PayPal" className="h-6" />
-                                </div>
-                            </div>
-
-                            {/* Bitcoin */}
+                            {/* QR Payment */}
                             <div>
-                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-4">
                                     <div className="flex items-center">
                                         <input
                                             type="radio"
-                                            id="bitcoin"
+                                            id="qr-payment"
                                             name="payment-method"
-                                            value="bitcoin"
-                                            checked={paymentMethod === 'bitcoin'}
+                                            value="qr-payment"
+                                            checked={paymentMethod === 'qr-payment'}
                                             onChange={(e) => setPaymentMethod(e.target.value)}
                                             className="mr-3"
                                         />
-                                        <label htmlFor="bitcoin" className="font-medium text-gray-900">Bitcoin</label>
+                                        <label htmlFor="qr-payment" className="font-medium text-gray-900">QR Payment</label>
                                     </div>
-                                    <img src="/api/placeholder/60/24" alt="Bitcoin" className="h-6" />
+                                    <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM19 13h2v2h-2zM13 13h2v2h-2zM15 15h2v2h-2zM13 17h2v2h-2zM15 19h2v2h-2zM17 17h2v2h-2zM17 13h2v2h-2zM19 15h2v2h-2z" />
+                                    </svg>
                                 </div>
+
+                                {paymentMethod === 'qr-payment' && (
+                                    <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
+                                        <h4 className="text-lg font-semibold text-gray-900 mb-4">Scan QR Code to Pay</h4>
+                                        <div className="flex justify-center mb-4">
+                                            <div className="bg-white p-4 border-2 border-gray-300 rounded-lg">
+                                                <img 
+                                                    src="https://genqrcode.com/embedded?style=0&inner_eye_style=0&outer_eye_style=0&logo=null&color=%23000000FF&background_color=%23FFFFFFFF&inner_eye_color=%23000000&outer_eye_color=%23000000&imageformat=svg&language=en&frame_style=0&frame_text=SCAN%20ME&frame_text_icon_color=%23000000&frame_text_icon=null&frame_color=%23000000&frame_background_color=%23FFFFFF&frame_text_color=%23FFFFFF&invert_colors=false&gradient_style=0&gradient_color_start=%23FF0000&gradient_color_end=%237F007F&gradient_start_offset=5&gradient_end_offset=95&stl_type=1&logo_remove_background=null&stl_size=100&stl_qr_height=1.5&stl_base_height=2&stl_include_stands=false&stl_qr_magnet_type=3&stl_qr_magnet_count=0&type=0&text=https%3A%2F%2Fpokemondb.net%2Fpokedex%2Foshawott%23dex-evolution&width=500&height=500&bordersize=2" 
+                                                    alt="QR code for payment" 
+                                                    className="w-48 h-48 mx-auto"
+                                                />
+                                            </div>
+                                        </div>
+                                        <p className="text-sm text-gray-600 mb-4">
+                                            Use your mobile banking app or digital wallet to scan this QR code
+                                        </p>
+                                        <div className="border-t pt-4">
+                                            <p className="text-sm text-gray-500 mb-2">Can't scan the QR code?</p>
+                                            <a
+                                                href="https://payment.example.com/pay/rental-80usd"
+                                                className="text-blue-600 hover:text-blue-700 underline text-sm font-medium"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                Click here to pay online
+                                            </a>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -327,7 +343,7 @@ const PaymentPage = () => {
                                         className="mt-1 mr-3"
                                     />
                                     <label htmlFor="marketing" className="text-sm text-gray-600">
-                                        I agree with sending an Marketing and newsletter emails. No spam, promised!
+                                        I agree with sending an Marketing and newsletter emails
                                     </label>
                                 </div>
                                 <div className="flex items-start">
@@ -349,7 +365,7 @@ const PaymentPage = () => {
                             </button>
 
                             <div className="flex items-center text-sm text-gray-500">
-                                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                                 </svg>
                                 All your data are safe
@@ -371,16 +387,19 @@ const PaymentPage = () => {
                             {/* Car Info */}
                             <div className="flex items-center mb-6">
                                 <img
-                                    src="/api/placeholder/120/80"
+                                    src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=120&h=80&fit=crop"
                                     alt="Nissan GT-R"
                                     className="w-20 h-16 object-cover rounded-lg mr-4"
                                 />
                                 <div>
                                     <h4 className="font-bold text-gray-900">Nissan GT - R</h4>
                                     <div className="flex items-center text-sm text-gray-500">
-                                        <span className="flex items-center mr-2">
-                                            ⭐ 4.8
-                                        </span>
+                                        <div className="flex items-center mr-2">
+                                            <svg className="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                            4.8
+                                        </div>
                                         <span>(440+ Reviewer)</span>
                                     </div>
                                 </div>

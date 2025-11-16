@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { updateCustomerAccount } from '../staffSlice';
 import { CustomerModal } from './modals/customerModal';
 const CustomerManagement = () => {

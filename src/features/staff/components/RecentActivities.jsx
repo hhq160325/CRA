@@ -1,4 +1,3 @@
-import { useSelector } from 'react-redux';
 
 const RecentActivities = () => {
   // Mock data for recent activities

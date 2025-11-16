@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectIsAuthenticated } from '../../features/auth/authSlice';
 import Modal from './Modal';
@@ -7,7 +7,29 @@ import Modal from './Modal';
 const NavBar = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    const [filterName, setFilterName] = useState('');
+    const [filterFuel, setFilterFuel] = useState('');
+    const [filterSeats, setFilterSeats] = useState('');
     const isAuthenticated = useSelector(selectIsAuthenticated);
+    const navigate = useNavigate();
+
+    // Simple mock notifications; replace with real data when wired to backend
+    const notifications = [
+        { id: 1, title: 'Booking successful', type: 'success' }
+    ];
+
+    const notificationRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+                setIsNotificationOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     return (
         <>
@@ -33,6 +55,13 @@ const NavBar = () => {
                             placeholder="Search something here"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    const params = new URLSearchParams();
+                                    if (searchQuery.trim()) params.set('q', searchQuery.trim());
+                                    navigate(`/search?${params.toString()}`);
+                                }
+                            }}
                             className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
                         />
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -64,7 +93,14 @@ const NavBar = () => {
                     </Link>
 
                     {/* Notifications */}
-                    <button className="p-2 text-gray-400 hover:text-gray-600 relative">
+                    <div className="relative" ref={notificationRef}>
+                    <button
+                        type="button"
+                        onClick={() => setIsNotificationOpen((v) => !v)}
+                        aria-haspopup="menu"
+                        aria-expanded={isNotificationOpen}
+                        className="p-2 text-gray-400 hover:text-gray-600 relative"
+                    >
                         {/* <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4 19h10a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg> */}
@@ -94,6 +130,37 @@ const NavBar = () => {
                         {/* Notification badge */}
                         <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
                     </button>
+
+                    {isNotificationOpen && (
+                        <div
+                            role="menu"
+                            aria-label="Notifications"
+                            className="absolute right-0 mt-3 w-72 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50"
+                        >
+                            <div className="px-4 py-3 border-b border-gray-100">
+                                <p className="text-sm font-semibold text-gray-900">Notification</p>
+                            </div>
+                            <ul className="max-h-80 overflow-auto">
+                                {notifications.length === 0 && (
+                                    <li className="px-4 py-4 text-sm text-gray-500">No notifications</li>
+                                )}
+                                {notifications.map((n) => (
+                                    <li key={n.id} className="px-4 py-3 hover:bg-gray-50 flex items-start gap-3">
+                                        {/* success icon */}
+                                        <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-green-100">
+                                            <svg className="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M20 6L9 17l-5-5" />
+                                            </svg>
+                                        </span>
+                                        <div className="min-w-0">
+                                            <p className="text-sm text-gray-900">{n.title}</p>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                    </div>
 
                     {/* Settings */}
                     <button className="p-2 text-gray-400 hover:text-gray-600">
@@ -138,14 +205,14 @@ const NavBar = () => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Car type</label>
-                        <select className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="">Any</option>
-                            <option value="sedan">Sedan</option>
-                            <option value="suv">SUV</option>
-                            <option value="hatchback">Hatchback</option>
-                            <option value="luxury">Luxury</option>
-                        </select>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Car name</label>
+                        <input
+                            type="text"
+                            value={filterName}
+                            onChange={(e) => setFilterName(e.target.value)}
+                            placeholder="e.g. Nissan, CR-V"
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <div>
@@ -158,14 +225,35 @@ const NavBar = () => {
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                        <label className="inline-flex items-center gap-2 text-sm text-gray-700">
-                            <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                            Automatic
-                        </label>
-                        <label className="inline-flex items-center gap-2 text-sm text-gray-700">
-                            <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                            Manual
-                        </label>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Fuel type</label>
+                            <select
+                                value={filterFuel}
+                                onChange={(e) => setFilterFuel(e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                                <option value="">Any</option>
+                                <option value="electric">Electric</option>
+                                <option value="hybrid">Hybrid</option>
+                                <option value="gasoline">Gasoline</option>
+                                <option value="diesel">Diesel</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Seats</label>
+                            <select
+                                value={filterSeats}
+                                onChange={(e) => setFilterSeats(e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                                <option value="">Any</option>
+                                <option value="2">2</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7+</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div className="mt-6 flex items-center justify-end gap-3">
@@ -178,7 +266,15 @@ const NavBar = () => {
                     </button>
                     <button
                         type="button"
-                        onClick={() => setIsFilterOpen(false)}
+                        onClick={() => {
+                            const params = new URLSearchParams();
+                            const q = (filterName || searchQuery).trim();
+                            if (q) params.set('q', q);
+                            if (filterFuel) params.set('fuel', filterFuel);
+                            if (filterSeats) params.set('seats', filterSeats);
+                            setIsFilterOpen(false);
+                            navigate(`/search?${params.toString()}`);
+                        }}
                         className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
                     >
                         Apply

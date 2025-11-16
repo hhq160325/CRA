@@ -23,12 +23,9 @@ const Register = ({ onSwitchToLogin }) => {
   // Redirect to homepage when authentication succeeds
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('✅ User authenticated, showing loading screen');
       setIsRedirecting(true);
-      console.log('🔄 Loading screen displayed, redirecting in 1 second...');
       // Small delay to show the redirect message
       const timer = setTimeout(() => {
-        console.log('🏠 Redirecting to homepage now');
         navigate('/');
       }, 1000);
       return () => clearTimeout(timer);
@@ -56,7 +53,6 @@ const Register = ({ onSwitchToLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('📝 Sign up form submitted');
     try {
       const userData = {
         username: formData.username,
@@ -66,9 +62,7 @@ const Register = ({ onSwitchToLogin }) => {
         gender: 2 // Always send "Other"
       };
       
-      console.log('🚀 Dispatching registerUser action');
       await dispatch(registerUser(userData)).unwrap();
-      console.log('✅ Registration successful');
       
       // Reset form after successful registration
       setFormData({
@@ -82,13 +76,11 @@ const Register = ({ onSwitchToLogin }) => {
       // Redirect will happen via useEffect when isAuthenticated changes
     } catch (error) {
       // Error is handled by Redux, form stays filled for retry
-      console.error('❌ Registration failed:', error);
     }
   };
 
   // Show loading screen when redirecting
   if (isRedirecting) {
-    console.log('📺 Rendering loading screen component');
     return (
       <div className="min-h-screen flex items-center justify-center relative">
         <div className="absolute inset-0 bg-gradient-to-br from-pink-500 via-purple-500 to-orange-400"></div>

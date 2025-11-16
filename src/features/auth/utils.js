@@ -1,3 +1,5 @@
+import axios from "axios";
+
 // Auth-specific utility functions
 
 // Helper function to make auth API calls
@@ -6,41 +8,27 @@ export const authApiCall = async (endpoint, options = {}) => {
     const token = localStorage.getItem("accessToken");
 
     const config = {
-      method: "POST",
+      method: options.method || "POST",
+      url: endpoint,
       headers: {
         "Content-Type": "application/json",
         ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
       },
-      ...options,
+      data: options.body,
     };
 
-    if (options.body) {
-      config.body = JSON.stringify(options.body);
-    }
-
-    const response = await fetch(endpoint, config);
-    
-    // Try to parse as JSON, fallback to text if it fails
-    let data;
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      data = await response.json();
-    } else {
-      const text = await response.text();
-      data = { message: text };
-    }
-
-    if (!response.ok) {
-      // Create error object with status code and message
-      const error = new Error(data.message || "Something went wrong");
-      error.statusCode = response.status;
-      error.response = data;
-      throw error;
-    }
-
-    return data;
+    const response = await axios(config);
+    return response.data;
   } catch (error) {
+    // Axios wraps errors differently
+    if (error.response) {
+      // Server responded with error status
+      const customError = new Error(error.response.data?.message || "Something went wrong");
+      customError.statusCode = error.response.status;
+      customError.response = error.response.data;
+      throw customError;
+    }
     throw error;
   }
 };
@@ -106,12 +94,22 @@ export const tokenUtils = {
     localStorage.setItem("user", JSON.stringify(user));
   },
 
+  // Update user data in localStorage (for avatar and username updates)
+  updateUserData: (userData) => {
+    if (typeof window === 'undefined') return;
+    const currentUser = tokenUtils.getCurrentUser();
+    const updatedUser = { ...currentUser, ...userData };
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  },
+
   // Clear all auth data from localStorage
   clearTokens: () => {
     if (typeof window === 'undefined') return;
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
+    localStorage.removeItem("userAvatar");
+    localStorage.removeItem("userName");
   },
 
   // Get current user from localStorage

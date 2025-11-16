@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { loginUser, clearError, selectIsLoading, selectError } from '../authSlice';
+import { getRoleFromToken, getRedirectPathByRole } from '../utils';
 
 const Login = ({ onSwitchToRegister }) => {
   const dispatch = useDispatch();
@@ -30,8 +32,15 @@ const Login = ({ onSwitchToRegister }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(loginUser(formData)).unwrap();
+      const result = await dispatch(loginUser(formData)).unwrap();
       setFormData({ email: '', password: '' });
+      
+      // Get role from token and redirect accordingly
+      const token = result.accessToken;
+      const roleId = getRoleFromToken(token);
+      const redirectPath = getRedirectPathByRole(roleId);
+      
+      navigate(redirectPath);
     } catch (error) {
       // Error is handled by Redux
     }

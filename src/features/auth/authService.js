@@ -1,6 +1,6 @@
 // Service functions for auth
 import { AUTH_ENDPOINTS } from "./api";
-import { authApiCall, tokenUtils } from "./utils";
+import { authApiCall, tokenUtils, decodeJWT } from "./utils";
 import { logout } from "../../shared/authGlobal";
 
 // Login function
@@ -18,8 +18,13 @@ export const login = async (credentials) => {
 
     // Store tokens - API returns { token, expiration }
     if (data.token) {
+      // Decode token to extract role information
+      const decoded = decodeJWT(data.token);
+      const roleId = decoded ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] : null;
+      
       const user = {
-        email: credentials.email
+        email: credentials.email,
+        roleId: roleId ? parseInt(roleId, 10) : null
       };
       tokenUtils.storeTokens(data.token, data.token, user);
     }

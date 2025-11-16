@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { loginUser, clearError, selectIsLoading, selectError } from '../authSlice';
 import { getRoleFromToken, getRedirectPathByRole } from '../utils';
 

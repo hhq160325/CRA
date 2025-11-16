@@ -20,10 +20,23 @@ export const authApiCall = async (endpoint, options = {}) => {
     }
 
     const response = await fetch(endpoint, config);
-    const data = await response.json();
+    
+    // Try to parse as JSON, fallback to text if it fails
+    let data;
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      data = { message: text };
+    }
 
     if (!response.ok) {
-      throw new Error(data.message || "Something went wrong");
+      // Create error object with status code and message
+      const error = new Error(data.message || "Something went wrong");
+      error.statusCode = response.status;
+      error.response = data;
+      throw error;
     }
 
     return data;

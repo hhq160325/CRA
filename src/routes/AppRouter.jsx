@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RegisterCar, RegisterCarStep2, RegisterCarStep3, CarDetail, CarRental } from '../features/cars';
 import { ProfilePage } from '../features/user';
-import { PaymentPage } from '../features/payment';
+import { PaymentPage, PaymentSuccess, PaymentCancel } from '../features/payment';
 import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring } from '../features/admin';
 import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter } from '../features/staff';
 import { AuthPage } from '../features/auth';
@@ -33,6 +33,8 @@ const AppRouter = () => {
       <Route path="/register-car/step-2" element={isAuthenticated ? <RegisterCarStep2 /> : <Navigate to="/auth" replace />} />
       <Route path="/register-car/step-3" element={isAuthenticated ? <RegisterCarStep3 /> : <Navigate to="/auth" replace />} />
       <Route path="/payment" element={isAuthenticated ? <PaymentPage /> : <Navigate to="/auth" replace />} />
+      <Route path="/payment-success" element={isAuthenticated ? <PaymentSuccess /> : <Navigate to="/auth" replace />} />
+      <Route path="/payment-cancel" element={isAuthenticated ? <PaymentCancel /> : <Navigate to="/auth" replace />} />
       
       {/* Admin Routes */}
       <Route path="/admin" element={isAuthenticated ? <AdminLayout /> : <Navigate to="/auth" replace />}>

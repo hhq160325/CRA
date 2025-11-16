@@ -1,4 +1,3 @@
-import { useSelector } from 'react-redux';
 import StatusOverview from './StatusOverview';
 import TopCarRental from './TopCarRental';
 import RecentTransaction from './RecentTransaction';

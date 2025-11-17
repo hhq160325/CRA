@@ -35,3 +35,13 @@ export const USER_API_CONFIG = {
   timeout: API_CONFIG.TIMEOUT,
   headers: API_CONFIG.HEADERS,
 };
+
+// Park Lot endpoints
+export const PARKLOT_ENDPOINTS = {
+  GET_ALL: `${API_CONFIG.BASE_URL}/ParkLot`,
+};
+
+export const PARKLOT_API_CONFIG = {
+  timeout: API_CONFIG.TIMEOUT,
+  headers: API_CONFIG.HEADERS,
+};

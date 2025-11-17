@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const RegisterCar = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         licensePlate: '',
@@ -44,9 +46,9 @@ const RegisterCar = () => {
                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
-                        Return
+                        {t('return')}
                     </button>
-                    <h1 className="absolute left-1/2 transform -translate-x-1/2 text-xl font-semibold text-gray-900">Register Car</h1>
+                    <h1 className="absolute left-1/2 transform -translate-x-1/2 text-xl font-semibold text-gray-900">{t('registerCar')}</h1>
                 </div>
 
                 {/* Progress Steps */}
@@ -71,10 +73,10 @@ const RegisterCar = () => {
                     {/* License Plate Number */}
                     <div className="mb-8">
                         <label className="block text-sm font-medium text-gray-900 mb-2">
-                            License Plate Number
+                            {t('licensePlateNumber')}
                         </label>
                         <p className="text-xs text-red-500 mb-3">
-                            *Car License Plate Number is required for registration
+                            {t('licensePlateRequired')}
                         </p>
                         <input
                             type="text"
@@ -82,48 +84,48 @@ const RegisterCar = () => {
                             value={formData.licensePlate}
                             onChange={handleInputChange}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Enter license plate number"
+                            placeholder={t('enterLicensePlate')}
                         />
                     </div>
 
                     {/* Basic Information */}
                     <div className="mb-8">
-                        <h3 className="text-sm font-medium text-gray-900 mb-2">Basic Information</h3>
+                        <h3 className="text-sm font-medium text-gray-900 mb-2">{t('basicInformation')}</h3>
                         <p className="text-xs text-red-500 mb-6">
-                            *Basic information is required for registration
+                            {t('basicInfoRequired')}
                         </p>
 
                         <div className="grid grid-cols-2 gap-6 mb-6">
                             {/* Brand */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Brand</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('brand')}</label>
                                 <select
                                     name="brand"
                                     value={formData.brand}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 >
-                                    <option value="Honda">Honda</option>
-                                    <option value="Toyota">Toyota</option>
-                                    <option value="BMW">BMW</option>
-                                    <option value="Mercedes">Mercedes</option>
-                                    <option value="Audi">Audi</option>
+                                    <option value="Honda">{t('honda')}</option>
+                                    <option value="Toyota">{t('toyota')}</option>
+                                    <option value="BMW">{t('bmw')}</option>
+                                    <option value="Mercedes">{t('mercedes')}</option>
+                                    <option value="Audi">{t('audi')}</option>
                                 </select>
                             </div>
 
                             {/* Model */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Model</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('model')}</label>
                                 <select
                                     name="model"
                                     value={formData.model}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 >
-                                    <option value="Unspecified">Unspecified</option>
-                                    <option value="Civic">Civic</option>
-                                    <option value="Accord">Accord</option>
-                                    <option value="CR-V">CR-V</option>
+                                    <option value="Unspecified">{t('unspecified')}</option>
+                                    <option value="Civic">{t('civic')}</option>
+                                    <option value="Accord">{t('accord')}</option>
+                                    <option value="CR-V">{t('crv')}</option>
                                 </select>
                             </div>
                         </div>
@@ -131,7 +133,7 @@ const RegisterCar = () => {
                         <div className="grid grid-cols-2 gap-6 mb-6">
                             {/* Number of Seats */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Number of Seat</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('numberOfSeat')}</label>
                                 <select
                                     name="numberOfSeats"
                                     value={formData.numberOfSeats}
@@ -148,7 +150,7 @@ const RegisterCar = () => {
 
                             {/* Year of Manufacture */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Year of Manufacture</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('yearOfManufacture')}</label>
                                 <select
                                     name="yearOfManufacture"
                                     value={formData.yearOfManufacture}
@@ -167,31 +169,31 @@ const RegisterCar = () => {
                         <div className="grid grid-cols-2 gap-6">
                             {/* Transmission */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Transmission</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('transmission')}</label>
                                 <select
                                     name="transmission"
                                     value={formData.transmission}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 >
-                                    <option value="Automatic">Automatic</option>
-                                    <option value="Manual">Manual</option>
+                                    <option value="Automatic">{t('automatic')}</option>
+                                    <option value="Manual">{t('manual')}</option>
                                 </select>
                             </div>
 
                             {/* Fuel Type */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Fuel type</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('fuelType')}</label>
                                 <select
                                     name="fuelType"
                                     value={formData.fuelType}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 >
-                                    <option value="Gasoline">Gasoline</option>
-                                    <option value="Diesel">Diesel</option>
-                                    <option value="Electric">Electric</option>
-                                    <option value="Hybrid">Hybrid</option>
+                                    <option value="Gasoline">{t('gasoline')}</option>
+                                    <option value="Diesel">{t('diesel')}</option>
+                                    <option value="Electric">{t('electric')}</option>
+                                    <option value="Hybrid">{t('hybrid')}</option>
                                 </select>
                             </div>
                         </div>
@@ -200,10 +202,10 @@ const RegisterCar = () => {
                     {/* Fuel Consumption */}
                     <div className="mb-8">
                         <label className="block text-sm font-medium text-gray-900 mb-2">
-                            Fuel consumption
+                            {t('fuelConsumption')}
                         </label>
                         <p className="text-xs text-gray-500 mb-3">
-                            Number of liters of fuel for 100km
+                            {t('fuelConsumptionDescription')}
                         </p>
                         <input
                             type="number"
@@ -211,7 +213,7 @@ const RegisterCar = () => {
                             value={formData.fuelConsumption}
                             onChange={handleInputChange}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Enter fuel consumption"
+                            placeholder={t('enterFuelConsumption')}
                             step="0.1"
                         />
                     </div>
@@ -219,7 +221,7 @@ const RegisterCar = () => {
                     {/* Description */}
                     <div className="mb-8">
                         <label className="block text-sm font-medium text-gray-900 mb-2">
-                            Describe
+                            {t('describe')}
                         </label>
                         <textarea
                             name="description"
@@ -227,7 +229,7 @@ const RegisterCar = () => {
                             onChange={handleInputChange}
                             rows={6}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                            placeholder="Describe your car..."
+                            placeholder={t('describeYourCar')}
                         />
                     </div>
 
@@ -237,13 +239,13 @@ const RegisterCar = () => {
                             onClick={handleReturn}
                             className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
                         >
-                            Return
+                            {t('return')}
                         </button>
                         <button
                             onClick={handleNext}
                             className="flex-1 px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 font-medium"
                         >
-                            Next
+                            {t('next')}
                         </button>
                     </div>
                 </div>

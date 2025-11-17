@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { registerUser, clearError, clearSuccess, selectIsLoading, selectError, selectIsAuthenticated, selectSuccess } from '../authSlice';
 
 const Register = ({ onSwitchToLogin }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isLoading = useSelector(selectIsLoading);
@@ -84,8 +86,8 @@ const Register = ({ onSwitchToLogin }) => {
         <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4 text-center">
           <div className="flex flex-col items-center space-y-4">
             <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>
-            <h2 className="text-2xl font-bold text-gray-900">Success!</h2>
-            <p className="text-gray-600">Redirecting to homepage...</p>
+            <h2 className="text-2xl font-bold text-gray-900">{t('success')}</h2>
+            <p className="text-gray-600">{t('redirectingToHomepage')}</p>
           </div>
         </div>
       </div>
@@ -100,16 +102,16 @@ const Register = ({ onSwitchToLogin }) => {
       {/* Register card */}
       <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4">
         {/* Title */}
-        <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">Sign up</h1>
+        <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">{t('signUp')}</h1>
 
         {/* Subtitle */}
         <p className="text-gray-600 text-center mb-6">
-          Already have an account? <button onClick={onSwitchToLogin} className="text-blue-600 hover:text-blue-700 font-medium">Log in</button>
+          {t('alreadyHaveAccount')} <button onClick={onSwitchToLogin} className="text-blue-600 hover:text-blue-700 font-medium">{t('logIn')}</button>
         </p>
 
       {/* Form instruction */}
       <p className="text-gray-600 text-sm text-center mb-6">
-        Enter your details to create an account.
+        {t('enterDetailsToCreate')}
       </p>
 
       {/* Registration form */}
@@ -117,7 +119,7 @@ const Register = ({ onSwitchToLogin }) => {
         {/* Username field */}
         <div>
           <label htmlFor="username" className="block text-sm font-medium text-gray-900 mb-2">
-            Username
+            {t('username')}
           </label>
           <input
             type="text"
@@ -126,7 +128,7 @@ const Register = ({ onSwitchToLogin }) => {
             value={formData.username}
             onChange={handleInputChange}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Enter your username"
+            placeholder={t('enterUsername')}
             required
           />
         </div>
@@ -134,7 +136,7 @@ const Register = ({ onSwitchToLogin }) => {
         {/* Password field */}
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-gray-900 mb-2">
-            Password
+            {t('password')}
           </label>
           <input
             type="password"
@@ -143,7 +145,7 @@ const Register = ({ onSwitchToLogin }) => {
             value={formData.password}
             onChange={handleInputChange}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Enter your password"
+            placeholder={t('enterPassword')}
             required
           />
         </div>
@@ -151,7 +153,7 @@ const Register = ({ onSwitchToLogin }) => {
         {/* Email field */}
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-2">
-            Email
+            {t('email')}
           </label>
           <input
             type="email"
@@ -160,7 +162,7 @@ const Register = ({ onSwitchToLogin }) => {
             value={formData.email}
             onChange={handleInputChange}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Enter your email"
+            placeholder={t('enterEmail')}
             required
           />
         </div>
@@ -168,7 +170,7 @@ const Register = ({ onSwitchToLogin }) => {
         {/* Phone Number field */}
         <div>
           <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-900 mb-2">
-            Phone Number
+            {t('phoneNumber')}
           </label>
           <input
             type="tel"
@@ -177,7 +179,7 @@ const Register = ({ onSwitchToLogin }) => {
             value={formData.phoneNumber}
             onChange={handleInputChange}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Enter your phone number"
+            placeholder={t('enterPhoneNumber')}
             required
           />
         </div>
@@ -202,14 +204,14 @@ const Register = ({ onSwitchToLogin }) => {
           disabled={isLoading}
           className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         >
-          {isLoading ? 'Creating account...' : 'Create an account'}
+          {isLoading ? t('creatingAccount') : t('createAccount')}
         </button>
       </form>
 
       {/* Separator */}
       <div className="flex items-center my-6">
         <div className="flex-1 border-t border-gray-300"></div>
-        <span className="px-4 text-gray-500 text-sm">Or</span>
+        <span className="px-4 text-gray-500 text-sm">{t('or')}</span>
         <div className="flex-1 border-t border-gray-300"></div>
       </div>
 
@@ -226,7 +228,7 @@ const Register = ({ onSwitchToLogin }) => {
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
           </svg>
-          Sign in with Google
+          {t('signInWithGoogle')}
         </button>
 
         {/* Facebook sign in button */}
@@ -237,7 +239,7 @@ const Register = ({ onSwitchToLogin }) => {
           <svg className="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24">
             <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
           </svg>
-          Sign in with Facebook
+          {t('signInWithFacebook')}
         </button>
       </div>
       </div>

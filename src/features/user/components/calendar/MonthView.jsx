@@ -1,10 +1,12 @@
 import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { openEventModal } from '../../calendarSlice';
 import EventCard from './EventCard';
 
 const MonthView = ({ events, currentDate }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const monthMatrix = useMemo(() => {
     const date = currentDate instanceof Date ? currentDate : new Date(currentDate);
@@ -53,7 +55,7 @@ const MonthView = ({ events, currentDate }) => {
     dispatch(openEventModal({ start: date, end: endDate }));
   };
 
-  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const weekDays = [t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat'), t('sun')];
 
   return (
     <div className="p-4">
@@ -98,7 +100,7 @@ const MonthView = ({ events, currentDate }) => {
                 ))}
                 {dayEvents.length > 3 && (
                   <div className="text-xs text-gray-500 px-1">
-                    +{dayEvents.length - 3} more
+                    +{dayEvents.length - 3} {t('more')}
                   </div>
                 )}
               </div>

@@ -1,29 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { toggleFavorite, selectIsFavorite } from '../../favorites/favoritesSlice';
 const HomePage = () => {
-  // const [isCarFavorite, setIsFavorited] = useState({
-  //   koenigsegg: true,
-  //   nissan1: false,
-  //   rolls: true,
-  //   nissan2: false,
-  //   rush: false,
-  //   crv1: true,
-  //   terios: false,
-  //   crv2: true,
-  //   mg1: true,
-  //   mg2: false,
-  //   mg3: true,
-  //   mg4: false
-  // });
-
-  // const handleCarToggleFavorite = (carId) => {
-  //   setIsFavorited(prev => ({
-  //     ...prev,
-  //     [carId]: !prev[carId]
-  //   }));
-  // };
+  const { t } = useTranslation();
   const dispatch = useDispatch();
 
   const popularCars = [
@@ -109,6 +90,22 @@ const HomePage = () => {
       handleToggleFavorite(car.id, carData);
     };
 
+    // Helper function to translate transmission
+    const getTransmissionText = (transmission) => {
+      if (transmission.toLowerCase() === 'manual') return t('manual');
+      if (transmission.toLowerCase() === 'automatic') return t('automatic');
+      return transmission;
+    };
+
+    // Helper function to translate capacity
+    const getCapacityText = (capacity) => {
+      const match = capacity.match(/(\d+)\s*People/i);
+      if (match) {
+        return `${match[1]} ${t('people')}`;
+      }
+      return capacity;
+    };
+
     return (<div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
       <div className="relative">
         <img
@@ -148,19 +145,19 @@ const HomePage = () => {
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
             </svg>
-            {car.transmission}
+            {getTransmissionText(car.transmission)}
           </div>
           <div className="flex items-center">
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            {car.capacity}
+            {getCapacityText(car.capacity)}
           </div>
         </div>
 
         <div className="flex items-center justify-between">
           <div>
-            <div className='flex items-center'><div className="text-xl font-bold text-gray-900">${car.price}</div><div className="text-sm text-slate-400">/day</div></div>
+            <div className='flex items-center'><div className="text-xl font-bold text-gray-900">${car.price}</div><div className="text-sm text-slate-400">{t('perDay')}</div></div>
             {car.originalPrice && (
               <div className="text-sm text-gray-500 line-through">${car.originalPrice}</div>
             )}
@@ -169,7 +166,7 @@ const HomePage = () => {
             to={`/cars/${car.id}`}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
           >
-            Rent Now
+            {t('rentNow')}
           </Link>
         </div>
       </div>
@@ -271,12 +268,12 @@ const HomePage = () => {
           {/* Left Banner */}
           <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-2xl p-8 text-white relative overflow-hidden">
             <div className="relative z-10">
-              <h1 className="text-3xl font-bold mb-4">The Best Platform for Car Rental</h1>
+              <h1 className="text-3xl font-bold mb-4">{t('heroTitle')}</h1>
               <p className="text-blue-100 mb-6 text-lg">
-                Ease of doing a car rental safely and reliably. Of course at a low price.
+                {t('heroSubtitle')}
               </p>
               <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                Rental Car
+                {t('rentalCar')}
               </button>
             </div>
             <div className="absolute bottom-0 right-0 w-64 h-48">
@@ -301,12 +298,12 @@ const HomePage = () => {
               </svg>
             </div>
             <div className="relative z-10">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Easy way to rent a car at a low price</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('heroTitle2')}</h2>
               <p className="text-gray-600 mb-6 text-lg">
-                Providing cheap car rental services and safe and comfortable facilities.
+                {t('heroSubtitle2')}
               </p>
               <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                Rental Car
+                {t('rentalCar')}
               </button>
             </div>
             <div className="absolute bottom-0 right-0 w-64 h-48">
@@ -326,31 +323,31 @@ const HomePage = () => {
             <div className='lg:col-span-3 space-y-4'>
               <div className='flex items-center space-x-2'>
                 <div className='w-3 h-3 bg-blue-600 rounded-full'></div>
-                <h3 className='text-lg font-semibold text-gray-900'>Pick-up</h3>
+                <h3 className='text-lg font-semibold text-gray-900'>{t('pickUp')}</h3>
               </div>
               <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                 <div>
-                  <label className='block-text-sm font-medium text-gray-700 mb-2'>Location</label>
+                  <label className='block-text-sm font-medium text-gray-700 mb-2'>{t('location')}</label>
                   <select className='w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500'>
-                    <option>Select your city</option>
-                    <option>Ho Chi Minh City</option>
-                    <option>Hanoi</option>
-                    <option>Da Nang</option>
+                    <option>{t('selectCity')}</option>
+                    <option>{t('hoChiMinhCity')}</option>
+                    <option>{t('hanoi')}</option>
+                    <option>{t('daNang')}</option>
                   </select>
                 </div>
                 <div>
-                  <label className='block-text-sm font-medium text-gray-700 mb-2'>Date</label>
+                  <label className='block-text-sm font-medium text-gray-700 mb-2'>{t('date')}</label>
                   <select className='w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500'>
-                    <option>Select your date</option>
-                    <option>Today</option>
-                    <option>Tomorrow</option>
-                    <option>Next week</option>
+                    <option>{t('selectDate')}</option>
+                    <option>{t('today')}</option>
+                    <option>{t('tomorrow')}</option>
+                    <option>{t('nextWeek')}</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('time')}</label>
                   <select className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500">
-                    <option>Select your time</option>
+                    <option>{t('selectTime')}</option>
                     <option>08:00 AM</option>
                     <option>10:00 AM</option>
                     <option>12:00 PM</option>
@@ -370,31 +367,31 @@ const HomePage = () => {
             <div className='lg:col-span-3 space-y-4'>
               <div className='flex items-center space-x-2'>
                 <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-                <h3 className="text-lg font-semibold text-gray-900">Drop - Off</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('dropOff')}</h3>
               </div>
               <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                 <div>
-                  <label className='block-text-sm font-medium text-gray-700 mb-2'>Location</label>
+                  <label className='block-text-sm font-medium text-gray-700 mb-2'>{t('location')}</label>
                   <select className='w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500'>
-                    <option>Select your city</option>
-                    <option>Ho Chi Minh City</option>
-                    <option>Hanoi</option>
-                    <option>Da Nang</option>
+                    <option>{t('selectCity')}</option>
+                    <option>{t('hoChiMinhCity')}</option>
+                    <option>{t('hanoi')}</option>
+                    <option>{t('daNang')}</option>
                   </select>
                 </div>
                 <div>
-                  <label className='block-text-sm font-medium text-gray-700 mb-2'>Date</label>
+                  <label className='block-text-sm font-medium text-gray-700 mb-2'>{t('date')}</label>
                   <select className='w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500'>
-                    <option>Select your date</option>
-                    <option>Today</option>
-                    <option>Tomorrow</option>
-                    <option>Next week</option>
+                    <option>{t('selectDate')}</option>
+                    <option>{t('today')}</option>
+                    <option>{t('tomorrow')}</option>
+                    <option>{t('nextWeek')}</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('time')}</label>
                   <select className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500">
-                    <option>Select your time</option>
+                    <option>{t('selectTime')}</option>
                     <option>08:00 AM</option>
                     <option>10:00 AM</option>
                     <option>12:00 PM</option>
@@ -408,9 +405,9 @@ const HomePage = () => {
         {/* Popular Cars Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Popular Car</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{t('popularCar')}</h2>
             <Link to="/cars" className="text-blue-600 hover:text-blue-700 font-medium">
-              View All
+              {t('viewAll')}
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -422,7 +419,7 @@ const HomePage = () => {
 
         {/* Recommendation Cars Section */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Recommendation Car</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('recommendationCar')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             {recommendationCars.map((car) => (
               <CarCard key={car.id} car={car} />
@@ -431,9 +428,9 @@ const HomePage = () => {
 
           <div className="text-center">
             <button className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium mr-4">
-              Show more car
+              {t('showMoreCar')}
             </button>
-            <span className="text-gray-500">120 Car</span>
+            <span className="text-gray-500">120 {t('car')}</span>
           </div>
         </div>
       </div>

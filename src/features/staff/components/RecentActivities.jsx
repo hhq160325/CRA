@@ -1,12 +1,15 @@
 
+import { useTranslation } from 'react-i18next';
+
 const RecentActivities = () => {
+  const { t } = useTranslation();
   // Mock data for recent activities
   const recentActivities = [
     {
       id: 1,
       type: 'booking',
       user: 'Alice Cooper',
-      action: 'New booking created',
+      action: t('newBookingCreated'),
       car: 'Tesla Model 3',
       timestamp: '5 minutes ago',
       status: 'confirmed'
@@ -15,7 +18,7 @@ const RecentActivities = () => {
       id: 2,
       type: 'verification',
       user: 'Bob Johnson',
-      action: 'Car owner verification completed',
+      action: t('carOwnerVerificationCompleted'),
       car: 'BMW X5',
       timestamp: '15 minutes ago',
       status: 'approved'
@@ -24,7 +27,7 @@ const RecentActivities = () => {
       id: 3,
       type: 'booking',
       user: 'Carol Smith',
-      action: 'Booking cancelled',
+      action: t('bookingCancelled'),
       car: 'Audi A4',
       timestamp: '1 hour ago',
       status: 'cancelled'
@@ -33,7 +36,7 @@ const RecentActivities = () => {
       id: 4,
       type: 'customer',
       user: 'David Wilson',
-      action: 'Customer account updated',
+      action: t('customerAccountUpdated'),
       car: null,
       timestamp: '2 hours ago',
       status: 'updated'
@@ -42,7 +45,7 @@ const RecentActivities = () => {
       id: 5,
       type: 'booking',
       user: 'Emma Davis',
-      action: 'Booking completed',
+      action: t('bookingCompleted'),
       car: 'Mercedes C-Class',
       timestamp: '3 hours ago',
       status: 'completed'
@@ -107,9 +110,9 @@ const RecentActivities = () => {
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Recent Activities</h2>
+        <h2 className="text-xl font-semibold text-gray-900">{t('recentActivities')}</h2>
         <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-          View All
+          {t('viewAll')}
         </button>
       </div>
 
@@ -121,7 +124,7 @@ const RecentActivities = () => {
               
               <div>
                 <h3 className="font-medium text-gray-900 text-sm">{activity.action}</h3>
-                <p className="text-sm text-gray-600">by {activity.user}</p>
+                <p className="text-sm text-gray-600">{t('by')} {activity.user}</p>
                 {activity.car && (
                   <p className="text-xs text-gray-500">{activity.car}</p>
                 )}
@@ -131,7 +134,7 @@ const RecentActivities = () => {
             <div className="text-right">
               <div className="text-xs text-gray-500 mb-2">{activity.timestamp}</div>
               <span className={getStatusBadge(activity.status)}>
-                {activity.status}
+                {t(activity.status)}
               </span>
             </div>
           </div>

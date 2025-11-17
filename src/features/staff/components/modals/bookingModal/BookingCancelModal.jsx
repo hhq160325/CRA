@@ -1,4 +1,8 @@
+import { useTranslation } from 'react-i18next';
+
 const BookingCancelModal = ({ selectedBooking, onCancel, onClose }) => {
+  const { t } = useTranslation();
+  
   const handleCancel = () => {
     const reason = document.getElementById('cancellationReason').value;
     onCancel(reason);
@@ -13,33 +17,33 @@ const BookingCancelModal = ({ selectedBooking, onCancel, onClose }) => {
           </svg>
           <div className="ml-3">
             <h3 className="text-sm font-medium text-red-800">
-              Cancel Booking
+              {t('cancelBooking')}
             </h3>
             <p className="mt-2 text-sm text-red-700">
-              Are you sure you want to cancel booking <strong>{selectedBooking.bookingId}</strong>?
-              This action cannot be undone.
+              {t('cancelBookingWarning')} <strong>{selectedBooking.bookingId}</strong>?
+              {' '}{t('thisActionCannotBeUndone')}
             </p>
           </div>
         </div>
       </div>
 
       <div className="bg-gray-50 rounded-lg p-4">
-        <h4 className="font-medium text-gray-900 mb-2">Booking Details:</h4>
+        <h4 className="font-medium text-gray-900 mb-2">{t('bookingDetailsLabel')}</h4>
         <div className="text-sm text-gray-600 space-y-1">
-          <p><span className="font-medium">Customer:</span> {selectedBooking.customer}</p>
-          <p><span className="font-medium">Car:</span> {selectedBooking.car}</p>
-          <p><span className="font-medium">Duration:</span> {selectedBooking.startDate} to {selectedBooking.endDate}</p>
-          <p><span className="font-medium">Amount:</span> ${selectedBooking.totalAmount}</p>
+          <p><span className="font-medium">{t('customer')}:</span> {selectedBooking.customer}</p>
+          <p><span className="font-medium">{t('car')}:</span> {selectedBooking.car}</p>
+          <p><span className="font-medium">{t('duration')}:</span> {selectedBooking.startDate} to {selectedBooking.endDate}</p>
+          <p><span className="font-medium">{t('amount')}:</span> ${selectedBooking.totalAmount}</p>
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Cancellation Reason</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">{t('cancellationReason')}</label>
         <textarea
           id="cancellationReason"
           rows={3}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Please provide a reason for cancellation..."
+          placeholder={t('provideCancellationReason')}
         />
       </div>
 
@@ -48,13 +52,13 @@ const BookingCancelModal = ({ selectedBooking, onCancel, onClose }) => {
           onClick={onClose}
           className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
         >
-          Keep Booking
+          {t('keepBooking')}
         </button>
         <button
           onClick={handleCancel}
           className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
         >
-          Cancel Booking
+          {t('cancelBooking')}
         </button>
       </div>
     </div>

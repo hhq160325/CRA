@@ -1,4 +1,8 @@
+import { useTranslation } from 'react-i18next';
+
 const BookingResolveModal = ({ selectedBooking, onResolve, onClose }) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="space-y-4">
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -8,24 +12,24 @@ const BookingResolveModal = ({ selectedBooking, onResolve, onClose }) => {
           </svg>
           <div className="ml-3">
             <h3 className="text-sm font-medium text-yellow-800">
-              Resolve Overdue Booking
+              {t('resolveOverdueBooking')}
             </h3>
             <p className="mt-2 text-sm text-yellow-700">
-              Mark booking <strong>{selectedBooking.bookingId}</strong> as completed.
-              This will resolve the overdue status.
+              {t('resolveOverdueWarning')} <strong>{selectedBooking.bookingId}</strong> {t('asCompleted')}
+              {' '}{t('resolveOverdueDescription')}
             </p>
           </div>
         </div>
       </div>
 
       <div className="bg-gray-50 rounded-lg p-4">
-        <h4 className="font-medium text-gray-900 mb-2">Booking Details:</h4>
+        <h4 className="font-medium text-gray-900 mb-2">{t('bookingDetailsLabel')}</h4>
         <div className="text-sm text-gray-600 space-y-1">
-          <p><span className="font-medium">Customer:</span> {selectedBooking.customer}</p>
-          <p><span className="font-medium">Car:</span> {selectedBooking.car}</p>
-          <p><span className="font-medium">Expected End:</span> {selectedBooking.endDate}</p>
-          <p><span className="font-medium">Amount:</span> ${selectedBooking.totalAmount}</p>
-          <p><span className="font-medium">Current Notes:</span> {selectedBooking.notes || 'No notes'}</p>
+          <p><span className="font-medium">{t('customer')}:</span> {selectedBooking.customer}</p>
+          <p><span className="font-medium">{t('car')}:</span> {selectedBooking.car}</p>
+          <p><span className="font-medium">{t('expectedEnd')}:</span> {selectedBooking.endDate}</p>
+          <p><span className="font-medium">{t('amount')}:</span> ${selectedBooking.totalAmount}</p>
+          <p><span className="font-medium">{t('currentNotes')}:</span> {selectedBooking.notes || t('noNotes')}</p>
         </div>
       </div>
 
@@ -34,13 +38,13 @@ const BookingResolveModal = ({ selectedBooking, onResolve, onClose }) => {
           onClick={onClose}
           className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
         >
-          Cancel
+          {t('cancel')}
         </button>
         <button
           onClick={onResolve}
           className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
         >
-          Mark as Completed
+          {t('markAsCompleted')}
         </button>
       </div>
     </div>

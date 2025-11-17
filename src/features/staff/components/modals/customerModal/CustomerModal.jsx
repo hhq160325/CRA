@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import CustomerViewModal from './CustomerViewModal';
 import CustomerEditModal from './CustomerEditModal';
 import CustomerSuspendModal from './CustomerSuspendModal';
@@ -13,6 +14,8 @@ const CustomerModal = ({
   getStatusBadge,
   getVerificationBadge 
 }) => {
+  const { t } = useTranslation();
+  
   if (!isOpen || !selectedCustomer) return null;
 
   return (
@@ -21,9 +24,9 @@ const CustomerModal = ({
         {/* Modal Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900">
-            {modalType === 'view' && 'Car Customer Details'}
-            {modalType === 'edit' && 'Edit Car Customer'}
-            {modalType === 'suspend' && 'Suspend Car Customer'}
+            {modalType === 'view' && t('customerDetails')}
+            {modalType === 'edit' && t('editCustomer')}
+            {modalType === 'suspend' && t('suspendCustomer')}
           </h2>
           <button
             onClick={onClose}

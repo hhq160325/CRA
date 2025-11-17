@@ -1,10 +1,12 @@
 import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { openEventModal } from '../../calendarSlice';
 import EventCard from './EventCard';
 
 const AgendaView = ({ events, currentDate }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const groupedEvents = useMemo(() => {
     const sorted = [...events].sort((a, b) => {
@@ -35,12 +37,12 @@ const AgendaView = ({ events, currentDate }) => {
     tomorrow.setDate(today.getDate() + 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return 'Today';
+      return t('today');
     }
     if (date.toDateString() === tomorrow.toDateString()) {
-      return 'Tomorrow';
+      return t('tomorrow');
     }
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString(undefined, { 
       weekday: 'long', 
       month: 'long', 
       day: 'numeric',
@@ -51,7 +53,7 @@ const AgendaView = ({ events, currentDate }) => {
   if (groupedEvents.length === 0) {
     return (
       <div className="p-8 text-center text-gray-500">
-        <p>No events scheduled</p>
+        <p>{t('noEventsScheduled')}</p>
       </div>
     );
   }
@@ -66,7 +68,7 @@ const AgendaView = ({ events, currentDate }) => {
                 {formatDateHeader(dateKey)}
               </h3>
               <p className="text-sm text-gray-500">
-                {dayEvents.length} {dayEvents.length === 1 ? 'event' : 'events'}
+                {dayEvents.length} {dayEvents.length === 1 ? t('event') : t('events')}
               </p>
             </div>
             

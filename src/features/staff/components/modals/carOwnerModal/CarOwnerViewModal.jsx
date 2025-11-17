@@ -1,51 +1,55 @@
+import { useTranslation } from 'react-i18next';
+
 const CarOwnerViewModal = ({
   selectedOwner,
   getStatusBadge,
   getVerificationBadge,
   onChangeModalType
 }) => {
+  const { t } = useTranslation();
+  
   return (
     <>
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('name')}</label>
             <p className="text-gray-900">{selectedOwner.name}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('email')}</label>
             <p className="text-gray-900">{selectedOwner.email}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('phone')}</label>
             <p className="text-gray-900">{selectedOwner.phone}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('status')}</label>
             <span className={getStatusBadge(selectedOwner.status)}>
               {selectedOwner.status}
             </span>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Registration Date</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('registrationDate')}</label>
             <p className="text-gray-900">{selectedOwner.registrationDate}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Verification Status</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('verificationStatus')}</label>
             <span className={getVerificationBadge(selectedOwner.verificationStatus)}>
               {selectedOwner.verificationStatus}
             </span>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Cars Listed</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('carsListed')}</label>
             <p className="text-gray-900">{selectedOwner.carsListed}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Total Earnings</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('totalEarnings')}</label>
             <p className="text-gray-900">${(selectedOwner.totalEarnings || 0).toLocaleString()}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Last Active</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('lastActive')}</label>
             <p className="text-gray-900">{selectedOwner.lastActive}</p>
           </div>
         </div>
@@ -57,14 +61,14 @@ const CarOwnerViewModal = ({
           onClick={() => onChangeModalType('edit')}
           className="px-4 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
         >
-          Edit
+          {t('edit')}
         </button>
         {selectedOwner.status === 'active' && (
           <button
             onClick={() => onChangeModalType('suspend')}
             className="px-4 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
           >
-            Suspend
+            {t('suspend')}
           </button>
         )}
       </div>

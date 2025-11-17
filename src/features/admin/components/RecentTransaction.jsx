@@ -1,6 +1,8 @@
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 const RecentTransaction = () => {
+  const { t } = useTranslation();
   const recentTransactions = useSelector(state => state.admin?.recentTransactions || []);
 
   const getCarImage = (carName) => {
@@ -19,9 +21,9 @@ const RecentTransaction = () => {
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Recent Transaction</h2>
+        <h2 className="text-xl font-semibold text-gray-900">{t('recentTransaction')}</h2>
         <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-          View All
+          {t('viewAll')}
         </button>
       </div>
 

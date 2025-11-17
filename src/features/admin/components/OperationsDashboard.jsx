@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const OperationsDashboard = () => {
+    const { t } = useTranslation();
     const [selectedTimeRange, setSelectedTimeRange] = useState('24h');
 
     // Mock data for operations
@@ -54,8 +56,8 @@ const OperationsDashboard = () => {
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Operations Dashboard</h1>
-                    <p className="text-gray-600 mt-1">High-level overview to manage user roles and system settings</p>
+                    <h1 className="text-3xl font-bold text-gray-900">{t('operationsDashboardTitle')}</h1>
+                    <p className="text-gray-600 mt-1">{t('operationsDashboardSubtitle')}</p>
                 </div>
                 <div className="flex space-x-4">
                     <select
@@ -63,13 +65,13 @@ const OperationsDashboard = () => {
                         onChange={(e) => setSelectedTimeRange(e.target.value)}
                         className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                        <option value="1h">Last Hour</option>
-                        <option value="24h">Last 24 Hours</option>
-                        <option value="7d">Last 7 Days</option>
-                        <option value="30d">Last 30 Days</option>
+                        <option value="1h">{t('lastHour')}</option>
+                        <option value="24h">{t('last24Hours')}</option>
+                        <option value="7d">{t('last7Days')}</option>
+                        <option value="30d">{t('last30Days')}</option>
                     </select>
                     <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        Refresh Data
+                        {t('refreshData')}
                     </button>
                 </div>
             </div>
@@ -79,7 +81,7 @@ const OperationsDashboard = () => {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-gray-600">System Uptime</p>
+                            <p className="text-sm font-medium text-gray-600">{t('systemUptime')}</p>
                             <p className="text-2xl font-bold text-green-600">{systemMetrics.uptime}</p>
                         </div>
                         <div className="p-3 bg-green-100 rounded-full">
@@ -93,7 +95,7 @@ const OperationsDashboard = () => {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-gray-600">Active Users</p>
+                            <p className="text-sm font-medium text-gray-600">{t('activeUsers')}</p>
                             <p className="text-2xl font-bold text-blue-600">{systemMetrics.activeUsers.toLocaleString()}</p>
                         </div>
                         <div className="p-3 bg-blue-100 rounded-full">
@@ -107,7 +109,7 @@ const OperationsDashboard = () => {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-gray-600">Total Requests</p>
+                            <p className="text-sm font-medium text-gray-600">{t('totalRequests')}</p>
                             <p className="text-2xl font-bold text-purple-600">{systemMetrics.totalRequests.toLocaleString()}</p>
                         </div>
                         <div className="p-3 bg-purple-100 rounded-full">
@@ -121,7 +123,7 @@ const OperationsDashboard = () => {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-gray-600">Error Rate</p>
+                            <p className="text-sm font-medium text-gray-600">{t('errorRate')}</p>
                             <p className="text-2xl font-bold text-red-600">{systemMetrics.errorRate}</p>
                         </div>
                         <div className="p-3 bg-red-100 rounded-full">
@@ -135,7 +137,7 @@ const OperationsDashboard = () => {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-gray-600">Response Time</p>
+                            <p className="text-sm font-medium text-gray-600">{t('responseTime')}</p>
                             <p className="text-2xl font-bold text-orange-600">{systemMetrics.responseTime}</p>
                         </div>
                         <div className="p-3 bg-orange-100 rounded-full">
@@ -149,7 +151,7 @@ const OperationsDashboard = () => {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-gray-600">Server Load</p>
+                            <p className="text-sm font-medium text-gray-600">{t('serverLoad')}</p>
                             <p className="text-2xl font-bold text-yellow-600">{systemMetrics.serverLoad}</p>
                         </div>
                         <div className="p-3 bg-yellow-100 rounded-full">
@@ -165,8 +167,8 @@ const OperationsDashboard = () => {
                 {/* Service Status */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200">
                     <div className="p-6 border-b border-gray-200">
-                        <h2 className="text-xl font-semibold text-gray-900">Service Status</h2>
-                        <p className="text-gray-600 text-sm mt-1">Monitor all system services and their health</p>
+                        <h2 className="text-xl font-semibold text-gray-900">{t('serviceStatus')}</h2>
+                        <p className="text-gray-600 text-sm mt-1">{t('serviceStatusSubtitle')}</p>
                     </div>
                     <div className="p-6">
                         <div className="space-y-4">
@@ -174,16 +176,16 @@ const OperationsDashboard = () => {
                                 <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                     <div className="flex items-center space-x-3">
                                         <div className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(service.status)}`}>
-                                            {service.status.charAt(0).toUpperCase() + service.status.slice(1)}
+                                            {t(service.status)}
                                         </div>
                                         <div>
                                             <p className="font-medium text-gray-900">{service.name}</p>
-                                            <p className="text-sm text-gray-600">Uptime: {service.uptime}</p>
+                                            <p className="text-sm text-gray-600">{t('uptime')}: {service.uptime}</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-sm font-medium text-gray-900">{service.responseTime}</p>
-                                        <p className="text-xs text-gray-600">avg response</p>
+                                        <p className="text-xs text-gray-600">{t('avgResponse')}</p>
                                     </div>
                                 </div>
                             ))}
@@ -194,8 +196,8 @@ const OperationsDashboard = () => {
                 {/* Operational Alerts */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200">
                     <div className="p-6 border-b border-gray-200">
-                        <h2 className="text-xl font-semibold text-gray-900">Recent Alerts</h2>
-                        <p className="text-gray-600 text-sm mt-1">System notifications and operational updates</p>
+                        <h2 className="text-xl font-semibold text-gray-900">{t('recentAlerts')}</h2>
+                        <p className="text-gray-600 text-sm mt-1">{t('recentAlertsSubtitle')}</p>
                     </div>
                     <div className="p-6">
                         <div className="space-y-4">
@@ -210,14 +212,14 @@ const OperationsDashboard = () => {
                                             alert.severity === 'medium' ? 'bg-yellow-200 text-yellow-800' :
                                                 'bg-gray-200 text-gray-800'
                                             }`}>
-                                            {alert.severity}
+                                            {t(alert.severity)}
                                         </span>
                                     </div>
                                 </div>
                             ))}
                         </div>
                         <button className="w-full mt-4 px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
-                            View All Alerts
+                            {t('viewAllAlerts')}
                         </button>
                     </div>
                 </div>
@@ -226,8 +228,8 @@ const OperationsDashboard = () => {
             {/* User Role Management */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200">
                 <div className="p-6 border-b border-gray-200">
-                    <h2 className="text-xl font-semibold text-gray-900">User Role Management</h2>
-                    <p className="text-gray-600 text-sm mt-1">Manage user permissions and system access</p>
+                    <h2 className="text-xl font-semibold text-gray-900">{t('userRoleManagement')}</h2>
+                    <p className="text-gray-600 text-sm mt-1">{t('userRoleManagementSubtitle')}</p>
                 </div>
                 <div className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -237,9 +239,9 @@ const OperationsDashboard = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                                 </svg>
                             </div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Admin Users</h3>
+                            <h3 className="font-semibold text-gray-900 mb-2">{t('adminUsers')}</h3>
                             <p className="text-2xl font-bold text-blue-600 mb-2">12</p>
-                            <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">Manage Admins</button>
+                            <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">{t('manageAdmins')}</button>
                         </div>
 
                         <div className="text-center p-6 bg-green-50 rounded-lg">
@@ -248,9 +250,9 @@ const OperationsDashboard = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                             </div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Regular Users</h3>
+                            <h3 className="font-semibold text-gray-900 mb-2">{t('regularUsers')}</h3>
                             <p className="text-2xl font-bold text-green-600 mb-2">1,235</p>
-                            <button className="text-green-600 hover:text-green-700 text-sm font-medium">View Users</button>
+                            <button className="text-green-600 hover:text-green-700 text-sm font-medium">{t('viewUsers')}</button>
                         </div>
 
                         <div className="text-center p-6 bg-purple-50 rounded-lg">
@@ -259,9 +261,9 @@ const OperationsDashboard = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                             </div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Permissions</h3>
+                            <h3 className="font-semibold text-gray-900 mb-2">{t('permissions')}</h3>
                             <p className="text-2xl font-bold text-purple-600 mb-2">24</p>
-                            <button className="text-purple-600 hover:text-purple-700 text-sm font-medium">Configure</button>
+                            <button className="text-purple-600 hover:text-purple-700 text-sm font-medium">{t('configure')}</button>
                         </div>
                     </div>
                 </div>

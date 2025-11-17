@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Modal from '../../../../shared/components/Modal';
 
 const sampleMessages = [
@@ -12,6 +13,7 @@ const sampleMessages = [
 const formatDateTime = (iso) => new Date(iso).toLocaleString();
 
 const InboxPage = () => {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState(sampleMessages);
   const [query, setQuery] = useState('');
   const [tag, setTag] = useState('all');
@@ -66,33 +68,33 @@ const InboxPage = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-900">Inbox</h2>
-        <button onClick={markAllAsRead} className="text-sm px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">Mark all as read</button>
+        <h2 className="text-xl font-semibold text-gray-900">{t('inbox')}</h2>
+        <button onClick={markAllAsRead} className="text-sm px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">{t('markAllAsRead')}</button>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm p-4 border border-gray-100">
         <div className="flex flex-col md:flex-row md:items-center gap-3">
           <div className="relative flex-1">
             <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input value={query} onChange={e=>{setQuery(e.target.value); setPage(1);}} placeholder="Search messages..." className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+            <input value={query} onChange={e=>{setQuery(e.target.value); setPage(1);}} placeholder={t('searchMessages')} className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
           </div>
           <select value={tag} onChange={e=>{setTag(e.target.value); setPage(1);}} className="px-3 py-2 border border-gray-300 rounded-lg">
-            <option value="all">All tags</option>
-            <option value="booking">Booking</option>
-            <option value="billing">Billing</option>
-            <option value="promo">Promo</option>
-            <option value="system">System</option>
+            <option value="all">{t('allTags')}</option>
+            <option value="booking">{t('bookingTag')}</option>
+            <option value="billing">{t('billingTag')}</option>
+            <option value="promo">{t('promoTag')}</option>
+            <option value="system">{t('systemTag')}</option>
           </select>
           <label className="inline-flex items-center gap-2 text-sm text-gray-700">
             <input type="checkbox" checked={onlyUnread} onChange={e=>{setOnlyUnread(e.target.checked); setPage(1);}} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-            Only unread
+            {t('onlyUnread')}
           </label>
         </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 divide-y">
         {current.length === 0 && (
-          <div className="p-8 text-center text-gray-500">No messages found.</div>
+          <div className="p-8 text-center text-gray-500">{t('noMessagesFound')}</div>
         )}
         {current.map(m => (
           <div key={m.id} className={`p-4 flex items-start justify-between ${m.read ? 'bg-white' : 'bg-blue-50/30'}`}>
@@ -106,28 +108,28 @@ const InboxPage = () => {
               <div className="text-xs text-gray-400 mt-1">{m.sender} • {formatDateTime(m.date)}</div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <button onClick={()=>toggleRead(m.id)} className="px-2 py-1 text-xs rounded border border-gray-300 text-gray-700 hover:bg-gray-50">{m.read ? 'Mark unread' : 'Mark read'}</button>
-              <button onClick={()=>requestDelete(m.id)} className="px-2 py-1 text-xs rounded border border-red-300 text-red-600 hover:bg-red-50">Delete</button>
+              <button onClick={()=>toggleRead(m.id)} className="px-2 py-1 text-xs rounded border border-gray-300 text-gray-700 hover:bg-gray-50">{m.read ? t('markUnread') : t('markRead')}</button>
+              <button onClick={()=>requestDelete(m.id)} className="px-2 py-1 text-xs rounded border border-red-300 text-red-600 hover:bg-red-50">{t('delete')}</button>
             </div>
           </div>
         ))}
       </div>
 
       <div className="flex items-center justify-between text-sm">
-        <div className="text-gray-600">Page {page} of {totalPages}</div>
+        <div className="text-gray-600">{t('page')} {page} {t('of')} {totalPages}</div>
         <div className="flex items-center gap-2">
-          <button disabled={page===1} onClick={()=>setPage(p=>Math.max(1, p-1))} className={`px-3 py-1 rounded border ${page===1 ? 'text-gray-300 border-gray-200' : 'text-gray-700 border-gray-300 hover:bg-gray-50'}`}>Prev</button>
-          <button disabled={page===totalPages} onClick={()=>setPage(p=>Math.min(totalPages, p+1))} className={`px-3 py-1 rounded border ${page===totalPages ? 'text-gray-300 border-gray-200' : 'text-gray-700 border-gray-300 hover:bg-gray-50'}`}>Next</button>
+          <button disabled={page===1} onClick={()=>setPage(p=>Math.max(1, p-1))} className={`px-3 py-1 rounded border ${page===1 ? 'text-gray-300 border-gray-200' : 'text-gray-700 border-gray-300 hover:bg-gray-50'}`}>{t('previous')}</button>
+          <button disabled={page===totalPages} onClick={()=>setPage(p=>Math.min(totalPages, p+1))} className={`px-3 py-1 rounded border ${page===totalPages ? 'text-gray-300 border-gray-200' : 'text-gray-700 border-gray-300 hover:bg-gray-50'}`}>{t('next')}</button>
         </div>
       </div>
 
       <Modal isOpen={confirmDeleteId != null} onClose={() => setConfirmDeleteId(null)}>
         <div className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete message</h3>
-          <p className="text-sm text-gray-600 mb-6">Delete {confirmTitle}? This action cannot be undone.</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('deleteMessage')}</h3>
+          <p className="text-sm text-gray-600 mb-6">{t('deleteMessageConfirm')} {confirmTitle}? {t('thisActionCannotBeUndone')}</p>
           <div className="flex items-center justify-end gap-3">
-            <button onClick={() => setConfirmDeleteId(null)} className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">Cancel</button>
-            <button onClick={confirmDelete} className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">Delete</button>
+            <button onClick={() => setConfirmDeleteId(null)} className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">{t('cancel')}</button>
+            <button onClick={confirmDelete} className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">{t('delete')}</button>
           </div>
         </div>
       </Modal>

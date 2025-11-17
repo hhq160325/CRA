@@ -1,10 +1,12 @@
 import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { openEventModal } from '../../calendarSlice';
 import EventCard from './EventCard';
 
 const WeekView = ({ events, currentDate }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const weekDays = useMemo(() => {
     const date = currentDate instanceof Date ? currentDate : new Date(currentDate);
@@ -69,7 +71,7 @@ const WeekView = ({ events, currentDate }) => {
               {/* Day header */}
               <div className={`h-12 border-b border-gray-200 p-2 text-center ${today ? 'bg-blue-50' : ''}`}>
                 <div className="text-xs text-gray-500">
-                  {day.toLocaleDateString('en-US', { weekday: 'short' })}
+                  {day.toLocaleDateString(undefined, { weekday: 'short' })}
                 </div>
                 <div className={`text-sm font-semibold ${today ? 'text-blue-600' : 'text-gray-900'}`}>
                   {day.getDate()}

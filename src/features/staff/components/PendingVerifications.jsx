@@ -1,5 +1,8 @@
 
+import { useTranslation } from 'react-i18next';
+
 const PendingVerifications = () => {
+  const { t } = useTranslation();
   // Mock data for pending verifications
   const pendingItems = [
     {
@@ -73,9 +76,9 @@ const PendingVerifications = () => {
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Pending Verifications</h2>
+        <h2 className="text-xl font-semibold text-gray-900">{t('pendingVerifications')}</h2>
         <span className="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">
-          {pendingItems.length} pending
+          {pendingItems.length} {t('pending')}
         </span>
       </div>
 
@@ -93,10 +96,10 @@ const PendingVerifications = () => {
 
             <div className="flex flex-col items-end space-y-2">
               <span className={getPriorityBadge(item.priority)}>
-                {item.priority}
+                {t(item.priority)}
               </span>
               <button className="text-blue-600 hover:text-blue-700 text-xs font-medium">
-                Review
+                {t('review')}
               </button>
             </div>
           </div>
@@ -105,7 +108,7 @@ const PendingVerifications = () => {
 
       <div className="mt-6 pt-4 border-t border-gray-200">
         <button className="w-full text-center text-blue-600 hover:text-blue-700 text-sm font-medium">
-          View All Pending Verifications
+          {t('viewAllPendingVerifications')}
         </button>
       </div>
     </div>

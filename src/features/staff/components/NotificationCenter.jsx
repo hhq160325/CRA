@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { addNotification } from '../staffSlice';
 
 const NotificationCenter = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState('create');
   const [notificationForm, setNotificationForm] = useState({
@@ -123,8 +125,8 @@ const NotificationCenter = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Notification Center</h1>
-          <p className="text-gray-600">Send system-wide notifications to users</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('notificationCenter')}</h1>
+          <p className="text-gray-600">{t('sendSystemWideNotifications')}</p>
         </div>
       </div>
 
@@ -140,7 +142,7 @@ const NotificationCenter = () => {
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
-              Create Notification
+              {t('createNotification')}
             </button>
             <button
               onClick={() => setActiveTab('history')}
@@ -150,7 +152,7 @@ const NotificationCenter = () => {
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
-              Notification History
+              {t('notificationHistory')}
             </button>
           </nav>
         </div>
@@ -161,25 +163,25 @@ const NotificationCenter = () => {
             <div className="max-w-2xl space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Notification Title
+                  {t('notificationTitle')}
                 </label>
                 <input
                   type="text"
                   value={notificationForm.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  placeholder="Enter notification title..."
+                  placeholder={t('enterNotificationTitle')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Message Content
+                  {t('messageContent')}
                 </label>
                 <textarea
                   value={notificationForm.message}
                   onChange={(e) => handleInputChange('message', e.target.value)}
-                  placeholder="Enter your message..."
+                  placeholder={t('enterYourMessage')}
                   rows={4}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
@@ -188,31 +190,31 @@ const NotificationCenter = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Target Audience
+                    {t('targetAudience')}
                   </label>
                   <select
                     value={notificationForm.targetAudience}
                     onChange={(e) => handleInputChange('targetAudience', e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="all">All Users ({getTotalRecipients('all')})</option>
-                    <option value="customers">Customers Only ({getTotalRecipients('customers')})</option>
-                    <option value="car-owners">Car Owners Only ({getTotalRecipients('car-owners')})</option>
+                    <option value="all">{t('allUsers')} ({getTotalRecipients('all')})</option>
+                    <option value="customers">{t('customersOnly')} ({getTotalRecipients('customers')})</option>
+                    <option value="car-owners">{t('carOwnersOnly')} ({getTotalRecipients('car-owners')})</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Priority Level
+                    {t('priorityLevel')}
                   </label>
                   <select
                     value={notificationForm.priority}
                     onChange={(e) => handleInputChange('priority', e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="low">Low Priority</option>
-                    <option value="normal">Normal Priority</option>
-                    <option value="high">High Priority</option>
+                    <option value="low">{t('lowPriority')}</option>
+                    <option value="normal">{t('normalPriority')}</option>
+                    <option value="high">{t('highPriority')}</option>
                   </select>
                 </div>
               </div>
@@ -220,48 +222,48 @@ const NotificationCenter = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Delivery Method
+                    {t('deliveryMethod')}
                   </label>
                   <select
                     value={notificationForm.deliveryMethod}
                     onChange={(e) => handleInputChange('deliveryMethod', e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="in-app">In-App Notification</option>
-                    <option value="email">Email</option>
-                    <option value="both">Both In-App & Email</option>
+                    <option value="in-app">{t('inAppNotification')}</option>
+                    <option value="email">{t('email')}</option>
+                    <option value="both">{t('bothInAppEmail')}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Schedule
+                    {t('schedule')}
                   </label>
                   <select
                     value={notificationForm.scheduleType}
                     onChange={(e) => handleInputChange('scheduleType', e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="immediate">Send Immediately</option>
-                    <option value="scheduled">Schedule for Later</option>
+                    <option value="immediate">{t('sendImmediately')}</option>
+                    <option value="scheduled">{t('scheduleForLater')}</option>
                   </select>
                 </div>
               </div>
 
               <div className="flex items-center justify-between pt-6 border-t border-gray-200">
                 <div className="text-sm text-gray-600">
-                  This notification will be sent to {getTotalRecipients(notificationForm.targetAudience)} users
+                  {t('thisNotificationWillBeSent')} {getTotalRecipients(notificationForm.targetAudience)} {t('users')}
                 </div>
                 <div className="flex space-x-3">
                   <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                    Save Draft
+                    {t('saveDraft')}
                   </button>
                   <button
                     onClick={handleSendNotification}
                     disabled={!notificationForm.title || !notificationForm.message}
                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                   >
-                    Send Notification
+                    {t('sendNotification')}
                   </button>
                 </div>
               </div>
@@ -288,18 +290,18 @@ const NotificationCenter = () => {
                       </div>
                       <p className="text-gray-600 text-sm mb-3">{notification.message}</p>
                       <div className="flex items-center space-x-6 text-xs text-gray-500">
-                        <span>Sent: {notification.sentAt}</span>
-                        <span>Audience: {notification.targetAudience}</span>
-                        <span>Recipients: {notification.totalRecipients}</span>
-                        <span>Read: {notification.readCount} ({Math.round((notification.readCount / notification.totalRecipients) * 100)}%)</span>
+                        <span>{t('sent')}: {notification.sentAt}</span>
+                        <span>{t('audience')}: {notification.targetAudience}</span>
+                        <span>{t('recipients')}: {notification.totalRecipients}</span>
+                        <span>{t('read')}: {notification.readCount} ({Math.round((notification.readCount / notification.totalRecipients) * 100)}%)</span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
                       <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                        View Details
+                        {t('viewDetails')}
                       </button>
                       <button className="text-gray-600 hover:text-gray-700 text-sm font-medium">
-                        Duplicate
+                        {t('duplicate')}
                       </button>
                     </div>
                   </div>

@@ -1,8 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { removeFromFavorites, selectFavoriteCars } from '../../../favorites/favoritesSlice';
 
 const FavouriteCarPage = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const favouriteCars = useSelector(selectFavoriteCars);
@@ -18,8 +20,8 @@ const FavouriteCarPage = () => {
   return (
     <div>
       <div className="mb-4 sm:mb-6">
-        <h1 className="hidden lg:block text-2xl font-semibold text-gray-900">Favourite Car</h1>
-        <h1 className="lg:hidden text-xl font-semibold text-gray-900">Favourite Car</h1>
+        <h1 className="hidden lg:block text-2xl font-semibold text-gray-900">{t('favouriteCar')}</h1>
+        <h1 className="lg:hidden text-xl font-semibold text-gray-900">{t('favouriteCar')}</h1>
       </div>
 
       {favouriteCars.length === 0 ? (
@@ -27,13 +29,13 @@ const FavouriteCarPage = () => {
           <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           </svg>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No Favourite Cars</h3>
-          <p className="text-gray-500 mb-4">You haven't added any cars to your favorites yet.</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('noFavouriteCars')}</h3>
+          <p className="text-gray-500 mb-4">{t('noFavouriteCarsMessage')}</p>
           <Link
             to="/"
             className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Browse Cars
+            {t('browseCars')}
           </Link>
         </div>
       ) : (
@@ -60,7 +62,7 @@ const FavouriteCarPage = () => {
                   </svg>
                 </button>
                 <div className="absolute top-3 left-3 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
-                  {car.type || 'Car'}
+                  {car.type || t('car')}
                 </div>
               </div>
 
@@ -100,7 +102,7 @@ const FavouriteCarPage = () => {
                   <div className="min-w-0">
                     <div className='flex items-center space-x-1'>
                       <div className="text-lg sm:text-xl font-bold text-gray-900">${typeof car.price === 'number' ? car.price.toFixed(2) : (parseFloat(car.price) || 0).toFixed(2)}</div>
-                      <div className="text-xs sm:text-sm text-slate-400">/day</div>
+                      <div className="text-xs sm:text-sm text-slate-400">{t('perDay')}</div>
                     </div>
                     {car.originalPrice && (
                       <div className="text-xs sm:text-sm text-gray-500 line-through">${typeof car.originalPrice === 'number' ? car.originalPrice.toFixed(2) : (parseFloat(car.originalPrice) || 0).toFixed(2)}</div>
@@ -111,7 +113,7 @@ const FavouriteCarPage = () => {
                       onClick={() => handleViewDetails(car.id)}
                       className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-xs sm:text-sm w-full sm:w-auto"
                     >
-                      Rent Now
+                      {t('rentNow')}
                     </button>
                   </div>
                 </div>

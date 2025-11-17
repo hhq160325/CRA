@@ -108,6 +108,11 @@ export const authSlice = createSlice({
       state.error = null;
       state.success = null;
     },
+    updateUserData: (state, action) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+      }
+    },
   },
   extraReducers: (builder) => {
     // Login
@@ -230,6 +235,7 @@ export const {
   setForgotPasswordEmail,
   setResetPasswordToken,
   clearAuthData,
+  updateUserData,
 } = authSlice.actions;
 
 // Export selectors

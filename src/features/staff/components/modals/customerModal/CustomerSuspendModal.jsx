@@ -1,4 +1,8 @@
+import { useTranslation } from 'react-i18next';
+
 const CustomerSuspendModal = ({ selectedCustomer, onSuspend, onClose }) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="space-y-4">
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -8,22 +12,21 @@ const CustomerSuspendModal = ({ selectedCustomer, onSuspend, onClose }) => {
           </svg>
           <div className="ml-3">
             <h3 className="text-sm font-medium text-red-800">
-              Suspend Customer Account
+              {t('suspendCustomerAccount')}
             </h3>
             <p className="mt-2 text-sm text-red-700">
-              Are you sure you want to suspend <strong>{selectedCustomer.name}</strong>'s account?
-              This will prevent them from accessing their account and listing new cars.
+              {t('suspendCustomerWarning')} <strong>{selectedCustomer.name}</strong>{t('suspendCustomerDescription')}
             </p>
           </div>
         </div>
       </div>
 
       <div className="bg-gray-50 rounded-lg p-4">
-        <h4 className="font-medium text-gray-900 mb-2">Account Details:</h4>
+        <h4 className="font-medium text-gray-900 mb-2">{t('accountDetails')}</h4>
         <div className="text-sm text-gray-600 space-y-1">
-          <p><span className="font-medium">Email:</span> {selectedCustomer.email}</p>
-          <p><span className="font-medium">Cars Listed:</span> {selectedCustomer.carsListed}</p>
-          <p><span className="font-medium">Total Earnings:</span> ${(selectedCustomer.totalEarnings || 0).toLocaleString()}</p>
+          <p><span className="font-medium">{t('email')}:</span> {selectedCustomer.email}</p>
+          <p><span className="font-medium">{t('totalBookings')}:</span> {selectedCustomer.totalBookings}</p>
+          <p><span className="font-medium">{t('totalSpent')}:</span> ${(selectedCustomer.totalSpent || 0).toLocaleString()}</p>
         </div>
       </div>
 
@@ -32,13 +35,13 @@ const CustomerSuspendModal = ({ selectedCustomer, onSuspend, onClose }) => {
           onClick={onClose}
           className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
         >
-          Cancel
+          {t('cancel')}
         </button>
         <button
           onClick={onSuspend}
           className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
         >
-          Suspend Account
+          {t('suspendAccount')}
         </button>
       </div>
     </div>

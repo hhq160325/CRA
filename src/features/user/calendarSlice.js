@@ -1,28 +1,19 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { API_CONFIG } from '../../shared/constants';
+import { axiosInstance } from '../../shared/utils/axiosInstance';
 
 // Async thunks
 export const fetchUserBookings = createAsyncThunk(
   'calendar/fetchUserBookings',
   async (userId, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('accessToken');
-      const response = await fetch(`${API_CONFIG.BASE_URL}/users/${userId}/bookings`, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
-      });
-      if (!response.ok) {
-        // If API doesn't exist yet, return mock data
-        if (response.status === 404) {
-          return [];
-        }
-        throw new Error('Failed to fetch bookings');
-      }
-      return await response.json();
+      const response = await axiosInstance.get(`/users/${userId}/bookings`);
+      return response.data;
     } catch (error) {
       // Return empty array for now if API doesn't exist
+      if (error.response?.status === 404) {
+        console.warn('Bookings API not available, using empty array');
+        return [];
+      }
       console.warn('Bookings API not available, using empty array:', error.message);
       return [];
     }
@@ -33,21 +24,10 @@ export const createBookingEvent = createAsyncThunk(
   'calendar/createBookingEvent',
   async (eventData, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('accessToken');
-      const response = await fetch(`${API_CONFIG.BASE_URL}/bookings`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
-        body: JSON.stringify(eventData),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to create booking');
-      }
-      return await response.json();
+      const response = await axiosInstance.post('/bookings', eventData);
+      return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -56,21 +36,10 @@ export const updateBookingEvent = createAsyncThunk(
   'calendar/updateBookingEvent',
   async ({ id, updates }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('accessToken');
-      const response = await fetch(`${API_CONFIG.BASE_URL}/bookings/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
-        body: JSON.stringify(updates),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to update booking');
-      }
-      return await response.json();
+      const response = await axiosInstance.put(`/bookings/${id}`, updates);
+      return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -79,19 +48,10 @@ export const deleteBookingEvent = createAsyncThunk(
   'calendar/deleteBookingEvent',
   async (id, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('accessToken');
-      const response = await fetch(`${API_CONFIG.BASE_URL}/bookings/${id}`, {
-        method: 'DELETE',
-        headers: {
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to delete booking');
-      }
+      await axiosInstance.delete(`/bookings/${id}`);
       return id;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );

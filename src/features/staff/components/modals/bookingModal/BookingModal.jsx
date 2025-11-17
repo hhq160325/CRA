@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import BookingViewModal from './BookingViewModal';
 import BookingEditModal from './BookingEditModal';
 import BookingCancelModal from './BookingCancelModal';
@@ -15,6 +16,8 @@ const BookingModal = ({
   getStatusBadge,
   getPaymentBadge 
 }) => {
+  const { t } = useTranslation();
+  
   if (!isOpen || !selectedBooking) return null;
 
   return (
@@ -23,10 +26,10 @@ const BookingModal = ({
         {/* Modal Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900">
-            {modalType === 'view' && 'Booking Details'}
-            {modalType === 'edit' && 'Edit Booking'}
-            {modalType === 'cancel' && 'Cancel Booking'}
-            {modalType === 'resolve' && 'Resolve Overdue Booking'}
+            {modalType === 'view' && t('bookingDetails')}
+            {modalType === 'edit' && t('editBooking')}
+            {modalType === 'cancel' && t('cancelBooking')}
+            {modalType === 'resolve' && t('resolveOverdueBooking')}
           </h2>
           <button
             onClick={onClose}

@@ -1,12 +1,66 @@
-// User-specific API configuration
-import { API_CONFIG } from "../../shared/constants";
+// Import utilities
+import { decodeJWT } from "../auth/utils";
+import { axiosInstance } from "../../shared/utils/axiosInstance";
 
-export const USER_ENDPOINTS = {
-  PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
-  UPDATE_PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
+// Re-export user endpoints from central config
+export { USER_ENDPOINTS, USER_API_CONFIG } from "../../config/api";
+
+// Helper function to get userId from token
+export const getUserIdFromToken = () => {
+  const token = localStorage.getItem("accessToken");
+  if (!token) return null;
+
+  const decoded = decodeJWT(token);
+  if (!decoded) return null;
+
+  // Check common JWT claims for user ID
+  return decoded.sub || decoded.userId || decoded.id || decoded.nameid;
 };
 
-export const USER_API_CONFIG = {
-  timeout: API_CONFIG.TIMEOUT,
-  headers: API_CONFIG.HEADERS,
+// Fetch user by ID
+export const getUserById = async () => {
+  try {
+    const userId = getUserIdFromToken();
+    if (!userId) {
+      throw new Error("User ID not found in token");
+    }
+
+    const { USER_ENDPOINTS } = await import("../../config/api");
+    const response = await axiosInstance.get(USER_ENDPOINTS.GET_USER_BY_ID(userId));
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    throw error;
+  }
+};
+
+// Update user information
+export const updateUserInfo = async (userData) => {
+  try {
+    const userId = getUserIdFromToken();
+    if (!userId) {
+      throw new Error("User ID not found in token");
+    }
+
+    const { USER_ENDPOINTS } = await import("../../config/api");
+    
+    // Prepare the payload with user ID
+    const payload = {
+      id: userId,
+      username: userData.username,
+      password: userData.password,
+      phoneNumber: userData.phoneNumber,
+      fullname: userData.fullname,
+      address: userData.address,
+      imageAvatar: userData.imageAvatar,
+      status: userData.status,
+      gender: userData.gender
+    };
+
+    const response = await axiosInstance.patch(USER_ENDPOINTS.UPDATE_USER_INFO, payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating user data:", error);
+    throw error;
+  }
 };

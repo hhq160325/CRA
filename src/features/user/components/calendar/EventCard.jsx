@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const getStatusColor = (status) => {
   const colors = {
@@ -12,6 +13,7 @@ const getStatusColor = (status) => {
 };
 
 const EventCard = ({ event, compact = false, onClick }) => {
+  const { t } = useTranslation();
   const statusColor = getStatusColor(event.status);
 
   const formatTime = (date) => {
@@ -46,10 +48,10 @@ const EventCard = ({ event, compact = false, onClick }) => {
         {formatTime(event.start)} - {formatTime(event.end)}
       </div>
       {event.car && (
-        <div className="text-xs text-gray-500 mt-1">Car: {event.car}</div>
+        <div className="text-xs text-gray-500 mt-1">{t('car')}: {event.car}</div>
       )}
       <div className={`text-xs mt-2 px-2 py-1 rounded inline-block ${statusColor}`}>
-        {event.status}
+        {t(event.status)}
       </div>
     </div>
   );

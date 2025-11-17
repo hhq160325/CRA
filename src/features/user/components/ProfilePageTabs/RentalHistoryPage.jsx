@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const RentalHistoryPage = () => {
+  const { t } = useTranslation();
   const [rentalHistory] = useState([
     {
       id: 1,
@@ -108,8 +110,8 @@ const RentalHistoryPage = () => {
     <div>
       <div className="bg-white rounded-lg shadow-sm">
         <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
-          <h1 className="hidden lg:block text-xl font-semibold text-gray-900">Rental History</h1>
-          <h1 className="lg:hidden text-lg font-semibold text-gray-900">Rental History</h1>
+          <h1 className="hidden lg:block text-xl font-semibold text-gray-900">{t('Rental History')}</h1>
+          <h1 className="lg:hidden text-lg font-semibold text-gray-900">{t('Rental History')}</h1>
         </div>
 
         {/* Mobile Card View */}
@@ -122,29 +124,29 @@ const RentalHistoryPage = () => {
                     ? 'bg-green-100 text-green-800'
                     : 'bg-red-100 text-red-800'
                   }`}>
-                  {rental.status}
+                  {rental.status === 'Paid' ? t('paid') : t('unpaid')}
                 </span>
               </div>
               <div className="space-y-1 text-sm text-gray-600">
                 <div className="flex justify-between">
-                  <span>Type:</span>
+                  <span>{t('type')}:</span>
                   <span>{rental.type}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Brand:</span>
+                  <span>{t('brand')}:</span>
                   <span>{rental.brand}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Plate No:</span>
+                  <span>{t('plateNo')}:</span>
                   <span>{rental.plateNo}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Rent Day:</span>
+                  <span>{t('rentDay')}:</span>
                   <span>{rental.rentDay}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Payment Date:</span>
-                  <span>{rental.paymentDate}</span>
+                  <span>{t('paymentDate')}:</span>
+                  <span>{rental.paymentDate === 'No Payment' ? t('noPayment') : rental.paymentDate}</span>
                 </div>
               </div>
             </div>
@@ -156,14 +158,14 @@ const RentalHistoryPage = () => {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Car Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. Plat</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rent Day</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('no')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('carName')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('type')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('brand')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('plateNo')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('rentDay')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('status')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('paymentDate')}</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -180,10 +182,10 @@ const RentalHistoryPage = () => {
                         ? 'bg-green-100 text-green-800'
                         : 'bg-red-100 text-red-800'
                       }`}>
-                      {rental.status}
+                      {rental.status === 'Paid' ? t('paid') : t('unpaid')}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.paymentDate}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.paymentDate === 'No Payment' ? t('noPayment') : rental.paymentDate}</td>
                 </tr>
               ))}
             </tbody>

@@ -1,3 +1,5 @@
+import axios from "axios";
+
 // Auth-specific utility functions
 
 // Helper function to make auth API calls
@@ -6,42 +8,79 @@ export const authApiCall = async (endpoint, options = {}) => {
     const token = localStorage.getItem("accessToken");
 
     const config = {
-      method: "POST",
+      method: options.method || "POST",
+      url: endpoint,
       headers: {
         "Content-Type": "application/json",
         ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
       },
-      ...options,
+      data: options.body,
     };
 
-    if (options.body) {
-      config.body = JSON.stringify(options.body);
-    }
-
-    const response = await fetch(endpoint, config);
-    
-    // Try to parse as JSON, fallback to text if it fails
-    let data;
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      data = await response.json();
-    } else {
-      const text = await response.text();
-      data = { message: text };
-    }
-
-    if (!response.ok) {
-      // Create error object with status code and message
-      const error = new Error(data.message || "Something went wrong");
-      error.statusCode = response.status;
-      error.response = data;
-      throw error;
-    }
-
-    return data;
+    const response = await axios(config);
+    return response.data;
   } catch (error) {
+    // Axios wraps errors differently
+    if (error.response) {
+      // Server responded with error status
+      const customError = new Error(error.response.data?.message || "Something went wrong");
+      customError.statusCode = error.response.status;
+      customError.response = error.response.data;
+      throw customError;
+    }
     throw error;
+  }
+};
+
+// Decode JWT token without verification (client-side only)
+export const decodeJWT = (token) => {
+  try {
+    if (!token) return null;
+    const base64Url = token.split('.')[1];
+    if (!base64Url) return null;
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Error decoding JWT:", error);
+    return null;
+  }
+};
+
+// Extract role from JWT token
+export const getRoleFromToken = (token) => {
+  const decoded = decodeJWT(token);
+  if (!decoded) return null;
+  
+  // Check for role claim in the token
+  const roleClaim = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+  return roleClaim ? parseInt(roleClaim, 10) : null;
+};
+
+// Role constants
+export const ROLES = {
+  CUSTOMER: 1,
+  ADMIN: 1001,
+  STAFF: 1002
+};
+
+// Get redirect path based on role
+export const getRedirectPathByRole = (roleId) => {
+  switch (roleId) {
+    case ROLES.CUSTOMER:
+      return '/';
+    case ROLES.ADMIN:
+      return '/admin';
+    case ROLES.STAFF:
+      return '/staff';
+    default:
+      return '/';
   }
 };
 
@@ -55,12 +94,22 @@ export const tokenUtils = {
     localStorage.setItem("user", JSON.stringify(user));
   },
 
+  // Update user data in localStorage (for avatar and username updates)
+  updateUserData: (userData) => {
+    if (typeof window === 'undefined') return;
+    const currentUser = tokenUtils.getCurrentUser();
+    const updatedUser = { ...currentUser, ...userData };
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  },
+
   // Clear all auth data from localStorage
   clearTokens: () => {
     if (typeof window === 'undefined') return;
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
+    localStorage.removeItem("userAvatar");
+    localStorage.removeItem("userName");
   },
 
   // Get current user from localStorage
@@ -96,6 +145,12 @@ export const tokenUtils = {
   getRefreshToken: () => {
     if (typeof window === 'undefined') return null;
     return localStorage.getItem("refreshToken");
+  },
+
+  // Get user role from token
+  getUserRole: () => {
+    const token = tokenUtils.getAccessToken();
+    return getRoleFromToken(token);
   }
 };
 

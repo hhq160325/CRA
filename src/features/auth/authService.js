@@ -1,6 +1,6 @@
 // Service functions for auth
 import { AUTH_ENDPOINTS } from "./api";
-import { authApiCall, tokenUtils } from "./utils";
+import { authApiCall, tokenUtils, decodeJWT } from "./utils";
 import { logout } from "../../shared/authGlobal";
 
 // Login function
@@ -18,10 +18,46 @@ export const login = async (credentials) => {
 
     // Store tokens - API returns { token, expiration }
     if (data.token) {
+      // Decode token to extract role and user information
+      const decoded = decodeJWT(data.token);
+      const roleId = decoded ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] : null;
+      const userId = decoded ? (decoded.sub || decoded.userId || decoded.id || decoded.nameid) : null;
+      
       const user = {
-        email: credentials.email
+        email: credentials.email,
+        roleId: roleId ? parseInt(roleId, 10) : null
       };
       tokenUtils.storeTokens(data.token, data.token, user);
+
+      // Fetch full user data to get avatar and username
+      if (userId) {
+        try {
+          const { getUserById } = await import('../user/api');
+          const userData = await getUserById();
+          
+          // Update localStorage with avatar and username
+          tokenUtils.updateUserData({
+            username: userData.username,
+            imageAvatar: userData.imageAvatar
+          });
+          
+          // Update return value with full user data
+          user.username = userData.username;
+          user.imageAvatar = userData.imageAvatar;
+        } catch (userError) {
+          console.error('Failed to fetch user data:', userError);
+          // Continue with login even if user data fetch fails
+        }
+      }
+
+      return {
+        success: true,
+        message: "Login successful",
+        accessToken: data.token,
+        refreshToken: data.token,
+        expiration: data.expiration,
+        user
+      };
     }
 
     return {
@@ -68,6 +104,9 @@ export const register = async (userData) => {
     // Check if registration returned token and expiration (successful sign up)
     if (data.token && data.expiration) {
       // Store the token from registration response
+      const decoded = decodeJWT(data.token);
+      const userId = decoded ? (decoded.sub || decoded.userId || decoded.id || decoded.nameid) : null;
+      
       const user = {
         email: userData.email,
         username: userData.username,
@@ -76,11 +115,31 @@ export const register = async (userData) => {
       
       tokenUtils.storeTokens(data.token, data.token, user);
       
+      // Fetch full user data to get avatar
+      if (userId) {
+        try {
+          const { getUserById } = await import('../user/api');
+          const fullUserData = await getUserById();
+          
+          // Update localStorage with avatar and username
+          tokenUtils.updateUserData({
+            username: fullUserData.username,
+            imageAvatar: fullUserData.imageAvatar
+          });
+          
+          user.username = fullUserData.username;
+          user.imageAvatar = fullUserData.imageAvatar;
+        } catch (userError) {
+          console.error('Failed to fetch user data:', userError);
+        }
+      }
+      
       // Return response with autoLogin flag
       return {
         ...data,
         autoLogin: true,
-        message: 'Registration successful!'
+        message: 'Registration successful!',
+        user
       };
     }
 

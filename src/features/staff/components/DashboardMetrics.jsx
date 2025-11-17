@@ -1,6 +1,8 @@
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 const DashboardMetrics = () => {
+  const { t } = useTranslation();
   const metrics = useSelector(state => state.staff?.dashboardMetrics || {
     totalBookings: 1247,
     activeUsers: 892,
@@ -10,7 +12,7 @@ const DashboardMetrics = () => {
 
   const metricCards = [
     {
-      title: 'Total Bookings',
+      title: t('totalBookings'),
       value: (metrics.totalBookings || 0).toLocaleString(),
       change: '+12%',
       changeType: 'positive',
@@ -19,7 +21,7 @@ const DashboardMetrics = () => {
       </svg>
     },
     {
-      title: 'Active Users',
+      title: t('activeUsers'),
       value: (metrics.activeUsers || 0).toLocaleString(),
       change: '+8%',
       changeType: 'positive',
@@ -28,7 +30,7 @@ const DashboardMetrics = () => {
       </svg>
     },
     {
-      title: 'Pending Verifications',
+      title: t('pendingVerifications'),
       value: metrics.pendingVerifications.toString(),
       change: '-5%',
       changeType: 'negative',
@@ -37,7 +39,7 @@ const DashboardMetrics = () => {
       </svg>
     },
     {
-      title: 'Total Revenue',
+      title: t('totalRevenue'),
       value: `$${(metrics.totalRevenue || 0).toLocaleString()}`,
       change: '+15%',
       changeType: 'positive',
@@ -50,7 +52,7 @@ const DashboardMetrics = () => {
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Platform Overview</h2>
+        <h2 className="text-xl font-semibold text-gray-900">{t('platformOverview')}</h2>
         <button className="text-gray-400 hover:text-gray-600">
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />

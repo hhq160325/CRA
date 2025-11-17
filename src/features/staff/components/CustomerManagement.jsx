@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { updateCustomerAccount } from '../staffSlice';
 import { CustomerModal } from './modals/customerModal';
 const CustomerManagement = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -161,15 +163,15 @@ const CustomerManagement = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Customer Management</h1>
-          <p className="text-gray-600">View and manage customer accounts</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('customerManagement')}</h1>
+          <p className="text-gray-600">{t('viewAndManageCustomers')}</p>
         </div>
         <div className="flex space-x-3">
           <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-            Export Data
+            {t('exportData')}
           </button>
           <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-            Send Bulk Message
+            {t('sendBulkMessage')}
           </button>
         </div>
       </div>
@@ -179,7 +181,7 @@ const CustomerManagement = () => {
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Customers</p>
+              <p className="text-sm text-gray-600">{t('totalCustomers')}</p>
               <p className="text-2xl font-bold text-gray-900">{customers.length}</p>
             </div>
             <div className="p-3 bg-blue-100 rounded-lg">
@@ -192,7 +194,7 @@ const CustomerManagement = () => {
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Active Customers</p>
+              <p className="text-sm text-gray-600">{t('activeCustomers')}</p>
               <p className="text-2xl font-bold text-green-600">{customers.filter(c => c.status === 'active').length}</p>
             </div>
             <div className="p-3 bg-green-100 rounded-lg">
@@ -205,7 +207,7 @@ const CustomerManagement = () => {
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Pending Verification</p>
+              <p className="text-sm text-gray-600">{t('pendingVerification')}</p>
               <p className="text-2xl font-bold text-yellow-600">{customers.filter(c => c.verificationStatus === 'pending').length}</p>
             </div>
             <div className="p-3 bg-yellow-100 rounded-lg">
@@ -218,7 +220,7 @@ const CustomerManagement = () => {
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Compliance Issues</p>
+              <p className="text-sm text-gray-600">{t('complianceIssues')}</p>
               <p className="text-2xl font-bold text-red-600">{customers.reduce((sum, c) => sum + c.complianceIssues, 0)}</p>
             </div>
             <div className="p-3 bg-red-100 rounded-lg">
@@ -240,7 +242,7 @@ const CustomerManagement = () => {
               </svg>
               <input
                 type="text"
-                placeholder="Search customers..."
+                placeholder={t('searchCustomers')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -251,14 +253,14 @@ const CustomerManagement = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="pending">Pending</option>
-              <option value="suspended">Suspended</option>
+              <option value="all">{t('allStatus')}</option>
+              <option value="active">{t('active')}</option>
+              <option value="pending">{t('pending')}</option>
+              <option value="suspended">{t('suspended')}</option>
             </select>
           </div>
           <div className="text-sm text-gray-600">
-            Showing {filteredCustomers.length} of {customers.length} customers
+            {t('showing')} {filteredCustomers.length} {t('of')} {customers.length} {t('customers')}
           </div>
         </div>
       </div>
@@ -269,14 +271,14 @@ const CustomerManagement = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Customer</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Status</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Verification</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Tier</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Bookings</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Total Spent</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Issues</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('customer')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('status')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('verification')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('tier')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookings')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('totalSpent')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('issues')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -314,7 +316,7 @@ const CustomerManagement = () => {
                           {customer.complianceIssues}
                         </span>
                       ) : (
-                        <span className="text-gray-400 text-sm">None</span>
+                        <span className="text-gray-400 text-sm">{t('none')}</span>
                       )}
                     </td>
                     <td className="py-4 px-6">
@@ -323,31 +325,31 @@ const CustomerManagement = () => {
                           onClick={() => openModal(customer, 'view')}
                           className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                         >
-                          View
+                          {t('view')}
                         </button>
                         <button
                           onClick={() => openModal(customer, 'edit')}
                           className="text-gray-600 hover:text-gray-700 text-sm font-medium"
                         >
-                          Edit
+                          {t('edit')}
                         </button>
                         {customer.status === 'active' ? (
                           <button
                             onClick={() => openModal(customer, 'suspend')}
                             className="text-red-600 hover:text-red-700 text-sm font-medium"
                           >
-                            Suspend
+                            {t('suspend')}
                           </button>
                         ) : customer.status === 'suspended' ? (
                           <button
                             onClick={() => handleAccountUpdate(customer.id, { status: 'active' })}
                             className="text-green-600 hover:text-green-700 text-sm font-medium"
                           >
-                            Activate
+                            {t('activate')}
                           </button>
                         ) : (
                           <button className="text-green-600 hover:text-green-700 text-sm font-medium">
-                            Message
+                            {t('message')}
                           </button>
                         )}
                       </div>

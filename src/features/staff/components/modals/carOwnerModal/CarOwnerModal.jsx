@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import CarOwnerViewModal from './CarOwnerViewModal';
 import CarOwnerEditModal from './CarOwnerEditModal';
 import CarOwnerSuspendModal from './CarOwnerSuspendModal';
@@ -13,6 +14,8 @@ const CarOwnerModal = ({
   getStatusBadge,
   getVerificationBadge 
 }) => {
+  const { t } = useTranslation();
+  
   if (!isOpen || !selectedOwner) return null;
 
   return (
@@ -21,9 +24,9 @@ const CarOwnerModal = ({
         {/* Modal Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900">
-            {modalType === 'view' && 'Car Owner Details'}
-            {modalType === 'edit' && 'Edit Car Owner'}
-            {modalType === 'suspend' && 'Suspend Car Owner'}
+            {modalType === 'view' && t('carOwnerDetails')}
+            {modalType === 'edit' && t('editCarOwner')}
+            {modalType === 'suspend' && t('suspendCarOwner')}
           </h2>
           <button
             onClick={onClose}

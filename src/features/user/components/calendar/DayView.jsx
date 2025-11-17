@@ -1,10 +1,12 @@
 import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { openEventModal } from '../../calendarSlice';
 import EventCard from './EventCard';
 
 const DayView = ({ events, currentDate }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const day = useMemo(() => {
     return currentDate instanceof Date ? currentDate : new Date(currentDate);
@@ -44,10 +46,10 @@ const DayView = ({ events, currentDate }) => {
       {/* Day header */}
       <div className={`mb-4 p-4 rounded-lg ${today ? 'bg-blue-50' : 'bg-gray-50'}`}>
         <div className="text-sm text-gray-500">
-          {day.toLocaleDateString('en-US', { weekday: 'long' })}
+          {day.toLocaleDateString(undefined, { weekday: 'long' })}
         </div>
         <div className={`text-2xl font-semibold ${today ? 'text-blue-600' : 'text-gray-900'}`}>
-          {day.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+          {day.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
         </div>
       </div>
 

@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { updateBookingStatus } from '../staffSlice';
 import BookingModal from './modals/bookingModal/BookingModal';
 
 const BookingMonitoring = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -173,15 +175,15 @@ const BookingMonitoring = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Booking Monitoring</h1>
-          <p className="text-gray-600">Monitor and manage all booking activities</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('bookingMonitoring')}</h1>
+          <p className="text-gray-600">{t('monitorAndManageBookings')}</p>
         </div>
         <div className="flex space-x-3">
           <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-            Export Report
+            {t('exportReport')}
           </button>
           <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-            Create Manual Booking
+            {t('createManualBooking')}
           </button>
         </div>
       </div>
@@ -196,7 +198,7 @@ const BookingMonitoring = () => {
               </svg>
               <input
                 type="text"
-                placeholder="Search bookings..."
+                placeholder={t('searchBookings')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -207,26 +209,26 @@ const BookingMonitoring = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-              <option value="overdue">Overdue</option>
+              <option value="all">{t('allStatus')}</option>
+              <option value="active">{t('active')}</option>
+              <option value="pending">{t('pending')}</option>
+              <option value="completed">{t('completed')}</option>
+              <option value="cancelled">{t('cancelled')}</option>
+              <option value="overdue">{t('overdue')}</option>
             </select>
             <select
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Dates</option>
-              <option value="today">Today</option>
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
+              <option value="all">{t('allDates')}</option>
+              <option value="today">{t('today')}</option>
+              <option value="week">{t('thisWeek')}</option>
+              <option value="month">{t('thisMonth')}</option>
             </select>
           </div>
           <div className="text-sm text-gray-600">
-            Showing {filteredBookings.length} of {bookingActivities.length} bookings
+            {t('showing')} {filteredBookings.length} {t('of')} {bookingActivities.length} {t('bookings')}
           </div>
         </div>
       </div>
@@ -237,14 +239,14 @@ const BookingMonitoring = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Booking ID</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Customer</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Car</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Duration</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Amount</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Status</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Payment</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingId')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('customer')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('car')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('duration')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('amount')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('status')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('paymentStatus')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -256,14 +258,14 @@ const BookingMonitoring = () => {
                   </td>
                   <td className="py-4 px-6">
                     <div className="font-medium text-gray-900 text-sm">{booking.customer}</div>
-                    <div className="text-xs text-gray-500">Owner: {booking.carOwner}</div>
+                    <div className="text-xs text-gray-500">{t('owner')}: {booking.carOwner}</div>
                   </td>
                   <td className="py-4 px-6">
                     <div className="font-medium text-gray-900 text-sm">{booking.car}</div>
                   </td>
                   <td className="py-4 px-6">
                     <div className="text-sm text-gray-600">{booking.startDate}</div>
-                    <div className="text-sm text-gray-600">to {booking.endDate}</div>
+                    <div className="text-sm text-gray-600">{t('to')} {booking.endDate}</div>
                   </td>
                   <td className="py-4 px-6">
                     <div className="font-medium text-gray-900 text-sm">${booking.totalAmount}</div>
@@ -284,20 +286,20 @@ const BookingMonitoring = () => {
                         onClick={() => openModal(booking, 'view')}
                         className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                       >
-                        View
+                        {t('view')}
                       </button>
                       <button
                         onClick={() => openModal(booking, 'edit')}
                         className="text-gray-600 hover:text-gray-700 text-sm font-medium"
                       >
-                        Edit
+                        {t('edit')}
                       </button>
                       {booking.status === 'overdue' && (
                         <button
                           onClick={() => openModal(booking, 'resolve')}
                           className="text-green-600 hover:text-green-700 text-sm font-medium"
                         >
-                          Resolve
+                          {t('resolve')}
                         </button>
                       )}
                       {(booking.status === 'pending' || booking.status === 'active') && (
@@ -305,7 +307,7 @@ const BookingMonitoring = () => {
                           onClick={() => openModal(booking, 'cancel')}
                           className="text-red-600 hover:text-red-700 text-sm font-medium"
                         >
-                          Cancel
+                          {t('cancel')}
                         </button>
                       )}
                     </div>
@@ -319,13 +321,13 @@ const BookingMonitoring = () => {
         {/* Pagination */}
         <div className="flex items-center justify-center py-4 border-t border-gray-200">
           <div className="flex items-center space-x-2">
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Previous</button>
+            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('previous')}</button>
             <div className="flex space-x-1">
               <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
               <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
               <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
             </div>
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Next</button>
+            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('next')}</button>
           </div>
         </div>
       </div>

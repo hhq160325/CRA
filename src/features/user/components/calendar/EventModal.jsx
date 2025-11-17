@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { closeEventModal, createBookingEvent, updateBookingEvent, deleteBookingEvent } from '../../calendarSlice';
 
 const EventModal = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const { selectedEvent, isEventModalOpen } = useSelector(state => state.calendar || {});
   const [formData, setFormData] = useState({
     car: '',
@@ -72,7 +74,7 @@ const EventModal = () => {
   };
 
   const handleDelete = async () => {
-    if (selectedEvent?.id && window.confirm('Are you sure you want to delete this booking?')) {
+    if (selectedEvent?.id && window.confirm(t('areYouSureDeleteBooking'))) {
       try {
         await dispatch(deleteBookingEvent(selectedEvent.id)).unwrap();
         dispatch(closeEventModal());
@@ -91,7 +93,7 @@ const EventModal = () => {
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">
-              {selectedEvent ? 'Edit Booking' : 'New Booking'}
+              {selectedEvent ? t('editBooking') : t('newBooking')}
             </h2>
             <button
               onClick={() => dispatch(closeEventModal())}
@@ -106,7 +108,7 @@ const EventModal = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Car</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('car')}</label>
               <input
                 type="text"
                 value={formData.car}
@@ -118,7 +120,7 @@ const EventModal = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('startDate')}</label>
                 <input
                   type="date"
                   value={formData.startDate}
@@ -128,7 +130,7 @@ const EventModal = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('time')}</label>
                 <input
                   type="time"
                   value={formData.startTime}
@@ -140,7 +142,7 @@ const EventModal = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('endDate')}</label>
                 <input
                   type="date"
                   value={formData.endDate}
@@ -150,7 +152,7 @@ const EventModal = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('time')}</label>
                 <input
                   type="time"
                   value={formData.endTime}
@@ -161,21 +163,21 @@ const EventModal = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('status')}</label>
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="pending">Pending</option>
-                <option value="active">Active</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="pending">{t('pending')}</option>
+                <option value="active">{t('active')}</option>
+                <option value="completed">{t('completed')}</option>
+                <option value="cancelled">{t('cancelled')}</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('notes')}</label>
               <textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -192,7 +194,7 @@ const EventModal = () => {
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                   disabled={isSubmitting}
                 >
-                  Delete
+                  {t('deleteBooking')}
                 </button>
               )}
               <div className="flex gap-2 ml-auto">
@@ -202,14 +204,14 @@ const EventModal = () => {
                   className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  {t('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Saving...' : (selectedEvent ? 'Update' : 'Create')}
+                  {isSubmitting ? t('saving') : (selectedEvent ? t('update') : t('create'))}
                 </button>
               </div>
             </div>

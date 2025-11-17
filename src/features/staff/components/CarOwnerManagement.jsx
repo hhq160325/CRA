@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { updateCarOwnerStatus } from '../staffSlice';
 import { CarOwnerModal } from './modals/carOwnerModal';
 
 const CarOwnerManagement = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -140,11 +142,11 @@ const CarOwnerManagement = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Car Owner Management</h1>
-          <p className="text-gray-600">View and manage car owner accounts</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('carOwnerManagement')}</h1>
+          <p className="text-gray-600">{t('viewAndManageCarOwners')}</p>
         </div>
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-          Export Data
+          {t('exportData')}
         </button>
       </div>
 
@@ -158,7 +160,7 @@ const CarOwnerManagement = () => {
               </svg>
               <input
                 type="text"
-                placeholder="Search car owners..."
+                placeholder={t('searchCarOwners')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -169,14 +171,14 @@ const CarOwnerManagement = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="pending">Pending</option>
-              <option value="suspended">Suspended</option>
+              <option value="all">{t('allStatus')}</option>
+              <option value="active">{t('active')}</option>
+              <option value="pending">{t('pending')}</option>
+              <option value="suspended">{t('suspended')}</option>
             </select>
           </div>
           <div className="text-sm text-gray-600">
-            Showing {filteredOwners.length} of {carOwners.length} car owners
+            {t('showing')} {filteredOwners.length} {t('of')} {carOwners.length} {t('carOwners')}
           </div>
         </div>
       </div>
@@ -187,13 +189,13 @@ const CarOwnerManagement = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Car Owner</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Status</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Verification</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Cars Listed</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Total Earnings</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Last Active</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('carOwner')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('status')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('verification')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('carsListed')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('totalEarnings')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('lastActive')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -225,27 +227,27 @@ const CarOwnerManagement = () => {
                         onClick={() => openModal(owner, 'view')}
                         className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                       >
-                        View
+                        {t('view')}
                       </button>
                       <button
                         onClick={() => openModal(owner, 'edit')}
                         className="text-gray-600 hover:text-gray-700 text-sm font-medium"
                       >
-                        Edit
+                        {t('edit')}
                       </button>
                       {owner.status === 'active' ? (
                         <button
                           onClick={() => openModal(owner, 'suspend')}
                           className="text-red-600 hover:text-red-700 text-sm font-medium"
                         >
-                          Suspend
+                          {t('suspend')}
                         </button>
                       ) : (
                         <button
                           onClick={() => handleStatusChange(owner.id, 'active')}
                           className="text-green-600 hover:text-green-700 text-sm font-medium"
                         >
-                          Activate
+                          {t('activate')}
                         </button>
                       )}
                     </div>
@@ -259,13 +261,13 @@ const CarOwnerManagement = () => {
         {/* Pagination */}
         <div className="flex items-center justify-center py-4 border-t border-gray-200">
           <div className="flex items-center space-x-2">
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Previous</button>
+            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('previous')}</button>
             <div className="flex space-x-1">
               <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
               <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
               <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
             </div>
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Next</button>
+            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('next')}</button>
           </div>
         </div>
       </div>

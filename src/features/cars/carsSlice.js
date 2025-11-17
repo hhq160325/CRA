@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { axiosInstance } from '../../shared/utils/axiosInstance';
 
 // Async thunks for car operations
 export const registerCar = createAsyncThunk(
@@ -6,21 +7,10 @@ export const registerCar = createAsyncThunk(
   async (carData, { rejectWithValue }) => {
     try {
       // TODO: Replace with actual API call
-      const response = await fetch('/api/cars', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(carData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to register car');
-      }
-
-      return await response.json();
+      const response = await axiosInstance.post('/cars', carData);
+      return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -30,15 +20,10 @@ export const fetchUserCars = createAsyncThunk(
   async (userId, { rejectWithValue }) => {
     try {
       // TODO: Replace with actual API call
-      const response = await fetch(`/api/users/${userId}/cars`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch cars');
-      }
-
-      return await response.json();
+      const response = await axiosInstance.get(`/users/${userId}/cars`);
+      return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -48,15 +33,10 @@ export const fetchCarById = createAsyncThunk(
   async (carId, { rejectWithValue }) => {
     try {
       // TODO: Replace with actual API call
-      const response = await fetch(`/api/cars/${carId}`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch car details');
-      }
-
-      return await response.json();
+      const response = await axiosInstance.get(`/cars/${carId}`);
+      return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -66,15 +46,10 @@ export const fetchRelatedCars = createAsyncThunk(
   async (carId, { rejectWithValue }) => {
     try {
       // TODO: Replace with actual API call
-      const response = await fetch(`/api/cars/${carId}/related`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch related cars');
-      }
-
-      return await response.json();
+      const response = await axiosInstance.get(`/cars/${carId}/related`);
+      return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );

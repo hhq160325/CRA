@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { fetchUserBookings, setCurrentView, goToToday, navigateDate, setSearchQuery, setFilter } from '../../calendarSlice';
 import { selectIsAuthenticated, selectUser } from '../../../auth/authSlice';
 import CalendarToolbar from './CalendarToolbar';
@@ -11,6 +12,7 @@ import EventModal from './EventModal';
 
 const CalendarView = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const user = useSelector(selectUser);
   const { 
@@ -88,7 +90,7 @@ const CalendarView = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="text-gray-500">Loading calendar...</div>
+        <div className="text-gray-500">{t('loadingCalendar')}</div>
       </div>
     );
   }

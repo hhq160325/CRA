@@ -1,6 +1,8 @@
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 const StatusOverview = () => {
+  const { t } = useTranslation();
   const cars = useSelector(state => state.admin?.cars || []);
 
   const getStatusBadge = (status) => {
@@ -22,19 +24,29 @@ const StatusOverview = () => {
   const getPaidStatus = (paid) => {
     return paid ? (
       <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-        Paid
+        {t('paid')}
       </span>
     ) : (
       <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-        Unpaid
+        {t('unpaid')}
       </span>
     );
+  };
+
+  const getTranslatedStatus = (status) => {
+    const statusMap = {
+      'Rented': t('rented'),
+      'Overdue': t('overdue'),
+      'Available': t('available'),
+      'Returned': t('returned')
+    };
+    return statusMap[status] || status;
   };
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Status Overview</h2>
+        <h2 className="text-xl font-semibold text-gray-900">{t('statusOverview')}</h2>
         <button className="text-gray-400 hover:text-gray-600">
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
@@ -46,11 +58,11 @@ const StatusOverview = () => {
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-200">
-              <th className="text-left py-4 px-2 font-semibold text-gray-900 text-sm">Car</th>
-              <th className="text-left py-4 px-2 font-semibold text-gray-900 text-sm">Status</th>
-              <th className="text-left py-4 px-2 font-semibold text-gray-900 text-sm">Pick-up</th>
-              <th className="text-left py-4 px-2 font-semibold text-gray-900 text-sm">Drop-off</th>
-              <th className="text-left py-4 px-2 font-semibold text-gray-900 text-sm">Paid</th>
+              <th className="text-left py-4 px-2 font-semibold text-gray-900 text-sm">{t('car')}</th>
+              <th className="text-left py-4 px-2 font-semibold text-gray-900 text-sm">{t('status')}</th>
+              <th className="text-left py-4 px-2 font-semibold text-gray-900 text-sm">{t('pickUp')}</th>
+              <th className="text-left py-4 px-2 font-semibold text-gray-900 text-sm">{t('dropOff')}</th>
+              <th className="text-left py-4 px-2 font-semibold text-gray-900 text-sm">{t('paid')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -61,7 +73,7 @@ const StatusOverview = () => {
                 </td>
                 <td className="py-4 px-2">
                   <span className={getStatusBadge(car.status)}>
-                    {car.status}
+                    {getTranslatedStatus(car.status)}
                   </span>
                 </td>
                 <td className="py-4 px-2 text-gray-600 text-sm">{car.pickUp}</td>
@@ -81,7 +93,7 @@ const StatusOverview = () => {
 
       <div className="flex items-center justify-center mt-6 pt-4 border-t border-gray-200">
         <div className="flex items-center space-x-2">
-          <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Previous</button>
+          <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('previous')}</button>
           <div className="flex space-x-1">
             <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
             <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
@@ -89,7 +101,7 @@ const StatusOverview = () => {
             <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">4</button>
             <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">5</button>
           </div>
-          <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Next</button>
+          <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('next')}</button>
         </div>
       </div>
     </div>

@@ -1,14 +1,16 @@
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 const TopCarRental = () => {
+  const { t } = useTranslation();
   const { carStats, totalRentalCar } = useSelector(state => state.admin || {});
 
   const chartData = [
-    { name: 'Sport Car', count: carStats?.sportCar?.count || 17439, color: '#1E40AF', percentage: 35 },
-    { name: 'SUV', count: carStats?.suv?.count || 9478, color: '#3B82F6', percentage: 20 },
-    { name: 'Coupe', count: carStats?.coupe?.count || 18197, color: '#60A5FA', percentage: 37 },
-    { name: 'Hatchback', count: carStats?.hatchback?.count || 12510, color: '#93C5FD', percentage: 25 },
-    { name: 'MPV', count: carStats?.mpv?.count || 14406, color: '#DBEAFE', percentage: 28 }
+    { name: t('sportCar'), count: carStats?.sportCar?.count || 17439, color: '#1E40AF', percentage: 35 },
+    { name: t('suv'), count: carStats?.suv?.count || 9478, color: '#3B82F6', percentage: 20 },
+    { name: t('coupe'), count: carStats?.coupe?.count || 18197, color: '#60A5FA', percentage: 37 },
+    { name: t('hatchback'), count: carStats?.hatchback?.count || 12510, color: '#93C5FD', percentage: 25 },
+    { name: t('mpv'), count: carStats?.mpv?.count || 14406, color: '#DBEAFE', percentage: 28 }
   ];
 
   // Calculate the stroke-dasharray for each segment
@@ -20,7 +22,7 @@ const TopCarRental = () => {
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Top 5 Car Rental</h2>
+        <h2 className="text-xl font-semibold text-gray-900">{t('topCarRental')}</h2>
         <button className="text-gray-400 hover:text-gray-600">
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
@@ -67,7 +69,7 @@ const TopCarRental = () => {
             <div className="text-3xl font-bold text-gray-900">
               {totalRentalCar?.toLocaleString() || '72,030'}
             </div>
-            <div className="text-sm text-gray-500">Rental Car</div>
+            <div className="text-sm text-gray-500">{t('rentalCar')}</div>
           </div>
         </div>
 

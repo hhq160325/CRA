@@ -7,10 +7,19 @@ import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring
 import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter } from '../features/staff';
 import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments } from '../features/owner';
 import { AuthPage } from '../features/auth';
-import ForgotPassword from '../features/auth/components/ForgotPassword';
+// import ForgotPassword from '../features/auth/components/ForgotPassword';
 import SearchResult from '../features/search/components/SearchResult';
 import { HomePage } from '../features/homepage';
 import { selectIsAuthenticated } from '../features/auth/authSlice';
+import RoleBasedRoute from './RoleBasedRoute';
+import { ROLES, tokenUtils, getRedirectPathByRole } from '../features/auth/utils';
+
+// Component to redirect authenticated users based on their role
+const AuthRedirect = () => {
+  const userRole = tokenUtils.getUserRole();
+  const redirectPath = getRedirectPathByRole(userRole);
+  return <Navigate to={redirectPath} replace />;
+};
 
 const AppRouter = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -23,9 +32,8 @@ const AppRouter = () => {
       <Route path="/cars/:id" element={<CarDetail />} />
       <Route path="/search" element={<SearchResult />} />
       
-      {/* Auth route */}
-      <Route path="/auth" element={!isAuthenticated ? <AuthPage /> : <Navigate to="/" replace />} />
-      <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+      {/* Auth route - redirects based on user role if already authenticated */}
+      <Route path="/auth" element={!isAuthenticated ? <AuthPage /> : <AuthRedirect />} />
       
       {/* Protected routes - authentication required */}
       <Route path="/profile" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
@@ -43,15 +51,15 @@ const AppRouter = () => {
       <Route path="/payment-success" element={isAuthenticated ? <PaymentSuccess /> : <Navigate to="/auth" replace />} />
       <Route path="/payment-cancel" element={isAuthenticated ? <PaymentCancel /> : <Navigate to="/auth" replace />} />
       
-      {/* Admin Routes */}
-      <Route path="/admin" element={isAuthenticated ? <AdminLayout /> : <Navigate to="/auth" replace />}>
+      {/* Admin Routes - Only accessible by Admin role */}
+      <Route path="/admin" element={<RoleBasedRoute allowedRoles={[ROLES.ADMIN]}><AdminLayout /></RoleBasedRoute>}>
         <Route index element={<AdminDashboard />} />
         <Route path="operations" element={<OperationsDashboard />} />
         <Route path="transactions" element={<TransactionMonitoring />} />
       </Route>
       
-      {/* Staff Routes */}
-      <Route path="/staff" element={isAuthenticated ? <StaffLayout /> : <Navigate to="/auth" replace />}>
+      {/* Staff Routes - Only accessible by Staff role */}
+      <Route path="/staff" element={<RoleBasedRoute allowedRoles={[ROLES.STAFF]}><StaffLayout /></RoleBasedRoute>}>
         <Route index element={<StaffDashboard />} />
         <Route path="car-owners" element={<CarOwnerManagement />} />
         <Route path="customers" element={<CustomerManagement />} />

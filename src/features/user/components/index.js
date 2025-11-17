@@ -4,3 +4,4 @@ export { default as FavouriteCarPage } from './ProfilePageTabs/FavouriteCarPage'
 export { default as UpdateProfileDialog } from './ProfilePageTabs/MyProfileDialog/UpdateProfileDialog';
 export { default as UpdateEmailDialog } from './ProfilePageTabs/MyProfileDialog/UpdateEmailDialog';
 export { default as UpdatePhoneDialog } from './ProfilePageTabs/MyProfileDialog/UpdatePhoneDialog';
+export { default as UploadDriver } from './UploadDriver';

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { loginUser, clearError, selectIsLoading, selectError } from '../authSlice';
 import { getRoleFromToken, getRedirectPathByRole } from '../utils';
 
 const Login = ({ onSwitchToRegister }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isLoading = useSelector(selectIsLoading);
@@ -54,27 +56,27 @@ const Login = ({ onSwitchToRegister }) => {
       {/* Login card */}
       <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4">
         {/* Title */}
-        <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">Log in</h1>
+        <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">{t('logIn')}</h1>
 
         {/* Subtitle */}
         <p className="text-gray-600 text-center mb-4">
-          New to Design Space? <button onClick={onSwitchToRegister} className="text-blue-600 hover:text-blue-700 font-medium">Sign up for free</button>
+          {t('newToDesignSpace')} <button onClick={onSwitchToRegister} className="text-blue-600 hover:text-blue-700 font-medium">{t('signUpForFree')}</button>
         </p>
 
         {/* Mock credentials helper */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-blue-800 text-sm font-medium mb-1">Demo Credentials:</p>
+              <p className="text-blue-800 text-sm font-medium mb-1">{t('demoCredentials')}</p>
               <p className="text-blue-700 text-xs">Email: khangTEST02@gmail.com</p>
-              <p className="text-blue-700 text-xs">Password: 123456</p>
+              <p className="text-blue-700 text-xs">{t('password')}: 123456</p>
             </div>
             <button
               type="button"
               onClick={() => setFormData({ email: 'khangTEST02@gmail.com', password: '123456' })}
               className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition-colors"
             >
-              Use Demo
+              {t('useDemo')}
             </button>
           </div>
         </div>
@@ -84,7 +86,7 @@ const Login = ({ onSwitchToRegister }) => {
           {/* Email field */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email address
+              {t('emailAddress')}
             </label>
             <input
               type="email"
@@ -101,7 +103,7 @@ const Login = ({ onSwitchToRegister }) => {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
+                {t('password')}
               </label>
               <button
                 type="button"
@@ -115,7 +117,7 @@ const Login = ({ onSwitchToRegister }) => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   )}
                 </svg>
-                {showPassword ? 'Hide' : 'Show'}
+                {showPassword ? t('hide') : t('show')}
               </button>
             </div>
             <input
@@ -136,7 +138,7 @@ const Login = ({ onSwitchToRegister }) => {
               className="text-blue-600 hover:text-blue-700 text-sm font-medium"
               onClick={() => navigate('/auth/forgot-password')}
             >
-              Forgot password?
+              {t('forgotPassword')}
             </button>
           </div>
 
@@ -153,7 +155,7 @@ const Login = ({ onSwitchToRegister }) => {
             disabled={isLoading || !formData.email || !formData.password}
             className="w-full bg-gray-400 text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-500 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
           >
-            {isLoading ? 'Logging in...' : 'Log in'}
+            {isLoading ? t('loggingIn') : t('logIn')}
           </button>
 
           {/* Social login buttons */}

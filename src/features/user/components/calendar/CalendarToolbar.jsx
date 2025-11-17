@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { openEventModal } from '../../calendarSlice';
 
 const CalendarToolbar = ({
@@ -14,24 +15,26 @@ const CalendarToolbar = ({
   events,
 }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const viewButtons = [
-    { id: 'month', label: 'Month' },
-    { id: 'week', label: 'Week' },
-    { id: 'day', label: 'Day' },
-    { id: 'agenda', label: 'Agenda' },
+    { id: 'month', label: t('month') },
+    { id: 'week', label: t('week') },
+    { id: 'day', label: t('day') },
+    { id: 'agenda', label: t('agenda') },
   ];
 
   const statusOptions = [
-    { value: 'all', label: 'All Status' },
-    { value: 'active', label: 'Active' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'completed', label: 'Completed' },
-    { value: 'cancelled', label: 'Cancelled' },
+    { value: 'all', label: t('status') },
+    { value: 'active', label: t('active') },
+    { value: 'pending', label: t('pending') },
+    { value: 'completed', label: t('completed') },
+    { value: 'cancelled', label: t('cancelled') },
   ];
 
   const formatDate = (date) => {
     const d = date instanceof Date ? date : new Date(date);
+    const locale = t('locale');
     const options = { 
       month: 'long', 
       year: 'numeric',
@@ -42,18 +45,18 @@ const CalendarToolbar = ({
       weekStart.setDate(d.getDate() - ((d.getDay() + 6) % 7));
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekStart.getDate() + 6);
-      return `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+      return `${weekStart.toLocaleDateString(locale, { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' })}`;
     }
     
     if (currentView === 'day') {
-      return d.toLocaleDateString('en-US', { 
+      return d.toLocaleDateString(locale, { 
         month: 'long', 
         day: 'numeric',
         year: 'numeric',
       });
     }
     
-    return d.toLocaleDateString('en-US', options);
+    return d.toLocaleDateString(locale, options);
   };
 
   const handleNewEvent = () => {
@@ -126,7 +129,7 @@ const CalendarToolbar = ({
             onClick={onToday}
             className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium"
           >
-            Today
+            {t('today')}
           </button>
           <button
             onClick={() => onNavigate(1)}
@@ -151,7 +154,7 @@ const CalendarToolbar = ({
           </svg>
           <input
             type="text"
-            placeholder="Search bookings..."
+            placeholder={t('searchBookings')}
             onChange={(e) => onSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
@@ -171,14 +174,14 @@ const CalendarToolbar = ({
           onClick={handleNewEvent}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
         >
-          + New Event
+          + {t('newEvent')}
         </button>
 
         <button
           onClick={handleExport}
           className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
         >
-          Export to Outlook
+          {t('exportToOutlook')}
         </button>
       </div>
     </div>

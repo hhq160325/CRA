@@ -1,36 +1,90 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { toggleFavorite, selectIsFavorite } from '../favorites/favoritesSlice';
 
-const CarCard = ({ car }) => {
+const CarCard = ({ car, isApiData = false }) => {
+    const { t } = useTranslation();
     const dispatch = useDispatch();
-    const isCarFavorite = useSelector(selectIsFavorite(car.id));
+    const carId = isApiData ? car.licensePlate : car.id;
+    const isCarFavorite = useSelector(selectIsFavorite(carId));
 
     const handleCarToggleFavorite = () => {
-        const carData = {
+        const carData = isApiData ? {
+            id: car.licensePlate,
+            name: `${car.manufacturer} ${car.model}`,
+            type: car.fuelType,
+            transmission: car.transmission,
+            capacity: `${car.seats} People`,
+            price: '80.00',
+            image: car.imageUrls?.[0] || 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop'
+        } : {
             id: car.id,
             name: car.name,
             type: car.type,
-            price: car.price,
-            originalPrice: car.originalPrice,
             image: car.image,
             fuel: car.fuel,
             transmission: car.transmission,
-            capacity: car.capacity
+            capacity: car.capacity,
+            price: car.price,
+            originalPrice: car.originalPrice
         };
         dispatch(toggleFavorite({
-            carId: car.id,
-            carData: carData
+            carId,
+            carData
         }));
     };
+
+    // Helper function to translate Fuel Type : Xăng, Dầu, Điện, Hybrid
+    const getFuelTypeText = (type) => {
+        if (!type) return '';
+        const lowerType = type.toLowerCase();
+        if (lowerType === 'gasoline') return t('gasoline');
+        if (lowerType === 'diesel') return t('diesel');
+        if (lowerType === 'electric') return t('electric');
+        if (lowerType === 'hybrid') return t('hybrid');
+        return type;
+    };
+
+
+    // Helper function to translate transmission
+    const getTransmissionText = (transmission) => {
+        if (transmission.toLowerCase() === 'manual') return t('manual');
+        if (transmission.toLowerCase() === 'automatic') return t('automatic');
+        return transmission;
+    };
+
+    // Helper function to translate capacity
+    const getCapacityText = (capacity) => {
+        if (typeof capacity === 'number') {
+            return `${capacity} ${t('people')}`;
+        }
+        const match = capacity.match(/(\d+)\s*People/i);
+        if (match) {
+            return `${match[1]} ${t('people')}`;
+        }
+        return capacity;
+    };
+
+    // Format car data based on source
+    const carName = isApiData ? `${car.manufacturer} ${car.model}` : car.name;
+    const carType = isApiData ? car.fuelType : car.type;
+    const carImage = isApiData ? (car.imageUrls?.[0] || 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop') : car.image;
+    const carTransmission = car.transmission;
+    const carSeats = isApiData ? car.seats : car.capacity;
+    const carFuelType = isApiData ? car.fuelType : car.fuel;
+    const carPrice = isApiData ? '80.00' : car.price;
+    const carOriginalPrice = isApiData ? null : car.originalPrice;
+    console.log(carFuelType);
+    
 
     return (
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
             <div className="relative">
                 <img
-                    src={car.image}
-                    alt={car.name}
+                    src={carImage}
+                    alt={carName}
                     className="w-full h-48 object-cover"
                 />
                 <button
@@ -47,49 +101,49 @@ const CarCard = ({ car }) => {
                     </svg>
                 </button>
                 <div className="absolute top-3 left-3 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
-                    {car.type}
+                    {carType}
                 </div>
             </div>
 
             <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{car.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{carName}</h3>
 
-                <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
-                    <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
+                    <div className="flex items-center gap-1">
+                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
                         </svg>
-                        {car.fuel}
+                        <span className="leading-none">{getFuelTypeText(carFuelType)}</span>
                     </div>
-                    <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="flex items-center gap-1">
+                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
                         </svg>
-                        {car.transmission}
+                        <span className="leading-none">{getTransmissionText(carTransmission)}</span>
                     </div>
-                    <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="flex items-center gap-1">
+                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
-                        {car.capacity}
+                        <span className="leading-none">{getCapacityText(carSeats)}</span>
                     </div>
                 </div>
 
                 <div className="flex items-center justify-between">
                     <div>
-                        <div className='flex items-center justify-between'>
-                            <div className="text-xl font-bold text-gray-900">${typeof car.price === 'number' ? car.price.toFixed(2) : (parseFloat(car.price) || 0).toFixed(2)}</div>
-                            <div className="text-sm text-slate-400">/day</div>
+                        <div className='flex items-baseline gap-1'>
+                            <span className="text-xl font-bold text-gray-900">${carPrice}</span>
+                            <span className="text-sm text-slate-400">{t('perDay')}</span>
                         </div>
-                        {car.originalPrice && (
-                            <div className="text-sm text-gray-500 line-through">${typeof car.originalPrice === 'number' ? car.originalPrice.toFixed(2) : (parseFloat(car.originalPrice) || 0).toFixed(2)}</div>
+                        {carOriginalPrice && (
+                            <div className="text-sm text-gray-500 line-through">${carOriginalPrice}</div>
                         )}
                     </div>
                     <Link
-                        to={`/cars/${car.id}`}
+                        to={`/cars/${carId}`}
                         className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
                     >
-                        Rent Now
+                        {t('rentNow')}
                     </Link>
                 </div>
             </div>

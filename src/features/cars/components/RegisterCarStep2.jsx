@@ -10,6 +10,7 @@ const RegisterCarStep2 = () => {
         dailyPrice: '400,000',
         currency: 'VND',
         address: '',
+        parkLotId: '',
         rentalTerms: ''
     });
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -19,6 +20,14 @@ const RegisterCarStep2 = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const searchInputRef = useRef(null);
+
+    // Load saved data from localStorage on mount
+    useEffect(() => {
+        const savedData = localStorage.getItem('carRegistrationStep2');
+        if (savedData) {
+            setFormData(JSON.parse(savedData));
+        }
+    }, []);
 
     const currencies = [
         { value: 'VND', label: 'VND' },
@@ -77,9 +86,11 @@ const RegisterCarStep2 = () => {
     };
 
     const handleParkLotSelect = (parkLot) => {
+        console.log('Selected parkLot:', parkLot);
         setFormData(prev => ({
             ...prev,
-            address: parkLot.name
+            address: parkLot.name,
+            parkLotId: parkLot.managerId || parkLot.id // Use managerId if available, fallback to id
         }));
         setIsParkLotDropdownOpen(false);
         setSearchQuery('');
@@ -94,6 +105,8 @@ const RegisterCarStep2 = () => {
     };
 
     const handleNext = () => {
+        // Save form data to localStorage before navigating
+        localStorage.setItem('carRegistrationStep2', JSON.stringify(formData));
         navigate('/register-car/step-3');
     };
 

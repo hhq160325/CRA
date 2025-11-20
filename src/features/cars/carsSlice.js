@@ -28,6 +28,18 @@ export const fetchUserCars = createAsyncThunk(
   }
 );
 
+export const fetchAllCars = createAsyncThunk(
+  'cars/fetchAllCars',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get('/Car/AllCars');
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
 export const fetchCarById = createAsyncThunk(
   'cars/fetchCarById',
   async (carId, { rejectWithValue }) => {
@@ -112,6 +124,19 @@ const carsSlice = createSlice({
         };
       })
       .addCase(registerCar.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Fetch all cars
+      .addCase(fetchAllCars.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllCars.fulfilled, (state, action) => {
+        state.loading = false;
+        state.cars = action.payload;
+      })
+      .addCase(fetchAllCars.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

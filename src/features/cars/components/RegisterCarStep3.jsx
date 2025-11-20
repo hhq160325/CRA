@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import CarPhotoUpload from './CarPhotoUpload';
+import { registerCar } from '../carApi';
 
 const RegisterCarStep3 = () => {
     const { t } = useTranslation();
@@ -25,31 +26,53 @@ const RegisterCarStep3 = () => {
         setError('');
 
         try {
-            const formData = new FormData();
-            uploadedPhotos.forEach((photo, index) => {
-                formData.append(`carPhotos`, photo);
-            });
+            // Get data from previous steps
+            const step1Data = JSON.parse(localStorage.getItem('carRegistrationStep1') || '{}');
+            const step2Data = JSON.parse(localStorage.getItem('carRegistrationStep2') || '{}');
 
-            // Replace with your actual API endpoint
-            const response = await fetch('/api/cars/photos', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
+            console.log('Step 1 Data:', step1Data);
+            console.log('Step 2 Data:', step2Data);
+            console.log('Uploaded Photos:', uploadedPhotos);
 
-            if (!response.ok) {
-                throw new Error('Upload failed');
+            // Validate required fields
+            if (!step1Data.licensePlate) {
+                setError('License plate is required');
+                setUploading(false);
+                return;
             }
 
+            // Combine all data
+            const carData = {
+                ...step1Data,
+                ...step2Data,
+                photos: uploadedPhotos
+            };
+
+            console.log('Combined car data:', carData);
+
+            // Call the register car API
+            const response = await registerCar(carData);
+
             setUploadSuccess(true);
+            
+            // Clear localStorage after successful registration
+            localStorage.removeItem('carRegistrationStep1');
+            localStorage.removeItem('carRegistrationStep2');
+
             setTimeout(() => {
                 // Navigate to success page or dashboard
-                navigate('/owner/dashboard');
+                navigate('/owner');
             }, 1500);
         } catch (err) {
-            setError(t('failedToUploadPhotos'));
+            console.error('Registration error:', err);
+            console.error('Error details:', err.response?.data);
+            
+            // Show more detailed error message
+            const errorMessage = err.response?.data?.message 
+                || err.response?.data?.title
+                || err.message 
+                || t('failedToUploadPhotos');
+            setError(errorMessage);
         } finally {
             setUploading(false);
         }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -17,6 +17,14 @@ const RegisterCar = () => {
         description: ''
     });
 
+    // Load saved data from localStorage on mount
+    useEffect(() => {
+        const savedData = localStorage.getItem('carRegistrationStep1');
+        if (savedData) {
+            setFormData(JSON.parse(savedData));
+        }
+    }, []);
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -31,6 +39,8 @@ const RegisterCar = () => {
     };
 
     const handleNext = () => {
+        // Save form data to localStorage before navigating
+        localStorage.setItem('carRegistrationStep1', JSON.stringify(formData));
         navigate('/register-car/step-2');
     };
 
@@ -98,71 +108,64 @@ const RegisterCar = () => {
                         <div className="grid grid-cols-2 gap-6 mb-6">
                             {/* Brand */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('brand')}</label>
-                                <select
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    {t('brand')} <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
                                     name="brand"
                                     value={formData.brand}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                >
-                                    <option value="Honda">{t('honda')}</option>
-                                    <option value="Toyota">{t('toyota')}</option>
-                                    <option value="BMW">{t('bmw')}</option>
-                                    <option value="Mercedes">{t('mercedes')}</option>
-                                    <option value="Audi">{t('audi')}</option>
-                                </select>
+                                    placeholder={t('brand')}
+                                />
                             </div>
 
                             {/* Model */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('model')}</label>
-                                <select
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    {t('model')} <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
                                     name="model"
                                     value={formData.model}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                >
-                                    <option value="Unspecified">{t('unspecified')}</option>
-                                    <option value="Civic">{t('civic')}</option>
-                                    <option value="Accord">{t('accord')}</option>
-                                    <option value="CR-V">{t('crv')}</option>
-                                </select>
+                                    placeholder={t('model')}
+                                />
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-6 mb-6">
                             {/* Number of Seats */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('numberOfSeat')}</label>
-                                <select
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    {t('numberOfSeat')} <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="number"
                                     name="numberOfSeats"
                                     value={formData.numberOfSeats}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                >
-                                    <option value="2">2</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                    <option value="7">7</option>
-                                    <option value="8">8</option>
-                                </select>
+                                    placeholder={t('numberOfSeat')}
+                                />
                             </div>
 
                             {/* Year of Manufacture */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('yearOfManufacture')}</label>
-                                <select
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    {t('yearOfManufacture')} <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="number"
                                     name="yearOfManufacture"
                                     value={formData.yearOfManufacture}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                >
-                                    <option value="2024">2024</option>
-                                    <option value="2023">2023</option>
-                                    <option value="2022">2022</option>
-                                    <option value="2021">2021</option>
-                                    <option value="2020">2020</option>
-                                </select>
+                                    placeholder={t('yearOfManufacture')}
+                                />
                             </div>
                         </div>
 

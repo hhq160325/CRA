@@ -22,9 +22,13 @@ const CarPhotoUpload = ({
     error, 
     onErrorChange 
 }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [files, setFiles] = useState([]);
     const errorTimeoutRef = useRef(null);
+    const fileCountRef = useRef(0);
+    const errorTypeRef = useRef(null); // Track error type
+    const errorDataRef = useRef(null); // Track error data (filename, filesize)
+    const MAX_FILES_ALLOWED = 10 - 4; // 6 files maximum
 
     useEffect(() => {
         return () => {
@@ -34,29 +38,88 @@ const CarPhotoUpload = ({
         };
     }, []);
 
+    // Update error message when language changes
+    useEffect(() => {
+        if (error && errorTypeRef.current) {
+            const errorType = errorTypeRef.current;
+            const errorData = errorDataRef.current || {};
+            
+            if (errorType === 'maxFiles') {
+                onErrorChange(t('maxFilesReached', { max: MAX_FILES_ALLOWED }));
+            } else if (errorType === 'invalidType') {
+                const fileName = errorData.fileName || '';
+                onErrorChange(`${t('invalidFileType')}${fileName ? ': ' + fileName : ''}`);
+            } else if (errorType === 'fileSize') {
+                const fileName = errorData.fileName || '';
+                const fileSizeText = errorData.fileSize ? ` (${errorData.fileSize})` : '';
+                onErrorChange(`${t('fileSizeTooLarge')}${fileName ? ': ' + fileName : ''}${fileSizeText}`);
+            }
+        }
+    }, [i18n.language, error, MAX_FILES_ALLOWED, onErrorChange, t]);
+
     const handleAddFile = (error, file) => {
+        // Check if max files limit is reached using ref for accurate count
+        if (fileCountRef.current >= MAX_FILES_ALLOWED) {
+            if (errorTimeoutRef.current) {
+                clearTimeout(errorTimeoutRef.current);
+            }
+            errorTypeRef.current = 'maxFiles';
+            errorDataRef.current = null;
+            errorTimeoutRef.current = setTimeout(() => {
+                onErrorChange(t('maxFilesReached', { max: MAX_FILES_ALLOWED }));
+            }, 100);
+            return false;
+        }
+
         if (error) {
             // Clear any existing timeout
             if (errorTimeoutRef.current) {
                 clearTimeout(errorTimeoutRef.current);
             }
 
-            // Show error message
-            errorTimeoutRef.current = setTimeout(() => {
-                const fileName = file?.filename || file?.file?.name || '';
-                const fileSize = file?.fileSize || file?.file?.size;
-                const fileSizeText = fileSize ? ` (${(fileSize / 1024 / 1024).toFixed(2)}MB)` : '';
-                
-                if (error.main) {
-                    onErrorChange(`${error.main}${fileName ? ': ' + fileName : ''}${fileSizeText}`);
-                } else if (error.body) {
-                    onErrorChange(error.body);
-                }
-            }, 100);
+            const fileName = file?.filename || file?.file?.name || '';
+            const fileSize = file?.fileSize || file?.file?.size;
+            const fileSizeText = fileSize ? `${(fileSize / 1024 / 1024).toFixed(2)}MB` : '';
+            
+            // Determine error type - check against both English and Vietnamese translations
+            const errorMsg = error.main ? error.main.toLowerCase() : '';
+            const invalidTypeEn = t('invalidFileType').toLowerCase();
+            const fileSizeTooLargeEn = t('fileSizeTooLarge').toLowerCase();
+            
+            if (errorMsg.includes('type') || errorMsg.includes('file type') || 
+                errorMsg.includes('tệp ảnh hợp lệ') || errorMsg.includes(invalidTypeEn)) {
+                errorTypeRef.current = 'invalidType';
+                errorDataRef.current = { fileName };
+                errorTimeoutRef.current = setTimeout(() => {
+                    onErrorChange(`${t('invalidFileType')}${fileName ? ': ' + fileName : ''}`);
+                }, 100);
+            } else if (errorMsg.includes('size') || errorMsg.includes('large') || 
+                       errorMsg.includes('kích thước') || errorMsg.includes(fileSizeTooLargeEn)) {
+                errorTypeRef.current = 'fileSize';
+                errorDataRef.current = { fileName, fileSize: fileSizeText };
+                errorTimeoutRef.current = setTimeout(() => {
+                    onErrorChange(`${t('fileSizeTooLarge')}${fileName ? ': ' + fileName : ''}${fileSizeText ? ' (' + fileSizeText + ')' : ''}`);
+                }, 100);
+            } else {
+                errorTypeRef.current = null;
+                errorDataRef.current = null;
+                errorTimeoutRef.current = setTimeout(() => {
+                    if (error.main) {
+                        onErrorChange(`${error.main}${fileName ? ': ' + fileName : ''}${fileSizeText ? ' (' + fileSizeText + ')' : ''}`);
+                    } else if (error.body) {
+                        onErrorChange(error.body);
+                    }
+                }, 100);
+            }
 
             // Prevent file from being added
             return false;
         }
+        
+        // Increment count when file is successfully added
+        fileCountRef.current += 1;
+        errorTypeRef.current = null;
+        errorDataRef.current = null;
         return true;
     };
 
@@ -65,6 +128,28 @@ const CarPhotoUpload = ({
         const validItems = fileItems.filter(item => {
             return item.status !== 7 && item.status !== 8; // 7 = LOAD_ERROR, 8 = PROCESSING_ERROR
         });
+
+        // Update the file count ref
+        fileCountRef.current = validItems.length;
+
+        // Check if exceeds max files and remove excess
+        if (validItems.length > MAX_FILES_ALLOWED) {
+            const limitedItems = validItems.slice(0, MAX_FILES_ALLOWED);
+            setFiles(limitedItems);
+            fileCountRef.current = MAX_FILES_ALLOWED;
+            
+            const photosData = limitedItems.map(fileItem => ({
+                file: fileItem.file,
+                preview: URL.createObjectURL(fileItem.file),
+                name: fileItem.file.name,
+                size: fileItem.file.size
+            }));
+            onPhotosChange(photosData);
+            
+            // Show error message immediately without timeout
+            onErrorChange(t('maxFilesReached', { max: MAX_FILES_ALLOWED }) || `Maximum ${MAX_FILES_ALLOWED} files allowed`);
+            return;
+        }
 
         setFiles(validItems);
         
@@ -79,11 +164,14 @@ const CarPhotoUpload = ({
             
             onPhotosChange(photosData);
             
-            // Clear error only after successful update
+            // Don't clear error if it's a max files error
             if (errorTimeoutRef.current) {
                 clearTimeout(errorTimeoutRef.current);
             }
-            onErrorChange('');
+            // Only clear error if we're not at max capacity
+            if (validItems.length < MAX_FILES_ALLOWED) {
+                onErrorChange('');
+            }
         } else {
             onPhotosChange([]);
         }
@@ -95,16 +183,44 @@ const CarPhotoUpload = ({
             clearTimeout(errorTimeoutRef.current);
         }
 
-        // Set error with debounce to prevent flashing
-        errorTimeoutRef.current = setTimeout(() => {
-            if (error.main) {
-                const fileName = file?.filename || '';
-                const fileSize = file?.fileSize ? ` (${(file.fileSize / 1024 / 1024).toFixed(2)}MB)` : '';
-                onErrorChange(`${error.main}${fileName ? ': ' + fileName : ''}${fileSize}`);
-            } else if (error.body) {
-                onErrorChange(error.body);
+        const fileName = file?.filename || '';
+        const fileSize = file?.fileSize;
+        const fileSizeText = fileSize ? `${(fileSize / 1024 / 1024).toFixed(2)}MB` : '';
+
+        // Determine error type from FilePond's warning
+        if (error.main) {
+            const errorMsg = error.main.toLowerCase();
+            const invalidTypeEn = t('invalidFileType').toLowerCase();
+            const fileSizeTooLargeEn = t('fileSizeTooLarge').toLowerCase();
+            
+            if (errorMsg.includes('type') || errorMsg.includes('file type') || 
+                errorMsg.includes('tệp ảnh hợp lệ') || errorMsg.includes(invalidTypeEn)) {
+                errorTypeRef.current = 'invalidType';
+                errorDataRef.current = { fileName };
+                errorTimeoutRef.current = setTimeout(() => {
+                    onErrorChange(`${t('invalidFileType')}${fileName ? ': ' + fileName : ''}`);
+                }, 300);
+            } else if (errorMsg.includes('size') || errorMsg.includes('large') || 
+                       errorMsg.includes('kích thước') || errorMsg.includes(fileSizeTooLargeEn)) {
+                errorTypeRef.current = 'fileSize';
+                errorDataRef.current = { fileName, fileSize: fileSizeText };
+                errorTimeoutRef.current = setTimeout(() => {
+                    onErrorChange(`${t('fileSizeTooLarge')}${fileName ? ': ' + fileName : ''}${fileSizeText ? ' (' + fileSizeText + ')' : ''}`);
+                }, 300);
+            } else {
+                errorTypeRef.current = null;
+                errorDataRef.current = null;
+                errorTimeoutRef.current = setTimeout(() => {
+                    onErrorChange(`${error.main}${fileName ? ': ' + fileName : ''}${fileSizeText ? ' (' + fileSizeText + ')' : ''}`);
+                }, 300);
             }
-        }, 300);
+        } else if (error.body) {
+            errorTypeRef.current = null;
+            errorDataRef.current = null;
+            errorTimeoutRef.current = setTimeout(() => {
+                onErrorChange(error.body);
+            }, 300);
+        }
     };
 
     return (

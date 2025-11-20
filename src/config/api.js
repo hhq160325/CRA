@@ -1,6 +1,6 @@
 // Central API configuration
 export const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_URL || "https://localhost:7269/api",
+  BASE_URL: process.env.REACT_APP_API_URL || "http://localhost:7184/api",
   TIMEOUT: 10000,
   HEADERS: {
     "Content-Type": "application/json",
@@ -9,8 +9,8 @@ export const API_CONFIG = {
 
 // Auth endpoints
 export const AUTH_ENDPOINTS = {
-  LOGIN: `${API_CONFIG.BASE_URL}/User/authenticate`,
-  REGISTER: `${API_CONFIG.BASE_URL}/User/SignUp`,
+  LOGIN: `${API_CONFIG.BASE_URL}/Authen/authenticate`,
+  REGISTER: `${API_CONFIG.BASE_URL}/Authen/SignUp`,
   FORGOT_PASSWORD: `${API_CONFIG.BASE_URL}/auth/forgot-password`,
   RESET_PASSWORD: `${API_CONFIG.BASE_URL}/auth/reset-password`,
   VERIFY_TOKEN: `${API_CONFIG.BASE_URL}/auth/verify-token`,
@@ -44,4 +44,17 @@ export const PARKLOT_ENDPOINTS = {
 export const PARKLOT_API_CONFIG = {
   timeout: API_CONFIG.TIMEOUT,
   headers: API_CONFIG.HEADERS,
+};
+
+// Car endpoints
+export const CAR_ENDPOINTS = {
+  REGISTER_CAR: `${API_CONFIG.BASE_URL}/Car/registerCar/carInfo`,
+  GET_ALL_CARS: `${API_CONFIG.BASE_URL}/Car/AllCars`,
+};
+
+export const CAR_API_CONFIG = {
+  timeout: API_CONFIG.TIMEOUT,
+  headers: {
+    'Content-Type': 'multipart/form-data',
+  },
 };

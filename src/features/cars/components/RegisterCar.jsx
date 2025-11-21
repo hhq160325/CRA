@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { validateLicensePlate, formatLicensePlate } from '../../auth/utils/LicensePlateFormat';
+import { DropdownTemplate } from '../../../shared';
 
 const RegisterCar = () => {
     const { t } = useTranslation();
@@ -16,6 +18,7 @@ const RegisterCar = () => {
         fuelConsumption: '',
         description: ''
     });
+    const [licensePlateError, setLicensePlateError] = useState('');
 
     // Load saved data from localStorage on mount
     useEffect(() => {
@@ -31,6 +34,31 @@ const RegisterCar = () => {
             ...prev,
             [name]: value
         }));
+
+        // Validate license plate on change
+        if (name === 'licensePlate') {
+            if (value.trim()) {
+                const validation = validateLicensePlate(value);
+                if (!validation.isValid) {
+                    setLicensePlateError(validation.message);
+                } else {
+                    setLicensePlateError('');
+                }
+            } else {
+                setLicensePlateError('');
+            }
+        }
+    };
+
+    const handleLicensePlateBlur = () => {
+        // Format license plate on blur
+        if (formData.licensePlate.trim()) {
+            const formatted = formatLicensePlate(formData.licensePlate);
+            setFormData(prev => ({
+                ...prev,
+                licensePlate: formatted
+            }));
+        }
     };
 
     const handleReturn = () => {
@@ -39,6 +67,18 @@ const RegisterCar = () => {
     };
 
     const handleNext = () => {
+        // Validate license plate before proceeding
+        if (!formData.licensePlate.trim()) {
+            setLicensePlateError('License plate is required');
+            return;
+        }
+
+        const validation = validateLicensePlate(formData.licensePlate);
+        if (!validation.isValid) {
+            setLicensePlateError(validation.message);
+            return;
+        }
+
         // Save form data to localStorage before navigating
         localStorage.setItem('carRegistrationStep1', JSON.stringify(formData));
         navigate('/register-car/step-2');
@@ -93,9 +133,18 @@ const RegisterCar = () => {
                             name="licensePlate"
                             value={formData.licensePlate}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            onBlur={handleLicensePlateBlur}
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                licensePlateError ? 'border-red-500' : 'border-gray-300'
+                            }`}
                             placeholder={t('enterLicensePlate')}
                         />
+                        {licensePlateError && (
+                            <p className="text-xs text-red-500 mt-2">{licensePlateError}</p>
+                        )}
+                        <p className="text-xs text-gray-500 mt-2">
+                            Format: 29A-12345 or 29A-123.45
+                        </p>
                     </div>
 
                     {/* Basic Information */}
@@ -173,31 +222,31 @@ const RegisterCar = () => {
                             {/* Transmission */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">{t('transmission')}</label>
-                                <select
-                                    name="transmission"
+                                <DropdownTemplate
                                     value={formData.transmission}
-                                    onChange={handleInputChange}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                >
-                                    <option value="Automatic">{t('automatic')}</option>
-                                    <option value="Manual">{t('manual')}</option>
-                                </select>
+                                    onChange={(option) => setFormData(prev => ({ ...prev, transmission: option.value }))}
+                                    options={[
+                                        { id: 1, value: 'Automatic', label: t('automatic') },
+                                        { id: 2, value: 'Manual', label: t('manual') }
+                                    ]}
+                                    placeholder={t('transmission')}
+                                />
                             </div>
 
                             {/* Fuel Type */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">{t('fuelType')}</label>
-                                <select
-                                    name="fuelType"
+                                <DropdownTemplate
                                     value={formData.fuelType}
-                                    onChange={handleInputChange}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                >
-                                    <option value="Gasoline">{t('gasoline')}</option>
-                                    <option value="Diesel">{t('diesel')}</option>
-                                    <option value="Electric">{t('electric')}</option>
-                                    <option value="Hybrid">{t('hybrid')}</option>
-                                </select>
+                                    onChange={(option) => setFormData(prev => ({ ...prev, fuelType: option.value }))}
+                                    options={[
+                                        { id: 1, value: 'Gasoline', label: t('gasoline') },
+                                        { id: 2, value: 'Diesel', label: t('diesel') },
+                                        { id: 3, value: 'Electric', label: t('electric') },
+                                        { id: 4, value: 'Hybrid', label: t('hybrid') }
+                                    ]}
+                                    placeholder={t('fuelType')}
+                                />
                             </div>
                         </div>
                     </div>

@@ -197,7 +197,13 @@ const resources = {
       viewUsers: "View Users",
       permissions: "Permissions",
       configure: "Configure",
-
+      roleManagement: "Account Number",
+      RoleManagementUsers: "User",
+      RoleManagementCarOwners: "Car Owners",
+      RoleManagementStaff: "Staff",
+      activeCars: "Active Cars",
+      carsInUse: "Car in use",
+      TotalBookings: "Total Bookings",
       // Booking Modal
       bookingDetails: "Booking Details",
       cancelBooking: "Cancel Booking",
@@ -650,7 +656,7 @@ const resources = {
       dropOff: "Trả xe",
       location: "Địa điểm",
       selectCity: "Chọn thành phố",
-      hoChiMinhCity: "Thành phố Hồ Chí Minh",
+      hoChiMinhCity: "TP.Hồ Chí Minh",
       hanoi: "Hà Nội",
       daNang: "Đà Nẵng",
       date: "Ngày",
@@ -804,7 +810,13 @@ const resources = {
       viewUsers: "Xem người dùng",
       permissions: "Quyền hạn",
       configure: "Cấu hình",
-
+      roleManagement: "Số lượng tài khoản",
+      RoleManagementUsers: "Người dùng",
+      RoleManagementCarOwners: "Quản lý",
+      RoleManagementStaff: "Nhân viên",
+      activeCars: "Xe đang hoạt động",
+      carsInUse: "Xe đang vận hành",
+      TotalBookings: "Tổng số đơn đặt",
       // Booking Modal
       bookingDetails: "Chi tiết đặt xe",
       cancelBooking: "Hủy đặt xe",

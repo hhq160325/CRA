@@ -1,150 +1,47 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { fetchAllCars } from '../../cars/carsSlice';
 import CarCard from '../../cars/CarCard';
+import Calendar from '../../../shared/components/Calendar';
+import TimePicker from '../../../shared/components/TimePicker';
 
 const HomePage = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { cars, loading, error } = useSelector((state) => state.cars);
 
+  // Dropdown states
+  const [pickupLocationOpen, setPickupLocationOpen] = useState(false);
+  const [pickupDateOpen, setPickupDateOpen] = useState(false);
+  const [pickupTimeOpen, setPickupTimeOpen] = useState(false);
+  const [dropoffLocationOpen, setDropoffLocationOpen] = useState(false);
+  const [dropoffDateOpen, setDropoffDateOpen] = useState(false);
+  const [dropoffTimeOpen, setDropoffTimeOpen] = useState(false);
+
+  // Selected values
+  const [pickupLocation, setPickupLocation] = useState('');
+  const [pickupDate, setPickupDate] = useState(null);
+  const [pickupTime, setPickupTime] = useState('');
+  const [dropoffLocation, setDropoffLocation] = useState('');
+  const [dropoffDate, setDropoffDate] = useState(null);
+  const [dropoffTime, setDropoffTime] = useState('');
+
+  // Options
+  const locations = [
+    { value: 'hcm', label: t('hoChiMinhCity') },
+    { value: 'hanoi', label: t('hanoi') },
+    { value: 'danang', label: t('daNang') }
+  ];
+
   useEffect(() => {
     dispatch(fetchAllCars());
   }, [dispatch]);
 
-  const popularCars = [
-    {
-      id: 1,
-      name: 'Koenigsegg',
-      type: 'Sport',
-      image: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=300&fit=crop',
-      fuel: '90L',
-      transmission: 'Manual',
-      capacity: '2 People',
-      price: '99.00',
-      originalPrice: '100.00'
-    },
-    {
-      id: 2,
-      name: 'Nissan GT-R',
-      type: 'Sport',
-      image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop',
-      fuel: '90L',
-      transmission: 'Manual',
-      capacity: '2 People',
-      price: '80.00',
-      originalPrice: '100.00'
-    },
-    {
-      id: 3,
-      name: 'Rolls-Royce',
-      type: 'Sedan',
-      image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop',
-      fuel: '70L',
-      transmission: 'Manual',
-      capacity: '4 People',
-      price: '96.00'
-    },
-    {
-      id: 4,
-      name: 'Nissan GT-R',
-      type: 'Sport',
-      image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop',
-      fuel: '80L',
-      transmission: 'Manual',
-      capacity: '2 People',
-      price: '80.00',
-      originalPrice: '100.00'
-    }
-  ];
+  const popularCars = [];
 
-
-  const recommendationCars = [
-    {
-      id: 'rush',
-      name: 'All New Rush',
-      type: 'SUV',
-      image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop',
-      fuel: '70L',
-      transmission: 'Manual',
-      capacity: '6 People',
-      price: '72.00',
-      originalPrice: '80.00'
-    },
-    {
-      id: 'crv1',
-      name: 'CR-V',
-      type: 'SUV',
-      image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=300&fit=crop',
-      fuel: '80L',
-      transmission: 'Manual',
-      capacity: '6 People',
-      price: '80.00'
-    },
-    {
-      id: 'terios',
-      name: 'All New Terios',
-      type: 'SUV',
-      image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop',
-      fuel: '90L',
-      transmission: 'Manual',
-      capacity: '6 People',
-      price: '74.00'
-    },
-    {
-      id: 'crv2',
-      name: 'CR-V',
-      type: 'SUV',
-      image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=300&fit=crop',
-      fuel: '80L',
-      transmission: 'Manual',
-      capacity: '6 People',
-      price: '80.00'
-    },
-    {
-      id: 'mg1',
-      name: 'MG ZX Exclusive',
-      type: 'Hatchback',
-      image: 'https://images.unsplash.com/photo-1549924231-f129b911e442?w=400&h=300&fit=crop',
-      fuel: '70L',
-      transmission: 'Manual',
-      capacity: '4 People',
-      price: '76.00',
-      originalPrice: '80.00'
-    },
-    {
-      id: 'mg2',
-      name: 'New MG ZS',
-      type: 'SUV',
-      image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop',
-      fuel: '80L',
-      transmission: 'Manual',
-      capacity: '6 People',
-      price: '80.00'
-    },
-    {
-      id: 'mg3',
-      name: 'MG ZX Excite',
-      type: 'Hatchback',
-      image: 'https://images.unsplash.com/photo-1549924231-f129b911e442?w=400&h=300&fit=crop',
-      fuel: '90L',
-      transmission: 'Manual',
-      capacity: '4 People',
-      price: '74.00'
-    },
-    {
-      id: 'mg4',
-      name: 'New MG ZS',
-      type: 'SUV',
-      image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop',
-      fuel: '80L',
-      transmission: 'Manual',
-      capacity: '6 People',
-      price: '80.00'
-    }
-  ];
+  const recommendationCars = [];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -202,86 +99,273 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Search Section */}
-        <div className='bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm mb-6 sm:mb-8'>
-          <div className='flex flex-col lg:flex-row lg:items-end gap-4 sm:gap-6'>
+        {/* Pick-up and Drop-off Section */}
+        <div className='bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm mb-6 sm:mb-8 relative z-10'>
+          <div className='flex flex-col lg:flex-row gap-4 sm:gap-6'>
             {/* Pick-up */}
-            <div className='flex-1 space-y-3 sm:space-y-4'>
-              <div className='flex items-center space-x-2'>
-                <div className='w-3 h-3 bg-blue-600 rounded-full'></div>
+            <div className='flex-1'>
+              <div className='flex items-center space-x-2 mb-3 sm:mb-4'>
+                <div className='w-3 h-3 sm:w-4 sm:h-4 bg-blue-600 rounded-full flex-shrink-0'></div>
                 <h3 className='text-base sm:text-lg font-semibold text-gray-900'>{t('pickUp')}</h3>
               </div>
-              <div className='grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4'>
-                <div>
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4'>
+                {/* Pickup Location */}
+                <div className='w-full relative'>
                   <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2'>{t('location')}</label>
-                  <select className='w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500 text-sm sm:text-base'>
-                    <option>{t('selectCity')}</option>
-                    <option>{t('hoChiMinhCity')}</option>
-                    <option>{t('hanoi')}</option>
-                    <option>{t('daNang')}</option>
-                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setPickupLocationOpen(!pickupLocationOpen)}
+                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
+                  >
+                    <span className={pickupLocation ? 'text-gray-900' : 'text-gray-400'}>
+                      {pickupLocation ? locations.find(l => l.value === pickupLocation)?.label : t('selectCity')}
+                    </span>
+                    <svg
+                      className={`w-4 h-4 text-gray-500 transition-transform ${pickupLocationOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {pickupLocationOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setPickupLocationOpen(false)}
+                      />
+                      <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden">
+                        {locations.map((location) => (
+                          <button
+                            key={location.value}
+                            type="button"
+                            onClick={() => {
+                              setPickupLocation(location.value);
+                              setPickupLocationOpen(false);
+                            }}
+                            className={`w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors ${pickupLocation === location.value ? 'bg-gray-50 text-gray-900 font-medium' : 'text-gray-700'
+                              }`}
+                          >
+                            {location.label}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
-                <div>
+
+                {/* Pickup Date */}
+                <div className='w-full relative'>
                   <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2'>{t('date')}</label>
-                  <select className='w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500 text-sm sm:text-base'>
-                    <option>{t('selectDate')}</option>
-                    <option>{t('today')}</option>
-                    <option>{t('tomorrow')}</option>
-                    <option>{t('nextWeek')}</option>
-                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setPickupDateOpen(!pickupDateOpen)}
+                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
+                  >
+                    <span className={pickupDate ? 'text-gray-900' : 'text-gray-400'}>
+                      {pickupDate ? pickupDate.toLocaleDateString() : t('selectDate')}
+                    </span>
+                    <svg
+                      className={`w-4 h-4 text-gray-500 transition-transform ${pickupDateOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                  {pickupDateOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setPickupDateOpen(false)}
+                      />
+                      <div className="absolute z-20 mt-1">
+                        <Calendar
+                          selectedDate={pickupDate}
+                          onDateSelect={setPickupDate}
+                          onClose={() => setPickupDateOpen(false)}
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
-                <div>
+
+                {/* Pickup Time */}
+                <div className='w-full relative'>
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">{t('time')}</label>
-                  <select className="w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500 text-sm sm:text-base">
-                    <option>{t('selectTime')}</option>
-                    <option>08:00 AM</option>
-                    <option>10:00 AM</option>
-                    <option>12:00 PM</option>
-                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setPickupTimeOpen(!pickupTimeOpen)}
+                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
+                  >
+                    <span className={pickupTime ? 'text-gray-900' : 'text-gray-400'}>
+                      {pickupTime || t('selectTime')}
+                    </span>
+                    <svg
+                      className={`w-4 h-4 text-gray-500 transition-transform ${pickupTimeOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </button>
+                  {pickupTimeOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setPickupTimeOpen(false)}
+                      />
+                      <div className="absolute z-20 mt-1">
+                        <TimePicker
+                          selectedTime={pickupTime}
+                          onTimeSelect={setPickupTime}
+                          onClose={() => setPickupTimeOpen(false)}
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
+
             {/* Swap Button */}
-            <div className='flex justify-center lg:block'>
-              <button className='bg-blue-600 text-white p-2 sm:p-3 rounded-lg hover:bg-blue-700 transition-colors'>
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className='flex items-center justify-center lg:items-end lg:pb-2'>
+              <button className='bg-blue-600 text-white p-3 sm:p-3.5 rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg'>
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                 </svg>
               </button>
             </div>
+
             {/* Drop-off */}
-            <div className='flex-1 space-y-3 sm:space-y-4'>
-              <div className='flex items-center space-x-2'>
-                <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+            <div className='flex-1'>
+              <div className='flex items-center space-x-2 mb-3 sm:mb-4'>
+                <div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-600 rounded-full flex-shrink-0"></div>
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900">{t('dropOff')}</h3>
               </div>
-              <div className='grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4'>
-                <div>
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4'>
+                {/* Dropoff Location */}
+                <div className='w-full relative'>
                   <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2'>{t('location')}</label>
-                  <select className='w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500 text-sm sm:text-base'>
-                    <option>{t('selectCity')}</option>
-                    <option>{t('hoChiMinhCity')}</option>
-                    <option>{t('hanoi')}</option>
-                    <option>{t('daNang')}</option>
-                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setDropoffLocationOpen(!dropoffLocationOpen)}
+                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
+                  >
+                    <span className={dropoffLocation ? 'text-gray-900' : 'text-gray-400'}>
+                      {dropoffLocation ? locations.find(l => l.value === dropoffLocation)?.label : t('selectCity')}
+                    </span>
+                    <svg
+                      className={`w-4 h-4 text-gray-500 transition-transform ${dropoffLocationOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {dropoffLocationOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setDropoffLocationOpen(false)}
+                      />
+                      <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden">
+                        {locations.map((location) => (
+                          <button
+                            key={location.value}
+                            type="button"
+                            onClick={() => {
+                              setDropoffLocation(location.value);
+                              setDropoffLocationOpen(false);
+                            }}
+                            className={`w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors ${dropoffLocation === location.value ? 'bg-gray-50 text-gray-900 font-medium' : 'text-gray-700'
+                              }`}
+                          >
+                            {location.label}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
-                <div>
+
+                {/* Dropoff Date */}
+                <div className='w-full relative'>
                   <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2'>{t('date')}</label>
-                  <select className='w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500 text-sm sm:text-base'>
-                    <option>{t('selectDate')}</option>
-                    <option>{t('today')}</option>
-                    <option>{t('tomorrow')}</option>
-                    <option>{t('nextWeek')}</option>
-                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setDropoffDateOpen(!dropoffDateOpen)}
+                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
+                  >
+                    <span className={dropoffDate ? 'text-gray-900' : 'text-gray-400'}>
+                      {dropoffDate ? dropoffDate.toLocaleDateString() : t('selectDate')}
+                    </span>
+                    <svg
+                      className={`w-4 h-4 text-gray-500 transition-transform ${dropoffDateOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                  {dropoffDateOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setDropoffDateOpen(false)}
+                      />
+                      <div className="absolute z-20 mt-1">
+                        <Calendar
+                          selectedDate={dropoffDate}
+                          onDateSelect={setDropoffDate}
+                          onClose={() => setDropoffDateOpen(false)}
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
-                <div>
+
+                {/* Dropoff Time */}
+                <div className='w-full relative'>
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">{t('time')}</label>
-                  <select className="w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500 text-sm sm:text-base">
-                    <option>{t('selectTime')}</option>
-                    <option>08:00 AM</option>
-                    <option>10:00 AM</option>
-                    <option>12:00 PM</option>
-                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setDropoffTimeOpen(!dropoffTimeOpen)}
+                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
+                  >
+                    <span className={dropoffTime ? 'text-gray-900' : 'text-gray-400'}>
+                      {dropoffTime || t('selectTime')}
+                    </span>
+                    <svg
+                      className={`w-4 h-4 text-gray-500 transition-transform ${dropoffTimeOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </button>
+                  {dropoffTimeOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setDropoffTimeOpen(false)}
+                      />
+                      <div className="absolute z-20 mt-1">
+                        <TimePicker
+                          selectedTime={dropoffTime}
+                          onTimeSelect={setDropoffTime}
+                          onClose={() => setDropoffTimeOpen(false)}
+                          minTime={pickupTime}
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -309,7 +393,9 @@ const HomePage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {cars.length > 0 ? (
                 cars.slice(0, 4).map((car) => (
-                  <CarCard key={car.licensePlate} car={car} isApiData={true} />
+                  <CarCard key={car.carId} car={car} isApiData={true} /> 
+                  // use this when api has carId
+                  // <CarCard key={car.licensePlate} car={car} isApiData={false} />
                 ))
               ) : (
                 popularCars.map((car) => (
@@ -326,7 +412,9 @@ const HomePage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
             {cars.length > 4 ? (
               cars.slice(4, 12).map((car) => (
-                <CarCard key={car.licensePlate} car={car} isApiData={true} />
+                <CarCard key={car.carId} car={car} isApiData={true} /> 
+                // use this when api has carId
+                // <CarCard key={car.licensePlate} car={car} isApiData={false} />
               ))
             ) : (
               recommendationCars.map((car) => (

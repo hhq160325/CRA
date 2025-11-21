@@ -7,11 +7,15 @@ import { toggleFavorite, selectIsFavorite } from '../favorites/favoritesSlice';
 const CarCard = ({ car, isApiData = false }) => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
+    // const carId = isApiData ? car.carId : car.id; // use this when api has carId
     const carId = isApiData ? car.licensePlate : car.id;
     const isCarFavorite = useSelector(selectIsFavorite(carId));
 
+
     const handleCarToggleFavorite = () => {
         const carData = isApiData ? {
+            // id: car.carId, 
+            // use this when api has carId
             id: car.licensePlate,
             name: `${car.manufacturer} ${car.model}`,
             type: car.fuelType,
@@ -76,7 +80,7 @@ const CarCard = ({ car, isApiData = false }) => {
     const carFuelType = isApiData ? car.fuelType : car.fuel;
     const carPrice = isApiData ? '80.00' : car.price;
     const carOriginalPrice = isApiData ? null : car.originalPrice;
-    console.log(carFuelType);
+    // console.log(carFuelType);
     
 
     return (
@@ -100,9 +104,9 @@ const CarCard = ({ car, isApiData = false }) => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
                 </button>
-                <div className="absolute top-3 left-3 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
+                {/* <div className="absolute top-3 left-3 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
                     {carType}
-                </div>
+                </div> */}
             </div>
 
             <div className="p-4">

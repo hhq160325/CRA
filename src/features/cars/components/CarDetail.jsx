@@ -1,100 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleFavorite, selectIsFavorite } from '../../favorites/favoritesSlice';
+import { fetchCarById, fetchAllCars } from '../carsSlice';
 import useEmblaCarousel from 'embla-carousel-react';
+import CarCard from '../CarCard';
 import './embla.css';
 
-
-const CarCard = ({ car, onToggleFavorite }) => {
-    const isCarFavorite = useSelector(selectIsFavorite(car.id));
-
-    const handleCarToggleFavorite = () => {
-        const carData = {
-            id: car.id,
-            name: car.name,
-            type: car.type,
-            price: car.price,
-            originalPrice: car.originalPrice,
-            image: car.image,
-            specifications: car.specifications,
-        };
-        onToggleFavorite(car.id, carData);
-    };
-
-    return (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
-            <div className="relative">
-                <img
-                    src={car.image}
-                    alt={car.name}
-                    className="w-full h-48 object-cover"
-                />
-                <button
-                    onClick={handleCarToggleFavorite}
-                    className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow text-red-500 hover:text-red-600"
-                >
-                    <svg
-                        className="w-5 h-5"
-                        fill={isCarFavorite ? 'currentColor' : 'none'}
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                </button>
-                <div className="absolute top-3 left-3 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
-                    {car.type}
-                </div>
-            </div>
-
-            <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{car.name}</h3>
-
-                <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
-                    <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
-                        </svg>
-                        {car.specifications.gasoline}
-                    </div>
-                    <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-                        </svg>
-                        {car.specifications.steering}
-                    </div>
-                    <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        {car.specifications.capacity}
-                    </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                    <div>
-                        <div className='flex items-center justify-between'>
-                            <div className="text-xl font-bold text-gray-900">${typeof car.price === 'number' ? car.price.toFixed(2) : (parseFloat(car.price) || 0).toFixed(2)}</div>
-                            <div className="text-sm text-slate-400">/day</div>
-                        </div>
-                        {car.originalPrice && (
-                            <div className="text-sm text-gray-500 line-through">${typeof car.originalPrice === 'number' ? car.originalPrice.toFixed(2) : (parseFloat(car.originalPrice) || 0).toFixed(2)}</div>
-                        )}
-                    </div>
-                    <Link
-                        to={`/cars/${car.id}`}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
-                    >
-                        Rent Now
-                    </Link>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const RecentCarsCarousel = ({ cars, onToggleFavorite }) => {
+const RecentCarsCarousel = ({ cars }) => {
     const [emblaRef] = useEmblaCarousel({
         align: 'start',
         dragFree: true,
@@ -102,15 +15,13 @@ const RecentCarsCarousel = ({ cars, onToggleFavorite }) => {
         keyboard: true
     });
 
-
-
     return (
         <div className="relative">
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex gap-6">
                     {cars.map((car) => (
-                        <div key={car.id} className="flex-none w-80">
-                            <CarCard car={car} onToggleFavorite={onToggleFavorite} />
+                        <div key={car.carId || car.id} className="flex-none w-80">
+                            <CarCard car={car} isApiData={true} />
                         </div>
                     ))}
                 </div>
@@ -121,7 +32,7 @@ const RecentCarsCarousel = ({ cars, onToggleFavorite }) => {
     );
 };
 
-const RecommendationCarsCarousel = ({ cars, onToggleFavorite }) => {
+const RecommendationCarsCarousel = ({ cars }) => {
     const [emblaRef] = useEmblaCarousel({
         align: 'start',
         dragFree: true,
@@ -134,8 +45,8 @@ const RecommendationCarsCarousel = ({ cars, onToggleFavorite }) => {
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex gap-6">
                     {cars.map((car) => (
-                        <div key={car.id} className="flex-none w-80">
-                            <CarCard car={car} onToggleFavorite={onToggleFavorite} />
+                        <div key={car.carId || car.id} className="flex-none w-80">
+                            <CarCard car={car} isApiData={true} />
                         </div>
                     ))}
                 </div>
@@ -152,121 +63,78 @@ const CarDetail = () => {
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [showAllReviews, setShowAllReviews] = useState(false);
 
+    // Get cars from Redux store
+    const { cars, currentCar, loading, error } = useSelector((state) => state.cars);
+
     // Get favorite status for the current car
-    const isCurrentCarFavorite = useSelector(selectIsFavorite(parseInt(id) || 1));
+    const isCurrentCarFavorite = useSelector(selectIsFavorite(id));
 
-    // Mock data - replace with actual data from Redux store when API is ready
-    const carData = {
-        id: 1,
-        name: "Nissan GT - R",
-        type: "Sport",
-        rating: 4.5,
-        reviewCount: 440,
-        description: "NISMO has become the embodiment of Nissan's outstanding performance, inspired by the most unforgiving proving ground, the 'race track'.",
-        specifications: {
-            typecar: "Sport",
-            capacity: "2 Person",
-            steering: "Manual",
-            gasoline: "70L"
+    // Fetch car by ID on component mount or when ID changes
+    useEffect(() => {
+        dispatch(fetchCarById(id));
+    }, [dispatch, id]);
+
+    // Mock reviews data (since API doesn't provide reviews yet)
+    const mockReviews = [
+        {
+            id: 1,
+            name: "Alex Stanton",
+            role: "CEO at Bukalapak",
+            date: "21 July 2022",
+            rating: 4,
+            comment: "We are very happy with the service from the MORENT App. Morent has a low price and also a large variety of cars with good and comfortable facilities. In addition, the service provided by the officers is also very friendly and very polite."
         },
-        price: 80.00,
-        originalPrice: 100.00,
-        images: [
-            "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=300&fit=crop",
-            "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=300&fit=crop",
-            "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=300&fit=crop"
-        ],
-        reviews: [
-            {
-                id: 1,
-                name: "Alex Stanton",
-                role: "CEO at Bukalapak",
-                date: "21 July 2022",
-                rating: 4,
-                comment: "We are very happy with the service from the MORENT App. Morent has a low price and also a large variety of cars with good and comfortable facilities. In addition, the service provided by the officers is also very friendly and very polite."
-            },
-            {
-                id: 2,
-                name: "Skylar Dias",
-                role: "CEO at Amazon",
-                date: "20 July 2022",
-                rating: 4,
-                comment: "We are greatly helped by the services of the MORENT Application. Morent has low prices and also a wide variety of cars with good and comfortable facilities. In addition, the service provided by the officers is also very friendly and very polite."
-            }
-        ]
-    };
-
-    const mockRelatedCars = [
         {
             id: 2,
-            name: "Koenigsegg",
-            type: "Sport",
-            price: 99.00,
-            image: "https://images.unsplash.com/photo-1683216497578-899ee0033067?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop",
-            specifications: { gasoline: "90L", steering: "Manual", capacity: "2 Person" },
-            isFavorite: true
-        },
-        {
-            id: 3,
-            name: "Nissan GT - R",
-            type: "Sport",
-            price: 80.00,
-            originalPrice: 100.00,
-            image: "https://images.unsplash.com/photo-1683216497578-899ee0033067?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop",
-            specifications: { gasoline: "80L", steering: "Manual", capacity: "2 Person" },
-            isFavorite: false
-        },
-        {
-            id: 4,
-            name: "Rolls - Royce",
-            type: "Sedan",
-            price: 96.00,
-            image: "https://images.unsplash.com/photo-1683216497578-899ee0033067?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop",
-            specifications: { gasoline: "70L", steering: "Manual", capacity: "4 Person" },
-            isFavorite: false
-        },
-        {
-            id: 5,
-            name: "All New Rush",
-            type: "SUV",
-            price: 72.00,
-            originalPrice: 80.00,
-            image: "https://images.unsplash.com/photo-1683216497578-899ee0033067?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop",
-            specifications: { gasoline: "70L", steering: "Manual", capacity: "6 Person" },
-            isFavorite: false
-        },
-        {
-            id: 6,
-            name: "CR - V",
-            type: "SUV",
-            price: 80.00,
-            image: "https://images.unsplash.com/photo-1683216497578-899ee0033067?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop",
-            specifications: { gasoline: "80L", steering: "Manual", capacity: "6 Person" },
-            isFavorite: true
-        },
-        {
-            id: 7,
-            name: "All New Terios",
-            type: "SUV",
-            price: 74.00,
-            image: "https://images.unsplash.com/photo-1683216497578-899ee0033067?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop",
-            specifications: { gasoline: "90L", steering: "Manual", capacity: "6 Person" },
-            isFavorite: false
+            name: "Skylar Dias",
+            role: "CEO at Amazon",
+            date: "20 July 2022",
+            rating: 4,
+            comment: "We are greatly helped by the services of the MORENT Application. Morent has low prices and also a wide variety of cars with good and comfortable facilities. In addition, the service provided by the officers is also very friendly and very polite."
         }
     ];
 
-    const displayRelatedCars = mockRelatedCars;
+    // Transform API car data to match the component's expected format
+    const carData = currentCar ? {
+        id: currentCar.carId,
+        name: `${currentCar.manufacturer} ${currentCar.model}`,
+        type: currentCar.model,
+        rating: 4.5, // Mock rating
+        reviewCount: 440, // Mock review count
+        description: currentCar.description || `Experience the power and elegance of the ${currentCar.manufacturer} ${currentCar.model}. This ${currentCar.fuelType} vehicle offers exceptional performance and comfort.`,
+        specifications: {
+            typecar: currentCar.model,
+            capacity: `${currentCar.seats} Person`,
+            steering: currentCar.transmission,
+            fueltype: currentCar.fuelType,
+        },
+        price: 80.00, // Mock price - replace with actual price when available
+        originalPrice: 100.00, // Mock original price
+        images: currentCar.imageUrls && currentCar.imageUrls.length > 0 
+            ? currentCar.imageUrls 
+            : [
+                "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop"
+            ],
+        reviews: mockReviews
+    } : null;
 
-    const handleToggleFavorite = (carId, carData = null) => {
-        dispatch(toggleFavorite({
-            carId,
-            carData: carData || (carId === parseInt(id) ? carData : null)
-        }));
-    };
+    // Fetch all cars for related cars section
+    useEffect(() => {
+        if (cars.length === 0) {
+            dispatch(fetchAllCars());
+        }
+    }, [dispatch, cars.length]);
+
+    // Get related cars from API (all cars except current one)
+    const displayRelatedCars = cars.filter(car => car.carId !== id).slice(0, 8);
 
     const handleMainCarToggleFavorite = () => {
+        if (!carData) return;
+        
         const mainCarData = {
-            id: parseInt(id) || 1,
+            id: id,
             name: carData.name,
             type: carData.type,
             price: carData.price,
@@ -274,7 +142,10 @@ const CarDetail = () => {
             image: carData.images[0],
             specifications: carData.specifications,
         };
-        handleToggleFavorite(parseInt(id) || 1, mainCarData);
+        dispatch(toggleFavorite({
+            carId: id,
+            carData: mainCarData
+        }));
     };
 
     const renderStars = (rating) => {
@@ -337,7 +208,7 @@ const CarDetail = () => {
     //                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     //                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
     //                     </svg>
-    //                     <span>{car.specifications.gasoline}</span>
+    //                     <span>{car.specifications.fueltype}</span>
     //                 </div>
     //                 <div className="flex items-center gap-1">
     //                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -368,6 +239,56 @@ const CarDetail = () => {
     //         </div>
     //     );
     // };
+
+    // Show loading state
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading car details...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Show error state
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-red-600 mb-4">Error loading car details: {error}</p>
+                    <button 
+                        onClick={() => dispatch(fetchCarById(id))}
+                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                    >
+                        Retry
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // Show not found state if car doesn't exist
+    if (!loading && !carData) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <svg className="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Car Not Found</h2>
+                    <p className="text-gray-600 mb-6">The car you're looking for doesn't exist or has been removed.</p>
+                    <Link 
+                        to="/cars"
+                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 inline-block"
+                    >
+                        Browse All Cars
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -466,8 +387,8 @@ const CarDetail = () => {
                                 <p className="font-semibold text-gray-800 text-lg">{carData.specifications.steering}</p>
                             </div>
                             <div>
-                                <span className="text-gray-400 text-sm block mb-2">Gasoline</span>
-                                <p className="font-semibold text-gray-800 text-lg">{carData.specifications.gasoline}</p>
+                                <span className="text-gray-400 text-sm block mb-2">Fuel Type</span>
+                                <p className="font-semibold text-gray-800 text-lg">{carData.specifications.fueltype}</p>
                             </div>
                         </div>
 
@@ -538,28 +459,30 @@ const CarDetail = () => {
                 </div>
 
                 {/* Recent Cars */}
-                <div className="mb-12">
-                    <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-2xl font-bold text-gray-900">Recent Car</h2>
-                        {/* <button className="text-blue-600 hover:text-blue-700 font-medium text-lg">View All</button> */}
-                        <Link to="/cars" className="text-blue-600 hover:text-blue-700 font-medium">
-                            View All
-                        </Link>
+                {displayRelatedCars.length > 0 && (
+                    <div className="mb-12">
+                        <div className="flex items-center justify-between mb-8">
+                            <h2 className="text-2xl font-bold text-gray-900">Recent Car</h2>
+                            <Link to="/cars" className="text-blue-600 hover:text-blue-700 font-medium">
+                                View All
+                            </Link>
+                        </div>
+                        <RecentCarsCarousel cars={displayRelatedCars.slice(0, 6)} />
                     </div>
-                    <RecentCarsCarousel cars={displayRelatedCars.slice(0, 6)} onToggleFavorite={handleToggleFavorite} />
-                </div>
+                )}
 
                 {/* Recommendation Cars */}
-                <div>
-                    <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-2xl font-bold text-gray-900">Recommendation Car</h2>
-                        {/* <button className="text-blue-600 hover:text-blue-700 font-medium text-lg">View All</button> */}
-                        <Link to="/cars" className="text-blue-600 hover:text-blue-700 font-medium">
-                            View All
-                        </Link>
+                {displayRelatedCars.length > 0 && (
+                    <div>
+                        <div className="flex items-center justify-between mb-8">
+                            <h2 className="text-2xl font-bold text-gray-900">Recommendation Car</h2>
+                            <Link to="/cars" className="text-blue-600 hover:text-blue-700 font-medium">
+                                View All
+                            </Link>
+                        </div>
+                        <RecommendationCarsCarousel cars={displayRelatedCars} />
                     </div>
-                    <RecommendationCarsCarousel cars={displayRelatedCars} onToggleFavorite={handleToggleFavorite} />
-                </div>
+                )}
             </div>
         </div>
     );

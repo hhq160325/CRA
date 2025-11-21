@@ -44,8 +44,7 @@ export const fetchCarById = createAsyncThunk(
   'cars/fetchCarById',
   async (carId, { rejectWithValue }) => {
     try {
-      // TODO: Replace with actual API call
-      const response = await axiosInstance.get(`/cars/${carId}`);
+      const response = await axiosInstance.get(`/Car/${carId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);

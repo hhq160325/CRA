@@ -1,6 +1,6 @@
 // Central API configuration
 export const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_URL || "http://localhost:7184/api",
+  BASE_URL: process.env.REACT_APP_API_URL || "https://selfdrivecarrentalservice-gze5gtc3dkfybtev.southeastasia-01.azurewebsites.net/api",
   TIMEOUT: 10000,
   HEADERS: {
     "Content-Type": "application/json",

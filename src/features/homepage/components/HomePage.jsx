@@ -393,9 +393,7 @@ const HomePage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {cars.length > 0 ? (
                 cars.slice(0, 4).map((car) => (
-                  <CarCard key={car.carId} car={car} isApiData={true} /> 
-                  // use this when api has carId
-                  // <CarCard key={car.licensePlate} car={car} isApiData={false} />
+                  <CarCard key={car.id} car={car} isApiData={true} />
                 ))
               ) : (
                 popularCars.map((car) => (
@@ -412,9 +410,7 @@ const HomePage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
             {cars.length > 4 ? (
               cars.slice(4, 12).map((car) => (
-                <CarCard key={car.carId} car={car} isApiData={true} /> 
-                // use this when api has carId
-                // <CarCard key={car.licensePlate} car={car} isApiData={false} />
+                <CarCard key={car.id} car={car} isApiData={true} />
               ))
             ) : (
               recommendationCars.map((car) => (

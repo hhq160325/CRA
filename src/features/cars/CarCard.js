@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -7,22 +6,25 @@ import { toggleFavorite, selectIsFavorite } from '../favorites/favoritesSlice';
 const CarCard = ({ car, isApiData = false }) => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
-    // const carId = isApiData ? car.carId : car.id; // use this when api has carId
-    const carId = isApiData ? car.licensePlate : car.id;
+    const carId = car.id;
     const isCarFavorite = useSelector(selectIsFavorite(carId));
 
+    // Helper function to process image URL
+    const getImageUrl = (imageUrl) => {
+        if (!imageUrl) return 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop';
+        // Replace <url> placeholder with actual storage URL
+        return imageUrl.replace('<url>', process.env.REACT_APP_STORAGE_URL || 'http://localhost:7184');
+    };
 
     const handleCarToggleFavorite = () => {
         const carData = isApiData ? {
-            // id: car.carId, 
-            // use this when api has carId
-            id: car.licensePlate,
+            id: car.id,
             name: `${car.manufacturer} ${car.model}`,
             type: car.fuelType,
             transmission: car.transmission,
             capacity: `${car.seats} People`,
             price: '80.00',
-            image: car.imageUrls?.[0] || 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop'
+            image: getImageUrl(car.imageUrls?.[0])
         } : {
             id: car.id,
             name: car.name,
@@ -73,15 +75,12 @@ const CarCard = ({ car, isApiData = false }) => {
 
     // Format car data based on source
     const carName = isApiData ? `${car.manufacturer} ${car.model}` : car.name;
-    const carType = isApiData ? car.fuelType : car.type;
-    const carImage = isApiData ? (car.imageUrls?.[0] || 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop') : car.image;
+    const carImage = isApiData ? getImageUrl(car.imageUrls?.[0]) : car.image;
     const carTransmission = car.transmission;
     const carSeats = isApiData ? car.seats : car.capacity;
     const carFuelType = isApiData ? car.fuelType : car.fuel;
     const carPrice = isApiData ? '80.00' : car.price;
     const carOriginalPrice = isApiData ? null : car.originalPrice;
-    // console.log(carFuelType);
-    
 
     return (
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">

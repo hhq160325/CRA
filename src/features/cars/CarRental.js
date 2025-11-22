@@ -286,7 +286,7 @@ const CarRental = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 lg:mb-12">
                   {filteredCars.map((car) => (
                     <CarCard 
-                      key={cars.length > 0 ? car.carId : car.id} 
+                      key={car.id} 
                       car={car} 
                       isApiData={cars.length > 0}
                     />

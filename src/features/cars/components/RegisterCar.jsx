@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { validateLicensePlate, formatLicensePlate } from '../../auth/utils/LicensePlateFormat';
+import { validateLicensePlate, formatLicensePlate } from '../../../shared/utils/LicensePlateFormat';
 import { DropdownTemplate } from '../../../shared';
 
 const RegisterCar = () => {

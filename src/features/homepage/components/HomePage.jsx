@@ -1,282 +1,65 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { toggleFavorite, selectIsFavorite } from '../../favorites/favoritesSlice';
+import { fetchAllCars } from '../../cars/carsSlice';
+import CarCard from '../../cars/CarCard';
+import Calendar from '../../../shared/components/Calendar';
+import TimePicker from '../../../shared/components/TimePicker';
+
 const HomePage = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const { cars, loading, error } = useSelector((state) => state.cars);
 
-  const popularCars = [
-    {
-      id: 1,
-      name: 'Koenigsegg',
-      type: 'Sport',
-      image: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=300&fit=crop',
-      fuel: '90L',
-      transmission: 'Manual',
-      capacity: '2 People',
-      price: '99.00',
-      originalPrice: '100.00'
-    },
-    {
-      id: 2,
-      name: 'Nissan GT-R',
-      type: 'Sport',
-      image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop',
-      fuel: '90L',
-      transmission: 'Manual',
-      capacity: '2 People',
-      price: '80.00',
-      originalPrice: '100.00'
-    },
-    {
-      id: 3,
-      name: 'Rolls-Royce',
-      type: 'Sedan',
-      image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop',
-      fuel: '70L',
-      transmission: 'Manual',
-      capacity: '4 People',
-      price: '96.00'
-    },
-    {
-      id: 4,
-      name: 'Nissan GT-R',
-      type: 'Sport',
-      image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop',
-      fuel: '80L',
-      transmission: 'Manual',
-      capacity: '2 People',
-      price: '80.00',
-      originalPrice: '100.00'
-    }
+  // Dropdown states
+  const [pickupLocationOpen, setPickupLocationOpen] = useState(false);
+  const [pickupDateOpen, setPickupDateOpen] = useState(false);
+  const [pickupTimeOpen, setPickupTimeOpen] = useState(false);
+  const [dropoffLocationOpen, setDropoffLocationOpen] = useState(false);
+  const [dropoffDateOpen, setDropoffDateOpen] = useState(false);
+  const [dropoffTimeOpen, setDropoffTimeOpen] = useState(false);
+
+  // Selected values
+  const [pickupLocation, setPickupLocation] = useState('');
+  const [pickupDate, setPickupDate] = useState(null);
+  const [pickupTime, setPickupTime] = useState('');
+  const [dropoffLocation, setDropoffLocation] = useState('');
+  const [dropoffDate, setDropoffDate] = useState(null);
+  const [dropoffTime, setDropoffTime] = useState('');
+
+  // Options
+  const locations = [
+    { value: 'hcm', label: t('hoChiMinhCity') },
+    { value: 'hanoi', label: t('hanoi') },
+    { value: 'danang', label: t('daNang') }
   ];
 
-  const handleToggleFavorite = (carId, carData = null) => {
-    dispatch(toggleFavorite({
-      carId,
-      carData
-    }));
-  };
-  // const handleMainCarToggleFavorite = () => {
-  //   const mainCarData = {
-  //     id: parseInt(id) || 1,
-  //     name: popularCars.name,
-  //     type: popularCars.type,
-  //     price: popularCars.price,
-  //     originalPrice: popularCars.originalPrice,
-  //     image: popularCars.images[0],
-  //     specifications: popularCars.specifications,
-  //   };
-  //   handleToggleFavorite(parseInt(id) || 1, mainCarData);
-  // };
+  useEffect(() => {
+    dispatch(fetchAllCars());
+  }, [dispatch]);
 
-  const CarCard = ({ car }) => {
-    const isCarFavorite = useSelector(selectIsFavorite(car.id));
+  const popularCars = [];
 
-    const handleCarToggleFavorite = () => {
-      const carData = {
-        id: car.id,
-        name: car.name,
-        type: car.type,
-        image: car.image,
-        fuel: car.fuel,
-        transmission: car.transmission,
-        capacity: car.capacity,
-        price: car.price,
-        originalPrice: car.originalPrice
-      };
-      handleToggleFavorite(car.id, carData);
-    };
-
-    // Helper function to translate transmission
-    const getTransmissionText = (transmission) => {
-      if (transmission.toLowerCase() === 'manual') return t('manual');
-      if (transmission.toLowerCase() === 'automatic') return t('automatic');
-      return transmission;
-    };
-
-    // Helper function to translate capacity
-    const getCapacityText = (capacity) => {
-      const match = capacity.match(/(\d+)\s*People/i);
-      if (match) {
-        return `${match[1]} ${t('people')}`;
-      }
-      return capacity;
-    };
-
-    return (<div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
-      <div className="relative">
-        <img
-          src={car.image}
-          alt={car.name}
-          className="w-full h-48 object-cover"
-        />
-        <button
-          onClick={handleCarToggleFavorite}
-          className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow text-red-500 hover:text-red-600"
-        >
-          <svg
-            className={`w-5 h-5`}
-            fill={isCarFavorite ? 'currentColor' : 'none'}
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-          </svg>
-        </button>
-        <div className="absolute top-3 left-3 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
-          {car.type}
-        </div>
-      </div>
-
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{car.name}</h3>
-
-        <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
-          <div className="flex items-center">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
-            </svg>
-            {car.fuel}
-          </div>
-          <div className="flex items-center">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-            </svg>
-            {getTransmissionText(car.transmission)}
-          </div>
-          <div className="flex items-center">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            {getCapacityText(car.capacity)}
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div>
-            <div className='flex items-center'><div className="text-xl font-bold text-gray-900">${car.price}</div><div className="text-sm text-slate-400">{t('perDay')}</div></div>
-            {car.originalPrice && (
-              <div className="text-sm text-gray-500 line-through">${car.originalPrice}</div>
-            )}
-          </div>
-          <Link
-            to={`/cars/${car.id}`}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
-          >
-            {t('rentNow')}
-          </Link>
-        </div>
-      </div>
-    </div>)
-  }
-
-
-
-  const recommendationCars = [
-    {
-      id: 'rush',
-      name: 'All New Rush',
-      type: 'SUV',
-      image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop',
-      fuel: '70L',
-      transmission: 'Manual',
-      capacity: '6 People',
-      price: '72.00',
-      originalPrice: '80.00'
-    },
-    {
-      id: 'crv1',
-      name: 'CR-V',
-      type: 'SUV',
-      image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=300&fit=crop',
-      fuel: '80L',
-      transmission: 'Manual',
-      capacity: '6 People',
-      price: '80.00'
-    },
-    {
-      id: 'terios',
-      name: 'All New Terios',
-      type: 'SUV',
-      image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop',
-      fuel: '90L',
-      transmission: 'Manual',
-      capacity: '6 People',
-      price: '74.00'
-    },
-    {
-      id: 'crv2',
-      name: 'CR-V',
-      type: 'SUV',
-      image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=300&fit=crop',
-      fuel: '80L',
-      transmission: 'Manual',
-      capacity: '6 People',
-      price: '80.00'
-    },
-    {
-      id: 'mg1',
-      name: 'MG ZX Exclusive',
-      type: 'Hatchback',
-      image: 'https://images.unsplash.com/photo-1549924231-f129b911e442?w=400&h=300&fit=crop',
-      fuel: '70L',
-      transmission: 'Manual',
-      capacity: '4 People',
-      price: '76.00',
-      originalPrice: '80.00'
-    },
-    {
-      id: 'mg2',
-      name: 'New MG ZS',
-      type: 'SUV',
-      image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop',
-      fuel: '80L',
-      transmission: 'Manual',
-      capacity: '6 People',
-      price: '80.00'
-    },
-    {
-      id: 'mg3',
-      name: 'MG ZX Excite',
-      type: 'Hatchback',
-      image: 'https://images.unsplash.com/photo-1549924231-f129b911e442?w=400&h=300&fit=crop',
-      fuel: '90L',
-      transmission: 'Manual',
-      capacity: '4 People',
-      price: '74.00'
-    },
-    {
-      id: 'mg4',
-      name: 'New MG ZS',
-      type: 'SUV',
-      image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop',
-      fuel: '80L',
-      transmission: 'Manual',
-      capacity: '6 People',
-      price: '80.00'
-    }
-  ];
+  const recommendationCars = [];
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Left Banner */}
-          <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-2xl p-8 text-white relative overflow-hidden">
-            <div className="relative z-10">
-              <h1 className="text-3xl font-bold mb-4">{t('heroTitle')}</h1>
-              <p className="text-blue-100 mb-6 text-lg">
+          <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-xl sm:rounded-2xl p-6 sm:p-8 text-white relative overflow-hidden min-h-[200px] sm:min-h-[280px]">
+            <div className="relative z-10 max-w-[60%] sm:max-w-none">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-4">{t('heroTitle')}</h1>
+              <p className="text-blue-100 mb-4 sm:mb-6 text-sm sm:text-base lg:text-lg">
                 {t('heroSubtitle')}
               </p>
-              <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              <button className="bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base">
                 {t('rentalCar')}
               </button>
             </div>
-            <div className="absolute bottom-0 right-0 w-64 h-48">
+            <div className="absolute bottom-0 right-0 w-40 h-32 sm:w-56 sm:h-40 lg:w-64 lg:h-48">
               <img
                 src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=300&fit=crop"
                 alt="Koenigsegg"
@@ -286,7 +69,7 @@ const HomePage = () => {
           </div>
 
           {/* Right Banner */}
-          <div className="bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl p-8 relative overflow-hidden">
+          <div className="bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl sm:rounded-2xl p-6 sm:p-8 relative overflow-hidden min-h-[200px] sm:min-h-[280px]">
             <div className="absolute inset-0 opacity-10">
               <svg className="w-full h-full" viewBox="0 0 100 100">
                 <defs>
@@ -297,16 +80,16 @@ const HomePage = () => {
                 <rect width="100" height="100" fill="url(#chevron)" />
               </svg>
             </div>
-            <div className="relative z-10">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('heroTitle2')}</h2>
-              <p className="text-gray-600 mb-6 text-lg">
+            <div className="relative z-10 max-w-[60%] sm:max-w-none">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-4">{t('heroTitle2')}</h2>
+              <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base lg:text-lg">
                 {t('heroSubtitle2')}
               </p>
-              <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              <button className="bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base">
                 {t('rentalCar')}
               </button>
             </div>
-            <div className="absolute bottom-0 right-0 w-64 h-48">
+            <div className="absolute bottom-0 right-0 w-40 h-32 sm:w-56 sm:h-40 lg:w-64 lg:h-48">
               <img
                 src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop"
                 alt="Nissan GT-R"
@@ -316,86 +99,273 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Search Section */}
-        <div className='bg-white rounded-2xl p-6 shadow-sm mb-8'>
-          <div className='grid grid-cols-1 lg:grid-cols-7 gap-6 items-end'>
+        {/* Pick-up and Drop-off Section */}
+        <div className='bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm mb-6 sm:mb-8 relative z-10'>
+          <div className='flex flex-col lg:flex-row gap-4 sm:gap-6'>
             {/* Pick-up */}
-            <div className='lg:col-span-3 space-y-4'>
-              <div className='flex items-center space-x-2'>
-                <div className='w-3 h-3 bg-blue-600 rounded-full'></div>
-                <h3 className='text-lg font-semibold text-gray-900'>{t('pickUp')}</h3>
+            <div className='flex-1'>
+              <div className='flex items-center space-x-2 mb-3 sm:mb-4'>
+                <div className='w-3 h-3 sm:w-4 sm:h-4 bg-blue-600 rounded-full flex-shrink-0'></div>
+                <h3 className='text-base sm:text-lg font-semibold text-gray-900'>{t('pickUp')}</h3>
               </div>
-              <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                <div>
-                  <label className='block-text-sm font-medium text-gray-700 mb-2'>{t('location')}</label>
-                  <select className='w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500'>
-                    <option>{t('selectCity')}</option>
-                    <option>{t('hoChiMinhCity')}</option>
-                    <option>{t('hanoi')}</option>
-                    <option>{t('daNang')}</option>
-                  </select>
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4'>
+                {/* Pickup Location */}
+                <div className='w-full relative'>
+                  <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2'>{t('location')}</label>
+                  <button
+                    type="button"
+                    onClick={() => setPickupLocationOpen(!pickupLocationOpen)}
+                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
+                  >
+                    <span className={pickupLocation ? 'text-gray-900' : 'text-gray-400'}>
+                      {pickupLocation ? locations.find(l => l.value === pickupLocation)?.label : t('selectCity')}
+                    </span>
+                    <svg
+                      className={`w-4 h-4 text-gray-500 transition-transform ${pickupLocationOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {pickupLocationOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setPickupLocationOpen(false)}
+                      />
+                      <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden">
+                        {locations.map((location) => (
+                          <button
+                            key={location.value}
+                            type="button"
+                            onClick={() => {
+                              setPickupLocation(location.value);
+                              setPickupLocationOpen(false);
+                            }}
+                            className={`w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors ${pickupLocation === location.value ? 'bg-gray-50 text-gray-900 font-medium' : 'text-gray-700'
+                              }`}
+                          >
+                            {location.label}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
-                <div>
-                  <label className='block-text-sm font-medium text-gray-700 mb-2'>{t('date')}</label>
-                  <select className='w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500'>
-                    <option>{t('selectDate')}</option>
-                    <option>{t('today')}</option>
-                    <option>{t('tomorrow')}</option>
-                    <option>{t('nextWeek')}</option>
-                  </select>
+
+                {/* Pickup Date */}
+                <div className='w-full relative'>
+                  <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2'>{t('date')}</label>
+                  <button
+                    type="button"
+                    onClick={() => setPickupDateOpen(!pickupDateOpen)}
+                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
+                  >
+                    <span className={pickupDate ? 'text-gray-900' : 'text-gray-400'}>
+                      {pickupDate ? pickupDate.toLocaleDateString() : t('selectDate')}
+                    </span>
+                    <svg
+                      className={`w-4 h-4 text-gray-500 transition-transform ${pickupDateOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                  {pickupDateOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setPickupDateOpen(false)}
+                      />
+                      <div className="absolute z-20 mt-1">
+                        <Calendar
+                          selectedDate={pickupDate}
+                          onDateSelect={setPickupDate}
+                          onClose={() => setPickupDateOpen(false)}
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('time')}</label>
-                  <select className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500">
-                    <option>{t('selectTime')}</option>
-                    <option>08:00 AM</option>
-                    <option>10:00 AM</option>
-                    <option>12:00 PM</option>
-                  </select>
+
+                {/* Pickup Time */}
+                <div className='w-full relative'>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">{t('time')}</label>
+                  <button
+                    type="button"
+                    onClick={() => setPickupTimeOpen(!pickupTimeOpen)}
+                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
+                  >
+                    <span className={pickupTime ? 'text-gray-900' : 'text-gray-400'}>
+                      {pickupTime || t('selectTime')}
+                    </span>
+                    <svg
+                      className={`w-4 h-4 text-gray-500 transition-transform ${pickupTimeOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </button>
+                  {pickupTimeOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setPickupTimeOpen(false)}
+                      />
+                      <div className="absolute z-20 mt-1">
+                        <TimePicker
+                          selectedTime={pickupTime}
+                          onTimeSelect={setPickupTime}
+                          onClose={() => setPickupTimeOpen(false)}
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
+
             {/* Swap Button */}
-            <div className='lg:col-span-1 flex justify-center'>
-              <button className='bg-blue-600 text-white p-3 rounded-lg hove:bg-blue-700 transition-colors'>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className='flex items-center justify-center lg:items-end lg:pb-2'>
+              <button className='bg-blue-600 text-white p-3 sm:p-3.5 rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg'>
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                 </svg>
               </button>
             </div>
+
             {/* Drop-off */}
-            <div className='lg:col-span-3 space-y-4'>
-              <div className='flex items-center space-x-2'>
-                <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-                <h3 className="text-lg font-semibold text-gray-900">{t('dropOff')}</h3>
+            <div className='flex-1'>
+              <div className='flex items-center space-x-2 mb-3 sm:mb-4'>
+                <div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-600 rounded-full flex-shrink-0"></div>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900">{t('dropOff')}</h3>
               </div>
-              <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                <div>
-                  <label className='block-text-sm font-medium text-gray-700 mb-2'>{t('location')}</label>
-                  <select className='w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500'>
-                    <option>{t('selectCity')}</option>
-                    <option>{t('hoChiMinhCity')}</option>
-                    <option>{t('hanoi')}</option>
-                    <option>{t('daNang')}</option>
-                  </select>
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4'>
+                {/* Dropoff Location */}
+                <div className='w-full relative'>
+                  <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2'>{t('location')}</label>
+                  <button
+                    type="button"
+                    onClick={() => setDropoffLocationOpen(!dropoffLocationOpen)}
+                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
+                  >
+                    <span className={dropoffLocation ? 'text-gray-900' : 'text-gray-400'}>
+                      {dropoffLocation ? locations.find(l => l.value === dropoffLocation)?.label : t('selectCity')}
+                    </span>
+                    <svg
+                      className={`w-4 h-4 text-gray-500 transition-transform ${dropoffLocationOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {dropoffLocationOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setDropoffLocationOpen(false)}
+                      />
+                      <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden">
+                        {locations.map((location) => (
+                          <button
+                            key={location.value}
+                            type="button"
+                            onClick={() => {
+                              setDropoffLocation(location.value);
+                              setDropoffLocationOpen(false);
+                            }}
+                            className={`w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors ${dropoffLocation === location.value ? 'bg-gray-50 text-gray-900 font-medium' : 'text-gray-700'
+                              }`}
+                          >
+                            {location.label}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
-                <div>
-                  <label className='block-text-sm font-medium text-gray-700 mb-2'>{t('date')}</label>
-                  <select className='w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500'>
-                    <option>{t('selectDate')}</option>
-                    <option>{t('today')}</option>
-                    <option>{t('tomorrow')}</option>
-                    <option>{t('nextWeek')}</option>
-                  </select>
+
+                {/* Dropoff Date */}
+                <div className='w-full relative'>
+                  <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2'>{t('date')}</label>
+                  <button
+                    type="button"
+                    onClick={() => setDropoffDateOpen(!dropoffDateOpen)}
+                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
+                  >
+                    <span className={dropoffDate ? 'text-gray-900' : 'text-gray-400'}>
+                      {dropoffDate ? dropoffDate.toLocaleDateString() : t('selectDate')}
+                    </span>
+                    <svg
+                      className={`w-4 h-4 text-gray-500 transition-transform ${dropoffDateOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                  {dropoffDateOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setDropoffDateOpen(false)}
+                      />
+                      <div className="absolute z-20 mt-1">
+                        <Calendar
+                          selectedDate={dropoffDate}
+                          onDateSelect={setDropoffDate}
+                          onClose={() => setDropoffDateOpen(false)}
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('time')}</label>
-                  <select className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500">
-                    <option>{t('selectTime')}</option>
-                    <option>08:00 AM</option>
-                    <option>10:00 AM</option>
-                    <option>12:00 PM</option>
-                  </select>
+
+                {/* Dropoff Time */}
+                <div className='w-full relative'>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">{t('time')}</label>
+                  <button
+                    type="button"
+                    onClick={() => setDropoffTimeOpen(!dropoffTimeOpen)}
+                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
+                  >
+                    <span className={dropoffTime ? 'text-gray-900' : 'text-gray-400'}>
+                      {dropoffTime || t('selectTime')}
+                    </span>
+                    <svg
+                      className={`w-4 h-4 text-gray-500 transition-transform ${dropoffTimeOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </button>
+                  {dropoffTimeOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setDropoffTimeOpen(false)}
+                      />
+                      <div className="absolute z-20 mt-1">
+                        <TimePicker
+                          selectedTime={dropoffTime}
+                          onTimeSelect={setDropoffTime}
+                          onClose={() => setDropoffTimeOpen(false)}
+                          minTime={pickupTime}
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -403,34 +373,57 @@ const HomePage = () => {
         </div>
 
         {/* Popular Cars Section */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">{t('popularCar')}</h2>
-            <Link to="/cars" className="text-blue-600 hover:text-blue-700 font-medium">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{t('popularCar')}</h2>
+            <Link to="/cars" className="text-sm sm:text-base text-blue-600 hover:text-blue-700 font-medium">
               {t('viewAll')}
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {popularCars.map((car) => (
-              <CarCard key={car.id} car={car} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <p className="mt-2 text-gray-600">Loading cars...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <p className="text-red-600">Error loading cars: {error}</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+              {cars.length > 0 ? (
+                cars.slice(0, 4).map((car) => (
+                  <CarCard key={car.id} car={car} isApiData={true} />
+                ))
+              ) : (
+                popularCars.map((car) => (
+                  <CarCard key={car.id} car={car} isApiData={false} />
+                ))
+              )}
+            </div>
+          )}
         </div>
 
         {/* Recommendation Cars Section */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('recommendationCar')}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            {recommendationCars.map((car) => (
-              <CarCard key={car.id} car={car} />
-            ))}
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">{t('recommendationCar')}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
+            {cars.length > 4 ? (
+              cars.slice(4, 12).map((car) => (
+                <CarCard key={car.id} car={car} isApiData={true} />
+              ))
+            ) : (
+              recommendationCars.map((car) => (
+                <CarCard key={car.id} car={car} isApiData={false} />
+              ))
+            )}
           </div>
 
           <div className="text-center">
-            <button className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium mr-4">
+            <button className="bg-blue-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium mr-2 sm:mr-4 text-sm sm:text-base">
               {t('showMoreCar')}
             </button>
-            <span className="text-gray-500">120 {t('car')}</span>
+            <span className="text-sm sm:text-base text-gray-500">{cars.length > 0 ? cars.length : 120} {t('car')}</span>
           </div>
         </div>
       </div>

@@ -6,7 +6,7 @@ const resources = {
     translation: {
       // Locale
       locale: "en-US",
-      
+
       // NavBar
       search: "Search something here",
       signIn: "Sign In",
@@ -14,7 +14,7 @@ const resources = {
       notification: "Notification",
       noNotifications: "No notifications",
       bookingSuccessful: "Booking successful",
-      
+
       // Filters
       filters: "Filters",
       carName: "Car name",
@@ -30,14 +30,14 @@ const resources = {
       diesel: "Diesel",
       cancel: "Cancel",
       apply: "Apply",
-      
+
       // HomePage - Hero Section
       heroTitle: "The Best Platform for Car Rental",
       heroSubtitle: "Ease of doing a car rental safely and reliably. Of course at a low price.",
       heroTitle2: "Easy way to rent a car at a low price",
       heroSubtitle2: "Providing cheap car rental services and safe and comfortable facilities.",
       rentalCar: "Rental Car",
-      
+
       // HomePage - Search Section
       pickUp: "Pick-up",
       dropOff: "Drop - Off",
@@ -53,7 +53,7 @@ const resources = {
       nextWeek: "Next week",
       time: "Time",
       selectTime: "Select your time",
-      
+
       // HomePage - Car Sections
       popularCar: "Popular Car",
       recommendationCar: "Recommendation Car",
@@ -62,16 +62,19 @@ const resources = {
       perDay: "/day",
       showMoreCar: "Show more car",
       car: "Car",
-      
+
       // Car Card
       manual: "Manual",
       automatic: "Automatic",
       people: "People",
-      
+      Gasoline: "Gasoline",
+      Diesel: "Diesel",
+      Electric: "Electric",
       // Auth - Login
       logIn: "Log in",
-      newToDesignSpace: "New to Design Space?",
-      signUpForFree: "Sign up for free",
+      OrSignupwith: "Or Sign-up with",
+      newToDesignSpace: "Create new account ?",
+      signUpForFree: "Sign up",
       demoCredentials: "Demo Credentials:",
       useDemo: "Use Demo",
       emailAddress: "Email address",
@@ -80,7 +83,7 @@ const resources = {
       hide: "Hide",
       forgotPassword: "Forgot password?",
       loggingIn: "Logging in...",
-      
+
       // Auth - Register
       alreadyHaveAccount: "Already have an account?",
       enterDetailsToCreate: "Enter your details to create an account.",
@@ -98,7 +101,7 @@ const resources = {
       signInWithFacebook: "Sign in with Facebook",
       success: "Success!",
       redirectingToHomepage: "Redirecting to homepage...",
-      
+
       // Footer
       footerVision: "Our vision is to provide convenience and help increase your sales business.",
       about: "About",
@@ -119,7 +122,7 @@ const resources = {
       allRightsReserved: "©2022 MORENT. All rights reserved",
       privacyPolicy: "Privacy & Policy",
       termsCondition: "Terms & Condition",
-      
+
       // Admin - Sidebar
       mainMenu: "MAIN MENU",
       dashboard: "Dashboard",
@@ -134,7 +137,7 @@ const resources = {
       settings: "Settings",
       helpCenter: "Help & Center",
       darkMode: "Dark Mode",
-      
+
       // Admin - Status Overview
       statusOverview: "Status Overview",
       status: "Status",
@@ -146,7 +149,7 @@ const resources = {
       returned: "Returned",
       previous: "Previous",
       next: "Next",
-      
+
       // Admin - Top Car Rental
       topCarRental: "Top 5 Car Rental",
       sportCar: "Sport Car",
@@ -154,10 +157,10 @@ const resources = {
       coupe: "Coupe",
       hatchback: "Hatchback",
       mpv: "MPV",
-      
+
       // Admin - Recent Transaction
       recentTransaction: "Recent Transaction",
-      
+
       // Admin - Operations Dashboard
       operationsDashboardTitle: "Operations Dashboard",
       operationsDashboardSubtitle: "High-level overview to manage user roles and system settings",
@@ -194,7 +197,13 @@ const resources = {
       viewUsers: "View Users",
       permissions: "Permissions",
       configure: "Configure",
-      
+      roleManagement: "Account Number",
+      RoleManagementUsers: "User",
+      RoleManagementCarOwners: "Car Owners",
+      RoleManagementStaff: "Staff",
+      activeCars: "Active Cars",
+      carsInUse: "Car in use",
+      TotalBookings: "Total Bookings",
       // Booking Modal
       bookingDetails: "Booking Details",
       cancelBooking: "Cancel Booking",
@@ -231,7 +240,7 @@ const resources = {
       currentNotes: "Current Notes",
       noNotes: "No notes",
       markAsCompleted: "Mark as Completed",
-      
+
       // Car Owner Modal
       carOwnerDetails: "Car Owner Details",
       editCarOwner: "Edit Car Owner",
@@ -247,7 +256,7 @@ const resources = {
       accountDetails: "Account Details:",
       suspendAccount: "Suspend Account",
       suspended: "Suspended",
-      
+
       // Customer Modal
       customerDetails: "Car Customer Details",
       editCustomer: "Edit Car Customer",
@@ -264,7 +273,7 @@ const resources = {
       noIssues: "No issues",
       verified: "Verified",
       rejected: "Rejected",
-      
+
       // Staff Components
       bookingMonitoring: "Booking Monitoring",
       monitorAndManageBookings: "Monitor and manage all booking activities",
@@ -281,7 +290,7 @@ const resources = {
       view: "View",
       activate: "Activate",
       message: "Message",
-      
+
       carOwnerManagement: "Car Owner Management",
       viewAndManageCarOwners: "View and manage car owner accounts",
       exportData: "Export Data",
@@ -289,7 +298,7 @@ const resources = {
       carOwners: "car owners",
       verification: "Verification",
       owner: "Owner",
-      
+
       customerManagement: "Customer Management",
       viewAndManageCustomers: "View and manage customer accounts",
       sendBulkMessage: "Send Bulk Message",
@@ -300,9 +309,9 @@ const resources = {
       customers: "customers",
       tier: "Tier",
       none: "None",
-      
+
       platformOverview: "Platform Overview",
-      
+
       notificationCenter: "Notification Center",
       sendSystemWideNotifications: "Send system-wide notifications to users",
       createNotification: "Create Notification",
@@ -335,11 +344,11 @@ const resources = {
       read: "Read",
       viewDetails: "View Details",
       duplicate: "Duplicate",
-      
+
       pendingVerifications: "Pending Verifications",
       review: "Review",
       viewAllPendingVerifications: "View All Pending Verifications",
-      
+
       recentActivities: "Recent Activities",
       newBookingCreated: "New booking created",
       carOwnerVerificationCompleted: "Car owner verification completed",
@@ -350,13 +359,13 @@ const resources = {
       confirmed: "confirmed",
       approved: "approved",
       updated: "updated",
-      
+
       staffMenu: "STAFF MENU",
       carOwnerAccounts: "Car Owner Accounts",
       monitorBookings: "Monitor Bookings",
       customerAccounts: "Customer Accounts",
       sendNotifications: "Send Notifications",
-      
+
       // Calendar Components
       month: "Month",
       week: "Week",
@@ -401,17 +410,17 @@ const resources = {
       update: "Update",
       close: "Close",
       more: "more",
-      
+
       // Profile - Update Email Dialog
       updateEmail: "Update Email",
       newEmail: "New Email",
-      
+
       // Profile - Favourite Car Page
       favouriteCar: "Favourite Car",
       noFavouriteCars: "No Favourite Cars",
       noFavouriteCarsMessage: "You haven't added any cars to your favorites yet.",
       browseCars: "Browse Cars",
-      
+
       // Profile - Help Center Page
       helpCenterDescription: "Find answers, get support, and learn how to use the app.",
       accountAndProfile: "Account & Profile",
@@ -423,7 +432,7 @@ const resources = {
       stillNeedHelp: "Still need help?",
       contactSupport: "Contact support",
       openTicket: "Open a ticket",
-      
+
       // Profile - Inbox Page
       markAllAsRead: "Mark all as read",
       searchMessages: "Search messages...",
@@ -440,7 +449,7 @@ const resources = {
       page: "Page",
       deleteMessage: "Delete message",
       deleteMessageConfirm: "Delete",
-      
+
       // Profile - My Profile Page
       accountInformation: "Account Information",
       save: "Save",
@@ -455,7 +464,7 @@ const resources = {
       google: "Google",
       connected: "Connected",
       addLink: "Add link",
-      
+
       // Profile - Reimburse Page
       totalSubmitted: "Total Submitted",
       submitReimbursement: "Submit a reimbursement",
@@ -475,7 +484,7 @@ const resources = {
       reset: "Reset",
       submit: "Submit",
       approved: "Approved",
-      
+
       // Profile - Rental History Page
       type: "Type",
       brand: "Brand",
@@ -483,7 +492,7 @@ const resources = {
       rentDay: "Rent Day",
       paymentDate: "Payment Date",
       noPayment: "No Payment",
-      
+
       // Profile - Settings Page
       security: "Security",
       securityDescription: "Manage account security and verification settings.",
@@ -494,23 +503,123 @@ const resources = {
       unverified: "Unverified",
       verifyEmailDescription: "Verify your email to enhance account security and receive important notifications.",
       sendVerificationEmail: "Send verification email",
-      
+
       // Profile - Sidebar
       myProfile: "My Profile",
       "Rental History": "Rental History",
       favouriteCars: "Favourite Cars",
-      
+
       // Logout
       logOut: "Log Out",
       doYouWantToLogout: "Do you want to logout?",
-      yes: "Yes"
+      yes: "Yes",
+
+      // Register Car
+      registerCar: "Register Car",
+      return: "Return",
+      licensePlateNumber: "License Plate Number",
+      licensePlateRequired: "*Car License Plate Number is required for registration",
+      enterLicensePlate: "Enter license plate number",
+      basicInformation: "Basic Information",
+      basicInfoRequired: "*Basic information is required for registration",
+      model: "Model",
+      unspecified: "Unspecified",
+      civic: "Civic",
+      accord: "Accord",
+      crv: "CR-V",
+      numberOfSeat: "Number of Seat",
+      yearOfManufacture: "Year of Manufacture",
+      transmission: "Transmission",
+      fuelConsumption: "Fuel consumption",
+      fuelConsumptionDescription: "Number of liters of fuel for 100km",
+      enterFuelConsumption: "Enter fuel consumption",
+      describe: "Describe",
+      describeYourCar: "Describe your car...",
+      defaultRentalPrice: "Default rental price",
+      defaultRentalPriceDescription: "Set the price for renting out your car to help customers easily choose the right car. You can change the price later.",
+      vehicleAddress: "Vehicle address",
+      enterVehicleAddress: "Enter vehicle address",
+      rentalTerms: "Rental Terms",
+      rentalTermsDescription: "State the requirements for the customer to rent the car",
+      enterRentalTerms: "Enter rental terms and conditions...",
+      photos: "Photos",
+      photosDescription: "Select high-quality photos from different angles to attract customers.",
+      upload: "Upload",
+      toyota: "Toyota",
+      bmw: "BMW",
+      mercedes: "Mercedes",
+      audi: "Audi",
+      honda: "Honda",
+
+      // Owner Dashboard
+      ownerDashboard: "Owner Dashboard",
+      ownerDashboardTitle: "Owner Dashboard",
+      maintenanceCard: "Maintenance",
+      maintenanceDescription: "Track upcoming maintenance schedules and receive notifications.",
+      usageAndMileageCard: "Usage & Mileage",
+      usageAndMileageDescription: "Monitor mileage and usage statistics by vehicle.",
+      rentalActivityCard: "Rental Activity",
+      rentalActivityDescription: "View recent bookings and history.",
+
+      // Owner Layout - Sidebar
+      ownerMenu: "OWNER MENU",
+      maintenanceSchedule: "Maintenance Schedule",
+      usageAndMileage: "Usage & Mileage",
+      rentalHistory: "Rental History",
+      customerFeedback: "Customer Feedback",
+      inquiries: "Inquiries",
+      bookingsPickupReturn: "Bookings (Pickup/Return)",
+      payments: "Payments",
+      registerNewCar: "Register New Car",
+      registerNewCarSection: "Register New Car",
+
+      // Register Car Step 3 - Photo Upload
+      clickToUpload: "Click to upload",
+      orDragAndDrop: "or drag and drop",
+      imageFormatsAccepted: "JPG, PNG, JIFF (max 5MB per file)",
+      photosUploadedSuccessfully: "Photos uploaded successfully!",
+      pleaseUploadAtLeastOnePhoto: "Please upload at least one photo",
+      failedToUploadPhotos: "Failed to upload photos. Please try again.",
+      invalidFileType: "Please upload valid image files (JPG, PNG, JIFF)",
+      fileSizeTooLarge: "File size must be less than 5MB",
+      maxFilesReached: "Maximum {{max}} files allowed",
+      uploading: "Uploading...",
+      completeRegistration: "Complete Registration",
+      importantInformation: "Important Information",
+      photoTip1: "Upload high-quality photos from different angles",
+      photoTip2: "Include front, back, side, and interior views",
+      photoTip3: "Ensure good lighting and clear visibility",
+      photoTip4: "At least 4-6 photos recommended for better visibility",
+      remove: "Remove",
+      uploadComplete: "Upload complete",
+      uploadCancelled: "Upload cancelled",
+      uploadError: "Error during upload",
+      tapToCancel: "Tap to cancel",
+      tapToRetry: "Tap to retry",
+      tapToUndo: "Tap to undo",
+      retry: "Retry",
+      undo: "Undo",
+
+      // Upload Driver License
+      updateDriverLicense: "Update Driver's License",
+      uploadDriverLicenseDescription: "Upload a clear photo or scan of your driver's license. Accepted formats: JPG, PNG, PDF (max 5MB)",
+      invalidDriverLicenseFileType: "Please upload a valid image (JPG, PNG) or PDF file",
+      driverLicenseUploadedSuccessfully: "Driver's license uploaded successfully!",
+      pleaseSelectFileFirst: "Please select a file first",
+      failedToUploadDriverLicense: "Failed to upload driver's license. Please try again.",
+      driverLicenseFormatsAccepted: "JPG, PNG or PDF (max 5MB)",
+      uploadDriverLicenseButton: "Upload Driver's License",
+      driverLicenseTip1: "Ensure all text on the license is clearly visible",
+      driverLicenseTip2: "The license must be valid and not expired",
+      driverLicenseTip3: "Both front and back may be required",
+      driverLicenseTip4: "Your information will be kept secure and confidential"
     }
   },
   vi: {
     translation: {
       // Locale
       locale: "vi-VN",
-      
+
       // NavBar
       search: "Tìm kiếm ở đây",
       signIn: "Đăng nhập",
@@ -518,7 +627,7 @@ const resources = {
       notification: "Thông báo",
       noNotifications: "Không có thông báo",
       bookingSuccessful: "Đặt xe thành công",
-      
+
       // Filters
       filters: "Bộ lọc",
       carName: "Tên xe",
@@ -534,20 +643,20 @@ const resources = {
       diesel: "Dầu",
       cancel: "Hủy",
       apply: "Áp dụng",
-      
+
       // HomePage - Hero Section
       heroTitle: "Nền Tảng Tốt Nhất Cho Thuê Xe",
       heroSubtitle: "Dễ dàng thuê xe một cách an toàn và đáng tin cậy. Tất nhiên với giá cả phải chăng.",
       heroTitle2: "Cách dễ dàng để thuê xe với giá rẻ",
       heroSubtitle2: "Cung cấp dịch vụ cho thuê xe giá rẻ với tiện nghi an toàn và thoải mái.",
       rentalCar: "Thuê Xe",
-      
+
       // HomePage - Search Section
       pickUp: "Nhận xe",
       dropOff: "Trả xe",
       location: "Địa điểm",
       selectCity: "Chọn thành phố",
-      hoChiMinhCity: "Thành phố Hồ Chí Minh",
+      hoChiMinhCity: "TP.Hồ Chí Minh",
       hanoi: "Hà Nội",
       daNang: "Đà Nẵng",
       date: "Ngày",
@@ -557,7 +666,7 @@ const resources = {
       nextWeek: "Tuần sau",
       time: "Giờ",
       selectTime: "Chọn giờ",
-      
+
       // HomePage - Car Sections
       popularCar: "Xe Phổ Biến",
       recommendationCar: "Xe Đề Xuất",
@@ -566,16 +675,19 @@ const resources = {
       perDay: "/ngày",
       showMoreCar: "Xem thêm xe",
       car: "Xe",
-      
+
       // Car Card
       manual: "Số sàn",
       automatic: "Số tự động",
       people: "Người",
-      
+      Gasoline: "Xăng",
+      Diesel: "Dầu",
+      Electric: "Điện",
       // Auth - Login
       logIn: "Đăng nhập",
-      newToDesignSpace: "Mới đến Design Space?",
-      signUpForFree: "Đăng ký miễn phí",
+      OrSignupwith: "Hoặc đăng nhập với",
+      newToDesignSpace: "Tạo tài khoản mới",
+      signUpForFree: "Đăng ký",
       demoCredentials: "Tài khoản Demo:",
       useDemo: "Dùng Demo",
       emailAddress: "Địa chỉ email",
@@ -584,7 +696,7 @@ const resources = {
       hide: "Ẩn",
       forgotPassword: "Quên mật khẩu?",
       loggingIn: "Đang đăng nhập...",
-      
+
       // Auth - Register
       alreadyHaveAccount: "Đã có tài khoản?",
       enterDetailsToCreate: "Nhập thông tin của bạn để tạo tài khoản.",
@@ -602,7 +714,7 @@ const resources = {
       signInWithFacebook: "Đăng nhập với Facebook",
       success: "Thành công!",
       redirectingToHomepage: "Đang chuyển đến trang chủ...",
-      
+
       // Footer
       footerVision: "Tầm nhìn của chúng tôi là mang lại sự tiện lợi và giúp tăng doanh số kinh doanh của bạn.",
       about: "Về chúng tôi",
@@ -623,7 +735,7 @@ const resources = {
       allRightsReserved: "©2022 MORENT. Bảo lưu mọi quyền",
       privacyPolicy: "Chính sách bảo mật",
       termsCondition: "Điều khoản & Điều kiện",
-      
+
       // Admin - Sidebar
       mainMenu: "MENU CHÍNH",
       dashboard: "Bảng điều khiển",
@@ -638,7 +750,7 @@ const resources = {
       settings: "Cài đặt",
       helpCenter: "Trung tâm trợ giúp",
       darkMode: "Chế độ tối",
-      
+
       // Admin - Status Overview
       statusOverview: "Tổng quan trạng thái",
       status: "Trạng thái",
@@ -650,7 +762,7 @@ const resources = {
       returned: "Đã trả",
       previous: "Trước",
       next: "Tiếp",
-      
+
       // Admin - Top Car Rental
       topCarRental: "Top 5 Xe Cho Thuê",
       sportCar: "Xe thể thao",
@@ -658,10 +770,10 @@ const resources = {
       coupe: "Coupe",
       hatchback: "Hatchback",
       mpv: "MPV",
-      
+
       // Admin - Recent Transaction
       recentTransaction: "Giao dịch gần đây",
-      
+
       // Admin - Operations Dashboard
       operationsDashboardTitle: "Bảng điều khiển vận hành",
       operationsDashboardSubtitle: "Tổng quan cấp cao để quản lý vai trò người dùng và cài đặt hệ thống",
@@ -698,7 +810,13 @@ const resources = {
       viewUsers: "Xem người dùng",
       permissions: "Quyền hạn",
       configure: "Cấu hình",
-      
+      roleManagement: "Số lượng tài khoản",
+      RoleManagementUsers: "Người dùng",
+      RoleManagementCarOwners: "Quản lý",
+      RoleManagementStaff: "Nhân viên",
+      activeCars: "Xe đang hoạt động",
+      carsInUse: "Xe đang vận hành",
+      TotalBookings: "Tổng số đơn đặt",
       // Booking Modal
       bookingDetails: "Chi tiết đặt xe",
       cancelBooking: "Hủy đặt xe",
@@ -735,7 +853,7 @@ const resources = {
       currentNotes: "Ghi chú hiện tại",
       noNotes: "Không có ghi chú",
       markAsCompleted: "Đánh dấu hoàn thành",
-      
+
       // Car Owner Modal
       carOwnerDetails: "Chi tiết chủ xe",
       editCarOwner: "Chỉnh sửa chủ xe",
@@ -751,7 +869,7 @@ const resources = {
       accountDetails: "Chi tiết tài khoản:",
       suspendAccount: "Tạm ngưng tài khoản",
       suspended: "Đã tạm ngưng",
-      
+
       // Customer Modal
       customerDetails: "Chi tiết khách hàng",
       editCustomer: "Chỉnh sửa khách hàng",
@@ -768,7 +886,7 @@ const resources = {
       noIssues: "Không có vấn đề",
       verified: "Đã xác minh",
       rejected: "Đã từ chối",
-      
+
       // Staff Components
       bookingMonitoring: "Giám sát đặt xe",
       monitorAndManageBookings: "Giám sát và quản lý tất cả hoạt động đặt xe",
@@ -785,7 +903,7 @@ const resources = {
       view: "Xem",
       activate: "Kích hoạt",
       message: "Tin nhắn",
-      
+
       carOwnerManagement: "Quản lý chủ xe",
       viewAndManageCarOwners: "Xem và quản lý tài khoản chủ xe",
       exportData: "Xuất dữ liệu",
@@ -793,7 +911,7 @@ const resources = {
       carOwners: "chủ xe",
       verification: "Xác minh",
       owner: "Chủ xe",
-      
+
       customerManagement: "Quản lý khách hàng",
       viewAndManageCustomers: "Xem và quản lý tài khoản khách hàng",
       sendBulkMessage: "Gửi tin nhắn hàng loạt",
@@ -804,9 +922,9 @@ const resources = {
       customers: "khách hàng",
       tier: "Hạng",
       none: "Không có",
-      
+
       platformOverview: "Tổng quan nền tảng",
-      
+
       notificationCenter: "Trung tâm thông báo",
       sendSystemWideNotifications: "Gửi thông báo toàn hệ thống cho người dùng",
       createNotification: "Tạo thông báo",
@@ -839,11 +957,11 @@ const resources = {
       read: "Đã đọc",
       viewDetails: "Xem chi tiết",
       duplicate: "Nhân bản",
-      
+
       pendingVerifications: "Xác minh đang chờ",
       review: "Xem xét",
       viewAllPendingVerifications: "Xem tất cả xác minh đang chờ",
-      
+
       recentActivities: "Hoạt động gần đây",
       newBookingCreated: "Đặt xe mới được tạo",
       carOwnerVerificationCompleted: "Xác minh chủ xe hoàn tất",
@@ -854,13 +972,13 @@ const resources = {
       confirmed: "đã xác nhận",
       approved: "đã phê duyệt",
       updated: "đã cập nhật",
-      
+
       staffMenu: "MENU NHÂN VIÊN",
       carOwnerAccounts: "Tài khoản chủ xe",
       monitorBookings: "Giám sát đặt xe",
       customerAccounts: "Tài khoản khách hàng",
       sendNotifications: "Gửi thông báo",
-      
+
       // Calendar Components
       month: "Tháng",
       week: "Tuần",
@@ -905,17 +1023,17 @@ const resources = {
       update: "Cập nhật",
       close: "Đóng",
       more: "thêm",
-      
+
       // Profile - Update Email Dialog
       updateEmail: "Cập nhật Email",
       newEmail: "Email mới",
-      
+
       // Profile - Favourite Car Page
       favouriteCar: "Xe Yêu Thích",
       noFavouriteCars: "Không Có Xe Yêu Thích",
       noFavouriteCarsMessage: "Bạn chưa thêm xe nào vào danh sách yêu thích.",
       browseCars: "Duyệt Xe",
-      
+
       // Profile - Help Center Page
       helpCenterDescription: "Tìm câu trả lời, nhận hỗ trợ và học cách sử dụng ứng dụng.",
       accountAndProfile: "Tài khoản & Hồ sơ",
@@ -927,7 +1045,7 @@ const resources = {
       stillNeedHelp: "Vẫn cần trợ giúp?",
       contactSupport: "Liên hệ hỗ trợ",
       openTicket: "Mở phiếu yêu cầu",
-      
+
       // Profile - Inbox Page
       markAllAsRead: "Đánh dấu tất cả đã đọc",
       searchMessages: "Tìm kiếm tin nhắn...",
@@ -944,7 +1062,7 @@ const resources = {
       page: "Trang",
       deleteMessage: "Xóa tin nhắn",
       deleteMessageConfirm: "Xóa",
-      
+
       // Profile - My Profile Page
       accountInformation: "Thông tin tài khoản",
       save: "Lưu",
@@ -959,7 +1077,7 @@ const resources = {
       google: "Google",
       connected: "Đã kết nối",
       addLink: "Thêm liên kết",
-      
+
       // Profile - Reimburse Page
       totalSubmitted: "Tổng đã gửi",
       submitReimbursement: "Gửi yêu cầu hoàn tiền",
@@ -979,7 +1097,7 @@ const resources = {
       reset: "Đặt lại",
       submit: "Gửi",
       approved: "Đã phê duyệt",
-      
+
       // Profile - Rental History Page
       type: "Loại",
       brand: "Thương hiệu",
@@ -987,7 +1105,7 @@ const resources = {
       rentDay: "Ngày thuê",
       paymentDate: "Ngày thanh toán",
       noPayment: "Chưa thanh toán",
-      
+
       // Profile - Settings Page
       security: "Bảo mật",
       securityDescription: "Quản lý bảo mật tài khoản và cài đặt xác minh.",
@@ -998,16 +1116,116 @@ const resources = {
       unverified: "Chưa xác minh",
       verifyEmailDescription: "Xác minh email của bạn để tăng cường bảo mật tài khoản và nhận thông báo quan trọng.",
       sendVerificationEmail: "Gửi email xác minh",
-      
+
       // Profile - Sidebar
       myProfile: "Hồ Sơ Của Tôi",
       "Rental History": "Lịch Sử Thuê Xe",
       favouriteCars: "Xe Yêu Thích",
-      
+
       // Logout
       logOut: "Đăng Xuất",
       doYouWantToLogout: "Bạn có muốn đăng xuất?",
-      yes: "Có"
+      yes: "Có",
+
+      // Register Car
+      registerCar: "Đăng Ký Xe",
+      return: "Quay lại",
+      licensePlateNumber: "Biển Số Xe",
+      licensePlateRequired: "*Biển số xe là bắt buộc để đăng ký",
+      enterLicensePlate: "Nhập biển số xe",
+      basicInformation: "Thông Tin Cơ Bản",
+      basicInfoRequired: "*Thông tin cơ bản là bắt buộc để đăng ký",
+      model: "Mẫu xe",
+      unspecified: "Không xác định",
+      civic: "Civic",
+      accord: "Accord",
+      crv: "CR-V",
+      numberOfSeat: "Số Ghế",
+      yearOfManufacture: "Năm Sản Xuất",
+      transmission: "Hộp Số",
+      fuelConsumption: "Mức Tiêu Thụ Nhiên Liệu",
+      fuelConsumptionDescription: "Số lít nhiên liệu cho 100km",
+      enterFuelConsumption: "Nhập mức tiêu thụ nhiên liệu",
+      describe: "Mô Tả",
+      describeYourCar: "Mô tả xe của bạn...",
+      defaultRentalPrice: "Giá Thuê Mặc Định",
+      defaultRentalPriceDescription: "Đặt giá cho thuê xe của bạn để giúp khách hàng dễ dàng chọn xe phù hợp. Bạn có thể thay đổi giá sau.",
+      vehicleAddress: "Địa Chỉ Xe",
+      enterVehicleAddress: "Nhập địa chỉ xe",
+      rentalTerms: "Điều Khoản Thuê Xe",
+      rentalTermsDescription: "Nêu các yêu cầu để khách hàng thuê xe",
+      enterRentalTerms: "Nhập điều khoản và điều kiện thuê xe...",
+      photos: "Hình Ảnh",
+      photosDescription: "Chọn ảnh chất lượng cao từ nhiều góc độ để thu hút khách hàng.",
+      upload: "Tải lên",
+      toyota: "Toyota",
+      bmw: "BMW",
+      mercedes: "Mercedes",
+      audi: "Audi",
+      honda: "Honda",
+
+      // Owner Dashboard
+      ownerDashboard: "Bảng Điều Khiển Chủ Xe",
+      ownerDashboardTitle: "Bảng Điều Khiển Chủ Xe",
+      maintenanceCard: "Bảo Trì",
+      maintenanceDescription: "Theo dõi lịch bảo trì sắp tới và nhận thông báo.",
+      usageAndMileageCard: "Sử Dụng & Số Km",
+      usageAndMileageDescription: "Giám sát số km và thống kê sử dụng theo xe.",
+      rentalActivityCard: "Hoạt Động Cho Thuê",
+      rentalActivityDescription: "Xem các đặt chỗ gần đây và lịch sử.",
+
+      // Owner Layout - Sidebar
+      ownerMenu: "MENU CHỦ XE",
+      maintenanceSchedule: "Lịch Bảo Trì",
+      usageAndMileage: "Sử Dụng & Số Km",
+      rentalHistory: "Lịch Sử Cho Thuê",
+      customerFeedback: "Phản Hồi Khách Hàng",
+      inquiries: "Yêu Cầu",
+      bookingsPickupReturn: "Đặt Chỗ (Nhận/Trả Xe)",
+      payments: "Thanh Toán",
+      registerNewCar: "Đăng Ký Xe Mới",
+      registerNewCarSection: "Đăng Ký Xe Mới",
+
+      // Register Car Step 3 - Photo Upload
+      clickToUpload: "Nhấp để tải lên",
+      orDragAndDrop: "hoặc kéo và thả",
+      imageFormatsAccepted: "JPG, PNG, JIFF (tối đa 5MB mỗi tệp)",
+      photosUploadedSuccessfully: "Tải ảnh lên thành công!",
+      pleaseUploadAtLeastOnePhoto: "Vui lòng tải lên ít nhất một ảnh",
+      failedToUploadPhotos: "Không thể tải ảnh lên. Vui lòng thử lại.",
+      invalidFileType: "Vui lòng tải lên tệp ảnh hợp lệ (JPG, PNG, JIFF)",
+      fileSizeTooLarge: "Kích thước tệp phải nhỏ hơn 5MB",
+      maxFilesReached: "Tối đa {{max}} tệp được phép",
+      uploading: "Đang tải lên...",
+      completeRegistration: "Hoàn Tất Đăng Ký",
+      importantInformation: "Thông Tin Quan Trọng",
+      photoTip1: "Tải lên ảnh chất lượng cao từ nhiều góc độ",
+      photoTip2: "Bao gồm góc nhìn phía trước, phía sau, bên cạnh và nội thất",
+      photoTip3: "Đảm bảo ánh sáng tốt và hình ảnh rõ ràng",
+      photoTip4: "Nên có ít nhất 4-6 ảnh để tăng khả năng hiển thị",
+      remove: "Xóa",
+      uploadComplete: "Tải lên hoàn tất",
+      uploadCancelled: "Đã hủy tải lên",
+      uploadError: "Lỗi khi tải lên",
+      tapToCancel: "Nhấn để hủy",
+      tapToRetry: "Nhấn để thử lại",
+      tapToUndo: "Nhấn để hoàn tác",
+      retry: "Thử lại",
+      undo: "Hoàn tác",
+
+      // Upload Driver License
+      updateDriverLicense: "Cập Nhật Giấy Phép Lái Xe",
+      uploadDriverLicenseDescription: "Tải lên ảnh hoặc bản scan rõ ràng giấy phép lái xe của bạn. Định dạng chấp nhận: JPG, PNG, PDF (tối đa 5MB)",
+      invalidDriverLicenseFileType: "Vui lòng tải lên ảnh hợp lệ (JPG, PNG) hoặc tệp PDF",
+      driverLicenseUploadedSuccessfully: "Tải giấy phép lái xe lên thành công!",
+      pleaseSelectFileFirst: "Vui lòng chọn tệp trước",
+      failedToUploadDriverLicense: "Không thể tải giấy phép lái xe lên. Vui lòng thử lại.",
+      driverLicenseFormatsAccepted: "JPG, PNG hoặc PDF (tối đa 5MB)",
+      uploadDriverLicenseButton: "Tải Lên Giấy Phép Lái Xe",
+      driverLicenseTip1: "Đảm bảo tất cả văn bản trên giấy phép đều rõ ràng",
+      driverLicenseTip2: "Giấy phép phải còn hiệu lực và chưa hết hạn",
+      driverLicenseTip3: "Có thể yêu cầu cả mặt trước và mặt sau",
+      driverLicenseTip4: "Thông tin của bạn sẽ được bảo mật và an toàn"
     }
   }
 };

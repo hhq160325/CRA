@@ -17,13 +17,13 @@ const UploadDriver = () => {
     // Validate file type
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
     if (!validTypes.includes(file.type)) {
-      setError('Please upload a valid image (JPG, PNG) or PDF file');
+      setError(t('invalidDriverLicenseFileType'));
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setError('File size must be less than 5MB');
+      setError(t('fileSizeTooLarge'));
       return;
     }
 
@@ -44,7 +44,7 @@ const UploadDriver = () => {
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      setError('Please select a file first');
+      setError(t('pleaseSelectFileFirst'));
       return;
     }
 
@@ -71,7 +71,7 @@ const UploadDriver = () => {
       setUploadSuccess(true);
       setTimeout(() => setUploadSuccess(false), 3000);
     } catch (err) {
-      setError('Failed to upload driver\'s license. Please try again.');
+      setError(t('failedToUploadDriverLicense'));
     } finally {
       setUploading(false);
     }
@@ -87,10 +87,10 @@ const UploadDriver = () => {
     <div className="max-w-2xl mx-auto">
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-          {t('Update Driver\'s License')}
+          {t('updateDriverLicense')}
         </h2>
         <p className="text-gray-600 mb-6">
-          Upload a clear photo or scan of your driver's license. Accepted formats: JPG, PNG, PDF (max 5MB)
+          {t('uploadDriverLicenseDescription')}
         </p>
 
         {/* Upload Area */}
@@ -121,9 +121,9 @@ const UploadDriver = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
                 <p className="mb-2 text-sm text-gray-700">
-                  <span className="font-semibold">Click to upload</span> or drag and drop
+                  <span className="font-semibold">{t('clickToUpload')}</span> {t('orDragAndDrop')}
                 </p>
-                <p className="text-xs text-gray-500">JPG, PNG or PDF (max 5MB)</p>
+                <p className="text-xs text-gray-500">{t('driverLicenseFormatsAccepted')}</p>
               </div>
             )}
             <input
@@ -152,7 +152,7 @@ const UploadDriver = () => {
             <svg className="w-5 h-5 text-green-600 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <p className="text-sm text-green-800">Driver's license uploaded successfully!</p>
+            <p className="text-sm text-green-800">{t('driverLicenseUploadedSuccessfully')}</p>
           </div>
         )}
 
@@ -164,7 +164,7 @@ const UploadDriver = () => {
               className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               disabled={uploading}
             >
-              Remove
+              {t('remove')}
             </button>
           )}
           <button
@@ -182,22 +182,22 @@ const UploadDriver = () => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Uploading...
+                {t('uploading')}
               </span>
             ) : (
-              'Upload Driver\'s License'
+              t('uploadDriverLicenseButton')
             )}
           </button>
         </div>
 
         {/* Info Section */}
         <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h3 className="text-sm font-medium text-blue-900 mb-2">Important Information</h3>
+          <h3 className="text-sm font-medium text-blue-900 mb-2">{t('importantInformation')}</h3>
           <ul className="text-sm text-blue-800 space-y-1">
-            <li>• Ensure all text on the license is clearly visible</li>
-            <li>• The license must be valid and not expired</li>
-            <li>• Both front and back may be required</li>
-            <li>• Your information will be kept secure and confidential</li>
+            <li>• {t('driverLicenseTip1')}</li>
+            <li>• {t('driverLicenseTip2')}</li>
+            <li>• {t('driverLicenseTip3')}</li>
+            <li>• {t('driverLicenseTip4')}</li>
           </ul>
         </div>
       </div>

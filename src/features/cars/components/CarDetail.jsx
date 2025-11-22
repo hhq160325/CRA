@@ -45,7 +45,7 @@ const RecommendationCarsCarousel = ({ cars }) => {
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex gap-6">
                     {cars.map((car) => (
-                        <div key={car.carId || car.id} className="flex-none w-80">
+                        <div key={car.id} className="flex-none w-80">
                             <CarCard car={car} isApiData={true} />
                         </div>
                     ))}
@@ -94,9 +94,15 @@ const CarDetail = () => {
         }
     ];
 
+    // Helper function to process image URLs
+    const processImageUrl = (imageUrl) => {
+        if (!imageUrl) return 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop';
+        return imageUrl.replace('<url>', process.env.REACT_APP_STORAGE_URL || 'https://your-storage-url.com');
+    };
+
     // Transform API car data to match the component's expected format
     const carData = currentCar ? {
-        id: currentCar.carId,
+        id: currentCar.id,
         name: `${currentCar.manufacturer} ${currentCar.model}`,
         type: currentCar.model,
         rating: 4.5, // Mock rating
@@ -111,7 +117,7 @@ const CarDetail = () => {
         price: 80.00, // Mock price - replace with actual price when available
         originalPrice: 100.00, // Mock original price
         images: currentCar.imageUrls && currentCar.imageUrls.length > 0 
-            ? currentCar.imageUrls 
+            ? currentCar.imageUrls.map(url => processImageUrl(url))
             : [
                 "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop",
                 "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop",
@@ -128,7 +134,7 @@ const CarDetail = () => {
     }, [dispatch, cars.length]);
 
     // Get related cars from API (all cars except current one)
-    const displayRelatedCars = cars.filter(car => car.carId !== id).slice(0, 8);
+    const displayRelatedCars = cars.filter(car => car.id !== id).slice(0, 8);
 
     const handleMainCarToggleFavorite = () => {
         if (!carData) return;

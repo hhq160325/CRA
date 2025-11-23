@@ -1,12 +1,15 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { updateBookingStatus } from '../staffSlice';
+import { updateBookingStatus, setBookingActivities, setLoading, setError } from '../staffSlice';
 import BookingModal from './modals/bookingModal/BookingModal';
+import { getAllBookings } from '../api/bookingApi';
 
 const BookingMonitoring = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const bookingActivities = useSelector((state) => state.staff.bookingActivities);
+  const loading = useSelector((state) => state.staff.loading.bookings);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
@@ -14,79 +17,49 @@ const BookingMonitoring = () => {
   const [modalType, setModalType] = useState(null); // 'view', 'edit', 'cancel', 'resolve'
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Mock data for booking activities
-  const bookingActivities = [
-    {
-      id: 1,
-      bookingId: 'BK001',
-      customer: 'Alice Cooper',
-      carOwner: 'John Smith',
-      car: 'Tesla Model 3',
-      status: 'active',
-      startDate: '2024-10-07',
-      endDate: '2024-10-10',
-      totalAmount: 450,
-      paymentStatus: 'paid',
-      createdAt: '2024-10-06 14:30',
-      notes: ''
-    },
-    {
-      id: 2,
-      bookingId: 'BK002',
-      customer: 'Bob Johnson',
-      carOwner: 'Sarah Wilson',
-      car: 'BMW X5',
-      status: 'pending',
-      startDate: '2024-10-08',
-      endDate: '2024-10-12',
-      totalAmount: 680,
-      paymentStatus: 'pending',
-      createdAt: '2024-10-06 16:45',
-      notes: 'Customer requested early pickup'
-    },
-    {
-      id: 3,
-      bookingId: 'BK003',
-      customer: 'Carol Smith',
-      carOwner: 'Mike Davis',
-      car: 'Audi A4',
-      status: 'cancelled',
-      startDate: '2024-10-09',
-      endDate: '2024-10-11',
-      totalAmount: 320,
-      paymentStatus: 'refunded',
-      createdAt: '2024-10-05 10:15',
-      notes: 'Cancelled due to emergency'
-    },
-    {
-      id: 4,
-      bookingId: 'BK004',
-      customer: 'David Wilson',
-      carOwner: 'Emma Johnson',
-      car: 'Mercedes C-Class',
-      status: 'completed',
-      startDate: '2024-10-01',
-      endDate: '2024-10-05',
-      totalAmount: 750,
-      paymentStatus: 'paid',
-      createdAt: '2024-09-28 09:20',
-      notes: 'Excellent customer, no issues'
-    },
-    {
-      id: 5,
-      bookingId: 'BK005',
-      customer: 'Eva Brown',
-      carOwner: 'Tom Wilson',
-      car: 'Honda Civic',
-      status: 'overdue',
-      startDate: '2024-10-02',
-      endDate: '2024-10-05',
-      totalAmount: 280,
-      paymentStatus: 'paid',
-      createdAt: '2024-09-30 11:30',
-      notes: 'Customer has not returned car'
-    }
-  ];
+  // Fetch all bookings on component mount
+  useEffect(() => {
+    const fetchBookings = async () => {
+      dispatch(setLoading({ section: 'bookings', loading: true }));
+      try {
+        const data = await getAllBookings();
+        
+        // Ensure data is an array
+        const bookingsArray = Array.isArray(data) ? data : [];
+        
+        // Transform API data to match component structure
+        const transformedData = bookingsArray.map((booking, index) => {
+          const status = booking.status ? String(booking.status).toLowerCase() : 'pending';
+          const paymentStatus = booking.paymentStatus ? String(booking.paymentStatus).toLowerCase() : 'pending';
+          
+          return {
+            id: booking.id || index + 1,
+            bookingId: `BK${String(booking.id || index + 1).padStart(3, '0')}`,
+            customer: booking.customerName || 'N/A',
+            carOwner: booking.ownerName || 'N/A',
+            car: booking.carModel || booking.carName || 'N/A',
+            status: status,
+            startDate: booking.pickupTime ? new Date(booking.pickupTime).toISOString().split('T')[0] : 'N/A',
+            endDate: booking.dropoffTime ? new Date(booking.dropoffTime).toISOString().split('T')[0] : 'N/A',
+            totalAmount: booking.totalPrice || booking.totalAmount || 0,
+            paymentStatus: paymentStatus,
+            createdAt: booking.createdAt ? new Date(booking.createdAt).toLocaleString() : 'N/A',
+            notes: booking.notes || ''
+          };
+        });
+        
+        dispatch(setBookingActivities(transformedData));
+      } catch (error) {
+        dispatch(setError({ section: 'bookings', error: error.message }));
+        dispatch(setBookingActivities([]));
+        console.error('Failed to fetch bookings:', error);
+      } finally {
+        dispatch(setLoading({ section: 'bookings', loading: false }));
+      }
+    };
+
+    fetchBookings();
+  }, [dispatch]);
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
@@ -162,10 +135,12 @@ const BookingMonitoring = () => {
     setModalType(newType);
   };
 
-  const filteredBookings = bookingActivities.filter(booking => {
-    const matchesSearch = booking.bookingId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.car.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredBookings = (bookingActivities || []).filter(booking => {
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = 
+      (booking.bookingId || '').toLowerCase().includes(searchLower) ||
+      (booking.customer || '').toLowerCase().includes(searchLower) ||
+      (booking.car || '').toLowerCase().includes(searchLower);
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -235,6 +210,18 @@ const BookingMonitoring = () => {
 
       {/* Bookings Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        ) : filteredBookings.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+            <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p className="text-lg font-medium">{t('noBookingsFound')}</p>
+          </div>
+        ) : (
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -254,11 +241,11 @@ const BookingMonitoring = () => {
                 <tr key={booking.id} className="hover:bg-gray-50">
                   <td className="py-4 px-6">
                     <div className="font-medium text-gray-900 text-sm">{booking.bookingId}</div>
-                    <div className="text-xs text-gray-500">{booking.createdAt}</div>
+                    {/* <div className="text-xs text-gray-500">{booking.createdAt}</div> // TODO */}
                   </td>
                   <td className="py-4 px-6">
                     <div className="font-medium text-gray-900 text-sm">{booking.customer}</div>
-                    <div className="text-xs text-gray-500">{t('owner')}: {booking.carOwner}</div>
+                    {/* <div className="text-xs text-gray-500">{t('owner')}: {booking.carOwner}</div> // TODO */}
                   </td>
                   <td className="py-4 px-6">
                     <div className="font-medium text-gray-900 text-sm">{booking.car}</div>
@@ -317,8 +304,10 @@ const BookingMonitoring = () => {
             </tbody>
           </table>
         </div>
+        )}
 
         {/* Pagination */}
+        {!loading && filteredBookings.length > 0 && (
         <div className="flex items-center justify-center py-4 border-t border-gray-200">
           <div className="flex items-center space-x-2">
             <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('previous')}</button>
@@ -330,6 +319,7 @@ const BookingMonitoring = () => {
             <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('next')}</button>
           </div>
         </div>
+        )}
       </div>
 
       {/* Modal */}

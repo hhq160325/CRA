@@ -265,6 +265,7 @@ const resources = {
       suspendCustomerWarning: "Are you sure you want to suspend",
       suspendCustomerDescription: "'s account? This will prevent them from accessing their account and listing new cars.",
       totalBookings: "Total Bookings",
+      canceledBookings: "Canceled Bookings",
       totalSpent: "Total Spent",
       lastBooking: "Last Booking",
       noBookingsYet: "No bookings yet",
@@ -359,6 +360,11 @@ const resources = {
       confirmed: "confirmed",
       approved: "approved",
       updated: "updated",
+      justNow: "Just now",
+      minutesAgo: "minutes ago",
+      hoursAgo: "hours ago",
+      daysAgo: "days ago",
+      noRecentActivities: "No recent activities",
 
       staffMenu: "STAFF MENU",
       carOwnerAccounts: "Car Owner Accounts",
@@ -492,7 +498,7 @@ const resources = {
       rentDay: "Rent Day",
       paymentDate: "Payment Date",
       noPayment: "No Payment",
-
+      noRentalHistory: "No Rental History",
       // Profile - Settings Page
       security: "Security",
       securityDescription: "Manage account security and verification settings.",
@@ -572,7 +578,7 @@ const resources = {
       payments: "Payments",
       registerNewCar: "Register New Car",
       registerNewCarSection: "Register New Car",
-
+      noRentalHistory: "No Rental History",
       // Register Car Step 3 - Photo Upload
       clickToUpload: "Click to upload",
       orDragAndDrop: "or drag and drop",
@@ -878,6 +884,7 @@ const resources = {
       suspendCustomerWarning: "Bạn có chắc chắn muốn tạm ngưng tài khoản của",
       suspendCustomerDescription: "? Điều này sẽ ngăn họ truy cập tài khoản và đặt xe mới.",
       totalBookings: "Tổng số đặt xe",
+      canceledBookings: "Đơn đặt xe đã hủy",
       totalSpent: "Tổng chi tiêu",
       lastBooking: "Đặt xe lần cuối",
       noBookingsYet: "Chưa có đặt xe",
@@ -972,6 +979,11 @@ const resources = {
       confirmed: "đã xác nhận",
       approved: "đã phê duyệt",
       updated: "đã cập nhật",
+      justNow: "Vừa xong",
+      minutesAgo: "phút trước",
+      hoursAgo: "giờ trước",
+      daysAgo: "ngày trước",
+      noRecentActivities: "Không có hoạt động gần đây",
 
       staffMenu: "MENU NHÂN VIÊN",
       carOwnerAccounts: "Tài khoản chủ xe",
@@ -1105,7 +1117,7 @@ const resources = {
       rentDay: "Ngày thuê",
       paymentDate: "Ngày thanh toán",
       noPayment: "Chưa thanh toán",
-
+      noRentalHistory: "Không có lịch sử thuê xe",
       // Profile - Settings Page
       security: "Bảo mật",
       securityDescription: "Quản lý bảo mật tài khoản và cài đặt xác minh.",

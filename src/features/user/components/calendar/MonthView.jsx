@@ -30,12 +30,30 @@ const MonthView = ({ events, currentDate }) => {
   }, [currentDate]);
 
   const getEventsForDate = (date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    // Use local date string to avoid timezone issues
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    
     return events.filter(event => {
       if (!event.start || !event.end) return false;
-      const eventStart = (event.start instanceof Date ? event.start : new Date(event.start)).toISOString().split('T')[0];
-      const eventEnd = (event.end instanceof Date ? event.end : new Date(event.end)).toISOString().split('T')[0];
-      return dateStr >= eventStart && dateStr <= eventEnd;
+      
+      // Get local date strings for event start and end
+      const startDate = event.start instanceof Date ? event.start : new Date(event.start);
+      const startYear = startDate.getFullYear();
+      const startMonth = String(startDate.getMonth() + 1).padStart(2, '0');
+      const startDay = String(startDate.getDate()).padStart(2, '0');
+      const eventStart = `${startYear}-${startMonth}-${startDay}`;
+      
+      const endDate = event.end instanceof Date ? event.end : new Date(event.end);
+      const endYear = endDate.getFullYear();
+      const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+      const endDay = String(endDate.getDate()).padStart(2, '0');
+      const eventEnd = `${endYear}-${endMonth}-${endDay}`;
+      
+      // Only show event on pickup date (start) and dropoff date (end)
+      return dateStr === eventStart || dateStr === eventEnd;
     });
   };
 
@@ -49,10 +67,20 @@ const MonthView = ({ events, currentDate }) => {
     return date.getMonth() === d.getMonth();
   };
 
-  const handleDateClick = (date) => {
-    const endDate = new Date(date);
-    endDate.setDate(date.getDate() + 1);
-    dispatch(openEventModal({ start: date, end: endDate }));
+  const handleDateClick = (date, dayEvents) => {
+    // Don't open modal for empty dates - this is a view-only calendar for bookings
+    if (dayEvents.length === 0) {
+      return;
+    }
+    // If there's only one event, open it directly
+    if (dayEvents.length === 1) {
+      dispatch(openEventModal(dayEvents[0]));
+    }
+    // If multiple events, could show a list or just do nothing
+    // For now, open the first event
+    if (dayEvents.length > 1) {
+      dispatch(openEventModal(dayEvents[0]));
+    }
   };
 
   const weekDays = [t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat'), t('sun')];
@@ -78,8 +106,8 @@ const MonthView = ({ events, currentDate }) => {
           return (
             <div
               key={idx}
-              onClick={() => handleDateClick(date)}
-              className={`min-h-[120px] bg-white p-2 cursor-pointer hover:bg-gray-50 transition-colors ${
+              onClick={() => handleDateClick(date, dayEvents)}
+              className={`min-h-[120px] bg-white p-2 ${dayEvents.length > 0 ? 'cursor-pointer hover:bg-gray-50' : ''} transition-colors ${
                 !inMonth ? 'opacity-40' : ''
               } ${today ? 'ring-2 ring-blue-500' : ''}`}
             >
@@ -91,6 +119,7 @@ const MonthView = ({ events, currentDate }) => {
                   <EventCard
                     key={event.id}
                     event={event}
+                    date={date}
                     compact
                     onClick={(e) => {
                       e.stopPropagation();

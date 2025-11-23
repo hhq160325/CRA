@@ -34,10 +34,10 @@ const CalendarView = () => {
   });
 
   useEffect(() => {
-    if (isAuthenticated && user?.id) {
-      dispatch(fetchUserBookings(user.id));
+    if (isAuthenticated) {
+      dispatch(fetchUserBookings());
     }
-  }, [dispatch, isAuthenticated, user?.id]);
+  }, [dispatch, isAuthenticated]);
 
   const handleViewChange = (view) => {
     dispatch(setCurrentView(view));
@@ -63,11 +63,14 @@ const CalendarView = () => {
   const filteredEvents = events.filter(event => {
     const matchesSearch = !searchQuery || 
       event.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.carName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.car?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.bookingId?.toLowerCase().includes(searchQuery.toLowerCase());
+      event.bookingId?.toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.pickupPlace?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.dropoffPlace?.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = filters.status === 'all' || event.status === filters.status;
-    const matchesCar = filters.car === 'all' || event.car === filters.car;
+    const matchesCar = filters.car === 'all' || event.carName === filters.car || event.car === filters.car;
     
     return matchesSearch && matchesStatus && matchesCar;
   });
@@ -96,7 +99,7 @@ const CalendarView = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="mt-4">
       <CalendarToolbar
         currentView={currentView}
         currentDate={currentDate}
@@ -109,7 +112,7 @@ const CalendarView = () => {
         events={events}
       />
       
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 mt-4">
         {renderView()}
       </div>
 

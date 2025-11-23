@@ -1,21 +1,71 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { axiosInstance } from '../../shared/utils/axiosInstance';
+import { BOOKING_ENDPOINTS, CAR_ENDPOINTS } from '../../config/api';
+import { decodeJWT } from '../auth/utils';
+
+// Helper function to get user ID from token
+const getUserIdFromToken = () => {
+  const token = localStorage.getItem('accessToken');
+  if (!token) return null;
+  
+  const decoded = decodeJWT(token);
+  if (!decoded) return null;
+  
+  // Try different possible user ID claims
+  return decoded.sub || decoded.userId || decoded.id || decoded.nameid || null;
+};
+
+// Helper function to fetch car details
+const fetchCarDetails = async (carId) => {
+  try {
+    const response = await axiosInstance.get(CAR_ENDPOINTS.GET_CAR_BY_ID(carId));
+    const car = response.data;
+    // Combine manufacturer and model to create car name
+    return `${car.manufacturer || ''} ${car.model || ''}`.trim() || 'Unknown Car';
+  } catch (error) {
+    console.error(`Error fetching car ${carId}:`, error);
+    return 'Unknown Car';
+  }
+};
 
 // Async thunks
 export const fetchUserBookings = createAsyncThunk(
   'calendar/fetchUserBookings',
-  async (userId, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/users/${userId}/bookings`);
-      return response.data;
-    } catch (error) {
-      // Return empty array for now if API doesn't exist
-      if (error.response?.status === 404) {
-        console.warn('Bookings API not available, using empty array');
+      const userId = getUserIdFromToken();
+      if (!userId) {
+        console.warn('No user ID found in token');
         return [];
       }
-      console.warn('Bookings API not available, using empty array:', error.message);
-      return [];
+
+      const response = await axiosInstance.get(BOOKING_ENDPOINTS.GET_CUSTOMER_BOOKINGS(userId));
+      const bookings = response.data || [];
+
+      // Fetch car details for each booking
+      const bookingsWithCarDetails = await Promise.all(
+        bookings.map(async (booking) => {
+          let carName = booking.carName || booking.car;
+          
+          // If no car name and we have a carId, fetch car details
+          if ((!carName || carName === 'N/A') && booking.carId) {
+            carName = await fetchCarDetails(booking.carId);
+          }
+          
+          return {
+            ...booking,
+            carName,
+          };
+        })
+      );
+
+      return bookingsWithCarDetails;
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      if (error.response?.status === 404) {
+        return [];
+      }
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -129,24 +179,33 @@ const calendarSlice = createSlice({
       .addCase(fetchUserBookings.fulfilled, (state, action) => {
         state.loading = false;
         // Transform booking data to calendar events
-        state.events = action.payload.map(booking => {
-          const startDate = booking.startDate || booking.start;
-          const endDate = booking.endDate || booking.end;
+        state.events = (action.payload || []).map(booking => {
+          // Use pickupTime and dropoffTime from API
+          const pickupTime = booking.pickupTime || booking.pickUpDateTime || booking.startDate;
+          const dropoffTime = booking.dropoffTime || booking.dropOffDateTime || booking.endDate;
           
           return {
-            id: booking.id,
-            title: `${booking.car || 'Car'} - ${booking.bookingId || booking.id}`,
-            start: new Date(startDate ? `${startDate}T09:00` : Date.now()),
-            end: new Date(endDate ? `${endDate}T17:00` : Date.now()),
+            id: booking.bookingId || booking.id,
+            title: `${booking.carName || booking.car || 'Car Rental'}`,
+            start: pickupTime ? new Date(pickupTime) : new Date(),
+            end: dropoffTime ? new Date(dropoffTime) : new Date(),
             allDay: false,
+            // Store full booking details for modal display
+            bookingId: booking.bookingId || booking.id,
+            carId: booking.carId,
+            carName: booking.carName || booking.car,
+            pickupPlace: booking.pickupPlace,
+            dropoffPlace: booking.dropoffPlace,
+            pickupTime: pickupTime,
+            dropoffTime: dropoffTime,
             status: booking.status || 'pending',
-            car: booking.car || '',
-            customer: booking.customer || '',
-            carOwner: booking.carOwner || '',
-            amount: booking.totalAmount || booking.amount || 0,
+            totalAmount: booking.totalAmount || booking.amount || 0,
+            bookingFee: booking.bookingFee || 0,
+            carRentPrice: booking.carRentPrice || 0,
             paymentStatus: booking.paymentStatus || 'pending',
             notes: booking.notes || '',
-            bookingId: booking.bookingId || booking.id,
+            customerId: booking.customerId,
+            customerName: booking.customerName,
           };
         });
       })

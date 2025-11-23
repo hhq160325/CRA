@@ -12,7 +12,7 @@ const getStatusColor = (status) => {
   return colors[status] || colors.pending;
 };
 
-const EventCard = ({ event, compact = false, onClick }) => {
+const EventCard = ({ event, compact = false, onClick, date }) => {
   const { t } = useTranslation();
   const statusColor = getStatusColor(event.status);
 
@@ -26,6 +26,37 @@ const EventCard = ({ event, compact = false, onClick }) => {
     });
   };
 
+  const getEventType = () => {
+    if (!date || !event.start || !event.end) return '';
+    
+    // Use local date strings to avoid timezone issues
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    
+    const startDate = event.start instanceof Date ? event.start : new Date(event.start);
+    const startYear = startDate.getFullYear();
+    const startMonth = String(startDate.getMonth() + 1).padStart(2, '0');
+    const startDay = String(startDate.getDate()).padStart(2, '0');
+    const startStr = `${startYear}-${startMonth}-${startDay}`;
+    
+    const endDate = event.end instanceof Date ? event.end : new Date(event.end);
+    const endYear = endDate.getFullYear();
+    const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+    const endDay = String(endDate.getDate()).padStart(2, '0');
+    const endStr = `${endYear}-${endMonth}-${endDay}`;
+    
+    if (dateStr === startStr && dateStr === endStr) {
+      return '🚗 '; // Same day pickup and dropoff
+    } else if (dateStr === startStr) {
+      return '📤 '; // Pickup
+    } else if (dateStr === endStr) {
+      return '📥 '; // Dropoff
+    }
+    return '';
+  };
+
   if (compact) {
     return (
       <div
@@ -33,7 +64,7 @@ const EventCard = ({ event, compact = false, onClick }) => {
         className={`text-xs px-2 py-1 rounded border ${statusColor} cursor-pointer hover:opacity-80 truncate`}
         title={event.title}
       >
-        {formatTime(event.start)} • {event.title}
+        {getEventType()}{formatTime(event.start)} • {event.title}
       </div>
     );
   }
@@ -47,8 +78,8 @@ const EventCard = ({ event, compact = false, onClick }) => {
       <div className="text-xs text-gray-600">
         {formatTime(event.start)} - {formatTime(event.end)}
       </div>
-      {event.car && (
-        <div className="text-xs text-gray-500 mt-1">{t('car')}: {event.car}</div>
+      {(event.carName || event.car) && (
+        <div className="text-xs text-gray-500 mt-1">{t('car')}: {event.carName || event.car}</div>
       )}
       <div className={`text-xs mt-2 px-2 py-1 rounded inline-block ${statusColor}`}>
         {t(event.status)}

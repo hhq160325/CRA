@@ -170,19 +170,19 @@ const CalendarToolbar = ({
           ))}
         </select>
 
-        <button
+        {/* <button
           onClick={handleNewEvent}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
         >
           + {t('newEvent')}
-        </button>
+        </button> */}
 
-        <button
+        {/* <button
           onClick={handleExport}
           className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
         >
           {t('exportToOutlook')}
-        </button>
+        </button> */}
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleFavorite, selectIsFavorite } from '../../favorites/favoritesSlice';
 import { fetchCarById, fetchAllCars } from '../carsSlice';
@@ -59,6 +59,7 @@ const RecommendationCarsCarousel = ({ cars }) => {
 
 const CarDetail = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [showAllReviews, setShowAllReviews] = useState(false);
@@ -408,12 +409,21 @@ const CarDetail = () => {
                                     <div className="text-gray-400 line-through text-lg mt-1">${typeof carData.originalPrice === 'number' ? carData.originalPrice.toFixed(2) : (parseFloat(carData.originalPrice) || 0).toFixed(2)}</div>
                                 )}
                             </div>
-                            <Link 
-                                to="/payment" 
+                            <button 
+                                onClick={() => navigate('/payment', { 
+                                    state: { 
+                                        carId: id,
+                                        carName: carData.name,
+                                        carImage: carData.images[0],
+                                        carPrice: carData.price,
+                                        carRating: carData.rating,
+                                        carReviewCount: carData.reviewCount
+                                    } 
+                                })}
                                 className="bg-blue-600 text-white px-10 py-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg inline-block text-center"
                             >
                                 Rent Now
-                            </Link>
+                            </button>
                         </div>
                     </div>
                 </div>

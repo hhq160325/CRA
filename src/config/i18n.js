@@ -357,9 +357,11 @@ const resources = {
       customerAccountUpdated: "Customer account updated",
       bookingCompleted: "Booking completed",
       by: "by",
-      confirmed: "confirmed",
-      approved: "approved",
-      updated: "updated",
+      confirmed: "Confirmed",
+      approved: "Approved",
+      updated: "Updated",
+      failed: "Failed",
+      expired: "Expired",
       justNow: "Just now",
       minutesAgo: "minutes ago",
       hoursAgo: "hours ago",
@@ -373,6 +375,9 @@ const resources = {
       sendNotifications: "Send Notifications",
 
       noBookingsFound: "No Booking Found",
+      allStatus: "All Status",
+      allPaymentStatus: "All Payment Status",
+      searchBookings: "Search Bookings",
       // Calendar Components
       month: "Month",
       week: "Week",
@@ -1005,6 +1010,8 @@ const resources = {
       confirmed: "đã xác nhận",
       approved: "đã phê duyệt",
       updated: "đã cập nhật",
+      failed: "Thất bại",
+      expired: "Hết hạn",
       justNow: "Vừa xong",
       minutesAgo: "phút trước",
       hoursAgo: "giờ trước",
@@ -1018,6 +1025,9 @@ const resources = {
       sendNotifications: "Gửi thông báo",
 
       noBookingsFound: "Không có đơn đặt xe",
+      allStatus: "Tất cả trạng thái",
+      allPaymentStatus: "Tất cả trạng thái thanh toán",
+      searchBookings: "Tìm đơn đặt hàng",
       // Calendar Components
       month: "Tháng",
       week: "Tuần",

@@ -1,56 +1,157 @@
 
 import { useTranslation } from 'react-i18next';
+import { useState, useEffect } from 'react';
+import { axiosInstance } from '../../../shared/utils/axiosInstance';
+import { BOOKING_ENDPOINTS, USER_ENDPOINTS } from '../../../config/api';
 
 const RecentActivities = () => {
   const { t } = useTranslation();
-  // Mock data for recent activities
-  const recentActivities = [
-    {
-      id: 1,
-      type: 'booking',
-      user: 'Alice Cooper',
-      action: t('newBookingCreated'),
-      car: 'Tesla Model 3',
-      timestamp: '5 minutes ago',
-      status: 'confirmed'
-    },
-    {
-      id: 2,
-      type: 'verification',
-      user: 'Bob Johnson',
-      action: t('carOwnerVerificationCompleted'),
-      car: 'BMW X5',
-      timestamp: '15 minutes ago',
-      status: 'approved'
-    },
-    {
-      id: 3,
-      type: 'booking',
-      user: 'Carol Smith',
-      action: t('bookingCancelled'),
-      car: 'Audi A4',
-      timestamp: '1 hour ago',
-      status: 'cancelled'
-    },
-    {
-      id: 4,
-      type: 'customer',
-      user: 'David Wilson',
-      action: t('customerAccountUpdated'),
-      car: null,
-      timestamp: '2 hours ago',
-      status: 'updated'
-    },
-    {
-      id: 5,
-      type: 'booking',
-      user: 'Emma Davis',
-      action: t('bookingCompleted'),
-      car: 'Mercedes C-Class',
-      timestamp: '3 hours ago',
-      status: 'completed'
+  const [recentActivities, setRecentActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRecentActivities = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch all bookings and users
+        const [bookingsResponse, usersResponse] = await Promise.all([
+          axiosInstance.get(BOOKING_ENDPOINTS.GET_ALL_BOOKINGS),
+          axiosInstance.get(USER_ENDPOINTS.GET_ALL_USERS)
+        ]);
+
+        const bookings = bookingsResponse.data || [];
+        const users = usersResponse.data || [];
+
+        // Helper function to get user display name
+        const getUserDisplayName = (user) => {
+          if (!user) return 'Unknown User';
+          
+          // Try full name first
+          const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+          if (fullName) return fullName;
+          
+          // Fall back to username
+          if (user.username) return user.username;
+          
+          // Fall back to email
+          if (user.email) return user.email;
+          
+          return 'Unknown User';
+        };
+
+        // Sort bookings by date (newest first) and take the latest 3
+        const sortedBookings = bookings
+          .sort((a, b) => new Date(b.createdAt || b.bookingDate) - new Date(a.createdAt || a.bookingDate))
+          .slice(0, 3);
+
+        // Sort users by registration date (newest first) and take the latest 2
+        const sortedUsers = users
+          .sort((a, b) => new Date(b.createdAt || b.registrationDate) - new Date(a.createdAt || a.registrationDate))
+          .slice(0, 2);
+
+        // Combine activities
+        const activities = [];
+
+        // Add booking activities
+        sortedBookings.forEach((booking, index) => {
+          activities.push({
+            id: `booking-${booking.id || index}`,
+            type: 'booking',
+            user: booking.customerName || 'Unknown User',
+            action: getBookingAction(booking.status),
+            car: booking.carModel || booking.carManufacturer || 'Unknown Car',
+            timestamp: getRelativeTime(booking.createdAt || booking.bookingDate),
+            status: mapBookingStatus(booking.status)
+          });
+        });
+
+        // Add user activities
+        sortedUsers.forEach((user, index) => {
+          activities.push({
+            id: `user-${user.id || index}`,
+            type: 'customer',
+            user: getUserDisplayName(user),
+            action: t('customerAccountUpdated'),
+            car: null,
+            timestamp: getRelativeTime(user.createdAt || user.registrationDate),
+            status: 'updated'
+          });
+        });
+
+        // Sort all activities by timestamp and take the latest 5
+        const sortedActivities = activities
+          .sort((a, b) => {
+            const timeA = parseRelativeTime(a.timestamp);
+            const timeB = parseRelativeTime(b.timestamp);
+            return timeA - timeB;
+          })
+          .slice(0, 5);
+
+        setRecentActivities(sortedActivities);
+      } catch (error) {
+        console.error('Error fetching recent activities:', error);
+        setRecentActivities([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecentActivities();
+  }, [t]);
+
+  const getBookingAction = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'confirmed':
+      case 'pending':
+        return t('newBookingCreated');
+      case 'cancelled':
+        return t('bookingCancelled');
+      case 'completed':
+        return t('bookingCompleted');
+      default:
+        return t('newBookingCreated');
     }
-  ];
+  };
+
+  const mapBookingStatus = (status) => {
+    const statusLower = status?.toLowerCase() || 'pending';
+    const statusMap = {
+      'confirmed': 'confirmed',
+      'pending': 'confirmed',
+      'cancelled': 'cancelled',
+      'completed': 'completed',
+      'approved': 'approved'
+    };
+    return statusMap[statusLower] || 'confirmed';
+  };
+
+  const getRelativeTime = (dateString) => {
+    if (!dateString) return t('justNow');
+    
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMs = now - date;
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+    if (diffInMinutes < 1) return t('justNow');
+    if (diffInMinutes < 60) return `${diffInMinutes} ${t('minutesAgo')}`;
+    if (diffInHours < 24) return `${diffInHours} ${t('hoursAgo')}`;
+    return `${diffInDays} ${t('daysAgo')}`;
+  };
+
+  const parseRelativeTime = (timeString) => {
+    // Simple parser to convert relative time back to minutes for sorting
+    if (!timeString) return 0;
+    const match = timeString.match(/(\d+)/);
+    if (!match) return 0;
+    const value = parseInt(match[1]);
+    if (timeString.includes('day')) return value * 24 * 60;
+    if (timeString.includes('hour')) return value * 60;
+    return value;
+  };
 
   const getActivityIcon = (type) => {
     switch (type) {
@@ -107,6 +208,16 @@ const RecentActivities = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-6">
@@ -117,28 +228,34 @@ const RecentActivities = () => {
       </div>
 
       <div className="space-y-4">
-        {recentActivities.map((activity) => (
-          <div key={activity.id} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors">
-            <div className="flex items-center space-x-4">
-              {getActivityIcon(activity.type)}
-              
-              <div>
-                <h3 className="font-medium text-gray-900 text-sm">{activity.action}</h3>
-                <p className="text-sm text-gray-600">{t('by')} {activity.user}</p>
-                {activity.car && (
-                  <p className="text-xs text-gray-500">{activity.car}</p>
-                )}
+        {recentActivities.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            {t('noRecentActivities')}
+          </div>
+        ) : (
+          recentActivities.map((activity) => (
+            <div key={activity.id} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors">
+              <div className="flex items-center space-x-4">
+                {getActivityIcon(activity.type)}
+                
+                <div>
+                  <h3 className="font-medium text-gray-900 text-sm">{activity.action}</h3>
+                  <p className="text-sm text-gray-600">{t('by')} {activity.user}</p>
+                  {activity.car && (
+                    <p className="text-xs text-gray-500">{activity.car}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="text-right">
+                <div className="text-xs text-gray-500 mb-2">{activity.timestamp}</div>
+                <span className={getStatusBadge(activity.status)}>
+                  {t(activity.status)}
+                </span>
               </div>
             </div>
-
-            <div className="text-right">
-              <div className="text-xs text-gray-500 mb-2">{activity.timestamp}</div>
-              <span className={getStatusBadge(activity.status)}>
-                {t(activity.status)}
-              </span>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

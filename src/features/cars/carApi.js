@@ -13,6 +13,51 @@ export const fetchParkLots = async () => {
     }
 };
 
+export const getCarRentalRate = async (carId) => {
+    try {
+        const response = await axios.get(CAR_ENDPOINTS.GET_RENTAL_RATE(carId), {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching rental rate:', error);
+        throw error;
+    }
+};
+
+export const setCarRentalRate = async (carId, dailyRate) => {
+    try {
+        const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+        
+        const rentalRateData = {
+            dailyRate: dailyRate,
+            hourlyRate: 0,  // TODO: Future implementation
+            weeklyDiscount: 0,  // TODO: Future implementation
+            monthlyDiscount: 0,  // TODO: Future implementation
+            overtimeRate: 0,  // TODO: Future implementation
+            carId: carId
+        };
+
+        console.log('Setting rental rate:', rentalRateData);
+
+        const response = await axios.post(CAR_ENDPOINTS.SET_RENTAL_RATE, rentalRateData, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        console.log('Rental rate set successfully:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error setting rental rate:', error);
+        console.error('Error response:', error.response?.data);
+        throw error;
+    }
+};
+
 export const registerCar = async (carData) => {
     try {
         const formData = new FormData();

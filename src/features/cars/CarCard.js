@@ -1,13 +1,37 @@
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { useState, useEffect } from 'react';
 import { toggleFavorite, selectIsFavorite } from '../favorites/favoritesSlice';
+import { getCarRentalRate } from './carApi';
 
 const CarCard = ({ car, isApiData = false }) => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const carId = car.id;
     const isCarFavorite = useSelector(selectIsFavorite(carId));
+    const [rentalRate, setRentalRate] = useState(null);
+    const [loadingRate, setLoadingRate] = useState(false);
+
+    // Fetch rental rate when component mounts
+    useEffect(() => {
+        const fetchRentalRate = async () => {
+            if (!carId) return;
+            
+            setLoadingRate(true);
+            try {
+                const rateData = await getCarRentalRate(carId);
+                setRentalRate(rateData);
+            } catch (error) {
+                console.error('Failed to fetch rental rate:', error);
+                // Keep default price if API fails
+            } finally {
+                setLoadingRate(false);
+            }
+        };
+
+        fetchRentalRate();
+    }, [carId]);
 
     // Helper function to process image URL
     const getImageUrl = (imageUrl) => {
@@ -79,8 +103,16 @@ const CarCard = ({ car, isApiData = false }) => {
     const carTransmission = car.transmission;
     const carSeats = isApiData ? car.seats : car.capacity;
     const carFuelType = isApiData ? car.fuelType : car.fuel;
-    const carPrice = isApiData ? '80.00' : car.price;
+    
+    // Use rental rate from API if available, otherwise fallback to default
+    const carPrice = rentalRate?.dailyRate || (isApiData ? 10000 : car.price);
     const carOriginalPrice = isApiData ? null : car.originalPrice;
+    
+    // Format price in Vietnamese format
+    const formatPrice = (price) => {
+        const numPrice = typeof price === 'number' ? price : parseFloat(price) || 0;
+        return numPrice.toLocaleString('vi-VN');
+    };
 
     return (
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
@@ -135,11 +167,17 @@ const CarCard = ({ car, isApiData = false }) => {
                 <div className="flex items-center justify-between">
                     <div>
                         <div className='flex items-baseline gap-1'>
-                            <span className="text-xl font-bold text-gray-900">${carPrice}</span>
-                            <span className="text-sm text-slate-400">{t('perDay')}</span>
+                            {loadingRate ? (
+                                <span className="text-xl font-bold text-gray-400">...</span>
+                            ) : (
+                                <>
+                                    <span className="text-xl font-bold text-gray-900">{formatPrice(carPrice)} đ</span>
+                                    <span className="text-sm text-slate-400">{t('perDay')}</span>
+                                </>
+                            )}
                         </div>
                         {carOriginalPrice && (
-                            <div className="text-sm text-gray-500 line-through">${carOriginalPrice}</div>
+                            <div className="text-sm text-gray-500 line-through">{formatPrice(carOriginalPrice)} đ</div>
                         )}
                     </div>
                     <Link

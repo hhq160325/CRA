@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleFavorite, selectIsFavorite } from '../../favorites/favoritesSlice';
 import { fetchCarById, fetchAllCars } from '../carsSlice';
+import { getCarRentalRate } from '../carApi';
 import useEmblaCarousel from 'embla-carousel-react';
 import CarCard from '../CarCard';
 import './embla.css';
@@ -59,9 +60,12 @@ const RecommendationCarsCarousel = ({ cars }) => {
 
 const CarDetail = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [showAllReviews, setShowAllReviews] = useState(false);
+    const [rentalRate, setRentalRate] = useState(null);
+    const [loadingRate, setLoadingRate] = useState(false);
 
     // Get cars from Redux store
     const { cars, currentCar, loading, error } = useSelector((state) => state.cars);
@@ -73,6 +77,26 @@ const CarDetail = () => {
     useEffect(() => {
         dispatch(fetchCarById(id));
     }, [dispatch, id]);
+
+    // Fetch rental rate when car ID changes
+    useEffect(() => {
+        const fetchRentalRate = async () => {
+            if (!id) return;
+            
+            setLoadingRate(true);
+            try {
+                const rateData = await getCarRentalRate(id);
+                setRentalRate(rateData);
+            } catch (error) {
+                console.error('Failed to fetch rental rate:', error);
+                // Keep default price if API fails
+            } finally {
+                setLoadingRate(false);
+            }
+        };
+
+        fetchRentalRate();
+    }, [id]);
 
     // Mock reviews data (since API doesn't provide reviews yet)
     const mockReviews = [
@@ -114,8 +138,8 @@ const CarDetail = () => {
             steering: currentCar.transmission,
             fueltype: currentCar.fuelType,
         },
-        price: 80.00, // Mock price - replace with actual price when available
-        originalPrice: 100.00, // Mock original price
+        price: rentalRate?.dailyRate || 10000, // Use API rental rate or fallback to 10000 VND
+        originalPrice: null, // No original price for API data
         images: currentCar.imageUrls && currentCar.imageUrls.length > 0 
             ? currentCar.imageUrls.map(url => processImageUrl(url))
             : [
@@ -401,19 +425,34 @@ const CarDetail = () => {
                         <div className="flex items-center justify-between">
                             <div>
                                 <div className="flex items-baseline gap-1">
-                                    <span className="text-4xl font-bold text-gray-900">${typeof carData.price === 'number' ? carData.price.toFixed(2) : (parseFloat(carData.price) || 0).toFixed(2)}/</span>
-                                    <span className="text-gray-500 text-4xl">day</span>
+                                    {loadingRate ? (
+                                        <span className="text-4xl font-bold text-gray-400">...</span>
+                                    ) : (
+                                        <>
+                                            <span className="text-4xl font-bold text-gray-900">{typeof carData.price === 'number' ? carData.price.toLocaleString('vi-VN') : (parseFloat(carData.price) || 0).toLocaleString('vi-VN')} đ/</span>
+                                            <span className="text-gray-500 text-4xl">day</span>
+                                        </>
+                                    )}
                                 </div>
                                 {carData.originalPrice && (
-                                    <div className="text-gray-400 line-through text-lg mt-1">${typeof carData.originalPrice === 'number' ? carData.originalPrice.toFixed(2) : (parseFloat(carData.originalPrice) || 0).toFixed(2)}</div>
+                                    <div className="text-gray-400 line-through text-lg mt-1">{typeof carData.originalPrice === 'number' ? carData.originalPrice.toLocaleString('vi-VN') : (parseFloat(carData.originalPrice) || 0).toLocaleString('vi-VN')} đ</div>
                                 )}
                             </div>
-                            <Link 
-                                to="/payment" 
+                            <button 
+                                onClick={() => navigate('/payment', { 
+                                    state: { 
+                                        carId: id,
+                                        carName: carData.name,
+                                        carImage: carData.images[0],
+                                        carPrice: carData.price,
+                                        carRating: carData.rating,
+                                        carReviewCount: carData.reviewCount
+                                    } 
+                                })}
                                 className="bg-blue-600 text-white px-10 py-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg inline-block text-center"
                             >
                                 Rent Now
-                            </Link>
+                            </button>
                         </div>
                     </div>
                 </div>

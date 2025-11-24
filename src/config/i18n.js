@@ -649,7 +649,11 @@ const resources = {
       // Payment Cancel
       paymentCancelled: "Payment Cancelled",
       paymentCancelledMessage: "Your payment has been cancelled. No charges have been made to your account.",
-      tryAgain: "Try Again"
+      tryAgain: "Try Again",
+
+      //Time-Picker
+      invalidTimeFormat: "Invalid Time Format",
+      timeFormatHint: "Time Format Hint: 09:00, 10:59, 12:00",
     }
   },
   vi: {
@@ -1299,7 +1303,11 @@ const resources = {
       // Payment Cancel
       paymentCancelled: "Thanh Toán Đã Hủy",
       paymentCancelledMessage: "Thanh toán của bạn đã bị hủy. Không có khoản phí nào được tính vào tài khoản của bạn.",
-      tryAgain: "Thử Lại"
+      tryAgain: "Thử Lại",
+
+      //Time-Picker
+      invalidTimeFormat: "Định dạng thời gian không hợp lệ",
+      timeFormatHint: "Gợi ý định dạng: 09:00, 10:59, 12:00",
     }
   }
 };

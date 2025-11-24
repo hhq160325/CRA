@@ -43,9 +43,30 @@ const TimePicker = ({ selectedTime, onTimeSelect, onClose, minTime }) => {
     let value = e.target.value;
     setError('');
 
-    // Auto-format: add colon after 2 digits
-    if (value.length === 2 && !value.includes(':') && timeInput.length < value.length) {
+    // Only allow digits and colon
+    value = value.replace(/[^\d:]/g, '');
+
+    // Prevent invalid hour input (first digit can't be > 1)
+    if (value.length === 1 && parseInt(value) > 1) {
+      value = '0' + value + ':';
+    }
+
+    // Prevent hours > 12
+    if (value.length === 2 && !value.includes(':')) {
+      const hours = parseInt(value);
+      if (hours > 12 || hours === 0) {
+        return; // Don't update if invalid
+      }
       value = value + ':';
+    }
+
+    // Prevent invalid minute first digit (can't be > 5)
+    const colonIndex = value.indexOf(':');
+    if (colonIndex !== -1 && value.length === colonIndex + 2) {
+      const minuteFirstDigit = parseInt(value[colonIndex + 1]);
+      if (minuteFirstDigit > 5) {
+        return; // Don't update if invalid
+      }
     }
 
     // Limit to 5 characters (00:00)

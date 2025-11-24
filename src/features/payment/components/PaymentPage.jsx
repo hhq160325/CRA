@@ -69,10 +69,8 @@ const PaymentPage = () => {
     }, [isAuthenticated, user]);
 
     // Dropdown states for rental info
-    const [pickupLocationOpen, setPickupLocationOpen] = useState(false);
     const [pickupDateOpen, setPickupDateOpen] = useState(false);
     const [pickupTimeOpen, setPickupTimeOpen] = useState(false);
-    const [dropoffLocationOpen, setDropoffLocationOpen] = useState(false);
     const [dropoffDateOpen, setDropoffDateOpen] = useState(false);
     const [dropoffTimeOpen, setDropoffTimeOpen] = useState(false);
 
@@ -83,13 +81,6 @@ const PaymentPage = () => {
     const [dropoffLocation, setDropoffLocation] = useState('');
     const [dropoffDate, setDropoffDate] = useState(null);
     const [dropoffTime, setDropoffTime] = useState('');
-
-    // Location options
-    const locations = [
-        { value: 'hcm', label: 'Ho Chi Minh City' },
-        { value: 'hanoi', label: 'Hanoi' },
-        { value: 'danang', label: 'Da Nang' }
-    ];
 
     const [paymentMethod, setPaymentMethod] = useState('credit-card');
     const [cardInfo, setCardInfo] = useState({
@@ -198,25 +189,16 @@ const PaymentPage = () => {
             const bookingData = {
                 customerId: customerId,
                 carId: carData.carId,
-                pickupPlace: locations.find(l => l.value === pickupLocation)?.label || pickupLocation,
+                pickupPlace: pickupLocation,
                 pickupTime: pickupDateTime.toISOString(),
-                dropoffPlace: locations.find(l => l.value === dropoffLocation)?.label || dropoffLocation,
+                dropoffPlace: dropoffLocation,
                 dropoffTime: dropoffDateTime.toISOString(),
-                bookingFee: 15, //For testing purpose - should use as 15% cut in the future
+                bookingFee: 15, // 15% cut
                 carRentPrice: typeof carData.carPrice === 'number' ? carData.carPrice : parseFloat(carData.carPrice) || 0,
                 rentime: rentalDays,
                 rentType: "Daily Rental"
             };
-
-            console.log('PaymentPage - Booking Data being sent to API:', bookingData);
-
-            const response = await createBooking(bookingData);
-            
-            console.log('PaymentPage - API Response:', response);
-            console.log('PaymentPage - Expected return URLs should be configured on backend:');
-            console.log('  - Success URL:', `${window.location.origin}/payment-success`);
-            console.log('  - Cancel URL:', `${window.location.origin}/payment-cancel`);
-            
+            const response = await createBooking(bookingData);           
             // Extract payment URL and bookingId from response
             // Response structure: { booking: { id: "...", ... }, payment: "https://..." }
             let paymentUrl = '';
@@ -342,48 +324,15 @@ const PaymentPage = () => {
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     {/* Pickup Location */}
-                                    <div className="w-full relative">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Locations</label>
-                                        <button
-                                            type="button"
-                                            onClick={() => setPickupLocationOpen(!pickupLocationOpen)}
-                                            className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-left flex items-center justify-between"
-                                        >
-                                            <span className={pickupLocation ? 'text-gray-900' : 'text-gray-400'}>
-                                                {pickupLocation ? locations.find(l => l.value === pickupLocation)?.label : 'Select your city'}
-                                            </span>
-                                            <svg
-                                                className={`w-4 h-4 text-gray-500 transition-transform ${pickupLocationOpen ? 'rotate-180' : ''}`}
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </button>
-                                        {pickupLocationOpen && (
-                                            <>
-                                                <div
-                                                    className="fixed inset-0 z-10"
-                                                    onClick={() => setPickupLocationOpen(false)}
-                                                />
-                                                <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden">
-                                                    {locations.map((location) => (
-                                                        <button
-                                                            key={location.value}
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setPickupLocation(location.value);
-                                                                setPickupLocationOpen(false);
-                                                            }}
-                                                            className={`w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors ${pickupLocation === location.value ? 'bg-gray-50 text-gray-900 font-medium' : 'text-gray-700'}`}
-                                                        >
-                                                            {location.label}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </>
-                                        )}
+                                    <div className="w-full">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Enter pickup location"
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            value={pickupLocation}
+                                            onChange={(e) => setPickupLocation(e.target.value)}
+                                        />
                                     </div>
 
                                     {/* Pickup Date */}
@@ -470,48 +419,15 @@ const PaymentPage = () => {
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     {/* Dropoff Location */}
-                                    <div className="w-full relative">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Locations</label>
-                                        <button
-                                            type="button"
-                                            onClick={() => setDropoffLocationOpen(!dropoffLocationOpen)}
-                                            className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-left flex items-center justify-between"
-                                        >
-                                            <span className={dropoffLocation ? 'text-gray-900' : 'text-gray-400'}>
-                                                {dropoffLocation ? locations.find(l => l.value === dropoffLocation)?.label : 'Select your city'}
-                                            </span>
-                                            <svg
-                                                className={`w-4 h-4 text-gray-500 transition-transform ${dropoffLocationOpen ? 'rotate-180' : ''}`}
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </button>
-                                        {dropoffLocationOpen && (
-                                            <>
-                                                <div
-                                                    className="fixed inset-0 z-10"
-                                                    onClick={() => setDropoffLocationOpen(false)}
-                                                />
-                                                <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden">
-                                                    {locations.map((location) => (
-                                                        <button
-                                                            key={location.value}
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setDropoffLocation(location.value);
-                                                                setDropoffLocationOpen(false);
-                                                            }}
-                                                            className={`w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors ${dropoffLocation === location.value ? 'bg-gray-50 text-gray-900 font-medium' : 'text-gray-700'}`}
-                                                        >
-                                                            {location.label}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </>
-                                        )}
+                                    <div className="w-full">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Enter dropoff location"
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            value={dropoffLocation}
+                                            onChange={(e) => setDropoffLocation(e.target.value)}
+                                        />
                                     </div>
 
                                     {/* Dropoff Date */}
@@ -653,77 +569,6 @@ const PaymentPage = () => {
                                 )}
                             </div>
 
-                            {/* Credit Card */}
-                            {/* <div className="mb-6">
-                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-4">
-                                    <div className="flex items-center">
-                                        <input
-                                            type="radio"
-                                            id="credit-card"
-                                            name="payment-method"
-                                            value="credit-card"
-                                            checked={paymentMethod === 'credit-card'}
-                                            onChange={(e) => setPaymentMethod(e.target.value)}
-                                            className="mr-3"
-                                        />
-                                        <label htmlFor="credit-card" className="font-medium text-gray-900">Credit Card</label>
-                                    </div>
-                                    <svg className="h-6 w-10" viewBox="0 0 40 24" fill="none">
-                                        <rect width="40" height="24" rx="4" fill="#374151" stroke="#6B7280" strokeWidth="1"/>
-                                        <rect x="4" y="6" width="32" height="3" fill="#9CA3AF"/>
-                                        <rect x="4" y="12" width="12" height="2" fill="#D1D5DB"/>
-                                        <rect x="4" y="16" width="8" height="2" fill="#D1D5DB"/>
-                                        <rect x="28" y="12" width="8" height="6" fill="#E5E7EB" rx="1"/>
-                                        <text x="32" y="16" fontSize="3" fill="#6B7280" textAnchor="middle">****</text>
-                                    </svg>
-                                </div>
-
-                                {paymentMethod === 'credit-card' && (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Card Number</label>
-                                            <input
-                                                type="text"
-                                                placeholder="Card number"
-                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                value={cardInfo.cardNumber}
-                                                onChange={(e) => handleCardChange('cardNumber', e.target.value)}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Expiration Date</label>
-                                            <input
-                                                type="text"
-                                                placeholder="DD / MM / YY"
-                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                value={cardInfo.expirationDate}
-                                                onChange={(e) => handleCardChange('expirationDate', e.target.value)}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Card Holder</label>
-                                            <input
-                                                type="text"
-                                                placeholder="Card holder"
-                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                value={cardInfo.cardHolder}
-                                                onChange={(e) => handleCardChange('cardHolder', e.target.value)}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">CVC</label>
-                                            <input
-                                                type="text"
-                                                placeholder="CVC"
-                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                value={cardInfo.cvc}
-                                                onChange={(e) => handleCardChange('cvc', e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-                            </div> */}
-
                             {/* QR Payment */}
                             <div>
                                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-4">
@@ -747,29 +592,9 @@ const PaymentPage = () => {
                                 {paymentMethod === 'qr-payment' && (
                                     <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
                                         <h4 className="text-lg font-semibold text-gray-900 mb-4">Scan QR Code to Pay</h4>
-                                        <div className="flex justify-center mb-4">
-                                            <div className="bg-white p-4 border-2 border-gray-300 rounded-lg">
-                                                <img 
-                                                    src="https://genqrcode.com/embedded?style=0&inner_eye_style=0&outer_eye_style=0&logo=null&color=%23000000FF&background_color=%23FFFFFFFF&inner_eye_color=%23000000&outer_eye_color=%23000000&imageformat=svg&language=en&frame_style=0&frame_text=SCAN%20ME&frame_text_icon_color=%23000000&frame_text_icon=null&frame_color=%23000000&frame_background_color=%23FFFFFF&frame_text_color=%23FFFFFF&invert_colors=false&gradient_style=0&gradient_color_start=%23FF0000&gradient_color_end=%237F007F&gradient_start_offset=5&gradient_end_offset=95&stl_type=1&logo_remove_background=null&stl_size=100&stl_qr_height=1.5&stl_base_height=2&stl_include_stands=false&stl_qr_magnet_type=3&stl_qr_magnet_count=0&type=0&text=https%3A%2F%2Fpokemondb.net%2Fpokedex%2Foshawott%23dex-evolution&width=500&height=500&bordersize=2" 
-                                                    alt="QR code for payment" 
-                                                    className="w-48 h-48 mx-auto"
-                                                />
-                                            </div>
-                                        </div>
                                         <p className="text-sm text-gray-600 mb-4">
-                                            Use your mobile banking app or digital wallet to scan this QR code
+                                            Use your mobile banking app or digital wallet to scan QR code
                                         </p>
-                                        <div className="border-t pt-4">
-                                            <p className="text-sm text-gray-500 mb-2">Can't scan the QR code?</p>
-                                            <a
-                                                href="https://payment.example.com/pay/rental-80usd"
-                                                className="text-blue-600 hover:text-blue-700 underline text-sm font-medium"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                Click here to pay online
-                                            </a>
-                                        </div>
                                     </div>
                                 )}
                             </div>

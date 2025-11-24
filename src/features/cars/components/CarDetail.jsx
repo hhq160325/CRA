@@ -170,7 +170,9 @@ const CarDetail = () => {
             price: carData.price,
             originalPrice: carData.originalPrice,
             image: carData.images[0],
-            specifications: carData.specifications,
+            fuel: carData.specifications.fueltype,
+            transmission: carData.specifications.steering,
+            capacity: carData.specifications.capacity,
         };
         dispatch(toggleFavorite({
             carId: id,

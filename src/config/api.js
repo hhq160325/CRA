@@ -51,6 +51,8 @@ export const PARKLOT_API_CONFIG = {
 // Car endpoints
 export const CAR_ENDPOINTS = {
   REGISTER_CAR: `${API_CONFIG.BASE_URL}/Car/registerCar/carInfo`,
+  SET_RENTAL_RATE: `${API_CONFIG.BASE_URL}/Car/rentalRate`,
+  GET_RENTAL_RATE: (carId) => `${API_CONFIG.BASE_URL}/Car/rentalRate/${carId}`,
   GET_ALL_CARS: `${API_CONFIG.BASE_URL}/Car/AllCars`,
   GET_CAR_BY_ID: (carId) => `${API_CONFIG.BASE_URL}/Car/${carId}`,
 };
@@ -65,6 +67,7 @@ export const CAR_API_CONFIG = {
 // Booking endpoints
 export const BOOKING_ENDPOINTS = {
   CREATE_BOOKING: `${API_CONFIG.BASE_URL}/Booking/CreateBooking`,
+  UPDATE_BOOKING: `${API_CONFIG.BASE_URL}/Booking/UpdateBooking`,
   GET_ALL_BOOKINGS: `${API_CONFIG.BASE_URL}/Booking/GetAllBookings`,
   GET_CUSTOMER_BOOKINGS: (cusId) => `${API_CONFIG.BASE_URL}/Booking/GetBookingsFromCustomer/${cusId}`,
 };

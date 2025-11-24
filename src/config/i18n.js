@@ -372,6 +372,7 @@ const resources = {
       customerAccounts: "Customer Accounts",
       sendNotifications: "Send Notifications",
 
+      noBookingsFound: "No Booking Found",
       // Calendar Components
       month: "Month",
       week: "Week",
@@ -618,7 +619,32 @@ const resources = {
       driverLicenseTip1: "Ensure all text on the license is clearly visible",
       driverLicenseTip2: "The license must be valid and not expired",
       driverLicenseTip3: "Both front and back may be required",
-      driverLicenseTip4: "Your information will be kept secure and confidential"
+      driverLicenseTip4: "Your information will be kept secure and confidential",
+
+      // Payment Success
+      paymentSuccessful: "Payment Successful!",
+      paymentSuccessMessage: "Your payment has been processed successfully. You will receive a confirmation email shortly.",
+      transactionId: "Transaction ID",
+      paymentDetails: "Payment Details",
+      amountPaidBookingFee: "Amount Paid (Booking Fee)",
+      remaining: "Remaining",
+      payAtDropoff: "pay at drop-off",
+      paymentMethod: "Payment Method",
+      paymentDate: "Payment Date",
+      rentalDetails: "Rental Details",
+      reviews: "Reviews",
+      dateAndTime: "Date & Time",
+      at: "at",
+      billingInformation: "Billing Information",
+      printReceipt: "Print Receipt",
+      viewRentalHistory: "View Rental History",
+      backToHome: "Back to Home",
+      needHelp: "Need help? Contact our support team at",
+
+      // Payment Cancel
+      paymentCancelled: "Payment Cancelled",
+      paymentCancelledMessage: "Your payment has been cancelled. No charges have been made to your account.",
+      tryAgain: "Try Again"
     }
   },
   vi: {
@@ -991,6 +1017,7 @@ const resources = {
       customerAccounts: "Tài khoản khách hàng",
       sendNotifications: "Gửi thông báo",
 
+      noBookingsFound: "Không có đơn đặt xe",
       // Calendar Components
       month: "Tháng",
       week: "Tuần",
@@ -1237,7 +1264,32 @@ const resources = {
       driverLicenseTip1: "Đảm bảo tất cả văn bản trên giấy phép đều rõ ràng",
       driverLicenseTip2: "Giấy phép phải còn hiệu lực và chưa hết hạn",
       driverLicenseTip3: "Có thể yêu cầu cả mặt trước và mặt sau",
-      driverLicenseTip4: "Thông tin của bạn sẽ được bảo mật và an toàn"
+      driverLicenseTip4: "Thông tin của bạn sẽ được bảo mật và an toàn",
+
+      // Payment Success
+      paymentSuccessful: "Thanh Toán Thành Công!",
+      paymentSuccessMessage: "Thanh toán của bạn đã được xử lý thành công. Bạn sẽ nhận được email xác nhận trong thời gian ngắn.",
+      transactionId: "Mã Giao Dịch",
+      paymentDetails: "Chi Tiết Thanh Toán",
+      amountPaidBookingFee: "Số Tiền Đã Thanh Toán (Phí Đặt Cọc)",
+      remaining: "Còn lại",
+      payAtDropoff: "thanh toán khi trả xe",
+      paymentMethod: "Phương Thức Thanh Toán",
+      paymentDate: "Ngày Thanh Toán",
+      rentalDetails: "Chi Tiết Thuê Xe",
+      reviews: "Đánh giá",
+      dateAndTime: "Ngày & Giờ",
+      at: "lúc",
+      billingInformation: "Thông Tin Thanh Toán",
+      printReceipt: "In Hóa Đơn",
+      viewRentalHistory: "Xem Lịch Sử Thuê Xe",
+      backToHome: "Về Trang Chủ",
+      needHelp: "Cần trợ giúp? Liên hệ đội ngũ hỗ trợ của chúng tôi tại",
+
+      // Payment Cancel
+      paymentCancelled: "Thanh Toán Đã Hủy",
+      paymentCancelledMessage: "Thanh toán của bạn đã bị hủy. Không có khoản phí nào được tính vào tài khoản của bạn.",
+      tryAgain: "Thử Lại"
     }
   }
 };

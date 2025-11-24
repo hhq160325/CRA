@@ -1,8 +1,51 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { updateBooking } from '../api';
 
 const PaymentCancel = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const [isUpdatingBooking, setIsUpdatingBooking] = useState(false);
+  
+  useEffect(() => {
+    // Retrieve booking data from localStorage
+    const pendingBookingStr = localStorage.getItem('pendingBooking');
+    
+    if (pendingBookingStr) {
+      try {
+        const bookingData = JSON.parse(pendingBookingStr);
+        console.log('PaymentCancel - Retrieved booking data:', bookingData);
+        
+        // Update booking status to "Cancelled" if bookingId exists
+        if (bookingData.bookingId) {
+          setIsUpdatingBooking(true);
+          updateBooking(bookingData.bookingId, 'Cancelled')
+            .then(() => {
+              console.log('PaymentCancel - Booking status updated to Cancelled');
+              // Clear the pending booking from localStorage after cancellation
+              localStorage.removeItem('pendingBooking');
+              console.log('PaymentCancel - Cleared pendingBooking from localStorage');
+            })
+            .catch((error) => {
+              console.error('PaymentCancel - Failed to update booking status:', error);
+              // Continue showing cancel page even if update fails
+            })
+            .finally(() => {
+              setIsUpdatingBooking(false);
+            });
+        } else {
+          console.warn('PaymentCancel - No bookingId found in booking data');
+          // Clear localStorage anyway
+          localStorage.removeItem('pendingBooking');
+        }
+      } catch (error) {
+        console.error('PaymentCancel - Error parsing booking data:', error);
+        // Clear localStorage if parsing fails
+        localStorage.removeItem('pendingBooking');
+      }
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -14,26 +57,35 @@ const PaymentCancel = () => {
         </div>
         
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
-          Payment Cancelled
+          {t('paymentCancelled')}
         </h1>
         
         <p className="text-gray-600 mb-8">
-          Your payment has been cancelled. No charges have been made to your account.
+          {t('paymentCancelledMessage')}
         </p>
+        
+        {isUpdatingBooking && (
+          <div className="mb-6 flex items-center justify-center text-sm text-gray-500">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>
+            Updating booking status...
+          </div>
+        )}
         
         <div className="space-y-3">
           <button
             onClick={() => navigate('/payment')}
-            className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            disabled={isUpdatingBooking}
+            className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Try Again
+            {t('tryAgain')}
           </button>
           
           <button
             onClick={() => navigate('/')}
-            className="w-full bg-gray-200 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+            disabled={isUpdatingBooking}
+            className="w-full bg-gray-200 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
-            Back to Home
+            {t('backToHome')}
           </button>
         </div>
       </div>

@@ -27,7 +27,7 @@ const MyProfile = () => {
     isGoogle: false,
     address: '',
     status: '',
-    password: ''
+    password: null
   });
 
   const [loading, setLoading] = useState(true);
@@ -64,7 +64,7 @@ const MyProfile = () => {
           isGoogle: data.isGoogle,
           address: data.address || '',
           status: data.status || '',
-          password:data.password || ''
+          password: data.password || ''
         });
         setError(null);
       } catch (err) {
@@ -156,7 +156,8 @@ const MyProfile = () => {
         imageAvatar: updatedData.imageAvatar,
         isGoogle: updatedData.isGoogle,
         address: updatedData.address || '',
-        status: updatedData.status || ''
+        status: updatedData.status || '',
+        
       });
 
       // Update localStorage and Redux store with new avatar and username
@@ -197,7 +198,7 @@ const MyProfile = () => {
         isGoogle: data.isGoogle,
         address: data.address || '',
         status: data.status || '',
-
+        
       });
     } catch (err) {
       console.error('Failed to refetch user data:', err);
@@ -372,15 +373,20 @@ const MyProfile = () => {
               )}
             </div>
 
-            {/* <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">User Name</label>
-              <div className="text-gray-900">{userInfo.username || 'N/A'}</div>
-            </div>
-
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-              <div className="text-gray-900">{userInfo.fullname || 'N/A'}</div>
-            </div> */}
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('fullName')}</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={userInfo.fullname}
+                  onChange={(e) => handleInputChange('fullname', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-0 "
+                  placeholder={t('enterFullName')}
+                />
+              ) : (
+                <div className="text-gray-900">{userInfo.fullname || 'N/A'}</div>
+              )}
+            </div>
 
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('phoneNumber')}</label>

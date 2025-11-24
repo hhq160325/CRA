@@ -22,3 +22,23 @@ export const createBooking = async (bookingData) => {
     throw error;
   }
 };
+
+// Update booking status
+export const updateBooking = async (bookingId, status) => {
+  try {
+    console.log('API - updateBooking called with:', { bookingId, status });
+    
+    const response = await axiosInstance.patch(BOOKING_ENDPOINTS.UPDATE_BOOKING, {
+      bookingId,
+      status
+    });
+    
+    console.log('API - Update booking response:', response.data);
+    
+    return response.data;
+  } catch (error) {
+    console.error("API - Error updating booking:", error);
+    console.error("API - Error response:", error.response?.data);
+    throw error;
+  }
+};

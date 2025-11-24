@@ -29,7 +29,7 @@ const TimePicker = ({ selectedTime, onTimeSelect, onClose, minTime }) => {
       return null;
     }
 
-    const [hours, minutes] = cleaned.split(':').map(Number);
+    const [hours] = cleaned.split(':').map(Number);
 
     // Validate hours (01-12)
     if (hours < 1 || hours > 12) {

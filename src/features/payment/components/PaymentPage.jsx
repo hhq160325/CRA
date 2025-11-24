@@ -202,7 +202,7 @@ const PaymentPage = () => {
                 pickupTime: pickupDateTime.toISOString(),
                 dropoffPlace: locations.find(l => l.value === dropoffLocation)?.label || dropoffLocation,
                 dropoffTime: dropoffDateTime.toISOString(),
-                bookingFee: 5000, //For testing purpose - should use as 15% cut in the future
+                bookingFee: 15, //For testing purpose - should use as 15% cut in the future
                 carRentPrice: typeof carData.carPrice === 'number' ? carData.carPrice : parseFloat(carData.carPrice) || 0,
                 rentime: rentalDays,
                 rentType: "Daily Rental"
@@ -217,9 +217,46 @@ const PaymentPage = () => {
             console.log('  - Success URL:', `${window.location.origin}/payment-success`);
             console.log('  - Cancel URL:', `${window.location.origin}/payment-cancel`);
             
+            // Extract payment URL and bookingId from response
+            // Response structure: { booking: { id: "...", ... }, payment: "https://..." }
+            let paymentUrl = '';
+            let bookingId = null;
+            
+            if (typeof response === 'string') {
+                paymentUrl = response;
+            } else if (response && typeof response === 'object') {
+                // Extract bookingId from response.booking.id
+                bookingId = response.booking?.id || response.bookingId || response.id || null;
+                // Extract payment URL from response.payment
+                paymentUrl = response.payment || response.paymentUrl || response.checkoutUrl || response.url || '';
+            }
+            
+            console.log('PaymentPage - Extracted bookingId:', bookingId);
+            console.log('PaymentPage - Extracted paymentUrl:', paymentUrl);
+            
+            // Store booking data to localStorage after successful API call
+            const bookingDataToStore = {
+                ...bookingData,
+                bookingId: bookingId, // Store the bookingId for later use
+                carName: carData.carName,
+                carImage: carData.carImage,
+                carRating: carData.carRating,
+                carReviewCount: carData.carReviewCount,
+                billingInfo: {
+                    name: billingInfo.name,
+                    email: user?.email || '[email]',
+                    phoneNumber: billingInfo.phoneNumber,
+                    address: billingInfo.address,
+                    townCity: billingInfo.townCity
+                },
+                createdAt: new Date().toISOString()
+            };
+            localStorage.setItem('pendingBooking', JSON.stringify(bookingDataToStore));
+            console.log('PaymentPage - Booking data stored to localStorage with bookingId:', bookingId);
+            
             // Redirect to payment URL
-            if (response && typeof response === 'string' && response.startsWith('http')) {
-                window.location.href = response;
+            if (paymentUrl && paymentUrl.startsWith('http')) {
+                window.location.href = paymentUrl;
             } else {
                 setError('Invalid payment URL received');
             }
@@ -834,11 +871,11 @@ const PaymentPage = () => {
                             <div className="space-y-3 mb-6">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-600">Subtotal</span>
-                                    <span className="font-medium">${typeof carData.carPrice === 'number' ? carData.carPrice.toFixed(2) : (parseFloat(carData.carPrice) || 0).toFixed(2)}</span>
+                                    <span className="font-medium">{(typeof carData.carPrice === 'number' ? carData.carPrice : parseFloat(carData.carPrice) || 0).toLocaleString('vi-VN')} đ</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-600">Tax</span>
-                                    <span className="font-medium">$0</span>
+                                    <span className="font-medium">0 đ</span>
                                 </div>
                             </div>
 
@@ -860,7 +897,7 @@ const PaymentPage = () => {
                                     <span className="text-lg font-bold text-gray-900">Total Rental Price</span>
                                     <p className="text-xs text-gray-500">Overall price and includes rental discount</p>
                                 </div>
-                                <span className="text-2xl font-bold text-gray-900">${typeof carData.carPrice === 'number' ? carData.carPrice.toFixed(2) : (parseFloat(carData.carPrice) || 0).toFixed(2)}</span>
+                                <span className="text-2xl font-bold text-gray-900">{(typeof carData.carPrice === 'number' ? carData.carPrice : parseFloat(carData.carPrice) || 0).toLocaleString('vi-VN')} đ</span>
                             </div>
                         </div>
                     </div>

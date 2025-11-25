@@ -422,6 +422,7 @@ const resources = {
       update: "Update",
       close: "Close",
       more: "more",
+      allEvents: "All Events",
 
       // Profile - Update Email Dialog
       updateEmail: "Update Email",
@@ -628,7 +629,7 @@ const resources = {
 
       // Payment Success
       paymentSuccessful: "Payment Successful!",
-      paymentSuccessMessage: "Your payment has been processed successfully. You will receive a confirmation email shortly.",
+      paymentSuccessMessage: "Your payment has been processed successfully.",
       transactionId: "Transaction ID",
       paymentDetails: "Payment Details",
       amountPaidBookingFee: "Amount Paid (Booking Fee)",
@@ -1076,6 +1077,7 @@ const resources = {
       update: "Cập nhật",
       close: "Đóng",
       more: "thêm",
+      allEvents: "Tất Cả Sự Kiện",
 
       // Profile - Update Email Dialog
       updateEmail: "Cập nhật Email",
@@ -1282,7 +1284,7 @@ const resources = {
 
       // Payment Success
       paymentSuccessful: "Thanh Toán Thành Công!",
-      paymentSuccessMessage: "Thanh toán của bạn đã được xử lý thành công. Bạn sẽ nhận được email xác nhận trong thời gian ngắn.",
+      paymentSuccessMessage: "Thanh toán của bạn đã được xử lý thành công.",
       transactionId: "Mã Giao Dịch",
       paymentDetails: "Chi Tiết Thanh Toán",
       amountPaidBookingFee: "Số Tiền Đã Thanh Toán (Phí Đặt Cọc)",

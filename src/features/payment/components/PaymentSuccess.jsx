@@ -180,10 +180,10 @@ const PaymentSuccess = () => {
             {t('paymentSuccessMessage')}
           </p>
           
-          <div className="inline-block bg-green-50 border border-green-200 rounded-lg px-6 py-3">
+          {/* <div className="inline-block bg-green-50 border border-green-200 rounded-lg px-6 py-3">
             <p className="text-sm text-gray-600">{t('transactionId')}</p>
             <p className="text-lg font-bold text-gray-900">{paymentDetails.transactionId}</p>
-          </div>
+          </div> */}
         </div>
 
         {/* Payment Details */}
@@ -194,14 +194,14 @@ const PaymentSuccess = () => {
             <div>
               <p className="text-sm text-gray-500 mb-1">{t('amountPaidBookingFee')}</p>
               <p className="text-2xl font-bold text-gray-900">{paymentDetails.amount.toLocaleString('vi-VN')} đ</p>
-              {paymentDetails.rentalDays && paymentDetails.carRentPrice && (
+              {/* {paymentDetails.rentalDays && paymentDetails.carRentPrice && (
                 <p className="text-xs text-gray-500 mt-1">
                   {paymentDetails.bookingFee}% {t('of')} {paymentDetails.subtotal.toLocaleString('vi-VN')} đ ({paymentDetails.carRentPrice.toLocaleString('vi-VN')} đ/{t('day')} × {paymentDetails.rentalDays} {t('day')}{paymentDetails.rentalDays > 1 ? 's' : ''})
                 </p>
-              )}
-              <p className="text-xs text-gray-600 mt-2 font-medium">
+              )} */}
+              {/* <p className="text-xs text-gray-600 mt-2 font-medium">
                 {t('remaining')}: {(paymentDetails.subtotal).toLocaleString('vi-VN')} đ ({t('payAtDropoff')})
-              </p>
+              </p> */}
             </div>
             <div>
               <p className="text-sm text-gray-500 mb-1">{t('paymentMethod')}</p>
@@ -341,7 +341,7 @@ const PaymentSuccess = () => {
         {/* Additional Info */}
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
-            {t('needHelp')} <a href="mailto:support@example.com" className="text-blue-600 hover:underline">support@example.com</a>
+            {t('needHelp')} <a href="mailto:support@example.com" className="text-blue-600 hover:underline">support@morrent.com</a>
           </p>
         </div>
       </div>

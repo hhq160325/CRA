@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { axiosInstance } from '../../../shared/utils/axiosInstance';
+import { BOOKING_ENDPOINTS, CAR_ENDPOINTS, USER_ENDPOINTS, INVOICE_ENDPOINTS, PAYMENT_ENDPOINTS } from '../../../config/api';
 
 const RentalHistory = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -7,9 +9,119 @@ const RentalHistory = () => {
   const [dateFilter, setDateFilter] = useState('all');
   const [selectedRental, setSelectedRental] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [rentalHistory, setRentalHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock data for rental history
-  const rentalHistory = [
+  useEffect(() => {
+    fetchRentalHistory();
+  }, []);
+
+  const fetchRentalHistory = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch all bookings
+      const bookingsResponse = await axiosInstance.get(BOOKING_ENDPOINTS.GET_ALL_BOOKINGS);
+      const bookings = bookingsResponse.data || [];
+
+      // Fetch all cars, users, and payments to enrich booking data
+      const [carsResponse, usersResponse, paymentsResponse] = await Promise.all([
+        axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS),
+        axiosInstance.get(USER_ENDPOINTS.GET_ALL_USERS),
+        axiosInstance.get(PAYMENT_ENDPOINTS.GET_ALL_PAYMENTS)
+      ]);
+
+      const cars = carsResponse.data || [];
+      const users = usersResponse.data || [];
+      const payments = paymentsResponse.data || [];
+
+      // Create lookup maps
+      const carMap = cars.reduce((acc, car) => {
+        acc[car.id] = car;
+        return acc;
+      }, {});
+
+      const userMap = users.reduce((acc, user) => {
+        acc[user.id] = user;
+        return acc;
+      }, {});
+
+      // Create payment lookup map by invoiceId
+      const paymentMap = payments.reduce((acc, payment) => {
+        acc[payment.invoiceId] = payment;
+        return acc;
+      }, {});
+
+      // Fetch invoice details for each booking
+      const enrichedBookings = await Promise.all(
+        bookings.map(async (booking, index) => {
+          const car = carMap[booking.carId] || {};
+          const user = userMap[booking.userId] || {};
+          const payment = paymentMap[booking.invoiceId] || null;
+          
+          let invoiceData = null;
+          if (booking.invoiceId) {
+            try {
+              const invoiceResponse = await axiosInstance.get(INVOICE_ENDPOINTS.GET_INVOICE_BY_ID(booking.invoiceId));
+              invoiceData = invoiceResponse.data;
+            } catch (err) {
+              console.error(`Error fetching invoice ${booking.invoiceId}:`, err);
+            }
+          }
+
+          // Calculate duration in days
+          const pickupDate = new Date(booking.pickupTime);
+          const dropoffDate = new Date(booking.dropoffTime);
+          const duration = Math.ceil((dropoffDate - pickupDate) / (1000 * 60 * 60 * 24));
+
+          return {
+            id: index + 1,
+            bookingId: booking.id.substring(0, 8).toUpperCase(),
+            carName: car.model || 'Unknown Car',
+            carId: booking.carId,
+            licensePlate: car.licensePlate || 'N/A',
+            customer: user.fullName || 'Unknown Customer',
+            customerEmail: user.email || 'N/A',
+            customerPhone: user.phoneNumber || 'N/A',
+            startDate: pickupDate.toISOString().split('T')[0],
+            endDate: dropoffDate.toISOString().split('T')[0],
+            pickupDate: pickupDate.toLocaleString(),
+            returnDate: dropoffDate.toLocaleString(),
+            duration: duration,
+            totalAmount: invoiceData?.totalAmount || 0,
+            dailyRate: invoiceData?.totalAmount ? Math.round(invoiceData.totalAmount / duration) : 0,
+            paymentStatus: payment?.status?.toLowerCase() || 'pending',
+            status: booking.status.toLowerCase(),
+            // Payment details from PayOS
+            paidAmount: payment?.paidAmount || 0,
+            paymentMethod: payment?.paymentMethod || 'N/A',
+            paymentItem: payment?.item || 'N/A',
+            invoiceId: booking.invoiceId,
+            mileageAtPickup: 0,
+            mileageAtReturn: 0,
+            mileageUsed: 0,
+            conditionAtPickup: 'N/A',
+            conditionAtReturn: 'N/A',
+            notes: '',
+            rating: 0,
+            feedback: ''
+          };
+        })
+      );
+
+      setRentalHistory(enrichedBookings);
+    } catch (err) {
+      console.error('Error fetching rental history:', err);
+      setError('Failed to load rental history. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Mock data for rental history (keeping as fallback)
+  const mockRentalHistory = [
     {
       id: 1,
       bookingId: 'BK001',
@@ -222,7 +334,8 @@ const RentalHistory = () => {
 
   const getPaymentBadge = (status) => {
     const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
-    switch (status) {
+    const normalizedStatus = status?.toLowerCase();
+    switch (normalizedStatus) {
       case 'paid':
         return `${baseClasses} bg-green-100 text-green-800`;
       case 'pending':
@@ -230,6 +343,7 @@ const RentalHistory = () => {
       case 'refunded':
         return `${baseClasses} bg-blue-100 text-blue-800`;
       case 'failed':
+      case 'cancelled':
         return `${baseClasses} bg-red-100 text-red-800`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800`;
@@ -301,6 +415,36 @@ const RentalHistory = () => {
   const totalRentals = rentalHistory.length;
   const averageRating = (rentalHistory.reduce((sum, rental) => sum + rental.rating, 0) / totalRentals).toFixed(1);
   const totalMileage = rentalHistory.reduce((sum, rental) => sum + rental.mileageUsed, 0);
+
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-full bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading rental history...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 min-h-full bg-gray-50">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <svg className="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-red-800 font-medium">{error}</p>
+          <button
+            onClick={fetchRentalHistory}
+            className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 space-y-6 min-h-full bg-gray-50">
@@ -442,14 +586,20 @@ const RentalHistory = () => {
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rental Period</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Duration</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Amount</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mileage</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rating</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Payment Status</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Status</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredRentals.map((rental) => (
+              {filteredRentals.length === 0 ? (
+                <tr>
+                  <td colSpan="9" className="py-8 text-center text-gray-500">
+                    No rental history found
+                  </td>
+                </tr>
+              ) : (
+                filteredRentals.map((rental) => (
                 <tr key={rental.id} className="hover:bg-gray-50">
                   <td className="py-4 px-6">
                     <div className="font-medium text-gray-900 text-sm">{rental.bookingId}</div>
@@ -474,24 +624,14 @@ const RentalHistory = () => {
                     <div className="text-xs text-gray-500">${rental.dailyRate}/day</div>
                   </td>
                   <td className="py-4 px-6">
-                    <div className="font-medium text-gray-900 text-sm">${rental.totalAmount}</div>
+                    <div className="font-medium text-gray-900 text-sm">${rental.totalAmount.toLocaleString()}</div>
+                    <div className="text-xs text-gray-500">Paid: ${rental.paidAmount.toLocaleString()}</div>
+                  </td>
+                  <td className="py-4 px-6">
                     <span className={getPaymentBadge(rental.paymentStatus)}>
                       {rental.paymentStatus}
                     </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="text-sm text-gray-900">{rental.mileageUsed} km</div>
-                    <div className="text-xs text-gray-500">
-                      {rental.mileageAtPickup.toLocaleString()} → {rental.mileageAtReturn.toLocaleString()}
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center space-x-1">
-                      <span className="text-sm font-medium text-gray-900">{rental.rating}</span>
-                      <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                      </svg>
-                    </div>
+                    <div className="text-xs text-gray-500 mt-1">{rental.paymentMethod}</div>
                   </td>
                   <td className="py-4 px-6">
                     <span className={getStatusBadge(rental.status)}>
@@ -507,7 +647,8 @@ const RentalHistory = () => {
                     </button>
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -610,19 +751,42 @@ const RentalHistory = () => {
               {/* Financial Info */}
               <div className="bg-green-50 rounded-lg p-4">
                 <h3 className="font-semibold text-gray-900 mb-3">Financial Information</h3>
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <p className="text-gray-600">Total Amount</p>
-                    <p className="text-xl font-bold text-green-600">${selectedRental.totalAmount}</p>
+                <div className="grid grid-cols-2 gap-6 text-sm">
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-gray-600">Total Amount</p>
+                      <p className="text-xl font-bold text-green-600">${selectedRental.totalAmount.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-600">Paid Amount</p>
+                      <p className="text-lg font-semibold text-green-700">${selectedRental.paidAmount.toLocaleString()}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-gray-600">Payment Status</p>
-                    <span className={getPaymentBadge(selectedRental.paymentStatus)}>
-                      {selectedRental.paymentStatus}
-                    </span>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-gray-600">Payment Status</p>
+                      <span className={getPaymentBadge(selectedRental.paymentStatus)}>
+                        {selectedRental.paymentStatus}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-gray-600">Payment Method</p>
+                      <p className="font-medium text-gray-900">{selectedRental.paymentMethod}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-600">Payment Item</p>
+                      <p className="font-medium text-gray-900">{selectedRental.paymentItem}</p>
+                    </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Booking Status */}
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-3">Booking Status</h3>
+                <div className="flex items-center space-x-4">
                   <div>
-                    <p className="text-gray-600">Status</p>
+                    <p className="text-gray-600 text-sm">Status</p>
                     <span className={getStatusBadge(selectedRental.status)}>
                       {selectedRental.status}
                     </span>
@@ -630,78 +794,14 @@ const RentalHistory = () => {
                 </div>
               </div>
 
-              {/* Mileage Info */}
-              <div className="bg-purple-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Mileage Information</h3>
-                <div className="grid grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <p className="text-gray-600">Mileage at Pickup</p>
-                    <p className="font-medium text-gray-900">{selectedRental.mileageAtPickup.toLocaleString()} km</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Mileage at Return</p>
-                    <p className="font-medium text-gray-900">{selectedRental.mileageAtReturn.toLocaleString()} km</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Mileage Used</p>
-                    <p className="font-medium text-gray-900">{selectedRental.mileageUsed} km</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Avg. Daily Mileage</p>
-                    <p className="font-medium text-gray-900">{(selectedRental.mileageUsed / selectedRental.duration).toFixed(1)} km/day</p>
-                  </div>
+              {/* Additional Information */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-3">Additional Information</h3>
+                <div className="text-sm text-gray-600">
+                  <p>Booking created: {new Date(selectedRental.pickupDate).toLocaleDateString()}</p>
+                  <p className="mt-2 text-gray-500 italic">Note: Mileage, condition, and rating data will be available after the rental is completed.</p>
                 </div>
               </div>
-
-              {/* Condition & Rating */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h3 className="font-semibold text-gray-900 mb-3">Car Condition</h3>
-                  <div className="space-y-2 text-sm">
-                    <div>
-                      <p className="text-gray-600">At Pickup</p>
-                      <span className={getConditionBadge(selectedRental.conditionAtPickup)}>
-                        {selectedRental.conditionAtPickup}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">At Return</p>
-                      <span className={getConditionBadge(selectedRental.conditionAtReturn)}>
-                        {selectedRental.conditionAtReturn}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-yellow-50 rounded-lg p-4">
-                  <h3 className="font-semibold text-gray-900 mb-3">Customer Rating & Feedback</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xl font-bold text-gray-900">{selectedRental.rating}</span>
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <svg key={i} className={`w-5 h-5 ${i < selectedRental.rating ? 'text-yellow-400' : 'text-gray-300'} fill-current`} viewBox="0 0 20 20">
-                            <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                          </svg>
-                        ))}
-                      </div>
-                    </div>
-                    {selectedRental.feedback && (
-                      <div>
-                        <p className="text-gray-600">Feedback</p>
-                        <p className="text-gray-900 italic">"{selectedRental.feedback}"</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Notes */}
-              {selectedRental.notes && (
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2">Notes</h3>
-                  <p className="text-sm text-gray-700">{selectedRental.notes}</p>
-                </div>
-              )}
             </div>
           </div>
         </div>

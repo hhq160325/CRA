@@ -30,6 +30,9 @@ const HomePage = () => {
     dispatch(fetchAllCars());
   }, [dispatch]);
 
+  // Filter out cars with Inactive status
+  const activeCars = cars.filter(car => car.status && car.status.toLowerCase() !== 'inactive');
+  
   const popularCars = [];
 
   const recommendationCars = [];
@@ -314,8 +317,8 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-              {cars.length > 0 ? (
-                cars.slice(0, 4).map((car) => (
+              {activeCars.length > 0 ? (
+                activeCars.slice(0, 4).map((car) => (
                   <CarCard key={car.id} car={car} isApiData={true} />
                 ))
               ) : (
@@ -331,8 +334,8 @@ const HomePage = () => {
         <div className="mb-6 sm:mb-8">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">{t('recommendationCar')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
-            {cars.length > 4 ? (
-              cars.slice(4, 12).map((car) => (
+            {activeCars.length > 4 ? (
+              activeCars.slice(4, 12).map((car) => (
                 <CarCard key={car.id} car={car} isApiData={true} />
               ))
             ) : (
@@ -346,7 +349,7 @@ const HomePage = () => {
             <button className="bg-blue-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium mr-2 sm:mr-4 text-sm sm:text-base">
               {t('showMoreCar')}
             </button>
-            <span className="text-sm sm:text-base text-gray-500">{cars.length > 0 ? cars.length : 120} {t('car')}</span>
+            <span className="text-sm sm:text-base text-gray-500">{activeCars.length > 0 ? activeCars.length : 120} {t('car')}</span>
           </div>
         </div>
       </div>

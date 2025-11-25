@@ -1,99 +1,102 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { axiosInstance } from '../../../shared/utils/axiosInstance';
+import { CAR_ENDPOINTS, BOOKING_ENDPOINTS } from '../../../config/api';
 
 const UsageTracking = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('month');
   const [selectedCar, setSelectedCar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [usageData, setUsageData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock data for usage tracking
-  const usageData = [
-    {
-      id: 1,
-      carId: 'C001',
-      carName: 'Tesla Model 3',
-      carModel: '2022',
-      licensePlate: 'ABC-1234',
-      totalMileage: 18500,
-      rentalMileage: 14200,
-      personalMileage: 4300,
-      totalRentals: 45,
-      totalDaysRented: 120,
-      availabilityRate: 75,
-      utilizationRate: 65,
-      averageDailyMileage: 154,
-      lastRentalDate: '2024-10-06',
-      currentStatus: 'available'
-    },
-    {
-      id: 2,
-      carId: 'C002',
-      carName: 'BMW X5',
-      carModel: '2021',
-      licensePlate: 'XYZ-5678',
-      totalMileage: 28750,
-      rentalMileage: 22100,
-      personalMileage: 6650,
-      totalRentals: 62,
-      totalDaysRented: 185,
-      availabilityRate: 68,
-      utilizationRate: 58,
-      averageDailyMileage: 155,
-      lastRentalDate: '2024-10-05',
-      currentStatus: 'rented'
-    },
-    {
-      id: 3,
-      carId: 'C003',
-      carName: 'Honda Civic',
-      carModel: '2023',
-      licensePlate: 'DEF-9012',
-      totalMileage: 9200,
-      rentalMileage: 6800,
-      personalMileage: 2400,
-      totalRentals: 28,
-      totalDaysRented: 85,
-      availabilityRate: 82,
-      utilizationRate: 72,
-      averageDailyMileage: 108,
-      lastRentalDate: '2024-10-04',
-      currentStatus: 'available'
-    },
-    {
-      id: 4,
-      carId: 'C004',
-      carName: 'Mercedes C-Class',
-      carModel: '2022',
-      licensePlate: 'GHI-3456',
-      totalMileage: 31200,
-      rentalMileage: 24500,
-      personalMileage: 6700,
-      totalRentals: 78,
-      totalDaysRented: 210,
-      availabilityRate: 70,
-      utilizationRate: 60,
-      averageDailyMileage: 149,
-      lastRentalDate: '2024-10-07',
-      currentStatus: 'maintenance'
-    },
-    {
-      id: 5,
-      carId: 'C005',
-      carName: 'Toyota Camry',
-      carModel: '2023',
-      licensePlate: 'JKL-7890',
-      totalMileage: 14800,
-      rentalMileage: 11200,
-      personalMileage: 3600,
-      totalRentals: 35,
-      totalDaysRented: 105,
-      availabilityRate: 80,
-      utilizationRate: 70,
-      averageDailyMileage: 141,
-      lastRentalDate: '2024-10-03',
-      currentStatus: 'available'
+  // Helper function to fetch bookings for a car
+  const fetchCarBookings = async (carId) => {
+    try {
+      const response = await axiosInstance.get(BOOKING_ENDPOINTS.GET_CAR_BOOKINGS(carId));
+      return response.data || [];
+    } catch (error) {
+      console.error(`Error fetching bookings for car ${carId}:`, error);
+      return [];
     }
-  ];
+  };
+
+  // Helper function to calculate days between two dates
+  const calculateDays = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  // Fetch cars and their bookings from API
+  useEffect(() => {
+    const fetchCarsWithBookings = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS);
+        const cars = response.data || [];
+        
+        // Fetch bookings for each car in parallel
+        const carsWithBookings = await Promise.all(
+          cars.map(async (car) => {
+            const bookings = await fetchCarBookings(car.id);
+            
+            // Calculate rental statistics
+            const totalRentals = bookings.length;
+            const totalDaysRented = bookings.reduce((sum, booking) => {
+              if (booking.pickupTime && booking.dropoffTime) {
+                return sum + calculateDays(booking.pickupTime, booking.dropoffTime);
+              }
+              return sum;
+            }, 0);
+            
+            // Find last rental date
+            const sortedBookings = bookings
+              .filter(b => b.pickupTime)
+              .sort((a, b) => new Date(b.pickupTime) - new Date(a.pickupTime));
+            const lastRentalDate = sortedBookings.length > 0 
+              ? new Date(sortedBookings[0].pickupTime).toLocaleDateString()
+              : 'N/A';
+            
+            return {
+              id: car.id,
+              carId: car.id,
+              carName: `${car.manufacturer || ''} ${car.model || ''}`.trim(),
+              carModel: car.yearofManufacture?.toString() || 'N/A',
+              licensePlate: car.licensePlate || 'N/A',
+              totalMileage: 0, // Not available in API
+              rentalMileage: 0, // Not available in API
+              personalMileage: 0, // Not available in API
+              totalRentals,
+              totalDaysRented,
+              availabilityRate: 0, // Would need more data to calculate
+              utilizationRate: 0, // Would need more data to calculate
+              averageDailyMileage: 0, // Not available in API
+              lastRentalDate,
+              currentStatus: car.status?.toLowerCase() || 'unknown',
+              seats: car.seats,
+              transmission: car.transmission,
+              fuelType: car.fuelType,
+              bookings, // Store bookings for modal
+            };
+          })
+        );
+        
+        setUsageData(carsWithBookings);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching cars:', err);
+        setError('Failed to load car data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCarsWithBookings();
+  }, []);
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
@@ -124,7 +127,7 @@ const UsageTracking = () => {
   const filteredUsage = usageData.filter(car => {
     const matchesSearch = car.carName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       car.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      car.carId.toLowerCase().includes(searchTerm.toLowerCase());
+      car.carId.toString().toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
@@ -132,9 +135,26 @@ const UsageTracking = () => {
   const totalCars = usageData.length;
   const totalMileage = usageData.reduce((sum, car) => sum + car.totalMileage, 0);
   const totalRentals = usageData.reduce((sum, car) => sum + car.totalRentals, 0);
-  const averageUtilization = usageData.reduce((sum, car) => sum + car.utilizationRate, 0) / totalCars;
+  const averageUtilization = totalCars > 0 ? usageData.reduce((sum, car) => sum + car.utilizationRate, 0) / totalCars : 0;
+
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-full">
+        <div className="text-gray-500">Loading car data...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-full">
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
+  }
 
   return (
+    <>
     <div className="p-8 space-y-6 min-h-full bg-gray-50">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -248,87 +268,95 @@ const UsageTracking = () => {
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50">
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Car Information</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Total Mileage</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rental vs Personal</th>
+                {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Total Mileage</th> */}
+                {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rental vs Personal</th> */}
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rentals</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Days Rented</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Utilization</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Avg. Daily Mileage</th>
+                {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Utilization</th> */}
+                {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Avg. Daily Mileage</th> */}
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Status</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredUsage.map((car) => {
-                const rentalPercentage = (car.rentalMileage / car.totalMileage * 100).toFixed(1);
-                const personalPercentage = (car.personalMileage / car.totalMileage * 100).toFixed(1);
-                
-                return (
-                  <tr key={car.id} className="hover:bg-gray-50">
-                    <td className="py-4 px-6">
-                      <div className="font-medium text-gray-900 text-sm">{car.carName}</div>
-                      <div className="text-xs text-gray-500">{car.carModel} • {car.licensePlate}</div>
-                      <div className="text-xs text-gray-400">{car.carId}</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="text-sm font-medium text-gray-900">{car.totalMileage.toLocaleString()} km</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="space-y-1">
+              {filteredUsage.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="py-8 text-center text-gray-500">
+                    No cars found
+                  </td>
+                </tr>
+              ) : (
+                filteredUsage.map((car) => {
+                  // const rentalPercentage = (car.rentalMileage / car.totalMileage * 100).toFixed(1);
+                  // const personalPercentage = (car.personalMileage / car.totalMileage * 100).toFixed(1);
+                  
+                  return (
+                    <tr key={car.id} className="hover:bg-gray-50">
+                      <td className="py-4 px-6">
+                        <div className="font-medium text-gray-900 text-sm">{car.carName}</div>
+                        <div className="text-xs text-gray-500">{car.carModel} • {car.licensePlate}</div>
+                        <div className="text-xs text-gray-400">{car.seats} seats • {car.transmission} • {car.fuelType}</div>
+                      </td>
+                      {/* <td className="py-4 px-6">
+                        <div className="text-sm font-medium text-gray-900">{car.totalMileage.toLocaleString()} km</div>
+                      </td> */}
+                      {/* <td className="py-4 px-6">
+                        <div className="space-y-1">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-24 bg-gray-200 rounded-full h-2">
+                              <div 
+                                className="bg-blue-600 h-2 rounded-full" 
+                                style={{ width: `${rentalPercentage}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-xs text-gray-600">{rentalPercentage}%</span>
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Rental: {car.rentalMileage.toLocaleString()} km | Personal: {car.personalMileage.toLocaleString()} km
+                          </div>
+                        </div>
+                      </td> */}
+                      <td className="py-4 px-6">
+                        <div className="text-sm text-gray-900">{car.totalRentals}</div>
+                        <div className="text-xs text-gray-500">Total bookings</div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="text-sm text-gray-900">{car.totalDaysRented}</div>
+                        <div className="text-xs text-gray-500">days</div>
+                      </td>
+                      {/* <td className="py-4 px-6">
                         <div className="flex items-center space-x-2">
                           <div className="w-24 bg-gray-200 rounded-full h-2">
                             <div 
-                              className="bg-blue-600 h-2 rounded-full" 
-                              style={{ width: `${rentalPercentage}%` }}
+                              className="bg-green-600 h-2 rounded-full" 
+                              style={{ width: `${car.utilizationRate}%` }}
                             ></div>
                           </div>
-                          <span className="text-xs text-gray-600">{rentalPercentage}%</span>
+                          <span className="text-sm font-medium text-gray-900">{car.utilizationRate}%</span>
                         </div>
-                        <div className="text-xs text-gray-500">
-                          Rental: {car.rentalMileage.toLocaleString()} km | Personal: {car.personalMileage.toLocaleString()} km
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="text-sm text-gray-900">{car.totalRentals}</div>
-                      <div className="text-xs text-gray-500">Total bookings</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="text-sm text-gray-900">{car.totalDaysRented}</div>
-                      <div className="text-xs text-gray-500">days</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-green-600 h-2 rounded-full" 
-                            style={{ width: `${car.utilizationRate}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm font-medium text-gray-900">{car.utilizationRate}%</span>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">Availability: {car.availabilityRate}%</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="text-sm text-gray-900">{car.averageDailyMileage} km</div>
-                      <div className="text-xs text-gray-500">per day</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={getStatusBadge(car.currentStatus)}>
-                        {car.currentStatus}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <button
-                        onClick={() => openModal(car)}
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                      >
-                        View Details
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                        <div className="text-xs text-gray-500 mt-1">Availability: {car.availabilityRate}%</div>
+                      </td> */}
+                      {/* <td className="py-4 px-6">
+                        <div className="text-sm text-gray-900">{car.averageDailyMileage} km</div>
+                        <div className="text-xs text-gray-500">per day</div>
+                      </td> */}
+                      <td className="py-4 px-6">
+                        <span className={getStatusBadge(car.currentStatus)}>
+                          {car.currentStatus}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <button
+                          onClick={() => openModal(car)}
+                          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                        >
+                          View Details
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
@@ -346,10 +374,11 @@ const UsageTracking = () => {
           </div>
         </div>
       </div>
+    </div>
 
       {/* Modal for detailed usage view */}
       {isModalOpen && selectedCar && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
@@ -471,7 +500,7 @@ const UsageTracking = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

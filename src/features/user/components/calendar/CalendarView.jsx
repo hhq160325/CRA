@@ -9,6 +9,7 @@ import WeekView from './WeekView';
 import DayView from './DayView';
 import AgendaView from './AgendaView';
 import EventModal from './EventModal';
+import DayEventsModal from './DayEventsModal';
 
 const CalendarView = () => {
   const dispatch = useDispatch();
@@ -117,6 +118,7 @@ const CalendarView = () => {
       </div>
 
       {isEventModalOpen && <EventModal />}
+      <DayEventsModal />
     </div>
   );
 };

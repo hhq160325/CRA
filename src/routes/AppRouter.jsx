@@ -39,6 +39,7 @@ const AppRouter = () => {
       <Route path="/profile" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/profile/favourite-car" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/profile/rental-history" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
+      <Route path="/profile/payment-history" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/profile/inbox" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/profile/calendar" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/profile/reimburse" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />

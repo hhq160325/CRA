@@ -1,7 +1,8 @@
 // Central API configuration
 //https://localhost:7269/api
 export const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_URL || "https://localhost:7269/api",
+  BASE_URL: process.env.REACT_APP_API_URL || "https://localhost:7184/api",
+  ALTER_URL:process.env.REACT_APP_API_ALTER_URL || "https://localhost:7184", //For PayOSAllPayments
   TIMEOUT: 10000,
   HEADERS: {
     "Content-Type": "application/json",
@@ -70,9 +71,42 @@ export const BOOKING_ENDPOINTS = {
   UPDATE_BOOKING: `${API_CONFIG.BASE_URL}/Booking/UpdateBooking`,
   GET_ALL_BOOKINGS: `${API_CONFIG.BASE_URL}/Booking/GetAllBookings`,
   GET_CUSTOMER_BOOKINGS: (cusId) => `${API_CONFIG.BASE_URL}/Booking/GetBookingsFromCustomer/${cusId}`,
+  GET_CAR_BOOKINGS: (carId) => `${API_CONFIG.BASE_URL}/Booking/GetBookingsForCar/${carId}`,
 };
 
 export const BOOKING_API_CONFIG = {
+  timeout: API_CONFIG.TIMEOUT,
+  headers: API_CONFIG.HEADERS,
+};
+
+// Schedule endpoints
+export const SCHEDULE_ENDPOINTS = {
+  GET_USER_SCHEDULES: (userId) => `${API_CONFIG.BASE_URL}/Schedule/user?userId=${userId}`,
+};
+
+export const SCHEDULE_API_CONFIG = {
+  timeout: API_CONFIG.TIMEOUT,
+  headers: API_CONFIG.HEADERS,
+};
+
+// Invoice endpoints
+export const INVOICE_ENDPOINTS = {
+  GET_INVOICE_BY_ID: (invoiceId) => `${API_CONFIG.BASE_URL}/Invoice/${invoiceId}`,
+};
+
+export const INVOICE_API_CONFIG = {
+  timeout: API_CONFIG.TIMEOUT,
+  headers: API_CONFIG.HEADERS,
+};
+
+// Payment endpoints
+export const PAYMENT_ENDPOINTS = {
+  GET_ALL_PAYMENTS: `${API_CONFIG.ALTER_URL}/PayOS/AllPayments`,
+  GET_PAYMENT_BY_ID: (paymentId) => `${API_CONFIG.ALTER_URL}/Payment/GetPaymentById/${paymentId}`,
+  CREATE_PAYMENT: `${API_CONFIG.ALTER_URL}/Payment/CreatePayment`,
+};
+
+export const PAYMENT_API_CONFIG = {
   timeout: API_CONFIG.TIMEOUT,
   headers: API_CONFIG.HEADERS,
 };

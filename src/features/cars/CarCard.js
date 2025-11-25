@@ -80,8 +80,10 @@ const CarCard = ({ car, isApiData = false }) => {
 
     // Helper function to translate transmission
     const getTransmissionText = (transmission) => {
-        if (transmission.toLowerCase() === 'manual') return t('manual');
-        if (transmission.toLowerCase() === 'automatic') return t('automatic');
+        if (!transmission) return '';
+        const lowerTransmission = transmission.toLowerCase();
+        if (lowerTransmission === 'manual') return t('manual');
+        if (lowerTransmission === 'automatic') return t('automatic');
         return transmission;
     };
 
@@ -103,6 +105,7 @@ const CarCard = ({ car, isApiData = false }) => {
     const carTransmission = car.transmission;
     const carSeats = isApiData ? car.seats : car.capacity;
     const carFuelType = isApiData ? car.fuelType : car.fuel;
+
     
     // Use rental rate from API if available, otherwise fallback to default
     const carPrice = rentalRate?.dailyRate || (isApiData ? 10000 : car.price);

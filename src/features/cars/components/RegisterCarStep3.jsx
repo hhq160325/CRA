@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import CarPhotoUpload from './CarPhotoUpload';
-import { registerCar } from '../carApi';
+import { registerCar, setCarRentalRate } from '../carApi';
 
 const RegisterCarStep3 = () => {
     const { t } = useTranslation();
@@ -52,6 +52,38 @@ const RegisterCarStep3 = () => {
 
             // Call the register car API
             const response = await registerCar(carData);
+            
+            // console.log('Full API response:', response);
+            // console.log('Response type:', typeof response);
+            // console.log('Response keys:', Object.keys(response || {}));
+
+            // Store the car ID to localStorage after successful registration
+            // Try different possible field names for the car ID
+            const carId = response?.id || response?.carId || response?.CarId || response?.data?.id;
+            
+            if (carId) {
+                localStorage.setItem('registeredCarId', carId);
+                console.log('Car ID stored in localStorage:', carId);
+                
+                // Set rental rate after car registration
+                const dailyPrice = step2Data.dailyPrice;
+                if (dailyPrice) {
+                    try {
+                        // Remove commas and convert to number
+                        const priceNumber = parseFloat(dailyPrice.replace(/,/g, ''));
+                        console.log('Setting rental rate with dailyPrice:', priceNumber);
+                        
+                        await setCarRentalRate(carId, priceNumber);
+                        console.log('Rental rate set successfully');
+                    } catch (rentalRateError) {
+                        console.error('Error setting rental rate:', rentalRateError);
+                        // Don't fail the whole registration if rental rate fails
+                        // Just log the error
+                    }
+                }
+            } else {
+                console.warn('No car ID found in response. Full response:', response);
+            }
 
             setUploadSuccess(true);
             
@@ -62,6 +94,7 @@ const RegisterCarStep3 = () => {
             setTimeout(() => {
                 // Navigate to success page or dashboard
                 navigate('/owner');
+
             }, 1500);
         } catch (err) {
             console.error('Registration error:', err);
@@ -127,7 +160,7 @@ const RegisterCarStep3 = () => {
 
                         {/* Success Message */}
                         {uploadSuccess && (
-                            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start">
+                            <div className="mt-4 mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start">
                                 <svg className="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                 </svg>

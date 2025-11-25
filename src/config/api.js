@@ -1,6 +1,7 @@
 // Central API configuration
+//https://localhost:7269/api
 export const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_URL || "https://selfdrivecarrentalservice-gze5gtc3dkfybtev.southeastasia-01.azurewebsites.net/api",
+  BASE_URL: process.env.REACT_APP_API_URL || "https://localhost:7269/api",
   TIMEOUT: 10000,
   HEADERS: {
     "Content-Type": "application/json",
@@ -26,6 +27,7 @@ export const AUTH_API_CONFIG = {
 // User endpoints
 export const USER_ENDPOINTS = {
   GET_USER_BY_ID: (userId) => `${API_CONFIG.BASE_URL}/User/GetUserById?userId=${userId}`,
+  GET_ALL_USERS: `${API_CONFIG.BASE_URL}/User/GetAllUsers`,
   UPDATE_USER_INFO: `${API_CONFIG.BASE_URL}/User/UpdateUserInfo`,
   PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
   UPDATE_PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
@@ -49,7 +51,10 @@ export const PARKLOT_API_CONFIG = {
 // Car endpoints
 export const CAR_ENDPOINTS = {
   REGISTER_CAR: `${API_CONFIG.BASE_URL}/Car/registerCar/carInfo`,
+  SET_RENTAL_RATE: `${API_CONFIG.BASE_URL}/Car/rentalRate`,
+  GET_RENTAL_RATE: (carId) => `${API_CONFIG.BASE_URL}/Car/rentalRate/${carId}`,
   GET_ALL_CARS: `${API_CONFIG.BASE_URL}/Car/AllCars`,
+  GET_CAR_BY_ID: (carId) => `${API_CONFIG.BASE_URL}/Car/${carId}`,
 };
 
 export const CAR_API_CONFIG = {
@@ -57,4 +62,17 @@ export const CAR_API_CONFIG = {
   headers: {
     'Content-Type': 'multipart/form-data',
   },
+};
+
+// Booking endpoints
+export const BOOKING_ENDPOINTS = {
+  CREATE_BOOKING: `${API_CONFIG.BASE_URL}/Booking/CreateBooking`,
+  UPDATE_BOOKING: `${API_CONFIG.BASE_URL}/Booking/UpdateBooking`,
+  GET_ALL_BOOKINGS: `${API_CONFIG.BASE_URL}/Booking/GetAllBookings`,
+  GET_CUSTOMER_BOOKINGS: (cusId) => `${API_CONFIG.BASE_URL}/Booking/GetBookingsFromCustomer/${cusId}`,
+};
+
+export const BOOKING_API_CONFIG = {
+  timeout: API_CONFIG.TIMEOUT,
+  headers: API_CONFIG.HEADERS,
 };

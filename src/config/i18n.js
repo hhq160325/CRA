@@ -265,6 +265,7 @@ const resources = {
       suspendCustomerWarning: "Are you sure you want to suspend",
       suspendCustomerDescription: "'s account? This will prevent them from accessing their account and listing new cars.",
       totalBookings: "Total Bookings",
+      canceledBookings: "Canceled Bookings",
       totalSpent: "Total Spent",
       lastBooking: "Last Booking",
       noBookingsYet: "No bookings yet",
@@ -359,6 +360,11 @@ const resources = {
       confirmed: "confirmed",
       approved: "approved",
       updated: "updated",
+      justNow: "Just now",
+      minutesAgo: "minutes ago",
+      hoursAgo: "hours ago",
+      daysAgo: "days ago",
+      noRecentActivities: "No recent activities",
 
       staffMenu: "STAFF MENU",
       carOwnerAccounts: "Car Owner Accounts",
@@ -366,6 +372,7 @@ const resources = {
       customerAccounts: "Customer Accounts",
       sendNotifications: "Send Notifications",
 
+      noBookingsFound: "No Booking Found",
       // Calendar Components
       month: "Month",
       week: "Week",
@@ -492,7 +499,7 @@ const resources = {
       rentDay: "Rent Day",
       paymentDate: "Payment Date",
       noPayment: "No Payment",
-
+      noRentalHistory: "No Rental History",
       // Profile - Settings Page
       security: "Security",
       securityDescription: "Manage account security and verification settings.",
@@ -572,7 +579,7 @@ const resources = {
       payments: "Payments",
       registerNewCar: "Register New Car",
       registerNewCarSection: "Register New Car",
-
+      noRentalHistory: "No Rental History",
       // Register Car Step 3 - Photo Upload
       clickToUpload: "Click to upload",
       orDragAndDrop: "or drag and drop",
@@ -612,7 +619,32 @@ const resources = {
       driverLicenseTip1: "Ensure all text on the license is clearly visible",
       driverLicenseTip2: "The license must be valid and not expired",
       driverLicenseTip3: "Both front and back may be required",
-      driverLicenseTip4: "Your information will be kept secure and confidential"
+      driverLicenseTip4: "Your information will be kept secure and confidential",
+
+      // Payment Success
+      paymentSuccessful: "Payment Successful!",
+      paymentSuccessMessage: "Your payment has been processed successfully. You will receive a confirmation email shortly.",
+      transactionId: "Transaction ID",
+      paymentDetails: "Payment Details",
+      amountPaidBookingFee: "Amount Paid (Booking Fee)",
+      remaining: "Remaining",
+      payAtDropoff: "pay at drop-off",
+      paymentMethod: "Payment Method",
+      paymentDate: "Payment Date",
+      rentalDetails: "Rental Details",
+      reviews: "Reviews",
+      dateAndTime: "Date & Time",
+      at: "at",
+      billingInformation: "Billing Information",
+      printReceipt: "Print Receipt",
+      viewRentalHistory: "View Rental History",
+      backToHome: "Back to Home",
+      needHelp: "Need help? Contact our support team at",
+
+      // Payment Cancel
+      paymentCancelled: "Payment Cancelled",
+      paymentCancelledMessage: "Your payment has been cancelled. No charges have been made to your account.",
+      tryAgain: "Try Again"
     }
   },
   vi: {
@@ -878,6 +910,7 @@ const resources = {
       suspendCustomerWarning: "Bạn có chắc chắn muốn tạm ngưng tài khoản của",
       suspendCustomerDescription: "? Điều này sẽ ngăn họ truy cập tài khoản và đặt xe mới.",
       totalBookings: "Tổng số đặt xe",
+      canceledBookings: "Đơn đặt xe đã hủy",
       totalSpent: "Tổng chi tiêu",
       lastBooking: "Đặt xe lần cuối",
       noBookingsYet: "Chưa có đặt xe",
@@ -972,6 +1005,11 @@ const resources = {
       confirmed: "đã xác nhận",
       approved: "đã phê duyệt",
       updated: "đã cập nhật",
+      justNow: "Vừa xong",
+      minutesAgo: "phút trước",
+      hoursAgo: "giờ trước",
+      daysAgo: "ngày trước",
+      noRecentActivities: "Không có hoạt động gần đây",
 
       staffMenu: "MENU NHÂN VIÊN",
       carOwnerAccounts: "Tài khoản chủ xe",
@@ -979,6 +1017,7 @@ const resources = {
       customerAccounts: "Tài khoản khách hàng",
       sendNotifications: "Gửi thông báo",
 
+      noBookingsFound: "Không có đơn đặt xe",
       // Calendar Components
       month: "Tháng",
       week: "Tuần",
@@ -1105,7 +1144,7 @@ const resources = {
       rentDay: "Ngày thuê",
       paymentDate: "Ngày thanh toán",
       noPayment: "Chưa thanh toán",
-
+      noRentalHistory: "Không có lịch sử thuê xe",
       // Profile - Settings Page
       security: "Bảo mật",
       securityDescription: "Quản lý bảo mật tài khoản và cài đặt xác minh.",
@@ -1225,7 +1264,32 @@ const resources = {
       driverLicenseTip1: "Đảm bảo tất cả văn bản trên giấy phép đều rõ ràng",
       driverLicenseTip2: "Giấy phép phải còn hiệu lực và chưa hết hạn",
       driverLicenseTip3: "Có thể yêu cầu cả mặt trước và mặt sau",
-      driverLicenseTip4: "Thông tin của bạn sẽ được bảo mật và an toàn"
+      driverLicenseTip4: "Thông tin của bạn sẽ được bảo mật và an toàn",
+
+      // Payment Success
+      paymentSuccessful: "Thanh Toán Thành Công!",
+      paymentSuccessMessage: "Thanh toán của bạn đã được xử lý thành công. Bạn sẽ nhận được email xác nhận trong thời gian ngắn.",
+      transactionId: "Mã Giao Dịch",
+      paymentDetails: "Chi Tiết Thanh Toán",
+      amountPaidBookingFee: "Số Tiền Đã Thanh Toán (Phí Đặt Cọc)",
+      remaining: "Còn lại",
+      payAtDropoff: "thanh toán khi trả xe",
+      paymentMethod: "Phương Thức Thanh Toán",
+      paymentDate: "Ngày Thanh Toán",
+      rentalDetails: "Chi Tiết Thuê Xe",
+      reviews: "Đánh giá",
+      dateAndTime: "Ngày & Giờ",
+      at: "lúc",
+      billingInformation: "Thông Tin Thanh Toán",
+      printReceipt: "In Hóa Đơn",
+      viewRentalHistory: "Xem Lịch Sử Thuê Xe",
+      backToHome: "Về Trang Chủ",
+      needHelp: "Cần trợ giúp? Liên hệ đội ngũ hỗ trợ của chúng tôi tại",
+
+      // Payment Cancel
+      paymentCancelled: "Thanh Toán Đã Hủy",
+      paymentCancelledMessage: "Thanh toán của bạn đã bị hủy. Không có khoản phí nào được tính vào tài khoản của bạn.",
+      tryAgain: "Thử Lại"
     }
   }
 };

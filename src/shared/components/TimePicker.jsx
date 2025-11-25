@@ -29,7 +29,7 @@ const TimePicker = ({ selectedTime, onTimeSelect, onClose, minTime }) => {
       return null;
     }
 
-    const [hours, minutes] = cleaned.split(':').map(Number);
+    const [hours] = cleaned.split(':').map(Number);
 
     // Validate hours (01-12)
     if (hours < 1 || hours > 12) {
@@ -74,27 +74,35 @@ const TimePicker = ({ selectedTime, onTimeSelect, onClose, minTime }) => {
     const validated = validateTime(timeInput);
     if (!validated) return false;
 
-    // Check if time is after minTime
+    // Check if time is after minTime (but don't set error here to avoid re-render loop)
     if (minTime) {
-      const [minTimeStr, minPeriod] = minTime.split(' ');
-      const [minH, minM] = minTimeStr.split(':').map(Number);
-      const [currentH, currentM] = timeInput.split(':').map(Number);
+      const minTimeParts = minTime.split(' ');
+      if (minTimeParts.length === 2) {
+        const [minTimeStr, minPeriod] = minTimeParts;
+        const minTimeSplit = minTimeStr.split(':');
+        if (minTimeSplit.length === 2) {
+          const [minH, minM] = minTimeSplit.map(Number);
+          const currentTimeSplit = timeInput.split(':');
+          if (currentTimeSplit.length === 2) {
+            const [currentH, currentM] = currentTimeSplit.map(Number);
 
-      // Convert to 24-hour for comparison
-      let minHour24 = minH;
-      if (minPeriod === 'PM' && minH !== 12) minHour24 += 12;
-      if (minPeriod === 'AM' && minH === 12) minHour24 = 0;
+            // Convert to 24-hour for comparison
+            let minHour24 = minH;
+            if (minPeriod === 'PM' && minH !== 12) minHour24 += 12;
+            if (minPeriod === 'AM' && minH === 12) minHour24 = 0;
 
-      let currentHour24 = currentH;
-      if (period === 'PM' && currentH !== 12) currentHour24 += 12;
-      if (period === 'AM' && currentH === 12) currentHour24 = 0;
+            let currentHour24 = currentH;
+            if (period === 'PM' && currentH !== 12) currentHour24 += 12;
+            if (period === 'AM' && currentH === 12) currentHour24 = 0;
 
-      const minTotalMinutes = minHour24 * 60 + minM;
-      const currentTotalMinutes = currentHour24 * 60 + currentM;
+            const minTotalMinutes = minHour24 * 60 + minM;
+            const currentTotalMinutes = currentHour24 * 60 + currentM;
 
-      if (currentTotalMinutes <= minTotalMinutes) {
-        setError(t('dropoffMustBeAfterPickup') || 'Drop-off time must be after pick-up time');
-        return false;
+            if (currentTotalMinutes <= minTotalMinutes) {
+              return false;
+            }
+          }
+        }
       }
     }
 
@@ -102,11 +110,17 @@ const TimePicker = ({ selectedTime, onTimeSelect, onClose, minTime }) => {
   };
 
   const handleConfirm = () => {
-    if (isTimeValid()) {
-      const formattedTime = `${timeInput} ${period}`;
-      onTimeSelect(formattedTime);
-      onClose();
+    if (!isTimeValid()) {
+      // Set error only when user tries to confirm
+      if (minTime) {
+        setError(t('dropoffMustBeAfterPickup') || 'Drop-off time must be after pick-up time');
+      }
+      return;
     }
+    
+    const formattedTime = `${timeInput} ${period}`;
+    onTimeSelect(formattedTime);
+    onClose();
   };
 
   const handleKeyDown = (e) => {

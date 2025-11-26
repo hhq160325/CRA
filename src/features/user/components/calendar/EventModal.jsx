@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { closeEventModal, createBookingEvent, updateBookingEvent, deleteBookingEvent } from '../../calendarSlice';
+import { closeEventModal } from '../../calendarSlice';
 
 const EventModal = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { selectedEvent, isEventModalOpen } = useSelector(state => state.calendar || {});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Format date and time for display
   const formatDateTime = (dateTime) => {
@@ -22,12 +21,12 @@ const EventModal = () => {
     });
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount || 0);
-  };
+  // const formatCurrency = (amount) => {
+  //   return new Intl.NumberFormat('en-US', {
+  //     style: 'currency',
+  //     currency: 'USD',
+  //   }).format(amount || 0);
+  // };
 
   const getStatusColor = (status) => {
     const colors = {

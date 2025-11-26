@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectUser, selectIsAuthenticated } from '../../auth/authSlice';
 import { getUserById, getUserIdFromToken } from '../../user/api';
@@ -9,7 +9,6 @@ import TimePicker from '../../../shared/components/TimePicker';
 
 const PaymentPage = () => {
     const location = useLocation();
-    const navigate = useNavigate();
     const user = useSelector(selectUser);
     const isAuthenticated = useSelector(selectIsAuthenticated);
     
@@ -26,6 +25,7 @@ const PaymentPage = () => {
     useEffect(() => {
         console.log('PaymentPage - Car Data from location.state:', location.state);
         console.log('PaymentPage - Car ID:', carData.carId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const [billingInfo, setBillingInfo] = useState({
@@ -35,13 +35,10 @@ const PaymentPage = () => {
         townCity: ''
     });
 
-    const [isLoadingUserData, setIsLoadingUserData] = useState(false);
-
     // Fetch full user data from API when component mounts
     useEffect(() => {
         const fetchUserData = async () => {
             if (isAuthenticated && user) {
-                setIsLoadingUserData(true);
                 try {
                     const fullUserData = await getUserById();
                     setBillingInfo({
@@ -59,8 +56,6 @@ const PaymentPage = () => {
                         address: user.address || '',
                         townCity: ''
                     });
-                } finally {
-                    setIsLoadingUserData(false);
                 }
             }
         };
@@ -83,12 +78,6 @@ const PaymentPage = () => {
     const [dropoffTime, setDropoffTime] = useState('');
 
     const [paymentMethod, setPaymentMethod] = useState('credit-card');
-    const [cardInfo, setCardInfo] = useState({
-        cardNumber: '',
-        expirationDate: '',
-        cardHolder: '',
-        cvc: ''
-    });
 
     const [confirmations, setConfirmations] = useState({
         marketing: false,
@@ -100,12 +89,6 @@ const PaymentPage = () => {
 
     const handleBillingChange = (field, value) => {
         setBillingInfo(prev => ({ ...prev, [field]: value }));
-    };
-
-
-
-    const handleCardChange = (field, value) => {
-        setCardInfo(prev => ({ ...prev, [field]: value }));
     };
 
     const handleConfirmationChange = (field) => {

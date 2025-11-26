@@ -10,6 +10,48 @@ const RecentActivities = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const getBookingAction = (status) => {
+      switch (status?.toLowerCase()) {
+        case 'confirmed':
+        case 'pending':
+          return t('newBookingCreated');
+        case 'cancelled':
+          return t('bookingCancelled');
+        case 'completed':
+          return t('bookingCompleted');
+        default:
+          return t('newBookingCreated');
+      }
+    };
+
+    const mapBookingStatus = (status) => {
+      const statusLower = status?.toLowerCase() || 'pending';
+      const statusMap = {
+        'confirmed': 'confirmed',
+        'pending': 'confirmed',
+        'cancelled': 'cancelled',
+        'completed': 'completed',
+        'approved': 'approved'
+      };
+      return statusMap[statusLower] || 'confirmed';
+    };
+
+    const getRelativeTime = (dateString) => {
+      if (!dateString) return t('justNow');
+      
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffInMs = now - date;
+      const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+      const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+      const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+      if (diffInMinutes < 1) return t('justNow');
+      if (diffInMinutes < 60) return `${diffInMinutes} ${t('minutesAgo')}`;
+      if (diffInHours < 24) return `${diffInHours} ${t('hoursAgo')}`;
+      return `${diffInDays} ${t('daysAgo')}`;
+    };
+
     const fetchRecentActivities = async () => {
       try {
         setLoading(true);
@@ -99,48 +141,6 @@ const RecentActivities = () => {
 
     fetchRecentActivities();
   }, [t]);
-
-  const getBookingAction = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'confirmed':
-      case 'pending':
-        return t('newBookingCreated');
-      case 'cancelled':
-        return t('bookingCancelled');
-      case 'completed':
-        return t('bookingCompleted');
-      default:
-        return t('newBookingCreated');
-    }
-  };
-
-  const mapBookingStatus = (status) => {
-    const statusLower = status?.toLowerCase() || 'pending';
-    const statusMap = {
-      'confirmed': 'confirmed',
-      'pending': 'confirmed',
-      'cancelled': 'cancelled',
-      'completed': 'completed',
-      'approved': 'approved'
-    };
-    return statusMap[statusLower] || 'confirmed';
-  };
-
-  const getRelativeTime = (dateString) => {
-    if (!dateString) return t('justNow');
-    
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMs = now - date;
-    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-
-    if (diffInMinutes < 1) return t('justNow');
-    if (diffInMinutes < 60) return `${diffInMinutes} ${t('minutesAgo')}`;
-    if (diffInHours < 24) return `${diffInHours} ${t('hoursAgo')}`;
-    return `${diffInDays} ${t('daysAgo')}`;
-  };
 
   const parseRelativeTime = (timeString) => {
     // Simple parser to convert relative time back to minutes for sorting

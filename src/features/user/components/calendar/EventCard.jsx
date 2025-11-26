@@ -37,27 +37,27 @@ const EventCard = ({ event, compact = false, onClick, date }) => {
     });
   };
 
-  const getEventType = () => {
-    if (!date || !event.start || !event.end) return '';
-    
-    // Use local date strings to avoid timezone issues
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const dateStr = `${year}-${month}-${day}`;
-    
-    const startDate = event.start instanceof Date ? event.start : new Date(event.start);
-    const startYear = startDate.getFullYear();
-    const startMonth = String(startDate.getMonth() + 1).padStart(2, '0');
-    const startDay = String(startDate.getDate()).padStart(2, '0');
-    const startStr = `${startYear}-${startMonth}-${startDay}`;
-    
-    const endDate = event.end instanceof Date ? event.end : new Date(event.end);
-    const endYear = endDate.getFullYear();
-    const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
-    const endDay = String(endDate.getDate()).padStart(2, '0');
-    const endStr = `${endYear}-${endMonth}-${endDay}`;
-  };
+  // const getEventType = () => {
+  //   if (!date || !event.start || !event.end) return '';
+  //   
+  //   // Use local date strings to avoid timezone issues
+  //   const year = date.getFullYear();
+  //   const month = String(date.getMonth() + 1).padStart(2, '0');
+  //   const day = String(date.getDate()).padStart(2, '0');
+  //   const dateStr = `${year}-${month}-${day}`;
+  //   
+  //   const startDate = event.start instanceof Date ? event.start : new Date(event.start);
+  //   const startYear = startDate.getFullYear();
+  //   const startMonth = String(startDate.getMonth() + 1).padStart(2, '0');
+  //   const startDay = String(startDate.getDate()).padStart(2, '0');
+  //   const startStr = `${startYear}-${startMonth}-${startDay}`;
+  //   
+  //   const endDate = event.end instanceof Date ? event.end : new Date(event.end);
+  //   const endYear = endDate.getFullYear();
+  //   const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+  //   const endDay = String(endDate.getDate()).padStart(2, '0');
+  //   const endStr = `${endYear}-${endMonth}-${endDay}`;
+  // };
 
   if (compact) {
     return (
@@ -66,7 +66,7 @@ const EventCard = ({ event, compact = false, onClick, date }) => {
         className={`text-xs px-2 py-1 rounded border ${statusColor} cursor-pointer hover:opacity-80 truncate`}
         title={event.title}
       >
-        {getEventType()}{formatTime(event.start)} • {event.title}
+        {formatTime(event.start)} • {event.title}
       </div>
     );
   }

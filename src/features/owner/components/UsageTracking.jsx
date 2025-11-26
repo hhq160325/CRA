@@ -10,6 +10,8 @@ const UsageTracking = () => {
   const [usageData, setUsageData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Helper function to fetch bookings for a car
   const fetchCarBookings = async (carId) => {
@@ -100,17 +102,26 @@ const UsageTracking = () => {
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
-    switch (status) {
+    const normalizedStatus = status?.toLowerCase();
+    
+    // Map pending to active for display
+    const displayStatus = normalizedStatus === 'pending' ? 'active' : normalizedStatus;
+    
+    switch (normalizedStatus) {
       case 'available':
-        return `${baseClasses} bg-green-100 text-green-800`;
+        return { className: `${baseClasses} bg-green-100 text-green-800`, label: 'available' };
       case 'rented':
-        return `${baseClasses} bg-blue-100 text-blue-800`;
+        return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: 'rented' };
+      case 'pending':
+        return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: 'active' };
       case 'maintenance':
-        return `${baseClasses} bg-yellow-100 text-yellow-800`;
+        return { className: `${baseClasses} bg-yellow-100 text-yellow-800`, label: 'maintenance' };
+      case 'inactive':
+        return { className: `${baseClasses} bg-red-100 text-red-800`, label: 'inactive' };
       case 'unavailable':
-        return `${baseClasses} bg-red-100 text-red-800`;
+        return { className: `${baseClasses} bg-red-100 text-red-800`, label: 'unavailable' };
       default:
-        return `${baseClasses} bg-gray-100 text-gray-800`;
+        return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: displayStatus || 'unknown' };
     }
   };
 
@@ -130,6 +141,69 @@ const UsageTracking = () => {
       car.carId.toString().toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredUsage.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedUsage = filteredUsage.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, dateFilter]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxPagesToShow = 5;
+    
+    if (totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push('...');
+        pages.push(currentPage - 1);
+        pages.push(currentPage);
+        pages.push(currentPage + 1);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
+  };
 
   // Calculate overall statistics
   const totalCars = usageData.length;
@@ -181,7 +255,7 @@ const UsageTracking = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
             <div>
@@ -197,7 +271,7 @@ const UsageTracking = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
+        {/* <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Mileage</p>
@@ -209,7 +283,7 @@ const UsageTracking = () => {
               </svg>
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-purple-500">
           <div className="flex items-center justify-between">
@@ -225,7 +299,7 @@ const UsageTracking = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-orange-500">
+        {/* <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-orange-500">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Avg. Utilization</p>
@@ -237,7 +311,7 @@ const UsageTracking = () => {
               </svg>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Search Filter */}
@@ -279,14 +353,14 @@ const UsageTracking = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredUsage.length === 0 ? (
+              {paginatedUsage.length === 0 ? (
                 <tr>
                   <td colSpan="5" className="py-8 text-center text-gray-500">
                     No cars found
                   </td>
                 </tr>
               ) : (
-                filteredUsage.map((car) => {
+                paginatedUsage.map((car) => {
                   // const rentalPercentage = (car.rentalMileage / car.totalMileage * 100).toFixed(1);
                   // const personalPercentage = (car.personalMileage / car.totalMileage * 100).toFixed(1);
                   
@@ -341,9 +415,10 @@ const UsageTracking = () => {
                         <div className="text-xs text-gray-500">per day</div>
                       </td> */}
                       <td className="py-4 px-6">
-                        <span className={getStatusBadge(car.currentStatus)}>
-                          {car.currentStatus}
-                        </span>
+                        {(() => {
+                          const badge = getStatusBadge(car.currentStatus);
+                          return <span className={badge.className}>{badge.label}</span>;
+                        })()}
                       </td>
                       <td className="py-4 px-6">
                         <button
@@ -362,16 +437,61 @@ const UsageTracking = () => {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-center py-4 border-t border-gray-200">
-          <div className="flex items-center space-x-2">
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Previous</button>
-            <div className="flex space-x-1">
-              <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
-              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
-              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
-            </div>
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Next</button>
+        <div className="flex items-center justify-between py-4 px-6 border-t border-gray-200">
+          <div className="text-sm text-gray-600">
+            {filteredUsage.length > 0 ? (
+              <>Showing {startIndex + 1} to {Math.min(endIndex, filteredUsage.length)} of {filteredUsage.length} results</>
+            ) : (
+              <>No results</>
+            )}
           </div>
+          {totalPages > 0 && (
+            <div className="flex items-center space-x-2">
+              <button 
+                onClick={handlePrevious}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 text-sm rounded ${
+                  currentPage === 1 
+                    ? 'text-gray-400 cursor-not-allowed' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Previous
+              </button>
+              <div className="flex space-x-1">
+                {getPageNumbers().map((page, index) => (
+                  page === '...' ? (
+                    <span key={`ellipsis-${index}`} className="w-8 h-8 flex items-center justify-center text-gray-500">
+                      ...
+                    </span>
+                  ) : (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`w-8 h-8 text-sm rounded ${
+                        currentPage === page
+                          ? 'bg-blue-600 text-white'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  )
+                ))}
+              </div>
+              <button 
+                onClick={handleNext}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 text-sm rounded ${
+                  currentPage === totalPages 
+                    ? 'text-gray-400 cursor-not-allowed' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -490,9 +610,10 @@ const UsageTracking = () => {
                   </div>
                   <div>
                     <p className="text-gray-600">Current Status</p>
-                    <span className={getStatusBadge(selectedCar.currentStatus)}>
-                      {selectedCar.currentStatus}
-                    </span>
+                    {(() => {
+                      const badge = getStatusBadge(selectedCar.currentStatus);
+                      return <span className={badge.className}>{badge.label}</span>;
+                    })()}
                   </div>
                 </div>
               </div>

@@ -7,9 +7,40 @@ const PaymentSuccess = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [paymentDetails, setPaymentDetails] = useState(null);
-  const [isUpdatingBooking, setIsUpdatingBooking] = useState(false);
   
   useEffect(() => {
+    const getDefaultPaymentDetails = () => {
+      const currentLocale = i18n.language === 'vi' ? 'vi-VN' : 'en-US';
+      return {
+        transactionId: 'TXN' + Date.now(),
+        amount: '80.00',
+        paymentMethod: 'QR Payment',
+        paymentDate: new Date().toLocaleDateString(currentLocale, { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        carName: 'Nissan GT - R',
+        carImage: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=120&h=80&fit=crop',
+        billingInfo: {
+          name: 'Customer',
+          email: '[email]',
+          phone: '[phone_number]',
+          address: '[address]'
+        },
+        rentalInfo: {
+          pickUpLocation: 'Location',
+          pickUpDate: new Date().toLocaleDateString(),
+          pickUpTime: '10:00 AM',
+          dropOffLocation: 'Location',
+          dropOffDate: new Date(Date.now() + 86400000).toLocaleDateString(),
+          dropOffTime: '10:00 AM'
+        }
+      };
+    };
+
     // Retrieve booking data from localStorage
     const pendingBookingStr = localStorage.getItem('pendingBooking');
     
@@ -20,7 +51,6 @@ const PaymentSuccess = () => {
         
         // Update booking status to "Completed" if bookingId exists
         if (bookingData.bookingId) {
-          setIsUpdatingBooking(true);
           updateBooking(bookingData.bookingId, 'Completed')
             .then(() => {
               console.log('PaymentSuccess - Booking status updated to Completed');
@@ -28,9 +58,6 @@ const PaymentSuccess = () => {
             .catch((error) => {
               console.error('PaymentSuccess - Failed to update booking status:', error);
               // Continue showing success page even if update fails
-            })
-            .finally(() => {
-              setIsUpdatingBooking(false);
             });
         } else {
           console.warn('PaymentSuccess - No bookingId found in booking data');
@@ -115,38 +142,6 @@ const PaymentSuccess = () => {
     localStorage.removeItem('pendingBooking');
     console.log('PaymentSuccess - Cleared pendingBooking from localStorage');
     navigate(path);
-  };
-  
-  const getDefaultPaymentDetails = () => {
-    const currentLocale = i18n.language === 'vi' ? 'vi-VN' : 'en-US';
-    return {
-      transactionId: 'TXN' + Date.now(),
-      amount: '80.00',
-      paymentMethod: 'QR Payment',
-      paymentDate: new Date().toLocaleDateString(currentLocale, { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }),
-      carName: 'Nissan GT - R',
-      carImage: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=120&h=80&fit=crop',
-      billingInfo: {
-        name: 'Customer',
-        email: '[email]',
-        phone: '[phone_number]',
-        address: '[address]'
-      },
-      rentalInfo: {
-        pickUpLocation: 'Location',
-        pickUpDate: new Date().toLocaleDateString(),
-        pickUpTime: '10:00 AM',
-        dropOffLocation: 'Location',
-        dropOffDate: new Date(Date.now() + 86400000).toLocaleDateString(),
-        dropOffTime: '10:00 AM'
-      }
-    };
   };
   
   // Show loading state while fetching data

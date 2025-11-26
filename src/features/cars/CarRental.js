@@ -118,7 +118,8 @@ const CarRental = () => {
     }
   ];
 
-  const displayCars = cars.length > 0 ? cars : fallbackCars;
+  const activeCars = cars.filter(car => car.status && car.status.toLowerCase() !== 'inactive');
+  const displayCars = activeCars.length > 0 ? activeCars : fallbackCars;
   const [filters, setFilters] = useState({
     fuelTypes: [],
     transmissions: [],

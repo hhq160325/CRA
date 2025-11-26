@@ -12,6 +12,8 @@ const RentalHistory = () => {
   const [rentalHistory, setRentalHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchRentalHistory();
@@ -37,6 +39,10 @@ const RentalHistory = () => {
       const users = usersResponse.data || [];
       const payments = paymentsResponse.data || [];
 
+      // Debug: Log all users data
+      // console.log('All Users Response:', users);
+      // console.log('All Bookings Response:', bookings);
+
       // Create lookup maps
       const carMap = cars.reduce((acc, car) => {
         acc[car.id] = car;
@@ -47,7 +53,8 @@ const RentalHistory = () => {
         acc[user.id] = user;
         return acc;
       }, {});
-
+      console.log("UserMaps",userMap);
+      
       // Create payment lookup map by invoiceId
       const paymentMap = payments.reduce((acc, payment) => {
         acc[payment.invoiceId] = payment;
@@ -58,7 +65,21 @@ const RentalHistory = () => {
       const enrichedBookings = await Promise.all(
         bookings.map(async (booking, index) => {
           const car = carMap[booking.carId] || {};
-          const user = userMap[booking.userId] || {};
+          // Try to find user by userId or customerId
+          const user = userMap[booking.userId] || userMap[booking.customerId] || {};
+          console.log("CompareUser",userMap[booking.userId] );
+          
+          // Debug logging
+          if (!user.fullName && booking.userId) {
+            console.log('User not found for booking:', {
+              bookingId: booking.id,
+              userId: booking.userId,
+              customerId: booking.customerId,
+              availableUserIds: Object.keys(userMap),
+              bookingData: booking
+            });
+          }
+          
           const payment = paymentMap[booking.invoiceId] || null;
           
           let invoiceData = null;
@@ -82,9 +103,9 @@ const RentalHistory = () => {
             carName: car.model || 'Unknown Car',
             carId: booking.carId,
             licensePlate: car.licensePlate || 'N/A',
-            customer: user.fullName || 'Unknown Customer',
-            customerEmail: user.email || 'N/A',
-            customerPhone: user.phoneNumber || 'N/A',
+            customer: user.fullname || booking.customerName || booking.fullName || 'Unknown Customer',
+            customerEmail: user.email || booking.customerEmail || 'N/A',
+            customerPhone: user.phoneNumber || booking.customerPhone || 'N/A',
             startDate: pickupDate.toISOString().split('T')[0],
             endDate: dropoffDate.toISOString().split('T')[0],
             pickupDate: pickupDate.toLocaleString(),
@@ -121,7 +142,7 @@ const RentalHistory = () => {
   };
 
   // Mock data for rental history (keeping as fallback)
-  const mockRentalHistory = [
+  /* const mockRentalHistory = [
     {
       id: 1,
       bookingId: 'BK001',
@@ -311,7 +332,7 @@ const RentalHistory = () => {
       rating: 5,
       feedback: 'Spacious and comfortable SUV'
     }
-  ];
+  ]; */
 
   // Get unique car names for filter
   const uniqueCars = [...new Set(rentalHistory.map(rental => rental.carName))];
@@ -350,21 +371,21 @@ const RentalHistory = () => {
     }
   };
 
-  const getConditionBadge = (condition) => {
-    const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
-    switch (condition) {
-      case 'excellent':
-        return `${baseClasses} bg-green-100 text-green-800`;
-      case 'good':
-        return `${baseClasses} bg-blue-100 text-blue-800`;
-      case 'fair':
-        return `${baseClasses} bg-yellow-100 text-yellow-800`;
-      case 'poor':
-        return `${baseClasses} bg-red-100 text-red-800`;
-      default:
-        return `${baseClasses} bg-gray-100 text-gray-800`;
-    }
-  };
+  // const getConditionBadge = (condition) => {
+  //   const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
+  //   switch (condition) {
+  //     case 'excellent':
+  //       return `${baseClasses} bg-green-100 text-green-800`;
+  //     case 'good':
+  //       return `${baseClasses} bg-blue-100 text-blue-800`;
+  //     case 'fair':
+  //       return `${baseClasses} bg-yellow-100 text-yellow-800`;
+  //     case 'poor':
+  //       return `${baseClasses} bg-red-100 text-red-800`;
+  //     default:
+  //       return `${baseClasses} bg-gray-100 text-gray-800`;
+  //   }
+  // };
 
   const openModal = (rental) => {
     setSelectedRental(rental);
@@ -383,6 +404,7 @@ const RentalHistory = () => {
       rental.licensePlate.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || rental.status === statusFilter;
     const matchesCar = carFilter === 'all' || rental.carName === carFilter;
+    
     
     // Date filter logic
     let matchesDate = true;
@@ -410,6 +432,70 @@ const RentalHistory = () => {
     return matchesSearch && matchesStatus && matchesCar && matchesDate;
   });
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredRentals.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedRentals = filteredRentals.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, carFilter, dateFilter]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxPagesToShow = 5;
+    
+    if (totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push('...');
+        pages.push(currentPage - 1);
+        pages.push(currentPage);
+        pages.push(currentPage + 1);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
+  };
+
+  // console.log("FilterRentals",filteredRentals);
   // Calculate statistics
   const totalRevenue = rentalHistory.reduce((sum, rental) => sum + rental.totalAmount, 0);
   const totalRentals = rentalHistory.length;
@@ -592,14 +678,14 @@ const RentalHistory = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredRentals.length === 0 ? (
+              {paginatedRentals.length === 0 ? (
                 <tr>
                   <td colSpan="9" className="py-8 text-center text-gray-500">
                     No rental history found
                   </td>
                 </tr>
               ) : (
-                filteredRentals.map((rental) => (
+                paginatedRentals.map((rental) => (
                 <tr key={rental.id} className="hover:bg-gray-50">
                   <td className="py-4 px-6">
                     <div className="font-medium text-gray-900 text-sm">{rental.bookingId}</div>
@@ -621,17 +707,17 @@ const RentalHistory = () => {
                   </td>
                   <td className="py-4 px-6">
                     <div className="text-sm text-gray-900">{rental.duration} days</div>
-                    <div className="text-xs text-gray-500">${rental.dailyRate}/day</div>
+                    {/* <div className="text-xs text-gray-500">${rental.dailyRate}/day</div> */} {/* TODO */}
                   </td>
                   <td className="py-4 px-6">
-                    <div className="font-medium text-gray-900 text-sm">${rental.totalAmount.toLocaleString()}</div>
-                    <div className="text-xs text-gray-500">Paid: ${rental.paidAmount.toLocaleString()}</div>
+                    <div className="font-medium text-gray-900 text-sm">${rental.paidAmount.toLocaleString()}</div>
+                    {/* <div className="text-xs text-gray-500">Paid: ${rental.paidAmount.toLocaleString()}</div> */}
                   </td>
                   <td className="py-4 px-6">
                     <span className={getPaymentBadge(rental.paymentStatus)}>
                       {rental.paymentStatus}
                     </span>
-                    <div className="text-xs text-gray-500 mt-1">{rental.paymentMethod}</div>
+                    <div className="text-xs text-gray-500 mt-1">Payment Method: {rental.paymentMethod}</div>
                   </td>
                   <td className="py-4 px-6">
                     <span className={getStatusBadge(rental.status)}>
@@ -654,16 +740,61 @@ const RentalHistory = () => {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-center py-4 border-t border-gray-200">
-          <div className="flex items-center space-x-2">
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Previous</button>
-            <div className="flex space-x-1">
-              <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
-              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
-              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
-            </div>
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Next</button>
+        <div className="flex items-center justify-between py-4 px-6 border-t border-gray-200">
+          <div className="text-sm text-gray-600">
+            {filteredRentals.length > 0 ? (
+              <>Showing {startIndex + 1} to {Math.min(endIndex, filteredRentals.length)} of {filteredRentals.length} results</>
+            ) : (
+              <>No results</>
+            )}
           </div>
+          {totalPages > 0 && (
+            <div className="flex items-center space-x-2">
+              <button 
+                onClick={handlePrevious}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 text-sm rounded ${
+                  currentPage === 1 
+                    ? 'text-gray-400 cursor-not-allowed' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Previous
+              </button>
+              <div className="flex space-x-1">
+                {getPageNumbers().map((page, index) => (
+                  page === '...' ? (
+                    <span key={`ellipsis-${index}`} className="w-8 h-8 flex items-center justify-center text-gray-500">
+                      ...
+                    </span>
+                  ) : (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`w-8 h-8 text-sm rounded ${
+                        currentPage === page
+                          ? 'bg-blue-600 text-white'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  )
+                ))}
+              </div>
+              <button 
+                onClick={handleNext}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 text-sm rounded ${
+                  currentPage === totalPages 
+                    ? 'text-gray-400 cursor-not-allowed' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -755,7 +886,7 @@ const RentalHistory = () => {
                   <div className="space-y-3">
                     <div>
                       <p className="text-gray-600">Total Amount</p>
-                      <p className="text-xl font-bold text-green-600">${selectedRental.totalAmount.toLocaleString()}</p>
+                      <p className="text-xl font-bold text-green-600">${selectedRental.paidAmount.toLocaleString()}</p>
                     </div>
                     <div>
                       <p className="text-gray-600">Paid Amount</p>

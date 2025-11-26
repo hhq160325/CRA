@@ -7,7 +7,7 @@ const RegisterCarStep2 = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        dailyPrice: '400,000',
+        dailyPrice: '10.000',
         currency: 'VND',
         address: '',
         parkLotId: '',
@@ -163,7 +163,7 @@ const RegisterCarStep2 = () => {
                                     value={formData.dailyPrice}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="400,000"
+                                    placeholder="10.000"
                                 />
                             </div>
                             <div className="w-24 relative">

@@ -35,11 +35,38 @@ const PaymentHistoryPage = () => {
         }
 
         // Fetch payments for current customer
-        const paymentsResponse = await axiosInstance.get(PAYMENT_ENDPOINTS.GET_ALL_PAYMENTS);
-        const allPayments = paymentsResponse.data;
+        let allPayments = [];
+        try {
+          const paymentsResponse = await axiosInstance.get(PAYMENT_ENDPOINTS.GET_ALL_PAYMENTS);
+          allPayments = paymentsResponse.data;
+        } catch (paymentError) {
+          // If 404, it means no payments exist
+          if (paymentError.response?.status === 404) {
+            console.log('No payments found');
+            setPaymentHistory([]);
+            setError(null);
+            setLoading(false);
+            return;
+          }
+          // Handle timeout errors
+          if (paymentError.code === 'ECONNABORTED' || paymentError.message?.includes('timeout')) {
+            console.warn('Payment API timeout - treating as no payments');
+            setPaymentHistory([]);
+            setError(null);
+            setLoading(false);
+            return;
+          }
+          // For other errors, throw to be caught by outer catch
+          throw paymentError;
+        }
 
-        // Filter payments for current user (if needed, adjust based on your API structure)
-        const userPayments = Array.isArray(allPayments) ? allPayments : [];
+        // Filter payments for current user by comparing userId
+        const userPayments = Array.isArray(allPayments) 
+          ? allPayments.filter(payment => {
+              const paymentUserId = payment.userId || payment.customerId || payment.user_id;
+              return paymentUserId && String(paymentUserId) === String(currentUserId);
+            })
+          : [];
 
         // Transform API data to match component structure
         const history = userPayments.map((payment, index) => {

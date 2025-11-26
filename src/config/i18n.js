@@ -240,6 +240,8 @@ const resources = {
       currentNotes: "Current Notes",
       noNotes: "No notes",
       markAsCompleted: "Mark as Completed",
+      pickupDetails: "Pickup Details",
+      dropoffDetails: "Dropoff Details",
 
       // Car Owner Modal
       carOwnerDetails: "Car Owner Details",
@@ -491,12 +493,9 @@ const resources = {
       fuel: "Fuel",
       toll: "Toll",
       parking: "Parking",
-      maintenance: "Maintenance",
-      other: "Other",
       optionalDetails: "Optional details",
       reset: "Reset",
       submit: "Submit",
-      approved: "Approved",
 
       // Profile - Rental History Page
       type: "Type",
@@ -585,7 +584,6 @@ const resources = {
       payments: "Payments",
       registerNewCar: "Register New Car",
       registerNewCarSection: "Register New Car",
-      noRentalHistory: "No Rental History",
       // Register Car Step 3 - Photo Upload
       clickToUpload: "Click to upload",
       orDragAndDrop: "or drag and drop",
@@ -602,7 +600,7 @@ const resources = {
       photoTip1: "Upload high-quality photos from different angles",
       photoTip2: "Include front, back, side, and interior views",
       photoTip3: "Ensure good lighting and clear visibility",
-      photoTip4: "At least 4-6 photos recommended for better visibility",
+      photoTip4: "At least 3-5 photos recommended for better visibility",
       remove: "Remove",
       uploadComplete: "Upload complete",
       uploadCancelled: "Upload cancelled",
@@ -636,7 +634,6 @@ const resources = {
       remaining: "Remaining",
       payAtDropoff: "pay at drop-off",
       paymentMethod: "Payment Method",
-      paymentDate: "Payment Date",
       rentalDetails: "Rental Details",
       reviews: "Reviews",
       dateAndTime: "Date & Time",
@@ -895,6 +892,8 @@ const resources = {
       currentNotes: "Ghi chú hiện tại",
       noNotes: "Không có ghi chú",
       markAsCompleted: "Đánh dấu hoàn thành",
+      pickupDetails: "Địa điểm nhận xe",
+      dropoffDetails: "Địa điểm trả xe",
 
       // Car Owner Modal
       carOwnerDetails: "Chi tiết chủ xe",
@@ -1146,12 +1145,9 @@ const resources = {
       fuel: "Nhiên liệu",
       toll: "Phí cầu đường",
       parking: "Đỗ xe",
-      maintenance: "Bảo trì",
-      other: "Khác",
       optionalDetails: "Chi tiết tùy chọn",
       reset: "Đặt lại",
       submit: "Gửi",
-      approved: "Đã phê duyệt",
 
       // Profile - Rental History Page
       type: "Loại",
@@ -1257,7 +1253,7 @@ const resources = {
       photoTip1: "Tải lên ảnh chất lượng cao từ nhiều góc độ",
       photoTip2: "Bao gồm góc nhìn phía trước, phía sau, bên cạnh và nội thất",
       photoTip3: "Đảm bảo ánh sáng tốt và hình ảnh rõ ràng",
-      photoTip4: "Nên có ít nhất 4-6 ảnh để tăng khả năng hiển thị",
+      photoTip4: "Nên có ít nhất 3-5 ảnh để tăng khả năng hiển thị",
       remove: "Xóa",
       uploadComplete: "Tải lên hoàn tất",
       uploadCancelled: "Đã hủy tải lên",
@@ -1291,7 +1287,6 @@ const resources = {
       remaining: "Còn lại",
       payAtDropoff: "thanh toán khi trả xe",
       paymentMethod: "Phương Thức Thanh Toán",
-      paymentDate: "Ngày Thanh Toán",
       rentalDetails: "Chi Tiết Thuê Xe",
       reviews: "Đánh giá",
       dateAndTime: "Ngày & Giờ",

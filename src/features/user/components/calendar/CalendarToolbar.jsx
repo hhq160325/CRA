@@ -1,7 +1,5 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { openEventModal } from '../../calendarSlice';
 
 const CalendarToolbar = ({
   currentView,
@@ -12,9 +10,7 @@ const CalendarToolbar = ({
   onSearch,
   onFilterChange,
   filters,
-  events,
 }) => {
-  const dispatch = useDispatch();
   const { t } = useTranslation();
 
   const viewButtons = [
@@ -59,41 +55,41 @@ const CalendarToolbar = ({
     return d.toLocaleDateString(locale, options);
   };
 
-  const handleNewEvent = () => {
-    dispatch(openEventModal(null));
-  };
+  // const handleNewEvent = () => {
+  //   dispatch(openEventModal(null));
+  // };
 
-  const handleExport = () => {
-    // Export to ICS file
-    const icsContent = generateICS(events);
-    const blob = new Blob([icsContent], { type: 'text/calendar' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'bookings.ics';
-    link.click();
-    URL.revokeObjectURL(url);
-  };
+  // const handleExport = () => {
+  //   // Export to ICS file
+  //   const icsContent = generateICS(events);
+  //   const blob = new Blob([icsContent], { type: 'text/calendar' });
+  //   const url = URL.createObjectURL(blob);
+  //   const link = document.createElement('a');
+  //   link.href = url;
+  //   link.download = 'bookings.ics';
+  //   link.click();
+  //   URL.revokeObjectURL(url);
+  // };
 
-  const generateICS = (events) => {
-    let ics = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Car Rental//Calendar//EN\n';
-    events.forEach(event => {
-      ics += 'BEGIN:VEVENT\n';
-      ics += `UID:${event.id}@carrental.com\n`;
-      ics += `DTSTART:${formatICSDate(event.start)}\n`;
-      ics += `DTEND:${formatICSDate(event.end)}\n`;
-      ics += `SUMMARY:${event.title}\n`;
-      ics += `DESCRIPTION:${event.notes || ''}\n`;
-      ics += 'END:VEVENT\n';
-    });
-    ics += 'END:VCALENDAR';
-    return ics;
-  };
+  // const generateICS = (events) => {
+  //   let ics = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Car Rental//Calendar//EN\n';
+  //   events.forEach(event => {
+  //     ics += 'BEGIN:VEVENT\n';
+  //     ics += `UID:${event.id}@carrental.com\n`;
+  //     ics += `DTSTART:${formatICSDate(event.start)}\n`;
+  //     ics += `DTEND:${formatICSDate(event.end)}\n`;
+  //     ics += `SUMMARY:${event.title}\n`;
+  //     ics += `DESCRIPTION:${event.notes || ''}\n`;
+  //     ics += 'END:VEVENT\n';
+  //   });
+  //   ics += 'END:VCALENDAR';
+  //   return ics;
+  // };
 
-  const formatICSDate = (date) => {
-    const d = date instanceof Date ? date : new Date(date);
-    return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-  };
+  // const formatICSDate = (date) => {
+  //   const d = date instanceof Date ? date : new Date(date);
+  //   return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  // };
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 space-y-4">

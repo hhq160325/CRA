@@ -35,9 +35,23 @@ const RentalHistoryPage = () => {
         }
 
         // Fetch bookings for current customer
-        const bookingsResponse = await axiosInstance.get(BOOKING_ENDPOINTS.GET_CUSTOMER_BOOKINGS(currentUserId));
-        const userBookings = bookingsResponse.data;
-        console.log(userBookings);
+        let userBookings = [];
+        try {
+          const bookingsResponse = await axiosInstance.get(BOOKING_ENDPOINTS.GET_CUSTOMER_BOOKINGS(currentUserId));
+          userBookings = bookingsResponse.data;
+          console.log(userBookings);
+        } catch (bookingError) {
+          // If 404, it means no bookings exist for this user
+          if (bookingError.response?.status === 404) {
+            console.log('No bookings found for user');
+            setRentalHistory([]);
+            setError(null);
+            setLoading(false);
+            return;
+          }
+          // For other errors, throw to be caught by outer catch
+          throw bookingError;
+        }
         
         // Fetch all cars
         const carsResponse = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS);

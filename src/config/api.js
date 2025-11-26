@@ -91,7 +91,7 @@ export const SCHEDULE_API_CONFIG = {
 
 // Invoice endpoints
 export const INVOICE_ENDPOINTS = {
-  GET_INVOICE_BY_ID: (invoiceId) => `${API_CONFIG.BASE_URL}/Invoice/${invoiceId}`,
+  GET_INVOICE_BY_ID: (invoiceId) => `${API_CONFIG.ALTER_URL}/${invoiceId}`,
 };
 
 export const INVOICE_API_CONFIG = {

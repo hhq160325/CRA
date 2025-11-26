@@ -9,8 +9,8 @@ const RegisterCar = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         licensePlate: '',
-        brand: 'Honda',
-        model: 'Unspecified',
+        brand: 'Test Register Car Brand - Honda',
+        model: 'Test Register Car - ',
         numberOfSeats: '4',
         yearOfManufacture: '2024',
         transmission: 'Automatic',

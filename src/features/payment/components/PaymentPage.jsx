@@ -6,6 +6,7 @@ import { getUserById, getUserIdFromToken } from '../../user/api';
 import { createBooking } from '../api';
 import Calendar from '../../../shared/components/Calendar';
 import TimePicker from '../../../shared/components/TimePicker';
+import { LocationInput } from '../../location';
 
 const PaymentPage = () => {
     const location = useLocation();
@@ -76,6 +77,7 @@ const PaymentPage = () => {
     const [dropoffLocation, setDropoffLocation] = useState('');
     const [dropoffDate, setDropoffDate] = useState(null);
     const [dropoffTime, setDropoffTime] = useState('');
+
 
     const [paymentMethod, setPaymentMethod] = useState('credit-card');
 
@@ -268,7 +270,7 @@ const PaymentPage = () => {
                                         onChange={(e) => handleBillingChange('phoneNumber', e.target.value)}
                                     />
                                 </div>
-                                <div>
+                                <div className="md:col-span-2">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
                                     <input
                                         type="text"
@@ -278,7 +280,7 @@ const PaymentPage = () => {
                                         onChange={(e) => handleBillingChange('address', e.target.value)}
                                     />
                                 </div>
-                                <div>
+                                {/* <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Town / City</label>
                                     <input
                                         type="text"
@@ -287,7 +289,7 @@ const PaymentPage = () => {
                                         value={billingInfo.townCity}
                                         onChange={(e) => handleBillingChange('townCity', e.target.value)}
                                     />
-                                </div>
+                                </div> */}
                             </div>
                         </div>
 
@@ -305,91 +307,93 @@ const PaymentPage = () => {
                                     <div className="w-4 h-4 bg-blue-600 rounded-full mr-3"></div>
                                     <h3 className="text-lg font-semibold text-gray-900">Pick - Up</h3>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {/* Pickup Location */}
+                                    <LocationInput
+                                        label="Location"
+                                        value={pickupLocation}
+                                        onChange={(address) => {
+                                            setPickupLocation(address);
+                                        }}
+                                        placeholder="Enter pickup location (e.g., 39 Nguyễn Tư Giản, Phường An Hội, Quận Gò Vấp)"
+                                    />
+
+                                    {/* Pickup Date & Time Combined */}
                                     <div className="w-full">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Enter pickup location"
-                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            value={pickupLocation}
-                                            onChange={(e) => setPickupLocation(e.target.value)}
-                                        />
-                                    </div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Date & Time</label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {/* Date */}
+                                            <div className="relative">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setPickupDateOpen(!pickupDateOpen)}
+                                                    className="w-full border border-gray-200 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-left flex items-center justify-between"
+                                                >
+                                                    <span className={pickupDate ? 'text-gray-900 text-sm' : 'text-gray-400 text-sm'}>
+                                                        {pickupDate ? pickupDate.toLocaleDateString() : 'Date'}
+                                                    </span>
+                                                    <svg
+                                                        className="w-4 h-4 text-gray-500"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                </button>
+                                                {pickupDateOpen && (
+                                                    <>
+                                                        <div
+                                                            className="fixed inset-0 z-10"
+                                                            onClick={() => setPickupDateOpen(false)}
+                                                        />
+                                                        <div className="absolute z-20 mt-1">
+                                                            <Calendar
+                                                                selectedDate={pickupDate}
+                                                                onDateSelect={setPickupDate}
+                                                                onClose={() => setPickupDateOpen(false)}
+                                                            />
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
 
-                                    {/* Pickup Date */}
-                                    <div className="w-full relative">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
-                                        <button
-                                            type="button"
-                                            onClick={() => setPickupDateOpen(!pickupDateOpen)}
-                                            className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-left flex items-center justify-between"
-                                        >
-                                            <span className={pickupDate ? 'text-gray-900' : 'text-gray-400'}>
-                                                {pickupDate ? pickupDate.toLocaleDateString() : 'Select your date'}
-                                            </span>
-                                            <svg
-                                                className={`w-4 h-4 text-gray-500 transition-transform ${pickupDateOpen ? 'rotate-180' : ''}`}
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                        </button>
-                                        {pickupDateOpen && (
-                                            <>
-                                                <div
-                                                    className="fixed inset-0 z-10"
-                                                    onClick={() => setPickupDateOpen(false)}
-                                                />
-                                                <div className="absolute z-20 mt-1">
-                                                    <Calendar
-                                                        selectedDate={pickupDate}
-                                                        onDateSelect={setPickupDate}
-                                                        onClose={() => setPickupDateOpen(false)}
-                                                    />
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-
-                                    {/* Pickup Time */}
-                                    <div className="w-full relative">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
-                                        <button
-                                            type="button"
-                                            onClick={() => setPickupTimeOpen(!pickupTimeOpen)}
-                                            className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-left flex items-center justify-between"
-                                        >
-                                            <span className={pickupTime ? 'text-gray-900' : 'text-gray-400'}>
-                                                {pickupTime || 'Select your time'}
-                                            </span>
-                                            <svg
-                                                className={`w-4 h-4 text-gray-500 transition-transform ${pickupTimeOpen ? 'rotate-180' : ''}`}
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        </button>
-                                        {pickupTimeOpen && (
-                                            <>
-                                                <div
-                                                    className="fixed inset-0 z-10"
-                                                    onClick={() => setPickupTimeOpen(false)}
-                                                />
-                                                <div className="absolute z-20 mt-1">
-                                                    <TimePicker
-                                                        selectedTime={pickupTime}
-                                                        onTimeSelect={setPickupTime}
-                                                        onClose={() => setPickupTimeOpen(false)}
-                                                    />
-                                                </div>
-                                            </>
-                                        )}
+                                            {/* Time */}
+                                            <div className="relative">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setPickupTimeOpen(!pickupTimeOpen)}
+                                                    className="w-full border border-gray-200 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-left flex items-center justify-between"
+                                                >
+                                                    <span className={pickupTime ? 'text-gray-900 text-sm' : 'text-gray-400 text-sm'}>
+                                                        {pickupTime || 'Time'}
+                                                    </span>
+                                                    <svg
+                                                        className="w-4 h-4 text-gray-500"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                </button>
+                                                {pickupTimeOpen && (
+                                                    <>
+                                                        <div
+                                                            className="fixed inset-0 z-10"
+                                                            onClick={() => setPickupTimeOpen(false)}
+                                                        />
+                                                        <div className="absolute z-20 mt-1">
+                                                            <TimePicker
+                                                                selectedTime={pickupTime}
+                                                                onTimeSelect={setPickupTime}
+                                                                onClose={() => setPickupTimeOpen(false)}
+                                                            />
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -400,7 +404,7 @@ const PaymentPage = () => {
                                     <div className="w-4 h-4 bg-blue-600 rounded-full mr-3"></div>
                                     <h3 className="text-lg font-semibold text-gray-900">Drop - Off</h3>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {/* Dropoff Location */}
                                     <div className="w-full">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
@@ -413,84 +417,88 @@ const PaymentPage = () => {
                                         />
                                     </div>
 
-                                    {/* Dropoff Date */}
-                                    <div className="w-full relative">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
-                                        <button
-                                            type="button"
-                                            onClick={() => setDropoffDateOpen(!dropoffDateOpen)}
-                                            className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-left flex items-center justify-between"
-                                        >
-                                            <span className={dropoffDate ? 'text-gray-900' : 'text-gray-400'}>
-                                                {dropoffDate ? dropoffDate.toLocaleDateString() : 'Select your date'}
-                                            </span>
-                                            <svg
-                                                className={`w-4 h-4 text-gray-500 transition-transform ${dropoffDateOpen ? 'rotate-180' : ''}`}
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                        </button>
-                                        {dropoffDateOpen && (
-                                            <>
-                                                <div
-                                                    className="fixed inset-0 z-10"
-                                                    onClick={() => setDropoffDateOpen(false)}
-                                                />
-                                                <div className="absolute z-20 mt-1">
-                                                    <Calendar
-                                                        selectedDate={dropoffDate}
-                                                        onDateSelect={setDropoffDate}
-                                                        onClose={() => setDropoffDateOpen(false)}
-                                                    />
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
+                                    {/* Dropoff Date & Time Combined */}
+                                    <div className="w-full">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Date & Time</label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {/* Date */}
+                                            <div className="relative">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setDropoffDateOpen(!dropoffDateOpen)}
+                                                    className="w-full border border-gray-200 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-left flex items-center justify-between"
+                                                >
+                                                    <span className={dropoffDate ? 'text-gray-900 text-sm' : 'text-gray-400 text-sm'}>
+                                                        {dropoffDate ? dropoffDate.toLocaleDateString() : 'Date'}
+                                                    </span>
+                                                    <svg
+                                                        className="w-4 h-4 text-gray-500"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                </button>
+                                                {dropoffDateOpen && (
+                                                    <>
+                                                        <div
+                                                            className="fixed inset-0 z-10"
+                                                            onClick={() => setDropoffDateOpen(false)}
+                                                        />
+                                                        <div className="absolute z-20 mt-1">
+                                                            <Calendar
+                                                                selectedDate={dropoffDate}
+                                                                onDateSelect={setDropoffDate}
+                                                                onClose={() => setDropoffDateOpen(false)}
+                                                            />
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
 
-                                    {/* Dropoff Time */}
-                                    <div className="w-full relative">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
-                                        <button
-                                            type="button"
-                                            onClick={() => setDropoffTimeOpen(!dropoffTimeOpen)}
-                                            className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-left flex items-center justify-between"
-                                        >
-                                            <span className={dropoffTime ? 'text-gray-900' : 'text-gray-400'}>
-                                                {dropoffTime || 'Select your time'}
-                                            </span>
-                                            <svg
-                                                className={`w-4 h-4 text-gray-500 transition-transform ${dropoffTimeOpen ? 'rotate-180' : ''}`}
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        </button>
-                                        {dropoffTimeOpen && (
-                                            <>
-                                                <div
-                                                    className="fixed inset-0 z-10"
-                                                    onClick={() => setDropoffTimeOpen(false)}
-                                                />
-                                                <div className="absolute z-20 mt-1">
-                                                    <TimePicker
-                                                        selectedTime={dropoffTime}
-                                                        onTimeSelect={setDropoffTime}
-                                                        onClose={() => setDropoffTimeOpen(false)}
-                                                        minTime={
-                                                            pickupDate && dropoffDate && 
-                                                            pickupDate.toDateString() === dropoffDate.toDateString() 
-                                                                ? pickupTime 
-                                                                : null
-                                                        }
-                                                    />
-                                                </div>
-                                            </>
-                                        )}
+                                            {/* Time */}
+                                            <div className="relative">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setDropoffTimeOpen(!dropoffTimeOpen)}
+                                                    className="w-full border border-gray-200 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-left flex items-center justify-between"
+                                                >
+                                                    <span className={dropoffTime ? 'text-gray-900 text-sm' : 'text-gray-400 text-sm'}>
+                                                        {dropoffTime || 'Time'}
+                                                    </span>
+                                                    <svg
+                                                        className="w-4 h-4 text-gray-500"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                </button>
+                                                {dropoffTimeOpen && (
+                                                    <>
+                                                        <div
+                                                            className="fixed inset-0 z-10"
+                                                            onClick={() => setDropoffTimeOpen(false)}
+                                                        />
+                                                        <div className="absolute z-20 mt-1">
+                                                            <TimePicker
+                                                                selectedTime={dropoffTime}
+                                                                onTimeSelect={setDropoffTime}
+                                                                onClose={() => setDropoffTimeOpen(false)}
+                                                                minTime={
+                                                                    pickupDate && dropoffDate && 
+                                                                    pickupDate.toDateString() === dropoffDate.toDateString() 
+                                                                        ? pickupTime 
+                                                                        : null
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

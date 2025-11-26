@@ -8,10 +8,12 @@ import UploadDriver from '../UploadDriver';
 import { getUserById, updateUserInfo } from '../../../user/api';
 import { updateUserData } from '../../../auth/authSlice';
 import { tokenUtils } from '../../../auth/utils';
+import { useLocation } from '../../../location/useLocation';
 
 const MyProfile = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const { location, address, loading: locationLoading, error: locationError, getLocation } = useLocation({ fetchAddress: true });
   const [userInfo, setUserInfo] = useState({
     name: '',
     username: '',
@@ -226,6 +228,48 @@ const MyProfile = () => {
     }
   };
 
+  const handleGetLocation = async () => {
+    await getLocation();
+  };
+
+  // Update address when location is obtained
+  useEffect(() => {
+    if (location && address) {
+      // Format: "30/5C Phan Huy Ích, An Hội Tây, thành phố Hồ Chí Minh, Hồ Chí Minh"
+      // Structure: [houseNumber + road], [ward], [district], [city]
+      const addressParts = [];
+      
+      // Combine house number and road
+      if (address.houseNumber && address.road) {
+        addressParts.push(`${address.houseNumber} ${address.road}`);
+      } else if (address.road) {
+        addressParts.push(address.road);
+      }
+      
+      // Add ward (phường/xã)
+      if (address.ward) {
+        addressParts.push(address.ward);
+      }
+      
+      // Add district (quận/huyện)
+      if (address.district) {
+        addressParts.push(address.district);
+      }
+      
+      // Add city (thành phố/tỉnh)
+      if (address.city) {
+        addressParts.push(address.city);
+      }
+      
+      const formattedAddress = addressParts.filter(Boolean).join(', ');
+      
+      setUserInfo(prev => ({
+        ...prev,
+        address: formattedAddress
+      }));
+    }
+  }, [location, address]);
+
   const handleEdit = (field) => {
     switch (field) {
       case 'profile':
@@ -422,13 +466,48 @@ const MyProfile = () => {
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('address')}</label>
               {isEditing ? (
-                <input
-                  type="text"
-                  value={userInfo.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-0 "
-                  placeholder={t('enterAddress')}
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={userInfo.address}
+                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-0 "
+                    placeholder={t('enterAddress')}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleGetLocation}
+                    disabled={locationLoading}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-700 disabled:text-gray-400 disabled:cursor-not-allowed"
+                    title={t('useCurrentLocation') || 'Use current location'}
+                  >
+                    <svg 
+                      className={`w-5 h-5 ${locationLoading ? 'animate-spin' : ''}`}
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      {locationLoading ? (
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+                        />
+                      ) : (
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" 
+                        />
+                      )}
+                    </svg>
+                  </button>
+                  {locationError && (
+                    <p className="text-xs text-red-600 mt-1">{locationError}</p>
+                  )}
+                </div>
               ) : (
                 <div className="text-gray-900">{userInfo.address || 'N/A'}</div>
               )}

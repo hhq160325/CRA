@@ -1,12 +1,10 @@
 import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
-import { useTranslation } from 'react-i18next';
 import { openEventModal } from '../../calendarSlice';
 import EventCard from './EventCard';
 
 const WeekView = ({ events, currentDate }) => {
   const dispatch = useDispatch();
-  const { t } = useTranslation();
 
   const weekDays = useMemo(() => {
     const date = currentDate instanceof Date ? currentDate : new Date(currentDate);

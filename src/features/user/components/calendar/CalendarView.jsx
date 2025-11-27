@@ -2,19 +2,19 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { fetchUserBookings, setCurrentView, goToToday, navigateDate, setSearchQuery, setFilter } from '../../calendarSlice';
-import { selectIsAuthenticated, selectUser } from '../../../auth/authSlice';
+import { selectIsAuthenticated } from '../../../auth/authSlice';
 import CalendarToolbar from './CalendarToolbar';
 import MonthView from './MonthView';
 import WeekView from './WeekView';
 import DayView from './DayView';
 import AgendaView from './AgendaView';
 import EventModal from './EventModal';
+import DayEventsModal from './DayEventsModal';
 
 const CalendarView = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const isAuthenticated = useSelector(selectIsAuthenticated);
-  const user = useSelector(selectUser);
   const { 
     currentView, 
     currentDate, 
@@ -117,6 +117,7 @@ const CalendarView = () => {
       </div>
 
       {isEventModalOpen && <EventModal />}
+      <DayEventsModal />
     </div>
   );
 };

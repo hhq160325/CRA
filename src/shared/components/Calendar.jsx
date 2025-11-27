@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 const Calendar = ({ selectedDate, onDateSelect, onClose }) => {
-  const { t } = useTranslation();
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const daysInMonth = (date) => {

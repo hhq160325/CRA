@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { openEventModal } from '../../calendarSlice';
+import { openEventModal, openDayEventsModal } from '../../calendarSlice';
 import EventCard from './EventCard';
 
 const MonthView = ({ events, currentDate }) => {
@@ -128,9 +128,15 @@ const MonthView = ({ events, currentDate }) => {
                   />
                 ))}
                 {dayEvents.length > 3 && (
-                  <div className="text-xs text-gray-500 px-1">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      dispatch(openDayEventsModal(dayEvents));
+                    }}
+                    className="text-xs text-blue-600 hover:text-blue-800 hover:underline px-1 w-full text-left transition-colors"
+                  >
                     +{dayEvents.length - 3} {t('more')}
-                  </div>
+                  </button>
                 )}
               </div>
             </div>

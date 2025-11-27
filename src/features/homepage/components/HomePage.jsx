@@ -13,10 +13,8 @@ const HomePage = () => {
   const { cars, loading, error } = useSelector((state) => state.cars);
 
   // Dropdown states
-  const [pickupLocationOpen, setPickupLocationOpen] = useState(false);
   const [pickupDateOpen, setPickupDateOpen] = useState(false);
   const [pickupTimeOpen, setPickupTimeOpen] = useState(false);
-  const [dropoffLocationOpen, setDropoffLocationOpen] = useState(false);
   const [dropoffDateOpen, setDropoffDateOpen] = useState(false);
   const [dropoffTimeOpen, setDropoffTimeOpen] = useState(false);
 
@@ -28,17 +26,13 @@ const HomePage = () => {
   const [dropoffDate, setDropoffDate] = useState(null);
   const [dropoffTime, setDropoffTime] = useState('');
 
-  // Options
-  const locations = [
-    { value: 'hcm', label: t('hoChiMinhCity') },
-    { value: 'hanoi', label: t('hanoi') },
-    { value: 'danang', label: t('daNang') }
-  ];
-
   useEffect(() => {
     dispatch(fetchAllCars());
   }, [dispatch]);
 
+  // Filter out cars with Inactive status
+  const activeCars = cars.filter(car => car.status && car.status.toLowerCase() !== 'inactive');
+  
   const popularCars = [];
 
   const recommendationCars = [];
@@ -112,47 +106,13 @@ const HomePage = () => {
                 {/* Pickup Location */}
                 <div className='w-full relative'>
                   <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2'>{t('location')}</label>
-                  <button
-                    type="button"
-                    onClick={() => setPickupLocationOpen(!pickupLocationOpen)}
-                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
-                  >
-                    <span className={pickupLocation ? 'text-gray-900' : 'text-gray-400'}>
-                      {pickupLocation ? locations.find(l => l.value === pickupLocation)?.label : t('selectCity')}
-                    </span>
-                    <svg
-                      className={`w-4 h-4 text-gray-500 transition-transform ${pickupLocationOpen ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                  {pickupLocationOpen && (
-                    <>
-                      <div
-                        className="fixed inset-0 z-10"
-                        onClick={() => setPickupLocationOpen(false)}
-                      />
-                      <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden">
-                        {locations.map((location) => (
-                          <button
-                            key={location.value}
-                            type="button"
-                            onClick={() => {
-                              setPickupLocation(location.value);
-                              setPickupLocationOpen(false);
-                            }}
-                            className={`w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors ${pickupLocation === location.value ? 'bg-gray-50 text-gray-900 font-medium' : 'text-gray-700'
-                              }`}
-                          >
-                            {location.label}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
+                  <input
+                    type="text"
+                    value={pickupLocation}
+                    onChange={(e) => setPickupLocation(e.target.value)}
+                    placeholder={t('selectCity')}
+                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white'
+                  />
                 </div>
 
                 {/* Pickup Date */}
@@ -250,47 +210,13 @@ const HomePage = () => {
                 {/* Dropoff Location */}
                 <div className='w-full relative'>
                   <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2'>{t('location')}</label>
-                  <button
-                    type="button"
-                    onClick={() => setDropoffLocationOpen(!dropoffLocationOpen)}
-                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
-                  >
-                    <span className={dropoffLocation ? 'text-gray-900' : 'text-gray-400'}>
-                      {dropoffLocation ? locations.find(l => l.value === dropoffLocation)?.label : t('selectCity')}
-                    </span>
-                    <svg
-                      className={`w-4 h-4 text-gray-500 transition-transform ${dropoffLocationOpen ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                  {dropoffLocationOpen && (
-                    <>
-                      <div
-                        className="fixed inset-0 z-10"
-                        onClick={() => setDropoffLocationOpen(false)}
-                      />
-                      <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden">
-                        {locations.map((location) => (
-                          <button
-                            key={location.value}
-                            type="button"
-                            onClick={() => {
-                              setDropoffLocation(location.value);
-                              setDropoffLocationOpen(false);
-                            }}
-                            className={`w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors ${dropoffLocation === location.value ? 'bg-gray-50 text-gray-900 font-medium' : 'text-gray-700'
-                              }`}
-                          >
-                            {location.label}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
+                  <input
+                    type="text"
+                    value={dropoffLocation}
+                    onChange={(e) => setDropoffLocation(e.target.value)}
+                    placeholder={t('selectCity')}
+                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white'
+                  />
                 </div>
 
                 {/* Dropoff Date */}
@@ -391,8 +317,8 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-              {cars.length > 0 ? (
-                cars.slice(0, 4).map((car) => (
+              {activeCars.length > 0 ? (
+                activeCars.slice(0, 4).map((car) => (
                   <CarCard key={car.id} car={car} isApiData={true} />
                 ))
               ) : (
@@ -408,8 +334,8 @@ const HomePage = () => {
         <div className="mb-6 sm:mb-8">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">{t('recommendationCar')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
-            {cars.length > 4 ? (
-              cars.slice(4, 12).map((car) => (
+            {activeCars.length > 4 ? (
+              activeCars.slice(4, 12).map((car) => (
                 <CarCard key={car.id} car={car} isApiData={true} />
               ))
             ) : (
@@ -423,7 +349,7 @@ const HomePage = () => {
             <button className="bg-blue-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium mr-2 sm:mr-4 text-sm sm:text-base">
               {t('showMoreCar')}
             </button>
-            <span className="text-sm sm:text-base text-gray-500">{cars.length > 0 ? cars.length : 120} {t('car')}</span>
+            <span className="text-sm sm:text-base text-gray-500">{activeCars.length > 0 ? activeCars.length : 120} {t('car')}</span>
           </div>
         </div>
       </div>

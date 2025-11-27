@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { closeEventModal, createBookingEvent, updateBookingEvent, deleteBookingEvent } from '../../calendarSlice';
+import { closeEventModal } from '../../calendarSlice';
 
 const EventModal = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { selectedEvent, isEventModalOpen } = useSelector(state => state.calendar || {});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Format date and time for display
   const formatDateTime = (dateTime) => {
@@ -22,12 +21,12 @@ const EventModal = () => {
     });
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount || 0);
-  };
+  // const formatCurrency = (amount) => {
+  //   return new Intl.NumberFormat('en-US', {
+  //     style: 'currency',
+  //     currency: 'USD',
+  //   }).format(amount || 0);
+  // };
 
   const getStatusColor = (status) => {
     const colors = {
@@ -68,8 +67,8 @@ const EventModal = () => {
                   <p className="text-sm text-gray-500">{t('bookingId') || 'Booking ID'}</p>
                   <p className="text-lg font-semibold">{selectedEvent.bookingId}</p>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedEvent.status)}`}>
-                  {selectedEvent.status?.toUpperCase()}
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedEvent.bookingStatus?.toLowerCase())}`}>
+                  {selectedEvent.bookingStatus?.toUpperCase()}
                 </span>
               </div>
 
@@ -132,7 +131,7 @@ const EventModal = () => {
               </div>
 
               {/* Pricing Information */}
-              <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+              {/* <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                 <p className="text-sm font-medium text-gray-900 mb-2">{t('pricingDetails') || 'Pricing Details'}</p>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">{t('carRentPrice') || 'Car Rent Price'}</span>
@@ -146,13 +145,13 @@ const EventModal = () => {
                   <span>{t('totalAmount') || 'Total Amount'}</span>
                   <span className="text-blue-600">{formatCurrency(selectedEvent.totalAmount)}</span>
                 </div>
-              </div>
+              </div> */}
 
               {/* Payment Status */}
               <div>
                 <p className="text-sm text-gray-500 mb-1">{t('paymentStatus') || 'Payment Status'}</p>
                 <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                  selectedEvent.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                  selectedEvent.paymentStatus === 'Paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                 }`}>
                   {selectedEvent.paymentStatus?.toUpperCase()}
                 </span>

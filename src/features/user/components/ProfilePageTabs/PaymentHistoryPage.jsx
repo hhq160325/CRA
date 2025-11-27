@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { axiosInstance } from '../../../../shared/utils/axiosInstance';
-import { BOOKING_ENDPOINTS, CAR_ENDPOINTS, PAYMENT_ENDPOINTS } from '../../../../config/api';
+import { PAYMENT_ENDPOINTS } from '../../../../config/api';
 import { decodeJWT } from '../../../auth/utils';
 
-const RentalHistoryPage = () => {
+const PaymentHistoryPage = () => {
   const { t } = useTranslation();
-  const [rentalHistory, setRentalHistory] = useState([]);
+  const [paymentHistory, setPaymentHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   useEffect(() => {
-    const fetchRentalHistory = async () => {
+    const fetchPaymentHistory = async () => {
       try {
         setLoading(true);
         
@@ -34,109 +34,117 @@ const RentalHistoryPage = () => {
           return;
         }
 
-        // Fetch bookings for current customer
-        let userBookings = [];
+        // Fetch payments for current customer
+        let allPayments = [];
         try {
-          const bookingsResponse = await axiosInstance.get(BOOKING_ENDPOINTS.GET_CUSTOMER_BOOKINGS(currentUserId));
-          userBookings = bookingsResponse.data;
-          console.log(userBookings);
-        } catch (bookingError) {
-          // If 404, it means no bookings exist for this user
-          if (bookingError.response?.status === 404) {
-            console.log('No bookings found for user');
-            setRentalHistory([]);
+          const paymentsResponse = await axiosInstance.get(PAYMENT_ENDPOINTS.GET_ALL_PAYMENTS);
+          allPayments = paymentsResponse.data;
+        } catch (paymentError) {
+          // If 404, it means no payments exist
+          if (paymentError.response?.status === 404) {
+            console.log('No payments found');
+            setPaymentHistory([]);
+            setError(null);
+            setLoading(false);
+            return;
+          }
+          // Handle timeout errors
+          if (paymentError.code === 'ECONNABORTED' || paymentError.message?.includes('timeout')) {
+            console.warn('Payment API timeout - treating as no payments');
+            setPaymentHistory([]);
             setError(null);
             setLoading(false);
             return;
           }
           // For other errors, throw to be caught by outer catch
-          throw bookingError;
-        }
-        
-        // Fetch all cars
-        const carsResponse = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS);
-        const allCars = carsResponse.data;
-
-        // Fetch all payments from PayOS
-        let paymentsData = [];
-        try {
-          const paymentsResponse = await axiosInstance.get(PAYMENT_ENDPOINTS.GET_ALL_PAYMENTS);
-          paymentsData = Array.isArray(paymentsResponse.data) ? paymentsResponse.data : [];
-          console.log('RentalHistory - Fetched payments:', paymentsData.length);
-        } catch (paymentError) {
-          console.warn('Failed to fetch payments:', paymentError.message);
+          throw paymentError;
         }
 
-        // Create a map of cars for quick lookup
-        const carsMap = {};
-        allCars.forEach(car => {
-          carsMap[car.id] = car;
-        });
+        // Filter payments for current user by comparing userId
+        const userPayments = Array.isArray(allPayments) 
+          ? allPayments.filter(payment => {
+              const paymentUserId = payment.userId || payment.customerId || payment.user_id;
+              return paymentUserId && String(paymentUserId) === String(currentUserId);
+            })
+          : [];
 
-        // Create a map of payments by invoiceId for quick lookup
-        const paymentsMap = {};
-        paymentsData.forEach(payment => {
-          const invoiceId = payment.invoiceId || payment.orderCode;
-          if (invoiceId) {
-            paymentsMap[invoiceId] = payment;
-          }
-        });
-
-        // console.log('RentalHistory - Bookings invoiceIds:', userBookings.map(b => b.invoiceId));
-        // console.log('RentalHistory - Payments map keys:', Object.keys(paymentsMap));
-
-        // Combine booking, car, and payment data
-        const history = userBookings.map((booking, index) => {
-          const car = carsMap[booking.carId];
-          const pickupDate = new Date(booking.pickupTime);
+        // Transform API data to match component structure
+        const history = userPayments.map((payment, index) => {
+          const paymentDate = payment.createdAt ? new Date(payment.createdAt) : new Date();
+          const paymentStatus = payment.status ? String(payment.status).toLowerCase() : 'pending';
           
-          // Get payment date from PayOS if available
-          let paymentDate = 'No Payment';
-          if (booking.invoiceId && paymentsMap[booking.invoiceId]) {
-            const payment = paymentsMap[booking.invoiceId];
-            const paymentStatus = payment.status ? String(payment.status).toLowerCase() : '';
-            
-            // console.log(`RentalHistory - Booking ${booking.id} matched payment:`, {
-            //   invoiceId: booking.invoiceId,
-            //   paymentStatus,
-            //   createdAt: payment.createDate
-            // });
-            
-            // Only show payment date if payment was successful
-            if (paymentStatus === 'paid' || paymentStatus === 'success' || paymentStatus === 'completed') {
-              const paidDate = payment.createDate ? new Date(payment.createDate) : null;
-              if (paidDate) {
-                paymentDate = paidDate.toISOString().split('T')[0];
-              }
-            }
-          } else {
-            // console.log(`RentalHistory - Booking ${booking.id} has no matching payment. InvoiceId: ${booking.invoiceId}`);
-          }
-     
           return {
-            id: index + 1,
-            carName: car?.model || 'Unknown Car',
-            // type: car?.model || 'N/A',
-            brand: car?.manufacturer || 'N/A',
-            plateNo: car?.licensePlate || 'N/A',
-            rentDay: pickupDate.toISOString().split('T')[0],
-            status: booking.status,
-            paymentDate: paymentDate
+            id: payment.id || index + 1,
+            orderCode: payment.orderCode || payment.invoiceId || 'N/A',
+            amount: payment.amount || payment.totalAmount || payment.paidAmount || 0,
+            paymentDate: paymentDate.toISOString().split('T')[0],
+            paymentTime: paymentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+            status: paymentStatus,
+            paymentMethod: payment.paymentMethod || 'N/A',
+            // transactionId: payment.transactionId || 'N/A'
           };
         });
-        
-        setRentalHistory(history);
+
+        setPaymentHistory(history);
         setError(null);
       } catch (err) {
-        console.error('Error fetching rental history:', err);
-        setError('Failed to load rental history');
+        console.error('Error fetching payment history:', err);
+        setError('Failed to load payment history');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRentalHistory();
+    fetchPaymentHistory();
   }, []);
+
+  // Format amount to Vietnamese currency format
+  const formatCurrency = (amount) => {
+    if (!amount && amount !== 0) return 'N/A';
+    return `${Number(amount).toLocaleString('vi-VN')} đ`;
+  };
+
+  const getStatusBadge = (status) => {
+    const baseClasses = "inline-flex px-2 py-1 text-xs font-semibold rounded-full";
+    switch (status) {
+      case 'paid':
+      case 'success':
+      case 'completed':
+        return `${baseClasses} bg-green-100 text-green-800`;
+      case 'pending':
+      case 'processing':
+        return `${baseClasses} bg-yellow-100 text-yellow-800`;
+      case 'failed':
+      case 'cancelled':
+      case 'canceled':
+        return `${baseClasses} bg-red-100 text-red-800`;
+      case 'refunded':
+        return `${baseClasses} bg-blue-100 text-blue-800`;
+      default:
+        return `${baseClasses} bg-gray-100 text-gray-800`;
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case 'paid':
+      case 'success':
+      case 'completed':
+        return t('paid');
+      case 'pending':
+      case 'processing':
+        return t('pending');
+      case 'failed':
+        return t('failed');
+      case 'cancelled':
+      case 'canceled':
+        return t('cancelled');
+      case 'refunded':
+        return t('refunded');
+      default:
+        return status;
+    }
+  };
 
   if (loading) {
     return (
@@ -155,10 +163,10 @@ const RentalHistoryPage = () => {
   }
 
   // Pagination calculations
-  const totalPages = Math.ceil(rentalHistory.length / itemsPerPage);
+  const totalPages = Math.ceil(paymentHistory.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentItems = rentalHistory.slice(startIndex, endIndex);
+  const currentItems = paymentHistory.slice(startIndex, endIndex);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -169,53 +177,46 @@ const RentalHistoryPage = () => {
     <div>
       <div className="bg-white rounded-lg shadow-sm">
         <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
-          <h1 className="hidden lg:block text-xl font-semibold text-gray-900">{t('Rental History')}</h1>
-          <h1 className="lg:hidden text-lg font-semibold text-gray-900">{t('Rental History')}</h1>
+          <h1 className="hidden lg:block text-xl font-semibold text-gray-900">{t('Payment History')}</h1>
+          <h1 className="lg:hidden text-lg font-semibold text-gray-900">{t('Payment History')}</h1>
         </div>
 
-        {rentalHistory.length === 0 ? (
+        {paymentHistory.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
-            {t('noRentalHistory') || 'No rental history found'}
+            {t('noPaymentHistory') || 'No payment history found'}
           </div>
         ) : (
           <>
             {/* Mobile Card View */}
             <div className="lg:hidden">
-          {currentItems.map((rental) => (
-            <div key={rental.id} className="border-b border-gray-200 p-4">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-semibold text-gray-900 text-sm">{rental.carName}</h3>
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${rental.status === 'Confirmed' || rental.status === 'Paid'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
-                  }`}>
-                  {rental.status === 'Confirmed' ? t('confirmed') : t('cancelled')}
-                </span>
-              </div>
-              <div className="space-y-1 text-sm text-gray-600">
-                {/* <div className="flex justify-between">
-                  <span>{t('type')}:</span>
-                  <span>{rental.type}</span>
-                </div> */}
-                <div className="flex justify-between">
-                  <span>{t('brand')}:</span>
-                  <span>{rental.brand}</span>
+              {currentItems.map((payment) => (
+                <div key={payment.id} className="border-b border-gray-200 p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-semibold text-gray-900 text-sm">{payment.orderCode}</h3>
+                    <span className={getStatusBadge(payment.status)}>
+                      {getStatusText(payment.status)}
+                    </span>
+                  </div>
+                  <div className="space-y-1 text-sm text-gray-600">
+                    <div className="flex justify-between">
+                      <span>{t('amount')}:</span>
+                      <span className="font-medium text-gray-900">{formatCurrency(payment.amount)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{t('paymentDate')}:</span>
+                      <span>{payment.paymentDate} {payment.paymentTime}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{t('paymentMethod')}:</span>
+                      <span>{payment.paymentMethod}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{t('transactionId')}:</span>
+                      <span className="text-xs">{payment.transactionId}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span>{t('plateNo')}:</span>
-                  <span>{rental.plateNo}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{t('rentDay')}:</span>
-                  <span>{rental.rentDay}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{t('paymentDate')}:</span>
-                  <span>{rental.paymentDate === 'No Payment' ? t('noPayment') : rental.paymentDate}</span>
-                </div>
-              </div>
-              </div>
-            ))}
+              ))}
             </div>
 
             {/* Desktop Table View */}
@@ -223,34 +224,30 @@ const RentalHistoryPage = () => {
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('no')}</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('carName')}</th>
-                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('type')}</th> */}
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('brand')}</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('plateNo')}</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('rentDay')}</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('status')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('orderCode')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('amount')}</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('paymentDate')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('paymentMethod')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('status')}</th>
+                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('transactionId')}</th> */}
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {currentItems.map((rental) => (
-                    <tr key={rental.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.id}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.carName}</td>
-                      {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.type}</td> */}
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.brand}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.plateNo}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.rentDay}</td>
+                  {currentItems.map((payment) => (
+                    <tr key={payment.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.orderCode}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{formatCurrency(payment.amount)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div>{payment.paymentDate}</div>
+                        <div className="text-xs text-gray-500">{payment.paymentTime}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.paymentMethod}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${rental.status === 'Confirmed' || rental.status === 'Paid'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                          }`}>
-                          {rental.status === 'Confirmed' ? t('confirmed') : t('cancelled')}
+                        <span className={getStatusBadge(payment.status)}>
+                          {getStatusText(payment.status)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.paymentDate === 'No Payment' ? t('noPayment') : rental.paymentDate}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.transactionId}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -258,7 +255,7 @@ const RentalHistoryPage = () => {
             </div>
 
             {/* Pagination */}
-            {rentalHistory.length > 0 && (
+            {paymentHistory.length > 0 && (
               <div className="px-4 py-4 border-t border-gray-200 flex items-center justify-between">
                 <div className="flex-1 flex justify-between sm:hidden">
                   <button
@@ -288,8 +285,8 @@ const RentalHistoryPage = () => {
                   <div>
                     <p className="text-sm text-gray-700">
                       {t('showing') || 'Showing'} <span className="font-medium">{startIndex + 1}</span> {t('to') || 'to'}{' '}
-                      <span className="font-medium">{Math.min(endIndex, rentalHistory.length)}</span> {t('of') || 'of'}{' '}
-                      <span className="font-medium">{rentalHistory.length}</span> {t('results') || 'results'}
+                      <span className="font-medium">{Math.min(endIndex, paymentHistory.length)}</span> {t('of') || 'of'}{' '}
+                      <span className="font-medium">{paymentHistory.length}</span> {t('results') || 'results'}
                     </p>
                   </div>
                   <div>
@@ -310,7 +307,6 @@ const RentalHistoryPage = () => {
                       </button>
                       {[...Array(totalPages)].map((_, index) => {
                         const pageNumber = index + 1;
-                        // Show first page, last page, current page, and pages around current
                         if (
                           pageNumber === 1 ||
                           pageNumber === totalPages ||
@@ -370,4 +366,4 @@ const RentalHistoryPage = () => {
   );
 };
 
-export default RentalHistoryPage;
+export default PaymentHistoryPage;

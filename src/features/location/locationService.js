@@ -110,92 +110,63 @@ export const clearLocationWatch = (watchId) => {
 };
 
 /**
- * Reverse geocode coordinates to address using OpenMap Vietnam API
- * Better accuracy for Vietnam addresses
+ * Reverse geocode coordinates to address using Geoapify API
  * @param {number} latitude - Latitude coordinate
  * @param {number} longitude - Longitude coordinate
  * @returns {Promise<Object>} Address information
  */
 export const reverseGeocode = async (latitude, longitude) => {
   try {
-    const apiKey = process.env.REACT_APP_OPENMAP_API_KEY;
+    const apiKey = process.env.REACT_APP_GEOAPIFY_API_KEY || '8cd8a0368a9b4aa9948526ec9b8b8a86';
     
     if (!apiKey) {
-      throw new Error('OpenMap API key is not configured');
+      throw new Error('Geoapify API key is not configured');
     }
     
-    // OpenMap Vietnam API endpoint - with admin_v2 for better administrative boundaries
-    const url = `https://mapapis.openmap.vn/v1/geocode/reverse?latlng=${latitude},${longitude}&admin_v2=true&apikey=${apiKey}`;
+    // Geoapify reverse geocoding endpoint
+    const url = `https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&apiKey=${apiKey}`;
     
-    console.log('=== OpenMap API Request ===');
+    console.log('=== Geoapify API Request ===');
     console.log('URL:', url);
-    console.log('===========================');
+    console.log('============================');
     
     const response = await fetch(url);
 
     if (!response.ok) {
-      console.error('OpenMap API Error - Status:', response.status);
-      throw new Error(`Failed to fetch address from OpenMap Vietnam: ${response.status}`);
+      console.error('Geoapify API Error - Status:', response.status);
+      throw new Error(`Failed to fetch address from Geoapify: ${response.status}`);
     }
 
     const data = await response.json();
     
-    console.log('=== OpenMap API Response ===');
+    console.log('=== Geoapify API Response ===');
     console.log('Full response data:', data);
-    console.log('Results count:', data.results?.length || 0);
-    console.log('============================');
+    console.log('Features count:', data.features?.length || 0);
+    console.log('=============================');
     
-    // OpenMap Vietnam response structure
-    // Format: { results: [{ address: "...", address_components: [...], geometry: {...} }] }
-    if (!data.results || data.results.length === 0) {
+    // Geoapify response structure
+    // Format: { features: [{ properties: { ... } }] }
+    if (!data.features || data.features.length === 0) {
       throw new Error('No address found for these coordinates');
     }
     
-    const result = data.results[0];
-    const displayName = result.address || result.formatted_address || '';
-    const components = result.address_components || [];
+    const result = data.features[0];
+    const props = result.properties || {};
     
-
-    // Parse address components - OpenMap Vietnam format
-    const getComponent = (types) => {
-      const typeArray = Array.isArray(types) ? types : [types];
-      const component = components.find(c => {
-        if (!c.types) return false;
-        return typeArray.some(type => c.types.includes(type));
-      });
-      return component ? (component.long_name || component.short_name) : '';
-    };
+    // Extract address components from Geoapify
+    const houseNumber = props.housenumber || '';
+    const roadName = props.street || props.road || '';
+    const ward = props.suburb || props.neighbourhood || '';
+    const district = props.district || props.county || '';
+    const city = props.city || props.state || '';
+    const country = props.country || '';
+    const postcode = props.postcode || '';
     
+    // Get formatted address from Geoapify
+    const displayName = props.formatted || '';
     
-    // Try different type combinations for Vietnam addresses
-    let houseNumber = getComponent(['street_number', 'premise']);
-    let roadName = getComponent(['route', 'street']);
-    let ward = getComponent(['sublocality_level_1', 'sublocality', 'administrative_area_level_3', 'neighborhood']);
-    let district = getComponent(['administrative_area_level_2', 'locality']);
-    let city = getComponent(['administrative_area_level_1', 'administrative_area']);
-    const country = getComponent(['country']);
-    
-    
-    // If components are empty, try parsing from display name
-    if (!roadName && !ward && !district && displayName) {
-      const parts = displayName.split(',').map(p => p.trim());
-      
-      // Typical format: "30/5C Phan Huy Ích, phường An Hội Tây, thành phố Hồ Chí Minh"
-      if (parts.length >= 3) {
-        roadName = parts[0] || roadName;
-        ward = parts[1]?.replace(/^(phường|Phường)\s+/, '') || ward;
-        district = parts[2]?.replace(/^(quận|Quận|huyện|Huyện)\s+/, '') || district;
-        city = parts[3] || parts[2] || city;
-      }
-    }
-    
-    // Clean up Vietnamese administrative prefixes
-    ward = ward?.replace(/^(phường|Phường|xã|Xã)\s+/, '') || ward;
-    district = district?.replace(/^(quận|Quận|huyện|Huyện|thị xã|Thị xã)\s+/, '') || district;
-    city = city?.replace(/^(thành phố|Thành phố|tỉnh|Tỉnh)\s+/, '') || city;
-    
-    // Build formatted address in Vietnamese style
-    // Format: [House Number] [Street], [Ward], [District]
+    // Build formatted address
+    // Format: [House Number] [Street], [Ward], [District], [City]
     let formattedParts = [];
     
     if (houseNumber && roadName) {
@@ -206,9 +177,12 @@ export const reverseGeocode = async (latitude, longitude) => {
     
     if (ward) formattedParts.push(ward);
     
-    // Only add district if it exists and is not empty
     if (district && district.trim()) {
       formattedParts.push(district);
+    }
+    
+    if (city && city.trim()) {
+      formattedParts.push(city);
     }
     
     const formattedAddress = formattedParts.length > 0 
@@ -226,19 +200,19 @@ export const reverseGeocode = async (latitude, longitude) => {
     console.log('City:', city || 'N/A');
     console.log('Formatted Parts:', formattedParts);
     console.log('Final Formatted Address:', formattedAddress);
-    console.log('===========================');
+    console.log('============================');
     
     return {
       formattedAddress: formattedAddress,
       fullAddress: displayName, // Keep original full address
       address: {
-        houseNumber: houseNumber || '',
-        road: roadName || '',
-        ward: ward || '',
-        district: district || '',
-        city: city || '',
-        country: country || 'Việt Nam',
-        postcode: getComponent('postal_code') || ''
+        houseNumber: houseNumber,
+        road: roadName,
+        ward: ward,
+        district: district,
+        city: city,
+        country: country,
+        postcode: postcode
       },
       coordinates: {
         latitude,

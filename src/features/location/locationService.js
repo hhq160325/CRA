@@ -127,13 +127,23 @@ export const reverseGeocode = async (latitude, longitude) => {
     // OpenMap Vietnam API endpoint - with admin_v2 for better administrative boundaries
     const url = `https://mapapis.openmap.vn/v1/geocode/reverse?latlng=${latitude},${longitude}&admin_v2=true&apikey=${apiKey}`;
     
+    console.log('=== OpenMap API Request ===');
+    console.log('URL:', url);
+    console.log('===========================');
+    
     const response = await fetch(url);
 
     if (!response.ok) {
+      console.error('OpenMap API Error - Status:', response.status);
       throw new Error(`Failed to fetch address from OpenMap Vietnam: ${response.status}`);
     }
 
     const data = await response.json();
+    
+    console.log('=== OpenMap API Response ===');
+    console.log('Full response data:', data);
+    console.log('Results count:', data.results?.length || 0);
+    console.log('============================');
     
     // OpenMap Vietnam response structure
     // Format: { results: [{ address: "...", address_components: [...], geometry: {...} }] }
@@ -185,7 +195,7 @@ export const reverseGeocode = async (latitude, longitude) => {
     city = city?.replace(/^(thành phố|Thành phố|tỉnh|Tỉnh)\s+/, '') || city;
     
     // Build formatted address in Vietnamese style
-    // Format: [House Number] [Street], [Ward], [District], [City]
+    // Format: [House Number] [Street], [Ward], [District]
     let formattedParts = [];
     
     if (houseNumber && roadName) {
@@ -195,12 +205,28 @@ export const reverseGeocode = async (latitude, longitude) => {
     }
     
     if (ward) formattedParts.push(ward);
-    if (district) formattedParts.push(district);
-    if (city) formattedParts.push(city);
+    
+    // Only add district if it exists and is not empty
+    if (district && district.trim()) {
+      formattedParts.push(district);
+    }
     
     const formattedAddress = formattedParts.length > 0 
       ? formattedParts.join(', ')
       : displayName;
+    
+    // Log formatted address components
+    console.log('=== Address Format Debug ===');
+    console.log('Latitude:', latitude);
+    console.log('Longitude:', longitude);
+    console.log('House Number:', houseNumber || 'N/A');
+    console.log('Road Name:', roadName || 'N/A');
+    console.log('Ward:', ward || 'N/A');
+    console.log('District:', district || 'N/A');
+    console.log('City:', city || 'N/A');
+    console.log('Formatted Parts:', formattedParts);
+    console.log('Final Formatted Address:', formattedAddress);
+    console.log('===========================');
     
     return {
       formattedAddress: formattedAddress,

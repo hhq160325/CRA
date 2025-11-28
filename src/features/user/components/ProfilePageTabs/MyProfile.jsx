@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import UpdateProfileDialog from './MyProfileDialog/UpdateProfileDialog';
 import UpdatePhoneDialog from './MyProfileDialog/UpdatePhoneDialog';
 import UpdateEmailDialog from './MyProfileDialog/UpdateEmailDialog';
 import UploadDriver from '../UploadDriver';
-import { getUserById, updateUserInfo } from '../../../user/api';
+import { getUserById, updateUserInfo, uploadAvatar } from '../../../user/api';
 import { updateUserData } from '../../../auth/authSlice';
 import { tokenUtils } from '../../../auth/utils';
 import { useLocation } from '../../../location/useLocation';
@@ -34,6 +35,9 @@ const MyProfile = () => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarFile, setAvatarFile] = useState(null); // Store the file temporarily
+  const [avatarPreview, setAvatarPreview] = useState(null); // Store preview URL
 
   const [isEditing, setIsEditing] = useState(false);
   
@@ -71,7 +75,9 @@ const MyProfile = () => {
         setError(null);
       } catch (err) {
         console.error('Failed to fetch user data:', err);
-        setError('Failed to load user data. Please try again.');
+        const errorMessage = err.response?.data?.message || 'Failed to load user data. Please try again.';
+        setError(errorMessage);
+        toast.error(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -122,59 +128,85 @@ const MyProfile = () => {
   const handleSave = async () => {
     try {
       setLoading(true);
+      setError(null);
       
-      // Convert gender back to number for API
+      let updatedData;
+
+      // Step 1: Upload avatar if a new file was selected
+      if (avatarFile) {
+        setUploadingAvatar(true);
+        try {
+          const avatarResponse = await uploadAvatar(avatarFile);
+          updatedData = avatarResponse; // API returns full user object with new avatar URL
+          
+          // Clear avatar file and preview after successful upload
+          setAvatarFile(null);
+          setAvatarPreview(null);
+        } catch (avatarErr) {
+          console.error('Failed to upload avatar:', avatarErr);
+          const errorMessage = avatarErr.response?.data?.message || 'Failed to upload avatar. Please try again.';
+          toast.error(errorMessage);
+          setLoading(false);
+          setUploadingAvatar(false);
+          return; // Stop if avatar upload fails
+        } finally {
+          setUploadingAvatar(false);
+        }
+      }
+
+      // Step 2: Update other user info
       const genderValue = userInfo.gender === 'Male' ? 1 : userInfo.gender === 'Female' ? 2 : 3;
       
-      // Prepare data for API
       const updateData = {
         username: userInfo.username,
         password: userInfo.password || undefined,
         phoneNumber: userInfo.phoneNumber,
         fullname: userInfo.fullname,
         address: userInfo.address,
-        imageAvatar: userInfo.imageAvatar,
+        imageAvatar: updatedData?.imageAvatar || userInfo.imageAvatar, // Use new avatar URL if uploaded
         status: userInfo.status,
         gender: genderValue
       };
 
       await updateUserInfo(updateData);
-      setIsEditing(false);
-      setError(null);
       
-      // Optionally refetch user data to ensure sync
-      const updatedData = await getUserById();
+      // Step 3: Refetch user data to ensure sync
+      const finalData = await getUserById();
       setUserInfo({
-        name: updatedData.username || 'N/A',
-        username: updatedData.username || '',
-        fullname: updatedData.fullname || '',
+        name: finalData.username || 'N/A',
+        username: finalData.username || '',
+        fullname: finalData.fullname || '',
         joinDate: 'Join 12/9/2025',
         dateOfBirth: '30/9/2001',
-        gender: updatedData.gender === 1 ? 'Male' : updatedData.gender === 2 ? 'Female' : 'Other',
-        phoneNumber: updatedData.phoneNumber || '',
-        email: updatedData.email || '',
+        gender: finalData.gender === 1 ? 'Male' : finalData.gender === 2 ? 'Female' : 'Other',
+        phoneNumber: finalData.phoneNumber || '',
+        email: finalData.email || '',
         facebook: '',
-        google: updatedData.isGoogle ? updatedData.email : '',
-        imageAvatar: updatedData.imageAvatar,
-        isGoogle: updatedData.isGoogle,
-        address: updatedData.address || '',
-        status: updatedData.status || '',
-        
+        google: finalData.isGoogle ? finalData.email : '',
+        imageAvatar: finalData.imageAvatar,
+        isGoogle: finalData.isGoogle,
+        address: finalData.address || '',
+        status: finalData.status || '',
+        password: finalData.password || ''
       });
 
-      // Update localStorage and Redux store with new avatar and username
+      // Step 4: Update localStorage and Redux store
       tokenUtils.updateUserData({
-        username: updatedData.username,
-        imageAvatar: updatedData.imageAvatar
+        username: finalData.username,
+        imageAvatar: finalData.imageAvatar
       });
       
       dispatch(updateUserData({
-        username: updatedData.username,
-        imageAvatar: updatedData.imageAvatar
+        username: finalData.username,
+        imageAvatar: finalData.imageAvatar
       }));
+
+      setIsEditing(false);
+      toast.success('Profile updated successfully!', { autoClose: 3000 });
     } catch (err) {
       console.error('Failed to save profile:', err);
-      setError('Failed to save profile. Please try again.');
+      const errorMessage = err.response?.data?.message || 'Failed to save profile. Please try again.';
+      toast.error(errorMessage, { autoClose: 5000 });
     } finally {
       setLoading(false);
     }
@@ -183,6 +215,11 @@ const MyProfile = () => {
   const handleCancel = async () => {
     try {
       setIsEditing(false);
+      
+      // Clear avatar file and preview
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      
       // Refetch user data to reset changes
       const data = await getUserById();
       setUserInfo({
@@ -216,16 +253,35 @@ const MyProfile = () => {
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUserInfo(prev => ({
-          ...prev,
-          imageAvatar: reader.result
-        }));
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      toast.error('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
+      return;
     }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
+    // Store the file for later upload
+    setAvatarFile(file);
+    setError(null);
+
+    // Create preview URL
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result);
+    };
+    reader.onerror = () => {
+      toast.error('Failed to read image file');
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleGetLocation = async () => {
@@ -235,33 +291,9 @@ const MyProfile = () => {
   // Update address when location is obtained
   useEffect(() => {
     if (location && address) {
-      // Format: "30/5C Phan Huy Ích, An Hội Tây, thành phố Hồ Chí Minh, Hồ Chí Minh"
-      // Structure: [houseNumber + road], [ward], [district], [city]
-      const addressParts = [];
-      
-      // Combine house number and road
-      if (address.houseNumber && address.road) {
-        addressParts.push(`${address.houseNumber} ${address.road}`);
-      } else if (address.road) {
-        addressParts.push(address.road);
-      }
-      
-      // Add ward (phường/xã)
-      if (address.ward) {
-        addressParts.push(address.ward);
-      }
-      
-      // Add district (quận/huyện)
-      if (address.district) {
-        addressParts.push(address.district);
-      }
-      
-      // Add city (thành phố/tỉnh)
-      if (address.city) {
-        addressParts.push(address.city);
-      }
-      
-      const formattedAddress = addressParts.filter(Boolean).join(', ');
+      // Use formattedAddress from location service
+      // Format: [houseNumber road], [ward], [district]
+      const formattedAddress = address.formattedAddress || '';
       
       setUserInfo(prev => ({
         ...prev,
@@ -348,23 +380,32 @@ const MyProfile = () => {
           <div className="flex-shrink-0 flex flex-col items-center">
             <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-gray-200 mb-4">
               <img
-                src={userInfo.imageAvatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"}
+                src={avatarPreview || userInfo.imageAvatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
-              {isEditing && (
-                <label className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 cursor-pointer hover:bg-opacity-60 transition-opacity">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isEditing && !uploadingAvatar && (
+                <label className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 cursor-pointer hover:bg-opacity-60 transition-opacity group">
+                  <svg className="w-8 h-8 text-white mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
+                  <span className="text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                    {t('changePhoto') || 'Change Photo'}
+                  </span>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
                     onChange={handleAvatarChange}
                     className="hidden"
+                    disabled={uploadingAvatar}
                   />
                 </label>
+              )}
+              {uploadingAvatar && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                </div>
               )}
             </div>
             <div className="text-center">

@@ -5,7 +5,7 @@ import { ProfilePage } from '../features/user';
 import { PaymentPage, PaymentSuccess, PaymentCancel } from '../features/payment';
 import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring } from '../features/admin';
 import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter } from '../features/staff';
-import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments } from '../features/owner';
+import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments, CarRegisDocs } from '../features/owner';
 import { AuthPage } from '../features/auth';
 // import ForgotPassword from '../features/auth/components/ForgotPassword';
 import SearchResult from '../features/search/components/SearchResult';
@@ -78,6 +78,7 @@ const AppRouter = () => {
         <Route path="inquiries" element={<Inquiries />} />
         <Route path="bookings" element={<BookingManagement />} />
         <Route path="payments" element={<Payments />} />
+        <Route path="car-regis-docs" element={<CarRegisDocs />} />
       </Route>
       
       {/* Add your other routes here */}

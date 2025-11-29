@@ -111,3 +111,13 @@ export const PAYMENT_API_CONFIG = {
   timeout: API_CONFIG.TIMEOUT,
   headers: API_CONFIG.HEADERS,
 };
+
+// TrackAsia endpoints
+export const TRACKASIA_ENDPOINTS = {
+  REVERSE_GEOCODING: `${API_CONFIG.BASE_URL}/TrackAsia/GetReverseGeocoding`,
+};
+
+export const TRACKASIA_API_CONFIG = {
+  timeout: API_CONFIG.TIMEOUT,
+  headers: API_CONFIG.HEADERS,
+};

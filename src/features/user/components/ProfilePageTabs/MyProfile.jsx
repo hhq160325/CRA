@@ -459,7 +459,7 @@ const MyProfile = () => {
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('fullName')}</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('enterFullName')}</label>
               {isEditing ? (
                 <input
                   type="text"

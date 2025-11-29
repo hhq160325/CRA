@@ -168,8 +168,8 @@ const CarPhotoUpload = ({
             if (errorTimeoutRef.current) {
                 clearTimeout(errorTimeoutRef.current);
             }
-            // Only clear error if we're not at max capacity
-            if (validItems.length < MAX_FILES_ALLOWED) {
+            // Clear error if we're within the allowed limit (including exactly at max)
+            if (validItems.length <= MAX_FILES_ALLOWED) {
                 onErrorChange('');
             }
         } else {
@@ -242,7 +242,7 @@ const CarPhotoUpload = ({
                     allowMultiple={true}
                     maxFiles={10}
                     maxFileSize="5MB"
-                    acceptedFileTypes={['image/png', 'image/jpeg', 'image/jpg', 'image/jfif']}
+                    acceptedFileTypes={['image/png', 'image/jpeg', 'image/jpg', 'image/jfif', 'image/gif']}
                     instantUpload={false}
                     allowRevert={false}
                     allowProcess={false}

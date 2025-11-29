@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { RegisterCar, RegisterCarStep2, RegisterCarStep3, CarDetail, CarRental } from '../features/cars';
+import { RegisterCar, RegisterCarStep2, RegisterCarStep3, CarDetail, CarDetailRev, CarRental } from '../features/cars';
 import { ProfilePage } from '../features/user';
 import { PaymentPage, PaymentSuccess, PaymentCancel } from '../features/payment';
 import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring } from '../features/admin';
@@ -31,7 +31,7 @@ const AppRouter = () => {
       <Route path="/cars" element={<CarRental />} />
       <Route path="/cars/:id" element={<CarDetail />} />
       <Route path="/search" element={<SearchResult />} />
-      
+      <Route path="/car-detail/:id" element={<CarDetailRev/>} />
       {/* Auth route - redirects based on user role if already authenticated */}
       <Route path="/auth" element={!isAuthenticated ? <AuthPage /> : <AuthRedirect />} />
       

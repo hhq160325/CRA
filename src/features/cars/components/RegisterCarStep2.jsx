@@ -25,7 +25,12 @@ const RegisterCarStep2 = () => {
     useEffect(() => {
         const savedData = localStorage.getItem('carRegistrationStep2');
         if (savedData) {
-            setFormData(JSON.parse(savedData));
+            const parsedData = JSON.parse(savedData);
+            // Convert dailyPrice from number to formatted string if needed
+            if (typeof parsedData.dailyPrice === 'number') {
+                parsedData.dailyPrice = parsedData.dailyPrice.toLocaleString('de-DE');
+            }
+            setFormData(parsedData);
         }
     }, []);
 
@@ -106,7 +111,16 @@ const RegisterCarStep2 = () => {
 
     const handleNext = () => {
         // Save form data to localStorage before navigating
-        localStorage.setItem('carRegistrationStep2', JSON.stringify(formData));
+        // Convert dailyPrice from formatted string to number (e.g., "10.000" -> 10000)
+        const dailyPriceValue = typeof formData.dailyPrice === 'string' 
+            ? parseFloat(formData.dailyPrice.replace(/\./g, '')) || 0
+            : formData.dailyPrice;
+        
+        const dataToSave = {
+            ...formData,
+            dailyPrice: dailyPriceValue
+        };
+        localStorage.setItem('carRegistrationStep2', JSON.stringify(dataToSave));
         navigate('/register-car/step-3');
     };
 

@@ -4,6 +4,8 @@
  * and reverse geocoding coordinates to addresses
  */
 
+import { TRACKASIA_ENDPOINTS, TRACKASIA_API_CONFIG } from '../../config/api';
+
 /**
  * Get user's current precise location
  * Optimized for Vietnam with high accuracy GPS
@@ -110,7 +112,7 @@ export const clearLocationWatch = (watchId) => {
 };
 
 /**
- * Reverse geocode coordinates to address using OpenMap Vietnam API
+ * Reverse geocode coordinates to address using backend API
  * Better accuracy for Vietnam addresses
  * @param {number} latitude - Latitude coordinate
  * @param {number} longitude - Longitude coordinate
@@ -118,107 +120,32 @@ export const clearLocationWatch = (watchId) => {
  */
 export const reverseGeocode = async (latitude, longitude) => {
   try {
-    const apiKey = process.env.REACT_APP_OPENMAP_API_KEY;
-    
-    if (!apiKey) {
-      throw new Error('OpenMap API key is not configured');
-    }
-    
-    // OpenMap Vietnam API endpoint - with admin_v2 for better administrative boundaries
-    const url = `https://mapapis.openmap.vn/v1/geocode/reverse?latlng=${latitude},${longitude}&admin_v2=true&apikey=${apiKey}`;
-    
-    const response = await fetch(url);
+    const response = await fetch(TRACKASIA_ENDPOINTS.REVERSE_GEOCODING, {
+      method: 'POST',
+      headers: TRACKASIA_API_CONFIG.headers,
+      body: JSON.stringify({
+        latitude: latitude.toString(),
+        longitude: longitude.toString()
+      })
+    });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch address from OpenMap Vietnam: ${response.status}`);
+      throw new Error(`Failed to fetch address: ${response.status}`);
     }
 
     const data = await response.json();
     
-    // OpenMap Vietnam response structure
-    // Format: { results: [{ address: "...", address_components: [...], geometry: {...} }] }
-    if (!data.results || data.results.length === 0) {
+    if (!data.formattedAddress) {
       throw new Error('No address found for these coordinates');
     }
     
-    const result = data.results[0];
-    const displayName = result.address || result.formatted_address || '';
-    const components = result.address_components || [];
-    
-
-    // Parse address components - OpenMap Vietnam format
-    const getComponent = (types) => {
-      const typeArray = Array.isArray(types) ? types : [types];
-      const component = components.find(c => {
-        if (!c.types) return false;
-        return typeArray.some(type => c.types.includes(type));
-      });
-      return component ? (component.long_name || component.short_name) : '';
-    };
-    
-    
-    // Try different type combinations for Vietnam addresses
-    let houseNumber = getComponent(['street_number', 'premise']);
-    let roadName = getComponent(['route', 'street']);
-    let ward = getComponent(['sublocality_level_1', 'sublocality', 'administrative_area_level_3', 'neighborhood']);
-    let district = getComponent(['administrative_area_level_2', 'locality']);
-    let city = getComponent(['administrative_area_level_1', 'administrative_area']);
-    const country = getComponent(['country']);
-    
-    
-    // If components are empty, try parsing from display name
-    if (!roadName && !ward && !district && displayName) {
-      const parts = displayName.split(',').map(p => p.trim());
-      
-      // Typical format: "30/5C Phan Huy Ích, phường An Hội Tây, thành phố Hồ Chí Minh"
-      if (parts.length >= 3) {
-        roadName = parts[0] || roadName;
-        ward = parts[1]?.replace(/^(phường|Phường)\s+/, '') || ward;
-        district = parts[2]?.replace(/^(quận|Quận|huyện|Huyện)\s+/, '') || district;
-        city = parts[3] || parts[2] || city;
-      }
-    }
-    
-    // Clean up Vietnamese administrative prefixes
-    ward = ward?.replace(/^(phường|Phường|xã|Xã)\s+/, '') || ward;
-    district = district?.replace(/^(quận|Quận|huyện|Huyện|thị xã|Thị xã)\s+/, '') || district;
-    city = city?.replace(/^(thành phố|Thành phố|tỉnh|Tỉnh)\s+/, '') || city;
-    
-    // Build formatted address in Vietnamese style
-    // Format: [House Number] [Street], [Ward], [District], [City]
-    let formattedParts = [];
-    
-    if (houseNumber && roadName) {
-      formattedParts.push(`${houseNumber} ${roadName}`);
-    } else if (roadName) {
-      formattedParts.push(roadName);
-    }
-    
-    if (ward) formattedParts.push(ward);
-    if (district) formattedParts.push(district);
-    if (city) formattedParts.push(city);
-    
-    const formattedAddress = formattedParts.length > 0 
-      ? formattedParts.join(', ')
-      : displayName;
-    
     return {
-      formattedAddress: formattedAddress,
-      fullAddress: displayName, // Keep original full address
-      address: {
-        houseNumber: houseNumber || '',
-        road: roadName || '',
-        ward: ward || '',
-        district: district || '',
-        city: city || '',
-        country: country || 'Việt Nam',
-        postcode: getComponent('postal_code') || ''
-      },
+      formattedAddress: data.formattedAddress,
+      oldFormattedAddress: data.oldFormattedAddress,
       coordinates: {
         latitude,
         longitude
-      },
-      rawData: data // Include raw data for debugging
+      }
     };
   } catch (error) {
     throw new Error(`Reverse geocoding failed: ${error.message}`);
@@ -292,21 +219,17 @@ export const getCurrentLocationWithAddress = async (useBestLocation = false) => 
 };
 
 /**
- * Forward geocode address to coordinates using OpenMap Vietnam
+ * Forward geocode address to coordinates using TrackAsia
  * Better accuracy for Vietnam addresses
  * @param {string} address - Address string to geocode
  * @returns {Promise<Object>} Location data with coordinates
  */
 export const geocodeAddress = async (address) => {
   try {
-    const apiKey = process.env.REACT_APP_OPENMAP_API_KEY;
-    
-    if (!apiKey) {
-      throw new Error('OpenMap API key is not configured');
-    }
+    const apiKey = process.env.REACT_APP_TRACKASIA_API_KEY || 'public_key';
     
     const response = await fetch(
-      `https://mapapis.openmap.vn/v1/geocode/search?address=${encodeURIComponent(address)}&apikey=${apiKey}`
+      `https://maps.track-asia.com/api/v2/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`
     );
 
     if (!response.ok) {
@@ -315,18 +238,19 @@ export const geocodeAddress = async (address) => {
 
     const data = await response.json();
     
-    if (!data || !data.results || data.results.length === 0) {
+    if (data.status !== 'OK' || !data.results || data.results.length === 0) {
       throw new Error('Address not found');
     }
 
     const result = data.results[0];
-    const location = result.geometry?.location || result.location || {};
+    const location = result.geometry?.location || {};
 
     return {
-      latitude: parseFloat(location.lat || result.lat),
-      longitude: parseFloat(location.lng || result.lng || result.lon),
-      formattedAddress: result.formatted_address || result.address || address,
-      placeId: result.place_id || result.id
+      latitude: parseFloat(location.lat),
+      longitude: parseFloat(location.lng),
+      formattedAddress: result.formatted_address || result.name || address,
+      placeId: result.place_id || '',
+      plusCode: result.plus_code?.global_code || ''
     };
   } catch (error) {
     throw new Error(`Geocoding failed: ${error.message}`);
@@ -334,7 +258,7 @@ export const geocodeAddress = async (address) => {
 };
 
 /**
- * Get place autocomplete suggestions using OpenMap Vietnam
+ * Get place autocomplete suggestions using TrackAsia
  * Better accuracy for Vietnam addresses
  * @param {string} input - Search input text
  * @returns {Promise<Array>} Array of place predictions
@@ -345,14 +269,10 @@ export const getPlaceAutocomplete = async (input) => {
   }
 
   try {
-    const apiKey = process.env.REACT_APP_OPENMAP_API_KEY;
-    
-    if (!apiKey) {
-      throw new Error('OpenMap API key is not configured');
-    }
+    const apiKey = process.env.REACT_APP_TRACKASIA_API_KEY || 'public_key';
     
     const response = await fetch(
-      `https://mapapis.openmap.vn/v1/geocode/autocomplete?text=${encodeURIComponent(input)}&apikey=${apiKey}`
+      `https://maps.track-asia.com/api/v2/geocode/autocomplete?text=${encodeURIComponent(input)}&key=${apiKey}`
     );
 
     if (!response.ok) {
@@ -361,7 +281,7 @@ export const getPlaceAutocomplete = async (input) => {
 
     const data = await response.json();
     
-    if (!data || !data.predictions) {
+    if (data.status !== 'OK' || !data.predictions) {
       return [];
     }
     
@@ -370,7 +290,7 @@ export const getPlaceAutocomplete = async (input) => {
       const secondaryText = place.structured_formatting?.secondary_text || place.description?.split(',').slice(1).join(',').trim() || '';
       
       return {
-        placeId: place.place_id || place.id,
+        placeId: place.place_id || '',
         description: place.description || mainText,
         mainText: mainText,
         secondaryText: secondaryText,

@@ -42,7 +42,12 @@ export const useLocation = (options = {}) => {
           longitude: data.longitude,
           accuracy: data.accuracy
         });
-        setAddress(data.address);
+        // Include formattedAddress in the address object
+        setAddress({
+          ...data.address,
+          formattedAddress: data.formattedAddress,
+          fullAddress: data.fullAddress
+        });
       } else {
         // Use best location method if enabled (tries multiple times for better accuracy)
         const data = useBestAccuracy 

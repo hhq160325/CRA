@@ -313,6 +313,10 @@ const PaymentPage = () => {
                                         label="Location"
                                         value={pickupLocation}
                                         onChange={(address) => {
+                                            console.log('=== PaymentPage - Pickup Location Changed ===');
+                                            console.log('Address received:', address);
+                                            console.log('Type:', typeof address);
+                                            console.log('===========================================');
                                             setPickupLocation(address);
                                         }}
                                         placeholder="Enter pickup location (e.g., 39 Nguyễn Tư Giản, Phường An Hội, Quận Gò Vấp)"

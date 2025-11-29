@@ -76,6 +76,7 @@ const OwnerLayout = () => {
                 <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">{t('registerNewCarSection')}</h3>
                 <nav className="space-y-1">
                   <Link to="/register-car" className={`block px-3 py-2 rounded-lg ${isActive('/register-car') ? 'text-white bg-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}>{t('registerNewCar')}</Link>
+                  <Link to="/owner/car-regis-docs" className={`block px-3 py-2 rounded-lg ${isActive('/owner/car-regis-docs') ? 'text-white bg-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}>Car Registration Docs</Link>
                 </nav>
               </div>
             </nav>

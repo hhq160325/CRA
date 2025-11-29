@@ -30,6 +30,7 @@ export const USER_ENDPOINTS = {
   GET_USER_BY_ID: (userId) => `${API_CONFIG.BASE_URL}/User/GetUserById?userId=${userId}`,
   GET_ALL_USERS: `${API_CONFIG.BASE_URL}/User/GetAllUsers`,
   UPDATE_USER_INFO: `${API_CONFIG.BASE_URL}/User/UpdateUserInfo`,
+  UPLOAD_AVATAR: (userId) => `${API_CONFIG.BASE_URL}/User/upload-avatar/${userId}`,
   PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
   UPDATE_PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
 };
@@ -107,6 +108,16 @@ export const PAYMENT_ENDPOINTS = {
 };
 
 export const PAYMENT_API_CONFIG = {
+  timeout: API_CONFIG.TIMEOUT,
+  headers: API_CONFIG.HEADERS,
+};
+
+// TrackAsia endpoints
+export const TRACKASIA_ENDPOINTS = {
+  REVERSE_GEOCODING: `${API_CONFIG.BASE_URL}/TrackAsia/GetReverseGeocoding`,
+};
+
+export const TRACKASIA_API_CONFIG = {
   timeout: API_CONFIG.TIMEOUT,
   headers: API_CONFIG.HEADERS,
 };

@@ -16,6 +16,13 @@ const LocationInput = ({
   const [coords, setCoords] = useState(null);
 
   const handleGPSLocation = (data) => {
+    // Log the data received from GPS
+    console.log('=== LocationInput - GPS Data Received ===');
+    console.log('Full data object:', data);
+    console.log('formattedAddress:', data.formattedAddress);
+    console.log('address object:', data.address);
+    console.log('=========================================');
+    
     // Set the address from GPS
     onChange(data.formattedAddress, {
       lat: data.latitude,

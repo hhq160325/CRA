@@ -64,3 +64,34 @@ export const updateUserInfo = async (userData) => {
     throw error;
   }
 };
+
+// Upload user avatar
+export const uploadAvatar = async (imageFile) => {
+  try {
+    const userId = getUserIdFromToken();
+    if (!userId) {
+      throw new Error("User ID not found in token");
+    }
+
+    const { USER_ENDPOINTS } = await import("../../config/api");
+    
+    // Create FormData for file upload
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    formData.append('userId', userId);
+
+    const response = await axiosInstance.patch(
+      USER_ENDPOINTS.UPLOAD_AVATAR(userId),
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading avatar:", error);
+    throw error;
+  }
+};

@@ -98,7 +98,7 @@ const DropdownTemplate = ({
                 type="button"
                 onClick={handleToggle}
                 disabled={disabled}
-                className={`w-full px-4 py-3 pr-10 border rounded-lg bg-white text-left transition-colors ${
+                className={`w-full px-4 py-2 pr-10 border rounded-lg bg-white text-left transition-colors ${
                     disabled 
                         ? 'bg-gray-100 cursor-not-allowed' 
                         : 'focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400'

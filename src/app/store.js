@@ -4,7 +4,7 @@ import carsReducer from '../features/cars/carsSlice';
 import favoritesReducer from '../features/favorites/favoritesSlice';
 import { adminSlice } from '../features/admin/adminSlice';
 import { staffSlice } from '../features/staff/staffSlice';
-import calendarReducer from '../features/user/calendarSlice';
+import calendarReducer from '../features/owner/calendarSlice';
 
 const store = configureStore({
   reducer: {

@@ -69,21 +69,40 @@ const PaymentHistoryPage = () => {
           : [];
 
         // Transform API data to match component structure
-        const history = userPayments.map((payment, index) => {
-          const paymentDate = payment.createdAt ? new Date(payment.createdAt) : new Date();
-          const paymentStatus = payment.status ? String(payment.status).toLowerCase() : 'pending';
-          
-          return {
-            id: payment.id || index + 1,
-            orderCode: payment.orderCode || payment.invoiceId || 'N/A',
-            amount: payment.amount || payment.totalAmount || payment.paidAmount || 0,
-            paymentDate: paymentDate.toISOString().split('T')[0],
-            paymentTime: paymentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-            status: paymentStatus,
-            paymentMethod: payment.paymentMethod || 'N/A',
-            // transactionId: payment.transactionId || 'N/A'
-          };
-        });
+        const history = userPayments
+          .map((payment) => {
+            const paymentDate = payment.createdAt ? new Date(payment.createdAt) : new Date();
+            const paymentStatus = payment.status ? String(payment.status).toLowerCase() : 'pending';
+            
+            // Use the most recent date for sorting: updatedAt if newer, otherwise createdAt
+            const createdAt = payment.createdAt || payment.createDate;
+            const updatedAt = payment.updatedAt || payment.updateDate;
+            const sortDate = updatedAt && new Date(updatedAt) > new Date(createdAt)
+              ? updatedAt
+              : createdAt;
+            
+            return {
+              paymentId: payment.id,
+              orderCode: payment.orderCode || payment.invoiceId || 'N/A',
+              amount: payment.amount || payment.totalAmount || payment.paidAmount || 0,
+              paymentDate: paymentDate.toISOString().split('T')[0],
+              paymentTime: paymentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+              status: paymentStatus,
+              paymentMethod: payment.paymentMethod || 'N/A',
+              sortDate: sortDate, // For sorting - most recent activity
+              // transactionId: payment.transactionId || 'N/A'
+            };
+          })
+          .sort((a, b) => {
+            // Sort by most recent activity descending (latest first)
+            const dateA = new Date(a.sortDate);
+            const dateB = new Date(b.sortDate);
+            return dateB - dateA;
+          })
+          .map((item, index) => ({
+            ...item,
+            id: index + 1 // Assign sequential ID after sorting
+          }));
 
         setPaymentHistory(history);
         setError(null);

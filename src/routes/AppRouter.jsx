@@ -13,6 +13,7 @@ import { HomePage } from '../features/homepage';
 import { selectIsAuthenticated } from '../features/auth/authSlice';
 import RoleBasedRoute from './RoleBasedRoute';
 import { ROLES, tokenUtils, getRedirectPathByRole } from '../features/auth/utils';
+import CalendarPage from '../features/owner/components/CalendarPage';
 
 // Component to redirect authenticated users based on their role
 const AuthRedirect = () => {
@@ -41,7 +42,7 @@ const AppRouter = () => {
       <Route path="/profile/rental-history" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/profile/payment-history" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/profile/inbox" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
-      <Route path="/profile/calendar" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
+      {/* <Route path="/profile/calendar" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} /> */}
       <Route path="/profile/reimburse" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/profile/security" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/profile/help-center" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
@@ -79,6 +80,7 @@ const AppRouter = () => {
         <Route path="bookings" element={<BookingManagement />} />
         <Route path="payments" element={<Payments />} />
         <Route path="car-regis-docs" element={<CarRegisDocs />} />
+        <Route path="calendar" element={<CalendarPage />} />
       </Route>
       
       {/* Add your other routes here */}

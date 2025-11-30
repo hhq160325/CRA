@@ -7,7 +7,7 @@ import FavouriteCarPage from './ProfilePageTabs/FavouriteCarPage';
 import RentalHistoryPage from './ProfilePageTabs/RentalHistoryPage';
 import PaymentHistoryPage from './ProfilePageTabs/PaymentHistoryPage';
 import InboxPage from './ProfilePageTabs/InboxPage';
-import CalendarPage from './ProfilePageTabs/CalendarPage';
+import CalendarPage from '../../owner/components/CalendarPage';
 import ReimbursePage from './ProfilePageTabs/ReimbursePage';
 import SettingsPage from './ProfilePageTabs/SettingsPage';
 import HelpCenterPage from './ProfilePageTabs/HelpCenterPage';
@@ -30,8 +30,8 @@ const ProfileSidebar = () => {
         return t('favouriteCars');
       case '/profile/inbox':
         return t('inbox');
-      case '/profile/calendar':
-        return t('calendar');
+      // case '/profile/calendar':
+      //   return t('calendar');
       case '/profile/reimburse':
         return t('reimburse');
       case '/profile/security':
@@ -132,7 +132,7 @@ const ProfileSidebar = () => {
                 </svg>
                 {t('inbox')}
               </Link>
-              <Link to="/profile/calendar" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/calendar')
+              {/* <Link to="/profile/calendar" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/calendar')
                   ? 'text-white bg-blue-600'
                   : 'text-gray-600 hover:bg-gray-50'
                   }`}>
@@ -140,7 +140,7 @@ const ProfileSidebar = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 {t('calendar')}
-              </Link>
+              </Link> */}
             </nav>
           </div>
 

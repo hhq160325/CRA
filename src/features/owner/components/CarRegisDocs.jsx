@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
 import { CAR_ENDPOINTS } from '../../../config/api';
 import { getUserIdFromToken } from '../../user/api';
@@ -15,11 +15,7 @@ const CarRegisDocs = () => {
   const carsPerPage = 5;
   const currentUserId = getUserIdFromToken();
 
-  useEffect(() => {
-    fetchCars();
-  }, []);
-
-  const fetchCars = async () => {
+  const fetchCars = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -34,7 +30,11 @@ const CarRegisDocs = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUserId]);
+
+  useEffect(() => {
+    fetchCars();
+  }, [fetchCars]);
 
   const handleFileUpload = async (carId, files) => {
     if (!files || files.length === 0) return;

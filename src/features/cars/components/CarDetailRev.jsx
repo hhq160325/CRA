@@ -128,11 +128,6 @@ const CarDetailRev = () => {
   const licensePlate = currentCar?.licensePlate || 'N/A';
   const yearOfManufacture = currentCar?.yearofManufacture || new Date().getFullYear();
 
-  // Owner information
-  const ownerName = currentCar?.owner?.fullname || 'Cường';
-  const ownerAvatar = currentCar?.owner?.imageAvatar || 'https://azibejwshiqctxbaawkk.supabase.co/storage/v1/object/public/UserAvatars/019ab934-197d-71a8-8066-044c0c99f060/avatar_28112025.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV85Y2RmMDQzMS1jNDQ5LTQ0YzgtYjYyZS0xMjBkMGYxNjRlYzkiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJVc2VyQXZhdGFycy8wMTlhYjkzNC0xOTdkLTcxYTgtODA2Ni0wNDRjMGM5OWYwNjAvYXZhdGFyXzI4MTEyMDI1LnBuZyIsImlhdCI6MTc2NDMwMDAxOCwiZXhwIjoxNzY0MzAxODE4fQ.EW-kUQQuYnnDIuPTjWD5nayNR2AK6dLr0Xp8qW776fA';
-  const ownerRating = currentCar?.owner?.rating || 5.0;
-
   // Location information
   const locationName = currentCar?.preferredLot?.name || 'Phường Phạm Ngũ Lão, Quận 1';
   const locationAddress = currentCar?.preferredLot?.address || 'Phường Phạm Ngũ Lão, Quận 1';

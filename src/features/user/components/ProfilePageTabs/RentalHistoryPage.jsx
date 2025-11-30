@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { axiosInstance } from '../../../../shared/utils/axiosInstance';
 import { BOOKING_ENDPOINTS, CAR_ENDPOINTS, PAYMENT_ENDPOINTS } from '../../../../config/api';
 import { decodeJWT } from '../../../auth/utils';
+import RHFeedbackModal from './MyProfileModal/RHFeedbackModal';
 
 const RentalHistoryPage = () => {
   const { t } = useTranslation();
@@ -10,6 +11,8 @@ const RentalHistoryPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -86,44 +89,65 @@ const RentalHistoryPage = () => {
         // console.log('RentalHistory - Payments map keys:', Object.keys(paymentsMap));
 
         // Combine booking, car, and payment data
-        const history = userBookings.map((booking, index) => {
-          const car = carsMap[booking.carId];
-          const pickupDate = new Date(booking.pickupTime);
-          
-          // Get payment date from PayOS if available
-          let paymentDate = 'No Payment';
-          if (booking.invoiceId && paymentsMap[booking.invoiceId]) {
-            const payment = paymentsMap[booking.invoiceId];
-            const paymentStatus = payment.status ? String(payment.status).toLowerCase() : '';
+        const history = userBookings
+          .map((booking) => {
+            const car = carsMap[booking.carId];
+            const pickupDate = new Date(booking.pickupTime);
             
-            // console.log(`RentalHistory - Booking ${booking.id} matched payment:`, {
-            //   invoiceId: booking.invoiceId,
-            //   paymentStatus,
-            //   createdAt: payment.createDate
-            // });
-            
-            // Only show payment date if payment was successful
-            if (paymentStatus === 'paid' || paymentStatus === 'success' || paymentStatus === 'completed') {
-              const paidDate = payment.createDate ? new Date(payment.createDate) : null;
-              if (paidDate) {
-                paymentDate = paidDate.toISOString().split('T')[0];
+            // Get payment date from PayOS if available
+            let paymentDate = 'No Payment';
+            if (booking.invoiceId && paymentsMap[booking.invoiceId]) {
+              const payment = paymentsMap[booking.invoiceId];
+              const paymentStatus = payment.status ? String(payment.status).toLowerCase() : '';
+              
+              // console.log(`RentalHistory - Booking ${booking.id} matched payment:`, {
+              //   invoiceId: booking.invoiceId,
+              //   paymentStatus,
+              //   createdAt: payment.createDate
+              // });
+              
+              // Only show payment date if payment was successful
+              if (paymentStatus === 'paid' || paymentStatus === 'success' || paymentStatus === 'completed') {
+                const paidDate = payment.createDate ? new Date(payment.createDate) : null;
+                if (paidDate) {
+                  paymentDate = paidDate.toISOString().split('T')[0];
+                }
               }
+            } else {
+              // console.log(`RentalHistory - Booking ${booking.id} has no matching payment. InvoiceId: ${booking.invoiceId}`);
             }
-          } else {
-            // console.log(`RentalHistory - Booking ${booking.id} has no matching payment. InvoiceId: ${booking.invoiceId}`);
-          }
-     
-          return {
-            id: index + 1,
-            carName: car?.model || 'Unknown Car',
-            // type: car?.model || 'N/A',
-            brand: car?.manufacturer || 'N/A',
-            plateNo: car?.licensePlate || 'N/A',
-            rentDay: pickupDate.toISOString().split('T')[0],
-            status: booking.status,
-            paymentDate: paymentDate
-          };
-        });
+       
+            // Use the most recent date for sorting: updateDate if newer, otherwise createDate
+            const createDate = booking.createDate || booking.pickupTime;
+            const updateDate = booking.updateDate;
+            const sortDate = updateDate && new Date(updateDate) > new Date(createDate)
+              ? updateDate
+              : createDate;
+
+            return {
+              bookingId: booking.id,
+              carId: booking.carId,
+              carName: car?.model || 'Unknown Car',
+              // type: car?.model || 'N/A',
+              brand: car?.manufacturer || 'N/A',
+              plateNo: car?.licensePlate || 'N/A',
+              rentDay: pickupDate.toISOString().split('T')[0],
+              status: booking.status,
+              paymentDate: paymentDate,
+              sortDate: sortDate, // For sorting - most recent activity
+              pickupTime: booking.pickupTime
+            };
+          })
+          .sort((a, b) => {
+            // Sort by most recent activity descending (latest first)
+            const dateA = new Date(a.sortDate);
+            const dateB = new Date(b.sortDate);
+            return dateB - dateA;
+          })
+          .map((item, index) => ({
+            ...item,
+            id: index + 1 // Assign sequential ID after sorting
+          }));
         
         setRentalHistory(history);
         setError(null);
@@ -163,6 +187,28 @@ const RentalHistoryPage = () => {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOpenFeedback = (rental) => {
+    setSelectedBooking({
+      id: rental.bookingId,
+      carId: rental.carId,
+      carName: rental.carName,
+      brand: rental.brand,
+      plateNo: rental.plateNo,
+      rentDay: rental.rentDay
+    });
+    setIsFeedbackModalOpen(true);
+  };
+
+  const handleCloseFeedback = () => {
+    setIsFeedbackModalOpen(false);
+    setSelectedBooking(null);
+  };
+
+  const handleFeedbackSuccess = () => {
+    // Optionally refresh the rental history or show a success message
+    console.log('Feedback submitted successfully');
   };
 
   return (
@@ -214,6 +260,17 @@ const RentalHistoryPage = () => {
                   <span>{rental.paymentDate === 'No Payment' ? t('noPayment') : rental.paymentDate}</span>
                 </div>
               </div>
+              {(rental.status === 'Confirmed' || rental.status === 'Paid') && (
+                <button
+                  onClick={() => handleOpenFeedback(rental)}
+                  className="mt-3 w-full px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                  {t('leaveFeedback') || 'Leave Feedback'}
+                </button>
+              )}
               </div>
             ))}
             </div>
@@ -231,6 +288,7 @@ const RentalHistoryPage = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('rentDay')}</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('status')}</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('paymentDate')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('actions') || 'Actions'}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -251,6 +309,19 @@ const RentalHistoryPage = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.paymentDate === 'No Payment' ? t('noPayment') : rental.paymentDate}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {(rental.status === 'Confirmed' || rental.status === 'Paid') && (
+                          <button
+                            onClick={() => handleOpenFeedback(rental)}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                            </svg>
+                            {t('feedback') || 'Feedback'}
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -366,6 +437,14 @@ const RentalHistoryPage = () => {
           </>
         )}
       </div>
+
+      {/* Feedback Modal */}
+      <RHFeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={handleCloseFeedback}
+        booking={selectedBooking}
+        onSuccess={handleFeedbackSuccess}
+      />
     </div>
   );
 };

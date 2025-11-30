@@ -82,7 +82,7 @@ export const BOOKING_API_CONFIG = {
 
 // Schedule endpoints
 export const SCHEDULE_ENDPOINTS = {
-  GET_USER_SCHEDULES: (userId) => `${API_CONFIG.BASE_URL}/Schedule/user?userId=${userId}`,
+  GET_USER_SCHEDULES: (userId) => `${API_CONFIG.BASE_URL}/Schedule/user/${userId}`,
 };
 
 export const SCHEDULE_API_CONFIG = {
@@ -120,4 +120,16 @@ export const TRACKASIA_ENDPOINTS = {
 export const TRACKASIA_API_CONFIG = {
   timeout: API_CONFIG.TIMEOUT,
   headers: API_CONFIG.HEADERS,
+};
+
+// Feedback endpoints
+export const FEEDBACK_ENDPOINTS = {
+  CREATE_FEEDBACK: `${API_CONFIG.BASE_URL}/Feedback`,
+};
+
+export const FEEDBACK_API_CONFIG = {
+  timeout: API_CONFIG.TIMEOUT,
+  headers: {
+    'Content-Type': 'multipart/form-data',
+  },
 };

@@ -207,9 +207,7 @@ const UsageTracking = () => {
 
   // Calculate overall statistics
   const totalCars = usageData.length;
-  const totalMileage = usageData.reduce((sum, car) => sum + car.totalMileage, 0);
   const totalRentals = usageData.reduce((sum, car) => sum + car.totalRentals, 0);
-  const averageUtilization = totalCars > 0 ? usageData.reduce((sum, car) => sum + car.utilizationRate, 0) / totalCars : 0;
 
   if (loading) {
     return (

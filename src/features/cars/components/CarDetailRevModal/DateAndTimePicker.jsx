@@ -126,12 +126,6 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
 
   const weekDays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 
-  // Format date for display
-  const formatDate = (day, month, year) => {
-    if (!day) return '';
-    return `${day.toString().padStart(2, '0')}/${(month + 1).toString().padStart(2, '0')}/${year}`;
-  };
-
   // Generate time options (00:00 to 23:00)
   const timeOptions = Array.from({ length: 24 }, (_, i) => {
     const hour = i.toString().padStart(2, '0');

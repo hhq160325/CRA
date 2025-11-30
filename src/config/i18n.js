@@ -565,7 +565,6 @@ const resources = {
       audi: "Audi",
       honda: "Honda",
       consumption: "Consumption",
-      fuel: "Fuel",
       // Owner Dashboard
       ownerDashboard: "Owner Dashboard",
       ownerDashboardTitle: "Owner Dashboard",
@@ -676,7 +675,6 @@ const resources = {
       speedWarning: "Speed warning",
       gpsTracking: "GPS tracking",
       usbPort: "USB port",
-      other: "Other",
       spareTire: "Spare tire",
       dvdScreen: "DVD screen",
       etc: "ETC",
@@ -711,9 +709,7 @@ const resources = {
       vehicleLocation: "Vehicle location",
       specificAddressAfterBooking: "Specific address will be displayed after successful booking",
       viewMap: "View map",
-      carOwner: "Car owner",
       responseRate: "Response rate",
-      responseTime: "Response time",
       acceptanceRate: "Acceptance rate",
       minutes: "minutes",
       ownerBadgeText: "5⭐ owner with fast response time, high acceptance rate, competitive pricing & excellent service rated by customers",
@@ -744,8 +740,7 @@ const resources = {
       totalCost: "Total cost",
       deliveryFee: "Delivery fee",
       discount: "Discount",
-      discountDesc: "Discount for daily rate",
-      person: "Person"
+      discountDesc: "Discount for daily rate"
     }
   },
   vi: {
@@ -1310,7 +1305,6 @@ const resources = {
       audi: "Audi",
       honda: "Honda",
       consumption: "Tiêu hao",
-      fuel: "Nhiên liệu",
       // Owner Dashboard
       ownerDashboard: "Bảng Điều Khiển Chủ Xe",
       ownerDashboardTitle: "Bảng Điều Khiển Chủ Xe",
@@ -1422,7 +1416,6 @@ const resources = {
       speedWarning: "Cảnh báo tốc độ",
       gpsTracking: "Định vị GPS",
       usbPort: "Khe cắm USB",
-      other: "Khác",
       spareTire: "Lốp dự phòng",
       dvdScreen: "Màn hình DVD",
       etc: "ETC",
@@ -1457,9 +1450,7 @@ const resources = {
       vehicleLocation: "Vị trí xe",
       specificAddressAfterBooking: "Địa chỉ cụ thể sẽ được hiển thị sau khi đặt thuận thành công",
       viewMap: "Xem bản đồ",
-      carOwner: "Chủ xe",
       responseRate: "Tỉ lệ phản hồi",
-      responseTime: "Phản hồi trong",
       acceptanceRate: "Tỉ lệ đồng ý",
       minutes: "phút",
       ownerBadgeText: "Chủ xe 5⭐ có thời gian phản hồi nhanh, tỉ lệ đồng ý cao, mức giá cạnh tranh & dịch vụ vượt trội được khách hàng đánh giá tốt từ khách hàng",
@@ -1490,8 +1481,7 @@ const resources = {
       totalCost: "Tổng cộng",
       deliveryFee: "Phí giao nhận xe",
       discount: "Chương trình giảm giá",
-      discountDesc: "Giảm 120k cho đơn giá",
-      person: "Người"
+      discountDesc: "Giảm 120k cho đơn giá"
     }
   }
 };

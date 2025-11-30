@@ -30,8 +30,8 @@ const HomePage = () => {
     dispatch(fetchAllCars());
   }, [dispatch]);
 
-  // Filter out cars with Inactive status
-  const activeCars = cars.filter(car => car.status && car.status.toLowerCase() !== 'inactive');
+  // Filter out cars with Reserved status
+  const activeCars = cars.filter(car => car.status && car.status.toLowerCase() !== 'reserved');
   
   const popularCars = [];
 

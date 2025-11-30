@@ -12,7 +12,7 @@ const DeliveryLocationModal = ({
   const [showAddressDropdown, setShowAddressDropdown] = useState(false);
   const [customAddress, setCustomAddress] = useState('');
   
-  const { location, address, loading, error, getLocation } = useLocation({
+  const { address, loading, error, getLocation } = useLocation({
     fetchAddress: true,
     useBestAccuracy: true
   });

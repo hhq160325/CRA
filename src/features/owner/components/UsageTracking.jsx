@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
 import { CAR_ENDPOINTS, BOOKING_ENDPOINTS } from '../../../config/api';
+import DropdownTemplate from '../../../shared/components/DropdownTemplate';
 
 const UsageTracking = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('month');
+  const [brandFilter, setBrandFilter] = useState('all');
+  const [modelFilter, setModelFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [selectedCar, setSelectedCar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [usageData, setUsageData] = useState([]);
@@ -46,9 +50,12 @@ const UsageTracking = () => {
           cars.map(async (car) => {
             const bookings = await fetchCarBookings(car.id);
             
-            // Calculate rental statistics
-            const totalRentals = bookings.length;
-            const totalDaysRented = bookings.reduce((sum, booking) => {
+            // Calculate rental statistics (exclude canceled bookings)
+            const activeBookings = bookings.filter(b => 
+              b.status && b.status.toLowerCase() !== 'canceled' && b.status.toLowerCase() !== 'cancelled'
+            );
+            const totalRentals = activeBookings.length;
+            const totalDaysRented = activeBookings.reduce((sum, booking) => {
               if (booking.pickupTime && booking.dropoffTime) {
                 return sum + calculateDays(booking.pickupTime, booking.dropoffTime);
               }
@@ -67,6 +74,8 @@ const UsageTracking = () => {
               id: car.id,
               carId: car.id,
               carName: `${car.manufacturer || ''} ${car.model || ''}`.trim(),
+              brand: car.manufacturer || 'Unknown',
+              model: car.model || 'Unknown',
               carModel: car.yearofManufacture?.toString() || 'N/A',
               licensePlate: car.licensePlate || 'N/A',
               totalMileage: 0, // Not available in API
@@ -139,8 +148,57 @@ const UsageTracking = () => {
     const matchesSearch = car.carName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       car.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
       car.carId.toString().toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
+    
+    const matchesBrand = brandFilter === 'all' || car.brand === brandFilter;
+    const matchesModel = modelFilter === 'all' || car.model === modelFilter;
+    const matchesStatus = statusFilter === 'all' || car.currentStatus === statusFilter;
+    
+    return matchesSearch && matchesBrand && matchesModel && matchesStatus;
   });
+
+  // Get unique brands, models and statuses for filter dropdowns
+  const uniqueBrands = [...new Set(usageData.map(car => car.brand))].sort();
+  
+  // Get models based on selected brand
+  const availableModels = brandFilter === 'all' 
+    ? [...new Set(usageData.map(car => car.model))].sort()
+    : [...new Set(usageData.filter(car => car.brand === brandFilter).map(car => car.model))].sort();
+  
+  const uniqueStatuses = [...new Set(usageData.map(car => car.currentStatus))].sort();
+
+  // Reset model filter when brand changes
+  useEffect(() => {
+    if (brandFilter !== 'all') {
+      // Check if current model filter is still valid for selected brand
+      const isModelValid = usageData.some(car => car.brand === brandFilter && car.model === modelFilter);
+      if (!isModelValid && modelFilter !== 'all') {
+        setModelFilter('all');
+      }
+    }
+  }, [brandFilter, modelFilter, usageData]);
+
+  // Prepare dropdown options
+  const brandOptions = [
+    { id: 'all', value: 'all', label: 'All Brands' },
+    ...uniqueBrands.map(brand => ({ id: brand, value: brand, label: brand }))
+  ];
+
+  const modelOptions = [
+    { id: 'all', value: 'all', label: brandFilter === 'all' ? 'Select Brand First' : 'All Models' },
+    ...availableModels.map(model => ({ id: model, value: model, label: model }))
+  ];
+
+  const statusOptions = [
+    { id: 'all', value: 'all', label: 'All Status' },
+    ...uniqueStatuses.map(status => {
+      const badge = getStatusBadge(status);
+      return { 
+        id: status, 
+        value: status, 
+        label: badge.label.charAt(0).toUpperCase() + badge.label.slice(1) 
+      };
+    })
+  ];
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredUsage.length / itemsPerPage);
@@ -151,7 +209,7 @@ const UsageTracking = () => {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, dateFilter]);
+  }, [searchTerm, dateFilter, brandFilter, modelFilter, statusFilter]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -207,9 +265,7 @@ const UsageTracking = () => {
 
   // Calculate overall statistics
   const totalCars = usageData.length;
-  const totalMileage = usageData.reduce((sum, car) => sum + car.totalMileage, 0);
   const totalRentals = usageData.reduce((sum, car) => sum + car.totalRentals, 0);
-  const averageUtilization = totalCars > 0 ? usageData.reduce((sum, car) => sum + car.utilizationRate, 0) / totalCars : 0;
 
   if (loading) {
     return (
@@ -314,22 +370,58 @@ const UsageTracking = () => {
         </div> */}
       </div>
 
-      {/* Search Filter */}
+      {/* Search and Filters */}
       <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-          <div className="relative flex-1 max-w-md">
-            <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search by car name, license plate, or ID"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
-            />
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-4">
+          <div className="flex flex-col sm:flex-row gap-4 flex-1">
+            <div className="relative flex-1 max-w-md">
+              <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search by car name, license plate, or ID"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+              />
+            </div>
+            
+            <div className="w-full sm:w-48">
+              <DropdownTemplate
+                value={brandFilter}
+                onChange={(option) => setBrandFilter(option.value)}
+                options={brandOptions}
+                placeholder="All Brands"
+                searchable={true}
+                searchPlaceholder="Search brands..."
+              />
+            </div>
+            
+            <div className="w-full sm:w-48">
+              <DropdownTemplate
+                value={modelFilter}
+                onChange={(option) => setModelFilter(option.value)}
+                options={modelOptions}
+                placeholder="All Models"
+                searchable={true}
+                searchPlaceholder="Search models..."
+                disabled={brandFilter === 'all'}
+              />
+            </div>
+            
+            <div className="w-full sm:w-48">
+              <DropdownTemplate
+                value={statusFilter}
+                onChange={(option) => setStatusFilter(option.value)}
+                options={statusOptions}
+                placeholder="All Status"
+                searchable={false}
+              />
+            </div>
           </div>
-          <div className="text-sm text-gray-600">
+          
+          <div className="text-sm text-gray-600 whitespace-nowrap">
             Showing {filteredUsage.length} of {usageData.length} cars
           </div>
         </div>

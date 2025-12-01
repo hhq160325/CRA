@@ -25,6 +25,7 @@ export const AUTH_API_CONFIG = {
 
 // User endpoints
 export const USER_ENDPOINTS = {
+  GET_ALL_USERS: `${API_CONFIG.BASE_URL}/User/GetAllUsers`,
   GET_USER_BY_ID: (userId) => `${API_CONFIG.BASE_URL}/User/GetUserById?userId=${userId}`,
   UPDATE_USER_INFO: `${API_CONFIG.BASE_URL}/User/UpdateUserInfo`,
   PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
@@ -34,4 +35,11 @@ export const USER_ENDPOINTS = {
 export const USER_API_CONFIG = {
   timeout: API_CONFIG.TIMEOUT,
   headers: API_CONFIG.HEADERS,
+};
+
+// Admin / staff endpoints
+export const ADMIN_STAFF_ENDPOINTS = {
+  GET_ALL_USERS: USER_ENDPOINTS.GET_ALL_USERS,
+  GET_ALL_BOOKINGS: `${API_CONFIG.BASE_URL}/Booking/GetAllBookings`,
+  GET_ALL_INVOICES: `${API_CONFIG.BASE_URL}/Invoice/AllInvoices`,
 };

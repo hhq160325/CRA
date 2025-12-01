@@ -1,69 +1,69 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { updateCarOwnerStatus } from '../staffSlice';
+import {
+  updateCarOwnerStatus,
+  setCarOwners,
+  setLoading,
+  setError,
+  clearError,
+} from '../staffSlice';
 import { CarOwnerModal } from './modals/carOwnerModal';
+import { fetchAllUsers } from '../api';
 
 const CarOwnerManagement = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const carOwners = useSelector((state) => state.staff?.carOwners || []);
+  const isLoading = useSelector(
+    (state) => state.staff?.loading?.carOwners || false
+  );
+  const error = useSelector((state) => state.staff?.errors?.carOwners);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedOwner, setSelectedOwner] = useState(null);
   const [modalType, setModalType] = useState(null); // 'view', 'edit', 'suspend'
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Mock data for car owners
-  const carOwners = [
-    {
-      id: 1,
-      name: 'John Smith',
-      email: 'john.smith@email.com',
-      phone: '+1 (555) 123-4567',
-      status: 'active',
-      registrationDate: '2024-01-15',
-      carsListed: 3,
-      totalEarnings: 12450,
-      verificationStatus: 'verified',
-      lastActive: '2 hours ago'
-    },
-    {
-      id: 2,
-      name: 'Sarah Johnson',
-      email: 'sarah.j@email.com',
-      phone: '+1 (555) 234-5678',
-      status: 'pending',
-      registrationDate: '2024-02-20',
-      carsListed: 1,
-      totalEarnings: 0,
-      verificationStatus: 'pending',
-      lastActive: '1 day ago'
-    },
-    {
-      id: 3,
-      name: 'Mike Wilson',
-      email: 'mike.w@email.com',
-      phone: '+1 (555) 345-6789',
-      status: 'suspended',
-      registrationDate: '2023-12-10',
-      carsListed: 2,
-      totalEarnings: 8750,
-      verificationStatus: 'verified',
-      lastActive: '1 week ago'
-    },
-    {
-      id: 4,
-      name: 'Emma Davis',
-      email: 'emma.davis@email.com',
-      phone: '+1 (555) 456-7890',
-      status: 'active',
-      registrationDate: '2024-03-05',
-      carsListed: 5,
-      totalEarnings: 23100,
-      verificationStatus: 'verified',
-      lastActive: '30 minutes ago'
-    }
-  ];
+  useEffect(() => {
+    const loadCarOwners = async () => {
+      try {
+        dispatch(setLoading({ section: 'carOwners', loading: true }));
+        const users = await fetchAllUsers();
+        // Car owners: IsCarOwner true or RoleId == 2 (Car Owner)
+        const ownerRows = (users || [])
+          .filter((u) => u.isCarOwner || u.roleId === 2)
+          .map((u) => ({
+            id: u.id,
+            name: u.fullname || u.username,
+            email: u.email,
+            phone: u.phoneNumber || '',
+            status: (u.status || 'active').toLowerCase(),
+            registrationDate: '',
+            carsListed: 0,
+            totalEarnings: 0,
+            verificationStatus:
+              (u.status || '').toLowerCase() === 'active'
+                ? 'verified'
+                : 'pending',
+            lastActive: '',
+          }));
+        dispatch(setCarOwners(ownerRows));
+        dispatch(clearError('carOwners'));
+      } catch (e) {
+        dispatch(
+          setError({
+            section: 'carOwners',
+            error: e?.message || 'Failed to load car owners',
+          })
+        );
+      } finally {
+        dispatch(setLoading({ section: 'carOwners', loading: false }));
+      }
+    };
+
+    loadCarOwners();
+  }, [dispatch]);
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
@@ -142,8 +142,18 @@ const CarOwnerManagement = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('carOwnerManagement')}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {t('carOwnerManagement')}
+          </h1>
           <p className="text-gray-600">{t('viewAndManageCarOwners')}</p>
+          {isLoading && (
+            <p className="text-xs text-gray-400 mt-1">{t('loading')}...</p>
+          )}
+          {error && (
+            <p className="text-xs text-red-500 mt-1">
+              {t('error')}: {error}
+            </p>
+          )}
         </div>
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
           {t('exportData')}

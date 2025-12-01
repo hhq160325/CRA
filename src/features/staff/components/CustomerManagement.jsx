@@ -1,85 +1,69 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { updateCustomerAccount } from '../staffSlice';
+import {
+  updateCustomerAccount,
+  setCustomers,
+  setLoading,
+  setError,
+  clearError,
+} from '../staffSlice';
 import { CustomerModal } from './modals/customerModal';
+import { fetchAllUsers } from '../api';
 const CustomerManagement = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const customers = useSelector((state) => state.staff?.customers || []);
+  const isLoading = useSelector(
+    (state) => state.staff?.loading?.customers || false
+  );
+  const error = useSelector((state) => state.staff?.errors?.customers);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [modalType, setModalType] = useState(null); // 'view', 'edit', 'suspend'
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Mock data for customers
-  const customers = [
-    {
-      id: 1,
-      name: 'Alice Cooper',
-      email: 'alice.cooper@email.com',
-      phone: '+1 (555) 111-2222',
-      status: 'active',
-      registrationDate: '2024-01-20',
-      totalBookings: 12,
-      totalSpent: 3450,
-      lastBooking: '2024-10-01',
-      verificationStatus: 'verified',
-      complianceIssues: 0
-    },
-    {
-      id: 2,
-      name: 'Bob Johnson',
-      email: 'bob.johnson@email.com',
-      phone: '+1 (555) 222-3333',
-      status: 'active',
-      registrationDate: '2024-02-15',
-      totalBookings: 8,
-      totalSpent: 2100,
-      lastBooking: '2024-09-28',
-      verificationStatus: 'verified',
-      complianceIssues: 0
-    },
-    {
-      id: 3,
-      name: 'Carol Smith',
-      email: 'carol.smith@email.com',
-      phone: '+1 (555) 333-4444',
-      status: 'suspended',
-      registrationDate: '2023-11-10',
-      totalBookings: 15,
-      totalSpent: 4200,
-      lastBooking: '2024-09-15',
-      verificationStatus: 'verified',
-      complianceIssues: 2
-    },
-    {
-      id: 4,
-      name: 'David Wilson',
-      email: 'david.wilson@email.com',
-      phone: '+1 (555) 444-5555',
-      status: 'pending',
-      registrationDate: '2024-10-05',
-      totalBookings: 0,
-      totalSpent: 0,
-      lastBooking: null,
-      verificationStatus: 'pending',
-      complianceIssues: 0
-    },
-    {
-      id: 5,
-      name: 'Eva Brown',
-      email: 'eva.brown@email.com',
-      phone: '+1 (555) 555-6666',
-      status: 'active',
-      registrationDate: '2024-03-12',
-      totalBookings: 25,
-      totalSpent: 7800,
-      lastBooking: '2024-10-03',
-      verificationStatus: 'verified',
-      complianceIssues: 0
-    }
-  ];
+  useEffect(() => {
+    const loadCustomers = async () => {
+      try {
+        dispatch(setLoading({ section: 'customers', loading: true }));
+        const users = await fetchAllUsers();
+        // Filter customers: roleId === 1 (Customer) and not car owner
+        const customerRows = (users || [])
+          .filter((u) => u.roleId === 1 && !u.isCarOwner)
+          .map((u) => ({
+            id: u.id,
+            name: u.fullname || u.username,
+            email: u.email,
+            phone: u.phoneNumber || '',
+            status: (u.status || 'active').toLowerCase(),
+            registrationDate: '', // backend không trả, để trống
+            totalBookings: 0,
+            totalSpent: 0,
+            lastBooking: null,
+            verificationStatus:
+              (u.status || '').toLowerCase() === 'active'
+                ? 'verified'
+                : 'pending',
+            complianceIssues: 0,
+          }));
+        dispatch(setCustomers(customerRows));
+        dispatch(clearError('customers'));
+      } catch (e) {
+        dispatch(
+          setError({
+            section: 'customers',
+            error: e?.message || 'Failed to load customers',
+          })
+        );
+      } finally {
+        dispatch(setLoading({ section: 'customers', loading: false }));
+      }
+    };
+
+    loadCustomers();
+  }, [dispatch]);
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
@@ -163,8 +147,18 @@ const CustomerManagement = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('customerManagement')}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {t('customerManagement')}
+          </h1>
           <p className="text-gray-600">{t('viewAndManageCustomers')}</p>
+          {isLoading && (
+            <p className="text-xs text-gray-400 mt-1">{t('loading')}...</p>
+          )}
+          {error && (
+            <p className="text-xs text-red-500 mt-1">
+              {t('error')}: {error}
+            </p>
+          )}
         </div>
         <div className="flex space-x-3">
           <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">

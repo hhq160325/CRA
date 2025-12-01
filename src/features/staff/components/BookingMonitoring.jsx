@@ -1,12 +1,26 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { updateBookingStatus } from '../staffSlice';
+import {
+  updateBookingStatus,
+  setBookingActivities,
+  setLoading,
+  setError,
+  clearError,
+} from '../staffSlice';
 import BookingModal from './modals/bookingModal/BookingModal';
+import { fetchAllBookings, fetchAllInvoices } from '../api';
 
 const BookingMonitoring = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const bookingActivities = useSelector(
+    (state) => state.staff?.bookingActivities || []
+  );
+  const isLoading = useSelector(
+    (state) => state.staff?.loading?.bookings || false
+  );
+  const error = useSelector((state) => state.staff?.errors?.bookings);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
@@ -14,79 +28,67 @@ const BookingMonitoring = () => {
   const [modalType, setModalType] = useState(null); // 'view', 'edit', 'cancel', 'resolve'
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Mock data for booking activities
-  const bookingActivities = [
-    {
-      id: 1,
-      bookingId: 'BK001',
-      customer: 'Alice Cooper',
-      carOwner: 'John Smith',
-      car: 'Tesla Model 3',
-      status: 'active',
-      startDate: '2024-10-07',
-      endDate: '2024-10-10',
-      totalAmount: 450,
-      paymentStatus: 'paid',
-      createdAt: '2024-10-06 14:30',
-      notes: ''
-    },
-    {
-      id: 2,
-      bookingId: 'BK002',
-      customer: 'Bob Johnson',
-      carOwner: 'Sarah Wilson',
-      car: 'BMW X5',
-      status: 'pending',
-      startDate: '2024-10-08',
-      endDate: '2024-10-12',
-      totalAmount: 680,
-      paymentStatus: 'pending',
-      createdAt: '2024-10-06 16:45',
-      notes: 'Customer requested early pickup'
-    },
-    {
-      id: 3,
-      bookingId: 'BK003',
-      customer: 'Carol Smith',
-      carOwner: 'Mike Davis',
-      car: 'Audi A4',
-      status: 'cancelled',
-      startDate: '2024-10-09',
-      endDate: '2024-10-11',
-      totalAmount: 320,
-      paymentStatus: 'refunded',
-      createdAt: '2024-10-05 10:15',
-      notes: 'Cancelled due to emergency'
-    },
-    {
-      id: 4,
-      bookingId: 'BK004',
-      customer: 'David Wilson',
-      carOwner: 'Emma Johnson',
-      car: 'Mercedes C-Class',
-      status: 'completed',
-      startDate: '2024-10-01',
-      endDate: '2024-10-05',
-      totalAmount: 750,
-      paymentStatus: 'paid',
-      createdAt: '2024-09-28 09:20',
-      notes: 'Excellent customer, no issues'
-    },
-    {
-      id: 5,
-      bookingId: 'BK005',
-      customer: 'Eva Brown',
-      carOwner: 'Tom Wilson',
-      car: 'Honda Civic',
-      status: 'overdue',
-      startDate: '2024-10-02',
-      endDate: '2024-10-05',
-      totalAmount: 280,
-      paymentStatus: 'paid',
-      createdAt: '2024-09-30 11:30',
-      notes: 'Customer has not returned car'
-    }
-  ];
+  useEffect(() => {
+    const normalizePaymentStatus = (status) => {
+      const s = (status || '').toLowerCase();
+      if (s.includes('paid') || s === 'completed') return 'paid';
+      if (s.includes('refund')) return 'refunded';
+      if (s.includes('fail')) return 'failed';
+      return 'pending';
+    };
+
+    const loadBookings = async () => {
+      try {
+        dispatch(setLoading({ section: 'bookings', loading: true }));
+        const [bookings, invoices] = await Promise.all([
+          fetchAllBookings(),
+          fetchAllInvoices(),
+        ]);
+
+        const invoiceById = new Map(
+          (invoices || []).map((inv) => [inv.id, inv])
+        );
+
+        const bookingRows = (bookings || []).map((b) => {
+          const inv = b.invoiceId ? invoiceById.get(b.invoiceId) : null;
+          const amount = inv?.grandTotal ?? 0;
+          const paymentStatus = normalizePaymentStatus(inv?.status);
+
+          return {
+            id: b.id,
+            bookingId: b.invoiceNo || (b.id || '').toString().slice(0, 8),
+            customer: b.user?.fullname || b.user?.username || '',
+            carOwner:
+              b.car?.owner?.fullname || b.car?.owner?.username || '',
+            car: b.car
+              ? `${b.car.manufacturer || ''} ${b.car.model || ''}`.trim()
+              : '',
+            status: (b.status || 'pending').toLowerCase(),
+            startDate: b.pickupTime,
+            endDate: b.dropoffTime,
+            totalAmount: amount,
+            paymentStatus,
+            createdAt: b.createDate,
+            notes: '',
+          };
+        });
+
+        dispatch(setBookingActivities(bookingRows));
+        dispatch(clearError('bookings'));
+      } catch (e) {
+        dispatch(
+          setError({
+            section: 'bookings',
+            error: e?.message || 'Failed to load bookings',
+          })
+        );
+      } finally {
+        dispatch(setLoading({ section: 'bookings', loading: false }));
+      }
+    };
+
+    loadBookings();
+  }, [dispatch]);
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
@@ -175,8 +177,18 @@ const BookingMonitoring = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('bookingMonitoring')}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {t('bookingMonitoring')}
+          </h1>
           <p className="text-gray-600">{t('monitorAndManageBookings')}</p>
+          {isLoading && (
+            <p className="text-xs text-gray-400 mt-1">{t('loading')}...</p>
+          )}
+          {error && (
+            <p className="text-xs text-red-500 mt-1">
+              {t('error')}: {error}
+            </p>
+          )}
         </div>
         <div className="flex space-x-3">
           <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">

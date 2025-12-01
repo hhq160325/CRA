@@ -770,7 +770,7 @@ const resources = {
       dropoffDate: "Dropoff",
       pickupLocation: "Pickup location",
       selfPickup: "Self pickup",
-      driverDelivery: "Driver delivers vehicle (within 5km)",
+      driverDelivery: "Delivers vehicle ",
       priceBreakdown: "Price breakdown",
       insuranceFee: "Insurance fee",
       physicalInsurance: "Physical insurance",
@@ -790,7 +790,7 @@ const resources = {
       moreReviews: "reviews",
       bookingFeesPayNow: "Booking Fees (15%) - Pay Now",
       remainingAmountPayAfter: "Remaining Amount - Pay After",
-      totalPricePayNow: "Total Price - Pay Now",
+      totalPricePayNow: "Total Price",
       distance: "Distance"
     }
   },
@@ -1562,7 +1562,7 @@ const resources = {
       dropoffDate: "Trả xe",
       pickupLocation: "Địa điểm giao nhận xe",
       selfPickup: "Tự tới lấy xe",
-      driverDelivery: "Tài xế đưa xe tận nơi (trong 5km)",
+      driverDelivery: "Tài xế đưa xe tận nơi",
       priceBreakdown: "Bảng giá chi tiết",
       insuranceFee: "Bảo hiểm thuê xe",
       physicalInsurance: "Bảo hiểm thể dưỡng",
@@ -1582,7 +1582,7 @@ const resources = {
       moreReviews: "đánh giá",
       bookingFeesPayNow: "Phí Đặt Cọc (15%) - Thanh Toán Ngay",
       remainingAmountPayAfter: "Số Tiền Còn Lại - Thanh Toán Sau",
-      totalPricePayNow: "Thành Tiền - Thanh Toán Ngay",
+      totalPricePayNow: "Thành Tiền",
       distance: "Khoảng cách"
     }
   }

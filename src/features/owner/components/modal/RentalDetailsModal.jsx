@@ -98,10 +98,6 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
                 <p className="text-gray-600">Duration</p>
                 <p className="font-medium text-gray-900">{rental.duration} days</p>
               </div>
-              <div>
-                <p className="text-gray-600">Daily Rate</p>
-                <p className="font-medium text-gray-900">${rental.dailyRate}/day</p>
-              </div>
             </div>
           </div>
 
@@ -111,28 +107,41 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
             <div className="grid grid-cols-2 gap-6 text-sm">
               <div className="space-y-3">
                 <div>
-                  <p className="text-gray-600">Total Amount</p>
-                  <p className="text-xl font-bold text-green-600">${rental.paidAmount.toLocaleString()}</p>
+                  <p className="text-gray-900">Paid Amount: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.paidAmount)}</p>
+                  {/* <p className="text-lg font-semibold text-green-600">
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.paidAmount)}
+                  </p> */}
                 </div>
                 <div>
-                  <p className="text-gray-600">Paid Amount</p>
-                  <p className="text-lg font-semibold text-green-700">${rental.paidAmount.toLocaleString()}</p>
+                  <p className="text-gray-900">Invoice Total: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.totalAmount)}</p>
+                  {/* <p className="text-xl font-bold text-gray-900">
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.totalAmount)}
+                  </p> */}
                 </div>
+                <div>
+                  <p className="text-gray-900">Remaining Payment: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.remainingPayment)}</p>
+                  {/* <p className="text-xl font-bold text-gray-900">
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.totalAmount)}
+                  </p> */}
+                </div>
+                {rental.dailyRate > 0 && (
+                  <div>
+                    <p className="text-gray-900">Daily Rate:  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.dailyRate)}/day</p>
+                    {/* <p className="font-medium text-gray-900">
+                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.dailyRate)}/day
+                    </p> */}
+                  </div>
+                )}
               </div>
               <div className="space-y-3">
                 <div>
-                  <p className="text-gray-600">Payment Status</p>
-                  <span className={getPaymentBadge(rental.paymentStatus)}>
-                    {rental.paymentStatus}
-                  </span>
+                  <p className="text-gray-900">Payment Status: {rental.paymentStatus}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600">Payment Method</p>
-                  <p className="font-medium text-gray-900">{rental.paymentMethod}</p>
+                  <p className="text-gray-900">Payment Method: {rental.paymentMethod}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600">Payment Item</p>
-                  <p className="font-medium text-gray-900">{rental.paymentItem}</p>
+                  <p className="text-gray-900">Payment Item: {rental.paymentItem}</p>
                 </div>
               </div>
             </div>
@@ -143,10 +152,10 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
             <h3 className="font-semibold text-gray-900 mb-3">Booking Status</h3>
             <div className="flex items-center space-x-4">
               <div>
-                <p className="text-gray-600 text-sm">Status</p>
-                <span className={getStatusBadge(rental.status)}>
-                  {rental.status}
-                </span>
+                <p className="text-gray-600 text-sm">Status: {rental.status?.toUpperCase() || 'N/A'}</p>
+                {/* <p className="font-medium text-gray-900 text-lg">
+                  Status: {rental.status?.toUpperCase() || 'N/A'}
+                </p> */}
               </div>
             </div>
           </div>

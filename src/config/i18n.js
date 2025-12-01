@@ -740,7 +740,19 @@ const resources = {
       totalCost: "Total cost",
       deliveryFee: "Delivery fee",
       discount: "Discount",
-      discountDesc: "Discount for daily rate"
+      discountDesc: "Discount for daily rate",
+      
+      // Additional Car Detail translations
+      chooseOneOfTwo: "Choose 1 of 2 options",
+      licenseAndPassportHold: "License (verify) & Passport (hold)",
+      licenseAndIdVneID: "License (verify) & ID (verify with VNeID)",
+      noReviews: "No reviews yet",
+      loadingReviews: "Loading reviews...",
+      viewMoreReviews: "View more",
+      moreReviews: "reviews",
+      bookingFeesPayNow: "Booking Fees (15%) - Pay Now",
+      remainingAmountPayAfter: "Remaining Amount - Pay After",
+      totalPricePayNow: "Total Price - Pay Now"
     }
   },
   vi: {
@@ -1481,10 +1493,33 @@ const resources = {
       totalCost: "Tổng cộng",
       deliveryFee: "Phí giao nhận xe",
       discount: "Chương trình giảm giá",
-      discountDesc: "Giảm 120k cho đơn giá"
+      discountDesc: "Giảm 120k cho đơn giá",
+      
+      // Additional Car Detail translations
+      chooseOneOfTwo: "Chọn 1 trong 2 hình thức",
+      licenseAndPassportHold: "GPLX (đối chiếu) & Passport (giữ lại)",
+      licenseAndIdVneID: "GPLX (đối chiếu) & CCCD (đối chiếu VNeID)",
+      noReviews: "Chưa có đánh giá nào",
+      loadingReviews: "Đang tải đánh giá...",
+      viewMoreReviews: "Xem thêm",
+      moreReviews: "đánh giá",
+      bookingFeesPayNow: "Phí Đặt Cọc (15%) - Thanh Toán Ngay",
+      remainingAmountPayAfter: "Số Tiền Còn Lại - Thanh Toán Sau",
+      totalPricePayNow: "Thành Tiền - Thanh Toán Ngay"
     }
   }
 };
+
+i18n
+  .use(initReactI18next)
+  .init({
+    resources,
+    lng: localStorage.getItem('language') || 'en',
+    fallbackLng: 'en',
+    interpolation: {
+      escapeValue: false
+    }
+  });
 
 i18n
   .use(initReactI18next)

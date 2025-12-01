@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { PARKLOT_ENDPOINTS, PARKLOT_API_CONFIG, CAR_ENDPOINTS } from '../../config/api';
+import { PARKLOT_ENDPOINTS, PARKLOT_API_CONFIG, CAR_ENDPOINTS, FEEDBACK_ENDPOINTS, BOOKING_ENDPOINTS, USER_ENDPOINTS } from '../../config/api';
 import { decodeJWT } from '../auth/utils';
 
 
@@ -145,6 +145,56 @@ export const registerCar = async (carData) => {
         console.error('Error registering car:', error);
         console.error('Error response:', error.response?.data);
         console.error('Error status:', error.response?.status);
+        throw error;
+    }
+};
+
+export const getCarFeedback = async (carId) => {
+    try {
+        const response = await axios.get(FEEDBACK_ENDPOINTS.GET_FEEDBACK_BY_CAR(carId), {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching car feedback:', error);
+        // Return empty array if no feedback found
+        if (error.response?.status === 404 || error.response?.data?.message?.includes('no feedback')) {
+            return [];
+        }
+        throw error;
+    }
+};
+
+export const getBookingById = async (bookingId) => {
+    try {
+        const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+        const response = await axios.get(BOOKING_ENDPOINTS.GET_BOOKING_BY_ID(bookingId), {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching booking:', error);
+        throw error;
+    }
+};
+
+export const getUserById = async (userId) => {
+    try {
+        const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+        const response = await axios.get(USER_ENDPOINTS.GET_USER_BY_ID(userId), {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching user:', error);
         throw error;
     }
 };

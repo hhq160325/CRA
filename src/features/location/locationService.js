@@ -29,7 +29,7 @@ export const getCurrentLocation = (options = {}) => {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        resolve({
+        const locationData = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
           accuracy: position.coords.accuracy, // in meters
@@ -38,7 +38,16 @@ export const getCurrentLocation = (options = {}) => {
           heading: position.coords.heading,
           speed: position.coords.speed,
           timestamp: position.timestamp
+        };
+        
+        console.log('Current Location:', {
+          latitude: locationData.latitude,
+          longitude: locationData.longitude,
+          accuracy: `${locationData.accuracy}m`,
+          timestamp: new Date(locationData.timestamp).toLocaleString()
         });
+        
+        resolve(locationData);
       },
       (error) => {
         let errorMessage = 'Unable to retrieve location';

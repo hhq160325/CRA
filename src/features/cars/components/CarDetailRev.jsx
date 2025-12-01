@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { fetchCarById } from '../carsSlice';
-import { getCarRentalRate } from '../carApi';
-import { DeliveryLocationModal, DateAndTimePicker } from './CarDetailRevModal';
+import { getCarRentalRate, getCarFeedback, getBookingById, getUserById } from '../carApi';
+import { DeliveryLocationModal, DateAndTimePicker, CarGallery } from './CarDetailRevModal';
 
 const CarDetailRev = () => {
   const { t } = useTranslation();
@@ -17,6 +17,8 @@ const CarDetailRev = () => {
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [selectedAirport, setSelectedAirport] = useState(null);
   const [showDateTimePicker, setShowDateTimePicker] = useState(false);
+  const [deliveryLocation, setDeliveryLocation] = useState(null);
+  const [showGallery, setShowGallery] = useState(false);
   const [rentalDates, setRentalDates] = useState({
     pickupDate: '31/12',
     dropoffDate: '31/12',
@@ -24,6 +26,37 @@ const CarDetailRev = () => {
     dropoffTime: '11:00',
     duration: 1
   });
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [loadingFeedback, setLoadingFeedback] = useState(false);
+  const [feedbackUsers, setFeedbackUsers] = useState({});
+
+  // Load rental dates and delivery location from localStorage on mount
+  useEffect(() => {
+    // Load rental dates
+    const savedRentalDates = localStorage.getItem('rentalDates');
+    if (savedRentalDates) {
+      try {
+        const parsed = JSON.parse(savedRentalDates);
+        if (parsed.pickupDate && parsed.dropoffDate && parsed.pickupTime && parsed.dropoffTime) {
+          setRentalDates({
+            pickupDate: parsed.pickupDate,
+            dropoffDate: parsed.dropoffDate,
+            pickupTime: parsed.pickupTime,
+            dropoffTime: parsed.dropoffTime,
+            duration: parsed.duration || 1
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load rental dates from localStorage:', error);
+      }
+    }
+
+    // Load delivery location
+    const savedDeliveryLocation = localStorage.getItem('deliveryLocation');
+    if (savedDeliveryLocation) {
+      setDeliveryLocation(savedDeliveryLocation);
+    }
+  }, []);
 
   // Get car data from Redux store
   const { currentCar, loading, error } = useSelector((state) => state.cars);
@@ -54,6 +87,75 @@ const CarDetailRev = () => {
     fetchRentalRate();
   }, [id]);
 
+  // Fetch feedback when car ID changes
+  useEffect(() => {
+    const fetchFeedback = async () => {
+      if (!id) return;
+
+      setLoadingFeedback(true);
+      try {
+        const feedbackData = await getCarFeedback(id);
+        const feedbackArray = Array.isArray(feedbackData) ? feedbackData : [];
+        setFeedbacks(feedbackArray);
+
+        // Fetch user data for each feedback
+        const usersData = {};
+        for (const feedback of feedbackArray) {
+          if (feedback.bookingId && !usersData[feedback.bookingId]) {
+            try {
+              const bookingData = await getBookingById(feedback.bookingId);
+
+              if (!bookingData) {
+                usersData[feedback.bookingId] = {
+                  username: 'Người dùng',
+                  avatar: null
+                };
+                continue;
+              }
+
+              const userId = bookingData?.userId || bookingData?.customerId;
+              if (userId) {
+                const userData = await getUserById(userId);
+
+                if (!userData) {
+                  usersData[feedback.bookingId] = {
+                    username: 'Người dùng',
+                    avatar: null
+                  };
+                  continue;
+                }
+
+                usersData[feedback.bookingId] = {
+                  username: userData.username || 'Người dùng',
+                  avatar: userData.imageAvatar || null
+                };
+              } else {
+                usersData[feedback.bookingId] = {
+                  username: 'Người dùng',
+                  avatar: null
+                };
+              }
+            } catch (error) {
+              console.error(`Failed to fetch user data for booking ${feedback.bookingId}:`, error);
+              usersData[feedback.bookingId] = {
+                username: 'Người dùng',
+                avatar: null
+              };
+            }
+          }
+        }
+        setFeedbackUsers(usersData);
+      } catch (error) {
+        console.error('Failed to fetch feedback:', error);
+        setFeedbacks([]);
+      } finally {
+        setLoadingFeedback(false);
+      }
+    };
+
+    fetchFeedback();
+  }, [id]);
+
   // Helper function to process image URLs
   const processImageUrl = (imageUrl) => {
     if (!imageUrl) return 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&h=600&fit=crop';
@@ -75,7 +177,7 @@ const CarDetailRev = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">{t('loadingCalendar')}</p>
         </div>
       </div>
@@ -90,7 +192,7 @@ const CarDetailRev = () => {
           <p className="text-red-600 mb-4">{t('failed')}: {error}</p>
           <button
             onClick={() => dispatch(fetchCarById(id))}
-            className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600"
+            className="bg-primary-500 text-white px-6 py-2 rounded-lg hover:bg-primary-600"
           >
             {t('tryAgain')}
           </button>
@@ -108,7 +210,7 @@ const CarDetailRev = () => {
           <p className="text-gray-600 mb-6">{t('noFavouriteCarsMessage')}</p>
           <button
             onClick={() => navigate('/cars')}
-            className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600"
+            className="bg-primary-500 text-white px-6 py-2 rounded-lg hover:bg-primary-600"
           >
             {t('browseCars')}
           </button>
@@ -147,7 +249,11 @@ const CarDetailRev = () => {
                   alt="Car main view"
                   className="w-full h-96 object-cover"
                 />
-                <button className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-lg shadow-md flex items-center gap-2">
+                {/* View All Photos Button */}
+                {/* <button 
+                  onClick={() => setShowGallery(true)}
+                  className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-lg shadow-md flex items-center gap-2 hover:bg-gray-100 transition-colors"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512" fill="currentColor">
                     <g>
                       <path d="M78.01,78.01V512H512V78.01H78.01z M472.987,472.987H117.022V117.022h355.965V472.987z" />
@@ -157,18 +263,35 @@ const CarDetailRev = () => {
                     </g>
                   </svg>
                   <span>{t('viewAllPhotos')}</span>
-                </button>
+                </button> */}
               </div>
               <div className="grid grid-cols-4 gap-2 p-2">
-                {carImages.map((img, idx) => (
+                {carImages.slice(0, 3).map((img, idx) => (
                   <img
                     key={idx}
                     src={img}
                     alt={`Car view ${idx + 1}`}
-                    className={`w-full h-24 object-cover rounded cursor-pointer ${selectedImage === idx ? 'ring-2 ring-green-500' : ''}`}
+                    className={`w-full h-24 object-cover rounded cursor-pointer ${selectedImage === idx ? 'ring-2 ring-primary-500' : ''}`}
                     onClick={() => setSelectedImage(idx)}
                   />
                 ))}
+                {carImages.length > 3 && (
+                  <div 
+                    className="relative w-full h-24 rounded cursor-pointer overflow-hidden"
+                    onClick={() => setShowGallery(true)}
+                  >
+                    <img
+                      src={carImages[3]}
+                      alt="More photos"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center hover:bg-opacity-70 transition-all">
+                      <span className="text-white font-semibold text-lg">
+                        +{carImages.length - 3}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -245,9 +368,9 @@ const CarDetailRev = () => {
               </div>
             </div>
 
-            {/* Mô tả */}
+            {/* Description */}
             <div className="bg-white rounded-lg p-6">
-              <h2 className="text-lg font-semibold mb-4">Mô tả</h2>
+              <h2 className="text-lg font-semibold mb-4">{t('description')}</h2>
               <div className="space-y-2 text-gray-700">
                 <p className="flex items-start gap-2">
                   <span>{carDescription}</span>
@@ -266,11 +389,11 @@ const CarDetailRev = () => {
                   </>
                 )}
               </div>
-              <button className="text-green-600 font-semibold mt-3">Xem thêm</button>
+              <button className="text-primary-600 font-semibold mt-3">{t('seeMore')}</button>
             </div>
 
-            {/* Các tiện nghi khác */}
-            <div className="bg-white rounded-lg p-6">
+            {/* Other Features */}
+            {/* <div className="bg-white rounded-lg p-6">
               <h2 className="text-lg font-semibold mb-4">Các tiện nghi khác</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {[
@@ -297,92 +420,102 @@ const CarDetailRev = () => {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
 
-            {/* Giấy tờ thuê xe */}
+            {/* Car rental documents*/}
             <div className="bg-white rounded-lg p-6">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                Giấy tờ thuê xe
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-              </h2>
-              <div className="space-y-3">
-                <div className="flex items-start gap-3 p-3 bg-gray-50 rounded">
-                  <input type="radio" name="license" defaultChecked className="mt-1" />
-                  <div>
-                    <p className="font-medium">GPLX (đối chiếu) & CCCD (chụp chiếu VNeID)</p>
-                  </div>
+              <h2 className="text-lg font-semibold mb-4">{t('rentalDocuments')}</h2>
+              <div className="border-l-4 border-orange-500 bg-orange-50 pl-4 py-2 mb-4">
+                <div className="flex items-center gap-2 text-gray-700">
+                  <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm font-medium">{t('chooseOneOfTwo')}</span>
                 </div>
-                <div className="flex items-start gap-3 p-3 bg-gray-50 rounded">
-                  <input type="radio" name="license" className="mt-1" />
-                  <div>
-                    <p className="font-medium">GPLX (đối chiếu) & Passport (giữ lại)</p>
-                  </div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-4 border border-gray-300 rounded-lg">
+                  <svg className="w-6 h-6 flex-shrink-0 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                    <path d="M2 10h20" />
+                    <circle cx="7" cy="15" r="1" fill="currentColor" />
+                    <path d="M11 15h6" strokeLinecap="round" />
+                  </svg>
+                  <p className="font-medium text-gray-900">{t('licenseAndPassportHold')}</p>
+                </div>
+                <div className="flex items-center gap-3 p-4 border border-gray-300 rounded-lg">
+                  <svg className="w-6 h-6 flex-shrink-0 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                    <path d="M7 9h.01M7 12h.01M7 15h.01" strokeLinecap="round" />
+                    <path d="M11 9h6M11 12h6M11 15h4" strokeLinecap="round" />
+                  </svg>
+                  <p className="font-medium text-gray-900">{t('licenseAndIdVneID')}</p>
                 </div>
               </div>
             </div>
 
-            {/* Tài sản thế chấp */}
+            {/* Collateral */}
             <div className="bg-white rounded-lg p-6">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                Tài sản thế chấp
+                {t('collateral')}
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
               </h2>
               <div className="p-4 border-l-4 border-orange-500 bg-orange-50">
-                <p className="text-gray-700">Không yêu cầu khách thuê thế chấp Tiền mặt hoặc Xe máy</p>
+                <p className="text-gray-700">{t('noCollateralRequired')}</p>
               </div>
             </div>
 
-            {/* Điều khoản */}
+            {/* Term */}
             <div className="bg-white rounded-lg p-6">
-              <h2 className="text-lg font-semibold mb-4">Điều khoản</h2>
+              <h2 className="text-lg font-semibold mb-4">{t('terms')}</h2>
               <div className="space-y-2 text-gray-700 text-sm">
-                <p className="font-semibold">Quy định khác:</p>
-                <p>- Sử dụng xe đúng mục đích</p>
-                <p>- Không sử dụng xe thuê vào mục đích phi pháp, trái pháp luật</p>
-                <p>- Không sử dụng xe thuê để cầm cố, thế chấp</p>
-                <p>- Không hút thuốc, nhả kẹo cao su, xả rác trong xe</p>
-                <p>- Không chở hàng quốc cấm dễ cháy nổ</p>
-                <p>- Không chở hoa quả, thực phẩm nặng mùi trong xe</p>
+                <p className="font-semibold">{t('termsOtherRules')}</p>
+                <p>{t('termsUseProper')}</p>
+                <p>{t('termsNoIllegal')}</p>
+                <p>{t('termsNoPawn')}</p>
+                <p>{t('termsNoSmoking')}</p>
+                <p>{t('termsNoExplosives')}</p>
+                <p>{t('termsNoStrongSmell')}</p>
               </div>
-              <button className="text-green-600 font-semibold mt-3">Xem thêm</button>
+              <button className="text-primary-600 font-semibold mt-3">{t('seeMore')}</button>
             </div>
 
-            {/* Chính sách hủy chuyến */}
+            {/* Cancellation policy */}
             <div className="bg-white rounded-lg p-6">
-              <h2 className="text-lg font-semibold mb-4">Chính sách hủy chuyến</h2>
+              <h2 className="text-lg font-semibold mb-4">{t('cancellationPolicy')}</h2>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4">Thời điểm Hủy Chuyến</th>
-                      <th className="text-center py-3 px-4">Phí Hủy Chuyến</th>
+                      <th className="text-left py-3 px-4">{t('cancellationTime')}</th>
+                      <th className="text-center py-3 px-4">{t('cancellationFee')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr className="border-b">
-                      <td className="py-3 px-4">Trong vòng 1h sau Đặt Chỗ</td>
+                      <td className="py-3 px-4">{t('within1Hour')}</td>
                       <td className="py-3 px-4">
                         <div className="flex flex-col items-center justify-center">
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.25 2C6.74 2 2.25 6.49 2.25 12C2.25 17.51 6.74 22 12.25 22C17.76 22 22.25 17.51 22.25 12C22.25 6.49 17.76 2 12.25 2ZM15.84 10.59L12.32 14.11C12.17 14.26 11.98 14.33 11.79 14.33C11.6 14.33 11.4 14.26 11.26 14.11L9.5 12.35C9.2 12.06 9.2 11.58 9.5 11.29C9.79 11 10.27 11 10.56 11.29L11.79 12.52L14.78 9.53C15.07 9.24 15.54 9.24 15.84 9.53C16.13 9.82 16.13 10.3 15.84 10.59Z" fill="#12B76A"></path></svg>
-                          <p className="text-sm">Miễn phí</p>
+                          <p className="text-sm">{t('free')}</p>
                         </div>
                       </td>
                     </tr>
                     <tr className="border-b">
-                      <td className="py-3 px-4">Trước Chuyến Đi &gt;7 Ngày<br /><span className="text-xs text-gray-500">(Sau 1h Đặt Chỗ)</span></td>
+                      <td className="py-3 px-4">{t('moreThan7Days')}<br /><span className="text-xs text-gray-500">{t('after1HourBooking')}</span></td>
                       <td className="py-3 px-4">
                         <div className="flex flex-col items-center justify-center">
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.25 2C6.74 2 2.25 6.49 2.25 12C2.25 17.51 6.74 22 12.25 22C17.76 22 22.25 17.51 22.25 12C22.25 6.49 17.76 2 12.25 2ZM15.84 10.59L12.32 14.11C12.17 14.26 11.98 14.33 11.79 14.33C11.6 14.33 11.4 14.26 11.26 14.11L9.5 12.35C9.2 12.06 9.2 11.58 9.5 11.29C9.79 11 10.27 11 10.56 11.29L11.79 12.52L14.78 9.53C15.07 9.24 15.54 9.24 15.84 9.53C16.13 9.82 16.13 10.3 15.84 10.59Z" fill="#12B76A"></path></svg>
-                          <p className="text-sm">10% giá trị (tối thiểu đi)</p>
+                          <p className="text-sm">{t('minValueTrip')}</p>
                         </div>
                       </td>
                     </tr>
                     <tr>
-                      <td className="py-3 px-4">Trong vòng 7 Ngày Trước Chuyến Đi<br /><span className="text-xs text-gray-500">(Sau 1h Đặt Chỗ)</span></td>
+                      <td className="py-3 px-4">{t('within7Days')}<br /><span className="text-xs text-gray-500">{t('after1HourBooking')}</span></td>
                       <td className="py-3 px-4">
                         <div className="flex flex-col items-center justify-center">
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.25 2C6.74 2 2.25 6.49 2.25 12C2.25 17.51 6.74 22 12.25 22C17.76 22 22.25 17.51 22.25 12C22.25 6.49 17.76 2 12.25 2ZM14.67 13.39C14.97 13.69 14.96 14.16 14.67 14.45C14.52 14.59 14.33 14.67 14.14 14.67C13.95 14.67 13.75 14.59 13.61 14.44L12.25 13.07L10.9 14.44C10.75 14.59 10.56 14.67 10.36 14.67C10.17 14.67 9.98 14.59 9.84 14.45C9.54 14.16 9.53999 13.69 9.82999 13.39L11.2 12L9.82999 10.61C9.53999 10.31 9.54 9.84 9.84 9.55C10.13 9.26 10.61 9.26 10.9 9.56L12.25 10.93L13.61 9.56C13.9 9.26 14.37 9.26 14.67 9.55C14.96 9.84 14.97 10.31 14.67 10.61L13.3 12L14.67 13.39Z" fill="#F04438"></path></svg>
-                          <p className="text-sm">40% giá trị (tối thiểu đi)</p>
+                          <p className="text-sm">{t('minValue40')}</p>
                         </div>
                       </td>
                     </tr>
@@ -390,22 +523,22 @@ const CarDetailRev = () => {
                 </table>
               </div>
               <div className="mt-4 text-sm text-gray-600 space-y-2">
-                <p>* Khách hàng thuê chuyến đi sẽ chịu phí hủy chuyến nếu như không thể đi vào thời điểm đã đặt, trừ các trường hợp bất khả kháng (tai nạn, thiên tai, dịch bệnh, hoãn/hủy chuyến bay, phương tiện vận chuyển công cộng bị trục trặc, v.v.)</p>
-                <p>* Nếu khách hàng không nhận xe trong vòng 1h kể từ thời điểm bắt đầu thuê chuyến (không báo trước với chủ xe)</p>
-                <p>* Chủ xe không giao xe đúng thời điểm bắt đầu chuyến đi (không báo trước với khách thuê) (100% giá trị chuyến đi)</p>
-                <p>* Tùy trường hợp cụ thể, Morrent sẽ xem xét để hỗ trợ khách hàng hoàn lại một phần hoặc toàn bộ chi phí đã thanh toán nếu chuyến đi bị hủy vì những lý do bất khả kháng. Trong trường hợp này, khách hàng cần liên hệ với bộ phận hỗ trợ khách hàng của Morrent để được hỗ trợ.</p>
+                <p>{t('cancellationNote1')}</p>
+                <p>{t('cancellationNote2')}</p>
+                <p>{t('cancellationNote3')}</p>
+                <p>{t('cancellationNote4')}</p>
               </div>
             </div>
 
-            {/* Vị trí xe */}
+            {/* Car location */}
             <div className="bg-white rounded-lg p-6">
-              <h2 className="text-lg font-semibold mb-4">Vị trí xe</h2>
+              <h2 className="text-lg font-semibold mb-4">{t('vehicleLocation')}</h2>
               <div className="flex items-start gap-3 mb-4">
                 <svg class="w-5 h-5 " fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 <div>
                   <p className="font-semibold">{locationName}</p>
                   <p className="text-sm text-gray-600">{locationAddress}, {locationCity}</p>
-                  <p className="text-xs text-gray-500 mt-1">Địa chỉ cụ thể sẽ được hiển thị sau khi đặt thuận thành công</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('specificAddressAfterBooking')}</p>
                 </div>
               </div>
               <button className="w-full py-2 border border-gray-300 rounded-lg flex items-center justify-center gap-2">
@@ -416,94 +549,115 @@ const CarDetailRev = () => {
                     <path id="Path_128" data-name="Path 128" d="M385.34,1824.733l13.761,5.5v-36.329l-13.761-5.5Z" fill="#d1d3d4" stroke="#231f20" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" />
                   </g>
                 </svg>
-                <span>Xem bản đồ</span>
+                <span>{t('viewMap')}</span>
               </button>
             </div>
 
-            {/* Chủ xe */}
+            {/* Feedback */}
             <div className="bg-white rounded-lg p-6">
-              <h2 className="text-lg font-semibold mb-4">Chủ xe</h2>
-              {/* <div className="flex items-start gap-4 mb-4">
-                <img
-                  src={ownerAvatar}
-                  alt="Owner"
-                  className="w-16 h-16 rounded-full object-cover bg-gray-200"
-                  onError={(e) => {
-                    e.target.onerror = null; // Prevent infinite loop
-                    e.target.src = 'https://azibejwshiqctxbaawkk.supabase.co/storage/v1/object/public/UserAvatars/019ab934-197d-71a8-8066-044c0c99f060/avatar_28112025.png';
-                  }}
-                />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg">{ownerName}</h3>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <span className="flex items-center gap-1">
-                      <span className="text-yellow-400">⭐</span>
-                      <span>{ownerRating.toFixed(1)}</span>
-                    </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
-                      <span className="text-green-500">🚗</span>
-                      <span>100+ chuyến</span>
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 mt-3">
-                    <div className="text-center">
-                      <p className="text-sm text-gray-600">Tỉ lệ phản hồi</p>
-                      <p className="font-semibold">100%</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm text-gray-600">Phản hồi trong</p>
-                      <p className="font-semibold">5 phút</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm text-gray-600">Tỉ lệ đồng ý</p>
-                      <p className="font-semibold">71%</p>
-                    </div>
-                  </div>
-                </div>
-              </div> */}
-              <div className="flex items-center gap-2 mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none">
-                  <path d="M9.15316 5.40838C10.4198 3.13613 11.0531 2 12 2C12.9469 2 13.5802 3.13612 14.8468 5.40837L15.1745 5.99623C15.5345 6.64193 15.7144 6.96479 15.9951 7.17781C16.2757 7.39083 16.6251 7.4699 17.3241 7.62805L17.9605 7.77203C20.4201 8.32856 21.65 8.60682 21.9426 9.54773C22.2352 10.4886 21.3968 11.4691 19.7199 13.4299L19.2861 13.9372C18.8096 14.4944 18.5713 14.773 18.4641 15.1177C18.357 15.4624 18.393 15.8341 18.465 16.5776L18.5306 17.2544C18.7841 19.8706 18.9109 21.1787 18.1449 21.7602C17.3788 22.3417 16.2273 21.8115 13.9243 20.7512L13.3285 20.4768C12.6741 20.1755 12.3469 20.0248 12 20.0248C11.6531 20.0248 11.3259 20.1755 10.6715 20.4768L10.0757 20.7512C7.77268 21.8115 6.62118 22.3417 5.85515 21.7602C5.08912 21.1787 5.21588 19.8706 5.4694 17.2544L5.53498 16.5776C5.60703 15.8341 5.64305 15.4624 5.53586 15.1177C5.42868 14.773 5.19043 14.4944 4.71392 13.9372L4.2801 13.4299C2.60325 11.4691 1.76482 10.4886 2.05742 9.54773C2.35002 8.60682 3.57986 8.32856 6.03954 7.77203L6.67589 7.62805C7.37485 7.4699 7.72433 7.39083 8.00494 7.17781C8.28555 6.96479 8.46553 6.64194 8.82547 5.99623L9.15316 5.40838Z" stroke="#1C274C" stroke-width="1.5" />
-                </svg>
-                <span className="font-semibold">5.0</span>
-                <span className="text-gray-600">• 100+ đánh giá</span>
-              </div>
+              <h2 className="text-lg font-semibold mb-4">{t('ratings')}</h2>
 
-              {/* Reviews */}
-              <div className="space-y-4">
-                <div className="border rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <img src="/images/reviewer1.jpg" alt="Reviewer" className="w-10 h-10 rounded-full" />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className="font-semibold">Do Khoa</p>
-                        <p className="text-sm text-gray-500">07/11/2025</p>
-                      </div>
-                      <div className="flex gap-1 my-1">
-                        {[1, 2, 3, 4, 5].map(i => <span key={i} className="text-yellow-400">⭐</span>)}
-                      </div>
-                    </div>
-                  </div>
+              {loadingFeedback ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+                  <p className="mt-2 text-gray-600">{t('loadingReviews')}</p>
                 </div>
-                <div className="border rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <img src="/images/reviewer2.jpg" alt="Reviewer" className="w-10 h-10 rounded-full" />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className="font-semibold">KIM LE</p>
-                        <p className="text-sm text-gray-500">04/11/2025</p>
-                      </div>
-                      <div className="flex gap-1 my-1">
-                        {[1, 2, 3, 4, 5].map(i => <span key={i} className="text-yellow-400">⭐</span>)}
-                      </div>
-                    </div>
-                  </div>
+              ) : feedbacks.length === 0 ? (
+                <div className="text-center py-8">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="48px" height="48px" viewBox="0 0 24 24" fill="none" className="mx-auto mb-3 text-gray-300">
+                    <path d="M9.15316 5.40838C10.4198 3.13613 11.0531 2 12 2C12.9469 2 13.5802 3.13612 14.8468 5.40837L15.1745 5.99623C15.5345 6.64193 15.7144 6.96479 15.9951 7.17781C16.2757 7.39083 16.6251 7.4699 17.3241 7.62805L17.9605 7.77203C20.4201 8.32856 21.65 8.60682 21.9426 9.54773C22.2352 10.4886 21.3968 11.4691 19.7199 13.4299L19.2861 13.9372C18.8096 14.4944 18.5713 14.773 18.4641 15.1177C18.357 15.4624 18.393 15.8341 18.465 16.5776L18.5306 17.2544C18.7841 19.8706 18.9109 21.1787 18.1449 21.7602C17.3788 22.3417 16.2273 21.8115 13.9243 20.7512L13.3285 20.4768C12.6741 20.1755 12.3469 20.0248 12 20.0248C11.6531 20.0248 11.3259 20.1755 10.6715 20.4768L10.0757 20.7512C7.77268 21.8115 6.62118 22.3417 5.85515 21.7602C5.08912 21.1787 5.21588 19.8706 5.4694 17.2544L5.53498 16.5776C5.60703 15.8341 5.64305 15.4624 5.53586 15.1177C5.42868 14.773 5.19043 14.4944 4.71392 13.9372L4.2801 13.4299C2.60325 11.4691 1.76482 10.4886 2.05742 9.54773C2.35002 8.60682 3.57986 8.32856 6.03954 7.77203L6.67589 7.62805C7.37485 7.4699 7.72433 7.39083 8.00494 7.17781C8.28555 6.96479 8.46553 6.64194 8.82547 5.99623L9.15316 5.40838Z" stroke="currentColor" strokeWidth="1.5" />
+                  </svg>
+                  <p className="text-gray-600">{t('noReviews')}</p>
                 </div>
-              </div>
-              <button className="w-full mt-4 py-2 border border-green-500 text-green-600 rounded-lg font-semibold">
-                Xem thêm
-              </button>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none">
+                      <path d="M9.15316 5.40838C10.4198 3.13613 11.0531 2 12 2C12.9469 2 13.5802 3.13612 14.8468 5.40837L15.1745 5.99623C15.5345 6.64193 15.7144 6.96479 15.9951 7.17781C16.2757 7.39083 16.6251 7.4699 17.3241 7.62805L17.9605 7.77203C20.4201 8.32856 21.65 8.60682 21.9426 9.54773C22.2352 10.4886 21.3968 11.4691 19.7199 13.4299L19.2861 13.9372C18.8096 14.4944 18.5713 14.773 18.4641 15.1177C18.357 15.4624 18.393 15.8341 18.465 16.5776L18.5306 17.2544C18.7841 19.8706 18.9109 21.1787 18.1449 21.7602C17.3788 22.3417 16.2273 21.8115 13.9243 20.7512L13.3285 20.4768C12.6741 20.1755 12.3469 20.0248 12 20.0248C11.6531 20.0248 11.3259 20.1755 10.6715 20.4768L10.0757 20.7512C7.77268 21.8115 6.62118 22.3417 5.85515 21.7602C5.08912 21.1787 5.21588 19.8706 5.4694 17.2544L5.53498 16.5776C5.60703 15.8341 5.64305 15.4624 5.53586 15.1177C5.42868 14.773 5.19043 14.4944 4.71392 13.9372L4.2801 13.4299C2.60325 11.4691 1.76482 10.4886 2.05742 9.54773C2.35002 8.60682 3.57986 8.32856 6.03954 7.77203L6.67589 7.62805C7.37485 7.4699 7.72433 7.39083 8.00494 7.17781C8.28555 6.96479 8.46553 6.64194 8.82547 5.99623L9.15316 5.40838Z" stroke="#1C274C" strokeWidth="1.5" />
+                    </svg>
+                    <span className="font-semibold">
+                      {feedbacks.length > 0
+                        ? (feedbacks.reduce((sum, f) => sum + f.rating, 0) / feedbacks.length).toFixed(1)
+                        : '5.0'}
+                    </span>
+                    <span className="text-gray-600">• {feedbacks.length} {t('ratings')}</span>
+                  </div>
+
+                  {/* Reviews */}
+                  <div className="space-y-4">
+                    {feedbacks.slice(0, 2).map((feedback, index) => {
+                      const user = feedbackUsers[feedback.bookingId] || { username: 'Người dùng', avatar: null };
+                      return (
+                        <div key={index} className="border rounded-lg p-4">
+                          <div className="flex items-start gap-3">
+                            {user.avatar ? (
+                              <img
+                                src={user.avatar}
+                                alt={user.username}
+                                className="w-10 h-10 rounded-full object-cover"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.style.display = 'none';
+                                  e.target.nextSibling.style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+                            <div
+                              className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center"
+                              style={{ display: user.avatar ? 'none' : 'flex' }}
+                            >
+                              <span className="text-gray-600 font-semibold">
+                                {user.username?.[0]?.toUpperCase() || 'U'}
+                              </span>
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between mb-1">
+                                <p className="font-semibold">{user.username}</p>
+                                <p className="text-sm text-gray-500">
+                                  {new Date(feedback.createDate).toLocaleDateString('vi-VN')}
+                                </p>
+                              </div>
+                              <div className="flex gap-1 my-1">
+                                {[1, 2, 3, 4, 5].map(i => (
+                                  <span key={i} className={i <= feedback.rating ? 'text-yellow-400' : 'text-gray-300'}>
+                                    ⭐
+                                  </span>
+                                ))}
+                              </div>
+                              {feedback.title && (
+                                <p className="font-medium text-sm mt-2">{feedback.title}</p>
+                              )}
+                              {feedback.content && (
+                                <p className="text-sm text-gray-600 mt-1 line-clamp-3">{feedback.content}</p>
+                              )}
+                              {feedback.imageUrls && feedback.imageUrls.length > 0 && (
+                                <div className="flex gap-2 mt-2 overflow-x-auto">
+                                  {feedback.imageUrls.slice(0, 4).map((imgUrl, imgIndex) => (
+                                    <img
+                                      key={imgIndex}
+                                      src={imgUrl}
+                                      alt={`Feedback ${imgIndex + 1}`}
+                                      className="w-20 h-20 object-cover rounded"
+                                      onError={(e) => {
+                                        e.target.style.display = 'none';
+                                      }}
+                                    />
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {feedbacks.length > 2 && (
+                    <button className="w-full mt-4 py-2 border border-primary-500 text-primary-600 rounded-lg font-semibold">
+                      {t('viewMoreReviews')} ({feedbacks.length - 2} {t('moreReviews')})
+                    </button>
+                  )}
+                </>
+              )}
             </div>
           </div>
 
@@ -514,13 +668,13 @@ const CarDetailRev = () => {
               {/* <div className="mt-6 p-4 bg-green-50 rounded-lg">
                 <h3 className="font-semibold mb-3">Bảo hiểm thuê xe</h3>
                 <p className="text-sm text-gray-700 mb-2">Chuyến đi có mua bảo hiểm. Khách hàng chỉ bồi thường tối đa 2.000.000đ trong trường hợp có sự cố ngoài ý muốn.</p>
-                <button className="text-green-600 text-sm font-semibold">Xem thêm ›</button>
+                <button className="text-primary-600 text-sm font-semibold">Xem thêm ›</button>
               </div> */}
 
               {/* Booking Details */}
               <div className="mt-4 space-y-3">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Đơn giá thuê</p>
+                  <p className="text-sm text-gray-600 mb-1">{t('dailyRate')}</p>
                   <div className="flex items-center justify-between">
                     {loadingRate ? (
                       <span className="text-2xl font-bold text-gray-400">...</span>
@@ -532,65 +686,67 @@ const CarDetailRev = () => {
                     )}
                   </div>
                 </div>
-                
+
                 {/* Choose Date and Time */}
-                <div 
-                  className="grid grid-cols-2 gap-3 p-4 border rounded-lg cursor-pointer hover:border-green-500 transition-colors"
+                <div
+                  className="grid grid-cols-2 gap-3 p-4 border rounded-lg cursor-pointer hover:border-primary-500 transition-colors"
                   onClick={() => setShowDateTimePicker(true)}
                 >
                   <div>
-                    <p className="text-xs text-gray-600">Nhận xe</p>
+                    <p className="text-xs text-gray-600">{t('pickupDate')}</p>
                     <p className="font-semibold">{rentalDates.pickupDate}/2025</p>
                     <p className="text-sm">{rentalDates.pickupTime}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-600">Trả xe</p>
+                    <p className="text-xs text-gray-600">{t('dropoffDate')}</p>
                     <p className="font-semibold">{rentalDates.dropoffDate}/2025</p>
                     <p className="text-sm">{rentalDates.dropoffTime}</p>
                   </div>
                 </div>
 
                 <div className="border-t pt-3">
-                  <p className="text-sm font-semibold mb-3">Địa điểm giao nhận xe</p>
+                  <p className="text-sm font-semibold mb-3">{t('pickupLocation')}</p>
                   {/* Choose pick-up & drop-off location */}
                   {/* Option 1: Self pickup */}
-                  <div className="mb-3 p-4 border rounded-lg bg-white hover:border-green-500 transition-colors cursor-pointer">
+                  <div className="mb-3 p-4 border rounded-lg bg-white hover:border-primary-500 transition-colors cursor-pointer">
                     <div className="flex items-start gap-3">
                       <input
                         type="radio"
                         name="pickup-option"
                         defaultChecked
-                        className="mt-1 w-4 h-4 text-green-600 focus:ring-green-500"
+                        className="mt-1 w-4 h-4 text-primary-600 focus:ring-primary-500"
                       />
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
-                          <p className="text-sm font-medium text-gray-700">Tôi tự đến lấy xe</p>
-                          <span className="text-sm font-semibold text-green-600">Miễn phí</span>
+                          <p className="text-sm font-medium text-gray-700">{t('selfPickup')}</p>
+                          <span className="text-sm font-semibold text-primary-600">{t('free')}</span>
                         </div>
-                        <p className="text-sm text-gray-600">{locationName}</p>
+                        <p className="text-sm text-gray-600">{locationName},{locationAddress}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Option 2: Delivery */}
                   <div
-                    className="p-4 border rounded-lg bg-white hover:border-green-500 transition-colors cursor-pointer"
+                    className="p-4 border rounded-lg bg-white hover:border-primary-500 transition-colors cursor-pointer"
                     onClick={() => setShowDeliveryModal(true)}
                   >
                     <div className="flex items-start gap-3">
                       <input
                         type="radio"
                         name="pickup-option"
-                        className="mt-1 w-4 h-4 text-green-600 focus:ring-green-500"
+                        className="mt-1 w-4 h-4 text-primary-600 focus:ring-primary-500"
                         onChange={() => setShowDeliveryModal(true)}
                       />
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
-                          <p className="text-sm font-medium text-gray-700">Tôi muốn được giao xe tận nơi</p>
-                          <span className="text-sm font-semibold text-green-600">60.000₫</span>
+                          <p className="text-sm font-medium text-gray-700">{t('driverDelivery')}</p>
+                          <span className="text-sm font-semibold text-primary-600">60.000₫</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <p className="text-sm text-gray-600">{locationAddress}, {locationCity}</p>
+                          <p className="text-sm text-gray-600">
+                            {deliveryLocation || `${locationAddress}, ${locationCity}`}
+                          </p>
                           <span className="text-gray-400">›</span>
                         </div>
                       </div>
@@ -602,41 +758,38 @@ const CarDetailRev = () => {
               {/* Price Breakdown */}
               <div className="mt-4 pt-4 border-t space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span>Đơn giá thuê</span>
+                  <span>{t('dailyRate')} x {rentalDates.duration} {t('date')}</span>
                   <span className="flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="#504b4bff" version="1.1" id="Capa_1" width="12px" height="12px" viewBox="0 0 488.484 488.484"><g><g><path d="M244.236,0.002C109.562,0.002,0,109.565,0,244.238c0,134.679,109.563,244.244,244.236,244.244    c134.684,0,244.249-109.564,244.249-244.244C488.484,109.566,378.92,0.002,244.236,0.002z M244.236,413.619    c-93.4,0-169.38-75.979-169.38-169.379c0-93.396,75.979-169.375,169.38-169.375s169.391,75.979,169.391,169.375    C413.627,337.641,337.637,413.619,244.236,413.619z"></path><path d="M244.236,206.816c-14.757,0-26.619,11.962-26.619,26.73v118.709c0,14.769,11.862,26.735,26.619,26.735    c14.769,0,26.62-11.967,26.62-26.735V233.546C270.855,218.778,259.005,206.816,244.236,206.816z"></path><path d="M244.236,107.893c-19.949,0-36.102,16.158-36.102,36.091c0,19.934,16.152,36.092,36.102,36.092    c19.929,0,36.081-16.158,36.081-36.092C280.316,124.051,264.165,107.893,244.236,107.893z"></path></g></g></svg>
                     {loadingRate ? (
                       <span>...</span>
                     ) : (
-                      <span>{dailyPrice.toLocaleString('vi-VN')}₫/ngày</span>
+                      <span>{(dailyPrice * rentalDates.duration).toLocaleString('vi-VN')}₫</span>
                     )}
                   </span>
                 </div>
-                {/* <div className="flex justify-between text-sm">
-                  <span>Bảo hiểm thuê xe</span>
+                
+                <div className="flex justify-between text-sm text-blue-600">
+                  <span>{t('bookingFeesPayNow')}</span>
                   <span className="flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="#504b4bff" version="1.1" id="Capa_1" width="12px" height="12px" viewBox="0 0 488.484 488.484"><g><g><path d="M244.236,0.002C109.562,0.002,0,109.565,0,244.238c0,134.679,109.563,244.244,244.236,244.244    c134.684,0,244.249-109.564,244.249-244.244C488.484,109.566,378.92,0.002,244.236,0.002z M244.236,413.619    c-93.4,0-169.38-75.979-169.38-169.379c0-93.396,75.979-169.375,169.38-169.375s169.391,75.979,169.391,169.375    C413.627,337.641,337.637,413.619,244.236,413.619z"></path><path d="M244.236,206.816c-14.757,0-26.619,11.962-26.619,26.73v118.709c0,14.769,11.862,26.735,26.619,26.735    c14.769,0,26.62-11.967,26.62-26.735V233.546C270.855,218.778,259.005,206.816,244.236,206.816z"></path><path d="M244.236,107.893c-19.949,0-36.102,16.158-36.102,36.091c0,19.934,16.152,36.092,36.102,36.092    c19.929,0,36.081-16.158,36.081-36.092C280.316,124.051,264.165,107.893,244.236,107.893z"></path></g></g></svg>
-                    <span>92.701₫/ngày</span>
-                  </span>
-                </div> */}
-                {/* <div className="border-t pt-2">
-                  <p className="text-sm font-semibold mb-1">Bảo hiểm thể dưỡng</p>
-                  <div className="flex justify-between text-sm">
-                    <span>Bảo hiểm người lái</span>
-                    <span>1.125.901₫ x 1 ngày</span>
-                  </div>
-                </div> */}
-                <div className="flex justify-between text-sm">
-                  <span>Tổng cộng</span>
-                  <span>1.125.901₫ x 1 ngày</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Phí giao nhận xe</span>
-                  <span className="flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="#504b4bff" version="1.1" id="Capa_1" width="12px" height="12px" viewBox="0 0 488.484 488.484"><g><g><path d="M244.236,0.002C109.562,0.002,0,109.565,0,244.238c0,134.679,109.563,244.244,244.236,244.244    c134.684,0,244.249-109.564,244.249-244.244C488.484,109.566,378.92,0.002,244.236,0.002z M244.236,413.619    c-93.4,0-169.38-75.979-169.38-169.379c0-93.396,75.979-169.375,169.38-169.375s169.391,75.979,169.391,169.375    C413.627,337.641,337.637,413.619,244.236,413.619z"></path><path d="M244.236,206.816c-14.757,0-26.619,11.962-26.619,26.73v118.709c0,14.769,11.862,26.735,26.619,26.735    c14.769,0,26.62-11.967,26.62-26.735V233.546C270.855,218.778,259.005,206.816,244.236,206.816z"></path><path d="M244.236,107.893c-19.949,0-36.102,16.158-36.102,36.091c0,19.934,16.152,36.092,36.102,36.092    c19.929,0,36.081-16.158,36.081-36.092C280.316,124.051,264.165,107.893,244.236,107.893z"></path></g></g></svg>
-                    <span>30.000₫ (1km)</span>
+                    {loadingRate ? (
+                      <span>...</span>
+                    ) : (
+                      <span>{Math.round(dailyPrice * rentalDates.duration * 0.15).toLocaleString('vi-VN')}₫</span>
+                    )}
                   </span>
                 </div>
+
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>{t('remainingAmountPayAfter')}</span>
+                  <span className="flex items-center gap-1">
+                    {loadingRate ? (
+                      <span>...</span>
+                    ) : (
+                      <span>{Math.round(dailyPrice * rentalDates.duration * 0.85).toLocaleString('vi-VN')}₫</span>
+                    )}
+                  </span>
+                </div>
+
                 {/* <div className="flex items-start gap-2 p-3 bg-red-50 rounded">
                   <span className="text-red-500">🎫</span>
                   <div className="flex-1">
@@ -646,18 +799,19 @@ const CarDetailRev = () => {
                     </div>
                     <p className="text-xs text-gray-500">Giảm 120k cho đơn giá</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-green-500 text-xs">✓</span>
+                      <span className="text-primary-500 text-xs">✓</span>
                       <span className="text-xs">Mã khuyến mãi</span>
                       <span className="text-gray-400">›</span>
                     </div>
                   </div>
                 </div> */}
+                
                 <div className="flex justify-between font-bold text-lg pt-2 border-t">
-                  <span>Thành tiền</span>
+                  <span>{t('totalPricePayNow')}</span>
                   {loadingRate ? (
                     <span className="text-gray-400">...</span>
                   ) : (
-                    <span>{dailyPrice.toLocaleString('vi-VN')}₫</span>
+                    <span>{Math.round(dailyPrice * rentalDates.duration * 0.15).toLocaleString('vi-VN')}₫</span>
                   )}
                 </div>
                 {/* Rent Button */}
@@ -672,14 +826,14 @@ const CarDetailRev = () => {
                       carReviewCount: 100
                     }
                   })}
-                  className="w-full bg-green-500 text-white py-3 rounded-lg font-semibold mb-4 hover:bg-green-600"
+                  className="w-full bg-primary-500 text-white py-3 rounded-lg font-semibold mb-4 hover:bg-primary-600"
                 >
                   {t('rentNow')}
                 </button>
                 {/* Additional Fees */}
                 <div className="space-y-3 mb-4">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold">Phụ phí có thể phát sinh</h3>
+                    <h3 className="font-semibold">{t('additionalFees')}</h3>
                   </div>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-start gap-2">
@@ -694,10 +848,10 @@ const CarDetailRev = () => {
                       </svg>
                       <div className="flex-1">
                         <div className="flex justify-between">
-                          <span>Phí vượt giới hạn</span>
-                          <span className="text-green-600">5.000₫/km</span>
+                          <span>{t('mileageFee')}</span>
+                          <span className="text-primary-600">5.000₫/km</span>
                         </div>
-                        <p className="text-xs text-gray-500">Phí phát sinh nếu lộ trình di chuyển vượt quá 300km (Giới hạn: 300km/ngày)</p>
+                        <p className="text-xs text-gray-500">{t('mileageFeeDesc')}</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -712,10 +866,10 @@ const CarDetailRev = () => {
                       </svg>
                       <div className="flex-1">
                         <div className="flex justify-between">
-                          <span>Phí quá giờ</span>
-                          <span className="text-green-600">380.500₫/ngày</span>
+                          <span>{t('overtimeFee')}</span>
+                          <span className="text-primary-600">380.500₫/{t('date')}</span>
                         </div>
-                        <p className="text-xs text-gray-500">Phí phát sinh nếu hoàn trả xe trễ giờ. Trường hợp trễ quá 5 giờ, phí phát sinh thêm 1 ngày</p>
+                        <p className="text-xs text-gray-500">{t('overtimeFeeDesc')}</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -730,10 +884,10 @@ const CarDetailRev = () => {
                       </svg>
                       <div className="flex-1">
                         <div className="flex justify-between">
-                          <span>Phí khử mùi</span>
-                          <span className="text-green-600">300.000₫</span>
+                          <span>{t('deodorizingFee')}</span>
+                          <span className="text-primary-600">300.000₫</span>
                         </div>
-                        <p className="text-xs text-gray-500">Phí phát sinh khi xe có mùi khó chịu (mùi thuốc lá, thực phẩm nặng mùi...)</p>
+                        <p className="text-xs text-gray-500">{t('deodorizingFeeDesc')}</p>
                       </div>
                     </div>
                   </div>
@@ -756,6 +910,9 @@ const CarDetailRev = () => {
         locationCity={locationCity}
         selectedAirport={selectedAirport}
         setSelectedAirport={setSelectedAirport}
+        onLocationUpdate={(newLocation) => {
+          setDeliveryLocation(newLocation);
+        }}
       />
 
       {/* Date and Time Picker Modal */}
@@ -766,6 +923,14 @@ const CarDetailRev = () => {
           setRentalDates(dates);
           setShowDateTimePicker(false);
         }}
+      />
+
+      {/* Car Gallery Modal */}
+      <CarGallery
+        isOpen={showGallery}
+        onClose={() => setShowGallery(false)}
+        images={carImages}
+        initialIndex={selectedImage}
       />
     </div>
   );

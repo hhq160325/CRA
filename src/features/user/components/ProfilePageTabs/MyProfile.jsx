@@ -1,17 +1,32 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+<<<<<<< HEAD
+=======
+import { toast } from 'react-toastify';
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 import UpdateProfileDialog from './MyProfileDialog/UpdateProfileDialog';
 import UpdatePhoneDialog from './MyProfileDialog/UpdatePhoneDialog';
 import UpdateEmailDialog from './MyProfileDialog/UpdateEmailDialog';
 import UploadDriver from '../UploadDriver';
+<<<<<<< HEAD
 import { getUserById, updateUserInfo } from '../../../user/api';
 import { updateUserData } from '../../../auth/authSlice';
 import { tokenUtils } from '../../../auth/utils';
+=======
+import { getUserById, updateUserInfo, uploadAvatar } from '../../../user/api';
+import { updateUserData } from '../../../auth/authSlice';
+import { tokenUtils } from '../../../auth/utils';
+import { useLocation } from '../../../location/useLocation';
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 
 const MyProfile = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+<<<<<<< HEAD
+=======
+  const { location, address, loading: locationLoading, error: locationError, getLocation } = useLocation({ fetchAddress: true });
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
   const [userInfo, setUserInfo] = useState({
     name: '',
     username: '',
@@ -27,11 +42,21 @@ const MyProfile = () => {
     isGoogle: false,
     address: '',
     status: '',
+<<<<<<< HEAD
     password: ''
+=======
+    password: null
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
   });
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+<<<<<<< HEAD
+=======
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarFile, setAvatarFile] = useState(null); // Store the file temporarily
+  const [avatarPreview, setAvatarPreview] = useState(null); // Store preview URL
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 
   const [isEditing, setIsEditing] = useState(false);
   
@@ -64,12 +89,22 @@ const MyProfile = () => {
           isGoogle: data.isGoogle,
           address: data.address || '',
           status: data.status || '',
+<<<<<<< HEAD
           password:data.password || ''
+=======
+          password: data.password || ''
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
         });
         setError(null);
       } catch (err) {
         console.error('Failed to fetch user data:', err);
+<<<<<<< HEAD
         setError('Failed to load user data. Please try again.');
+=======
+        const errorMessage = err.response?.data?.message || 'Failed to load user data. Please try again.';
+        setError(errorMessage);
+        toast.error(errorMessage);
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       } finally {
         setLoading(false);
       }
@@ -120,23 +155,60 @@ const MyProfile = () => {
   const handleSave = async () => {
     try {
       setLoading(true);
+<<<<<<< HEAD
       
       // Convert gender back to number for API
       const genderValue = userInfo.gender === 'Male' ? 1 : userInfo.gender === 'Female' ? 2 : 3;
       
       // Prepare data for API
+=======
+      setError(null);
+      
+      let updatedData;
+
+      // Step 1: Upload avatar if a new file was selected
+      if (avatarFile) {
+        setUploadingAvatar(true);
+        try {
+          const avatarResponse = await uploadAvatar(avatarFile);
+          updatedData = avatarResponse; // API returns full user object with new avatar URL
+          
+          // Clear avatar file and preview after successful upload
+          setAvatarFile(null);
+          setAvatarPreview(null);
+        } catch (avatarErr) {
+          console.error('Failed to upload avatar:', avatarErr);
+          const errorMessage = avatarErr.response?.data?.message || 'Failed to upload avatar. Please try again.';
+          toast.error(errorMessage);
+          setLoading(false);
+          setUploadingAvatar(false);
+          return; // Stop if avatar upload fails
+        } finally {
+          setUploadingAvatar(false);
+        }
+      }
+
+      // Step 2: Update other user info
+      const genderValue = userInfo.gender === 'Male' ? 1 : userInfo.gender === 'Female' ? 2 : 3;
+      
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       const updateData = {
         username: userInfo.username,
         password: userInfo.password || undefined,
         phoneNumber: userInfo.phoneNumber,
         fullname: userInfo.fullname,
         address: userInfo.address,
+<<<<<<< HEAD
         imageAvatar: userInfo.imageAvatar,
+=======
+        imageAvatar: updatedData?.imageAvatar || userInfo.imageAvatar, // Use new avatar URL if uploaded
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
         status: userInfo.status,
         gender: genderValue
       };
 
       await updateUserInfo(updateData);
+<<<<<<< HEAD
       setIsEditing(false);
       setError(null);
       
@@ -172,6 +244,46 @@ const MyProfile = () => {
     } catch (err) {
       console.error('Failed to save profile:', err);
       setError('Failed to save profile. Please try again.');
+=======
+      
+      // Step 3: Refetch user data to ensure sync
+      const finalData = await getUserById();
+      setUserInfo({
+        name: finalData.username || 'N/A',
+        username: finalData.username || '',
+        fullname: finalData.fullname || '',
+        joinDate: 'Join 12/9/2025',
+        dateOfBirth: '30/9/2001',
+        gender: finalData.gender === 1 ? 'Male' : finalData.gender === 2 ? 'Female' : 'Other',
+        phoneNumber: finalData.phoneNumber || '',
+        email: finalData.email || '',
+        facebook: '',
+        google: finalData.isGoogle ? finalData.email : '',
+        imageAvatar: finalData.imageAvatar,
+        isGoogle: finalData.isGoogle,
+        address: finalData.address || '',
+        status: finalData.status || '',
+        password: finalData.password || ''
+      });
+
+      // Step 4: Update localStorage and Redux store
+      tokenUtils.updateUserData({
+        username: finalData.username,
+        imageAvatar: finalData.imageAvatar
+      });
+      
+      dispatch(updateUserData({
+        username: finalData.username,
+        imageAvatar: finalData.imageAvatar
+      }));
+
+      setIsEditing(false);
+      toast.success('Profile updated successfully!', { autoClose: 3000 });
+    } catch (err) {
+      console.error('Failed to save profile:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to save profile. Please try again.';
+      toast.error(errorMessage, { autoClose: 5000 });
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
     } finally {
       setLoading(false);
     }
@@ -180,6 +292,14 @@ const MyProfile = () => {
   const handleCancel = async () => {
     try {
       setIsEditing(false);
+<<<<<<< HEAD
+=======
+      
+      // Clear avatar file and preview
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Refetch user data to reset changes
       const data = await getUserById();
       setUserInfo({
@@ -197,7 +317,11 @@ const MyProfile = () => {
         isGoogle: data.isGoogle,
         address: data.address || '',
         status: data.status || '',
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       });
     } catch (err) {
       console.error('Failed to refetch user data:', err);
@@ -213,6 +337,7 @@ const MyProfile = () => {
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
+<<<<<<< HEAD
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -225,6 +350,57 @@ const MyProfile = () => {
     }
   };
 
+=======
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      toast.error('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
+    // Store the file for later upload
+    setAvatarFile(file);
+    setError(null);
+
+    // Create preview URL
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result);
+    };
+    reader.onerror = () => {
+      toast.error('Failed to read image file');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleGetLocation = async () => {
+    await getLocation();
+  };
+
+  // Update address when location is obtained
+  useEffect(() => {
+    if (location && address) {
+      // Use formattedAddress from location service
+      // Format: [houseNumber road], [ward], [district]
+      const formattedAddress = address.formattedAddress || '';
+      
+      setUserInfo(prev => ({
+        ...prev,
+        address: formattedAddress
+      }));
+    }
+  }, [location, address]);
+
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
   const handleEdit = (field) => {
     switch (field) {
       case 'profile':
@@ -303,6 +479,7 @@ const MyProfile = () => {
           <div className="flex-shrink-0 flex flex-col items-center">
             <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-gray-200 mb-4">
               <img
+<<<<<<< HEAD
                 src={userInfo.imageAvatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"}
                 alt="Profile"
                 className="w-full h-full object-cover"
@@ -321,6 +498,35 @@ const MyProfile = () => {
                   />
                 </label>
               )}
+=======
+                src={avatarPreview || userInfo.imageAvatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+              {isEditing && !uploadingAvatar && (
+                <label className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 cursor-pointer hover:bg-opacity-60 transition-opacity group">
+                  <svg className="w-8 h-8 text-white mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span className="text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                    {t('changePhoto') || 'Change Photo'}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                    onChange={handleAvatarChange}
+                    className="hidden"
+                    disabled={uploadingAvatar}
+                  />
+                </label>
+              )}
+              {uploadingAvatar && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                </div>
+              )}
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
             </div>
             <div className="text-center">
               {isEditing ? (
@@ -372,6 +578,7 @@ const MyProfile = () => {
               )}
             </div>
 
+<<<<<<< HEAD
             {/* <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">User Name</label>
               <div className="text-gray-900">{userInfo.username || 'N/A'}</div>
@@ -381,6 +588,22 @@ const MyProfile = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
               <div className="text-gray-900">{userInfo.fullname || 'N/A'}</div>
             </div> */}
+=======
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('enterFullName')}</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={userInfo.fullname}
+                  onChange={(e) => handleInputChange('fullname', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-0 "
+                  placeholder={t('enterFullName')}
+                />
+              ) : (
+                <div className="text-gray-900">{userInfo.fullname || 'N/A'}</div>
+              )}
+            </div>
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('phoneNumber')}</label>
@@ -416,6 +639,7 @@ const MyProfile = () => {
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('address')}</label>
               {isEditing ? (
+<<<<<<< HEAD
                 <input
                   type="text"
                   value={userInfo.address}
@@ -423,6 +647,50 @@ const MyProfile = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-0 "
                   placeholder={t('enterAddress')}
                 />
+=======
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={userInfo.address}
+                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-0 "
+                    placeholder={t('enterAddress')}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleGetLocation}
+                    disabled={locationLoading}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-700 disabled:text-gray-400 disabled:cursor-not-allowed"
+                    title={t('useCurrentLocation') || 'Use current location'}
+                  >
+                    <svg 
+                      className={`w-5 h-5 ${locationLoading ? 'animate-spin' : ''}`}
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      {locationLoading ? (
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+                        />
+                      ) : (
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" 
+                        />
+                      )}
+                    </svg>
+                  </button>
+                  {locationError && (
+                    <p className="text-xs text-red-600 mt-1">{locationError}</p>
+                  )}
+                </div>
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
               ) : (
                 <div className="text-gray-900">{userInfo.address || 'N/A'}</div>
               )}

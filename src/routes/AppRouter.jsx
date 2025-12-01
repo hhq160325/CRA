@@ -1,11 +1,19 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+<<<<<<< HEAD
 import { RegisterCar, RegisterCarStep2, RegisterCarStep3, CarDetail, CarRental } from '../features/cars';
+=======
+import { RegisterCar, RegisterCarStep2, RegisterCarStep3, CarDetail, CarDetailRev, CarRental } from '../features/cars';
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 import { ProfilePage } from '../features/user';
 import { PaymentPage, PaymentSuccess, PaymentCancel } from '../features/payment';
 import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring } from '../features/admin';
 import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter } from '../features/staff';
+<<<<<<< HEAD
 import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments } from '../features/owner';
+=======
+import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments, CarRegisDocs } from '../features/owner';
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 import { AuthPage } from '../features/auth';
 // import ForgotPassword from '../features/auth/components/ForgotPassword';
 import SearchResult from '../features/search/components/SearchResult';
@@ -13,6 +21,10 @@ import { HomePage } from '../features/homepage';
 import { selectIsAuthenticated } from '../features/auth/authSlice';
 import RoleBasedRoute from './RoleBasedRoute';
 import { ROLES, tokenUtils, getRedirectPathByRole } from '../features/auth/utils';
+<<<<<<< HEAD
+=======
+import CalendarPage from '../features/owner/components/CalendarPage';
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 
 // Component to redirect authenticated users based on their role
 const AuthRedirect = () => {
@@ -31,7 +43,11 @@ const AppRouter = () => {
       <Route path="/cars" element={<CarRental />} />
       <Route path="/cars/:id" element={<CarDetail />} />
       <Route path="/search" element={<SearchResult />} />
+<<<<<<< HEAD
       
+=======
+      <Route path="/car-detail/:id" element={<CarDetailRev/>} />
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       {/* Auth route - redirects based on user role if already authenticated */}
       <Route path="/auth" element={!isAuthenticated ? <AuthPage /> : <AuthRedirect />} />
       
@@ -39,8 +55,14 @@ const AppRouter = () => {
       <Route path="/profile" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/profile/favourite-car" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/profile/rental-history" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
+<<<<<<< HEAD
       <Route path="/profile/inbox" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/profile/calendar" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
+=======
+      <Route path="/profile/payment-history" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
+      <Route path="/profile/inbox" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
+      {/* <Route path="/profile/calendar" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} /> */}
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       <Route path="/profile/reimburse" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/profile/security" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
       <Route path="/profile/help-center" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
@@ -77,6 +99,11 @@ const AppRouter = () => {
         <Route path="inquiries" element={<Inquiries />} />
         <Route path="bookings" element={<BookingManagement />} />
         <Route path="payments" element={<Payments />} />
+<<<<<<< HEAD
+=======
+        <Route path="car-regis-docs" element={<CarRegisDocs />} />
+        <Route path="calendar" element={<CalendarPage />} />
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       </Route>
       
       {/* Add your other routes here */}

@@ -1,0 +1,100 @@
+/* FilePond Horizontal Layout Styles */
+.filepond-horizontal .filepond--root {
+    margin-bottom: 2rem;
+    position: relative;
+    min-height: 200px;
+    height: auto;
+}
+
+.filepond-horizontal .filepond--wrapper {
+    position: relative;
+    min-height: 200px;
+    height: auto;
+    padding-bottom: 1rem;
+}
+
+.filepond-horizontal .filepond--list {
+    display: flex;
+    /* flex-direction: row ; */
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.filepond-horizontal .filepond--item {
+    width: 150px !important;
+    min-width: 150px !important;
+    margin: 0.5rem !important;
+}
+
+.filepond--image-preview-wrapper {
+    border-radius: 5px !important;
+}
+
+.filepond-horizontal .filepond--drop-label {
+    min-height: 10px !important;
+    /* height: 100px !important; */
+}
+
+/* Ensure proper spacing and layout */
+.filepond-horizontal .filepond--panel-root {
+    background-color: #f9fafb;
+    position: absolute !important;
+    z-index: 0;
+    height: 100% !important;
+}
+
+.filepond-horizontal .filepond--list {
+    position: relative !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    gap: 0.75rem !important;
+    margin-bottom: 1rem !important;
+    /* display: flex; */
+    /* align-items: center; */
+}
+
+.filepond-horizontal .filepond--list-scroller {
+    position: relative !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    transform: none !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    margin-bottom: 1rem !important;
+}
+
+.filepond-horizontal .filepond--drop-label {
+    position: relative !important;
+    margin-bottom: 1rem !important;
+}
+
+/* .filepond--list-scroller {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    
+} */
+ 
+/* .filepond--list{
+    margin-left: 3rem !important;
+    margin-right: 2rem !important;
+     width: calc(100% - 0.5em)
+} */
+
+/* Hide invalid files from displaying */
+.filepond--item[data-filepond-item-state*="error"],
+.filepond--item[data-filepond-item-state="invalid-file-type"],
+.filepond--item[data-filepond-item-state="invalid-file-size"] {
+    display: none !important;
+}
+
+/* Hide FilePond's inline error messages */
+.filepond--file-status-main,
+.filepond--file-status-sub {
+    display: none !important;
+}

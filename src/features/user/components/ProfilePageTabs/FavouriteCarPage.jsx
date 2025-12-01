@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +18,18 @@ const FavouriteCarPage = () => {
     navigate(`/cars/${carId}`);
   };
 
+=======
+import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { selectFavoriteCars } from '../../../favorites/favoritesSlice';
+import CarCard from '../../../cars/CarCard';
+
+const FavouriteCarPage = () => {
+  const { t } = useTranslation();
+  const favouriteCars = useSelector(selectFavoriteCars);
+
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
   return (
     <div>
       <div className="mb-4 sm:mb-6">
@@ -39,6 +52,7 @@ const FavouriteCarPage = () => {
           </Link>
         </div>
       ) : (
+<<<<<<< HEAD
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {favouriteCars.map((car) => (
             <div key={car.id} className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
@@ -119,6 +133,11 @@ const FavouriteCarPage = () => {
                 </div>
               </div>
             </div>
+=======
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+          {favouriteCars.map((car) => (
+            <CarCard key={car.id} car={car} isApiData={false} />
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
           ))}
         </div>
       )}

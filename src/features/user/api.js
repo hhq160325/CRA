@@ -63,4 +63,38 @@ export const updateUserInfo = async (userData) => {
     console.error("Error updating user data:", error);
     throw error;
   }
+<<<<<<< HEAD
+=======
+};
+
+// Upload user avatar
+export const uploadAvatar = async (imageFile) => {
+  try {
+    const userId = getUserIdFromToken();
+    if (!userId) {
+      throw new Error("User ID not found in token");
+    }
+
+    const { USER_ENDPOINTS } = await import("../../config/api");
+    
+    // Create FormData for file upload
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    formData.append('userId', userId);
+
+    const response = await axiosInstance.patch(
+      USER_ENDPOINTS.UPLOAD_AVATAR(userId),
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading avatar:", error);
+    throw error;
+  }
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 };

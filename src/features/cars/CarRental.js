@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import CarCard from './CarCard';
 import CarFilters from './CarFilters';
@@ -5,6 +6,27 @@ import CarFilters from './CarFilters';
 const CarRental = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [cars] = useState([
+=======
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import CarCard from './CarCard';
+import CarFilters from './CarFilters';
+import { fetchAllCars } from './carsSlice';
+
+const CarRental = () => {
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const { cars, loading, error } = useSelector((state) => state.cars);
+  const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchAllCars());
+  }, [dispatch]);
+
+  // Fallback data if API fails
+  const fallbackCars = [
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
     {
       id: 1,
       name: 'Koenigsegg',
@@ -104,7 +126,48 @@ const CarRental = () => {
       price: 74.00,
       originalPrice: null
     }
+<<<<<<< HEAD
   ]);
+=======
+  ];
+
+  const activeCars = cars.filter(car => car.status && car.status.toLowerCase() !== 'inactive');
+  const displayCars = activeCars.length > 0 ? activeCars : fallbackCars;
+  const [filters, setFilters] = useState({
+    fuelTypes: [],
+    transmissions: [],
+    seats: [],
+    years: []
+  });
+
+  // Apply filters to cars
+  const filteredCars = displayCars.filter(car => {
+    // If no filters selected, show all cars
+    const hasFilters = filters.fuelTypes.length > 0 || 
+                       filters.transmissions.length > 0 || 
+                       filters.seats.length > 0 || 
+                       filters.years.length > 0;
+    
+    if (!hasFilters) return true;
+
+    // Check if car matches selected filters
+    const matchesFuelType = filters.fuelTypes.length === 0 || 
+                            filters.fuelTypes.includes(car.fuelType || car.fuel);
+    const matchesTransmission = filters.transmissions.length === 0 || 
+                                filters.transmissions.includes(car.transmission);
+    const matchesSeats = filters.seats.length === 0 || 
+                         filters.seats.includes(car.seats) ||
+                         (typeof car.capacity === 'string' && filters.seats.some(s => car.capacity.includes(s.toString())));
+    const matchesYear = filters.years.length === 0 || 
+                        filters.years.includes(car.yearOfManufacture);
+
+    return matchesFuelType && matchesTransmission && matchesSeats && matchesYear;
+  });
+
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+  };
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -112,7 +175,11 @@ const CarRental = () => {
         <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
           {/* Sidebar Filters - Hidden on mobile, can be toggled */}
           <div className="hidden lg:block w-72 flex-shrink-0">
+<<<<<<< HEAD
             <CarFilters />
+=======
+            <CarFilters cars={displayCars} onFilterChange={handleFilterChange} />
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
           </div>
 
           {/* Mobile Filter Toggle */}
@@ -124,7 +191,11 @@ const CarRental = () => {
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
+<<<<<<< HEAD
               <span className="font-semibold text-gray-900">Filters</span>
+=======
+              <span className="font-semibold text-gray-900">{t('filters') || 'Filters'}</span>
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
               <svg className={`w-5 h-5 ml-2 transform transition-transform ${showFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
@@ -134,12 +205,17 @@ const CarRental = () => {
           {/* Mobile Filters Dropdown */}
           {showFilters && (
             <div className="lg:hidden mb-6">
+<<<<<<< HEAD
               <CarFilters />
+=======
+              <CarFilters cars={displayCars} onFilterChange={handleFilterChange} />
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
             </div>
           )}
 
           {/* Main Content */}
           <div className="flex-1">
+<<<<<<< HEAD
             {/* Pick-Up and Drop-Off Section */}
             <div className="relative mb-6 lg:mb-8">
               <div className="bg-white rounded-xl p-4 sm:p-6 lg:p-8 shadow-sm">
@@ -227,6 +303,53 @@ const CarRental = () => {
               </button>
               <p className="text-gray-500 text-sm order-first sm:order-last">120 Car</p>
             </div>
+=======
+            {/* Car Grid */}
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <p className="mt-4 text-gray-600">{t('loadingCars') || 'Loading cars...'}</p>
+              </div>
+            ) : error ? (
+              <div className="text-center py-12">
+                <p className="text-red-600">{t('errorLoadingCars') || 'Error loading cars'}: {error}</p>
+                <p className="text-gray-500 mt-2">{t('showingFallbackData') || 'Showing sample data'}</p>
+              </div>
+            ) : null}
+
+            {filteredCars.length === 0 ? (
+              <div className="text-center py-12">
+                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">{t('noCarsFound') || 'No cars found'}</h3>
+                <p className="mt-1 text-sm text-gray-500">{t('tryAdjustingFilters') || 'Try adjusting your filters'}</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 lg:mb-12">
+                  {filteredCars.map((car) => (
+                    <CarCard 
+                      key={car.id} 
+                      car={car} 
+                      isApiData={cars.length > 0}
+                    />
+                  ))}
+                </div>
+
+                {/* Show More Button */}
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                  <div className="hidden sm:block"></div>
+                  <button className="bg-blue-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl hover:bg-blue-700 font-semibold transition-colors w-full sm:w-auto">
+                    {t('showMoreCar') || 'Show more car'}
+                  </button>
+                  <p className="text-gray-500 text-sm order-first sm:order-last">
+                    {filteredCars.length} {t('car') || 'Car'}
+                  </p>
+                </div>
+              </>
+            )}
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
           </div>
         </div>
       </div>

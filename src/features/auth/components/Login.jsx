@@ -58,11 +58,14 @@ const Login = ({ onSwitchToRegister }) => {
         {/* Title */}
         <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">{t('logIn')}</h1>
 
+<<<<<<< HEAD
         {/* Subtitle */}
         <p className="text-gray-600 text-center mb-4">
           {t('newToDesignSpace')} <button onClick={onSwitchToRegister} className="text-blue-600 hover:text-blue-700 font-medium">{t('signUpForFree')}</button>
         </p>
 
+=======
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
         {/* Mock credentials helper */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
           <div className="flex items-center justify-between">
@@ -158,8 +161,23 @@ const Login = ({ onSwitchToRegister }) => {
             {isLoading ? t('loggingIn') : t('logIn')}
           </button>
 
+<<<<<<< HEAD
           {/* Social login buttons */}
           <div className="grid grid-cols-4 gap-3">
+=======
+          {/* Separator */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">{t('OrSignupwith')}</span>
+            </div>
+          </div>
+
+          {/* Social login buttons */}
+          <div className="grid grid-cols-2 gap-3">
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
             {/* Facebook */}
             <button
               type="button"
@@ -171,6 +189,7 @@ const Login = ({ onSwitchToRegister }) => {
               </svg>
             </button>
 
+<<<<<<< HEAD
             {/* GitHub */}
             <button
               type="button"
@@ -182,6 +201,8 @@ const Login = ({ onSwitchToRegister }) => {
               </svg>
             </button>
 
+=======
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
             {/* Google */}
             <button
               type="button"
@@ -195,6 +216,7 @@ const Login = ({ onSwitchToRegister }) => {
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
             </button>
+<<<<<<< HEAD
 
             {/* Twitter */}
             <button
@@ -208,6 +230,15 @@ const Login = ({ onSwitchToRegister }) => {
             </button>
           </div>
 
+=======
+          </div>
+
+          {/* Sign up link */}
+          <p className="text-gray-600 text-center">
+            {t('newToDesignSpace')} <button onClick={onSwitchToRegister} className="text-blue-600 hover:text-blue-700 font-medium">{t('signUpForFree')}</button>
+          </p>
+
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
           {/* SSO button */}
           {/* <button
             type="button"

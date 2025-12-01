@@ -28,12 +28,31 @@ export const fetchUserCars = createAsyncThunk(
   }
 );
 
+<<<<<<< HEAD
+=======
+export const fetchAllCars = createAsyncThunk(
+  'cars/fetchAllCars',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get('/Car/AllCars');
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 export const fetchCarById = createAsyncThunk(
   'cars/fetchCarById',
   async (carId, { rejectWithValue }) => {
     try {
+<<<<<<< HEAD
       // TODO: Replace with actual API call
       const response = await axiosInstance.get(`/cars/${carId}`);
+=======
+      const response = await axiosInstance.get(`/Car/${carId}`);
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -115,6 +134,22 @@ const carsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+<<<<<<< HEAD
+=======
+      // Fetch all cars
+      .addCase(fetchAllCars.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllCars.fulfilled, (state, action) => {
+        state.loading = false;
+        state.cars = action.payload;
+      })
+      .addCase(fetchAllCars.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Fetch user cars
       .addCase(fetchUserCars.pending, (state) => {
         state.loading = true;

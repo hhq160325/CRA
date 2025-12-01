@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -95,6 +96,19 @@ const CarCard = ({ car, onToggleFavorite }) => {
 };
 
 const RecentCarsCarousel = ({ cars, onToggleFavorite }) => {
+=======
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { toggleFavorite, selectIsFavorite } from '../../favorites/favoritesSlice';
+import { fetchCarById, fetchAllCars } from '../carsSlice';
+import { getCarRentalRate } from '../carApi';
+import useEmblaCarousel from 'embla-carousel-react';
+import CarCard from '../CarCard';
+import './embla.css';
+
+const RecentCarsCarousel = ({ cars }) => {
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
     const [emblaRef] = useEmblaCarousel({
         align: 'start',
         dragFree: true,
@@ -102,15 +116,23 @@ const RecentCarsCarousel = ({ cars, onToggleFavorite }) => {
         keyboard: true
     });
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
     return (
         <div className="relative">
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex gap-6">
                     {cars.map((car) => (
+<<<<<<< HEAD
                         <div key={car.id} className="flex-none w-80">
                             <CarCard car={car} onToggleFavorite={onToggleFavorite} />
+=======
+                        <div key={car.carId || car.id} className="flex-none w-80">
+                            <CarCard car={car} isApiData={true} />
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                         </div>
                     ))}
                 </div>
@@ -121,7 +143,11 @@ const RecentCarsCarousel = ({ cars, onToggleFavorite }) => {
     );
 };
 
+<<<<<<< HEAD
 const RecommendationCarsCarousel = ({ cars, onToggleFavorite }) => {
+=======
+const RecommendationCarsCarousel = ({ cars }) => {
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
     const [emblaRef] = useEmblaCarousel({
         align: 'start',
         dragFree: true,
@@ -135,7 +161,11 @@ const RecommendationCarsCarousel = ({ cars, onToggleFavorite }) => {
                 <div className="flex gap-6">
                     {cars.map((car) => (
                         <div key={car.id} className="flex-none w-80">
+<<<<<<< HEAD
                             <CarCard car={car} onToggleFavorite={onToggleFavorite} />
+=======
+                            <CarCard car={car} isApiData={true} />
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                         </div>
                     ))}
                 </div>
@@ -148,6 +178,7 @@ const RecommendationCarsCarousel = ({ cars, onToggleFavorite }) => {
 
 const CarDetail = () => {
     const { id } = useParams();
+<<<<<<< HEAD
     const dispatch = useDispatch();
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [showAllReviews, setShowAllReviews] = useState(false);
@@ -267,14 +298,132 @@ const CarDetail = () => {
     const handleMainCarToggleFavorite = () => {
         const mainCarData = {
             id: parseInt(id) || 1,
+=======
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+    const [showAllReviews, setShowAllReviews] = useState(false);
+    const [rentalRate, setRentalRate] = useState(null);
+    const [loadingRate, setLoadingRate] = useState(false);
+
+    // Get cars from Redux store
+    const { cars, currentCar, loading, error } = useSelector((state) => state.cars);
+
+    // Get favorite status for the current car
+    const isCurrentCarFavorite = useSelector(selectIsFavorite(id));
+
+    // Fetch car by ID on component mount or when ID changes
+    useEffect(() => {
+        dispatch(fetchCarById(id));
+    }, [dispatch, id]);
+
+    // Fetch rental rate when car ID changes
+    useEffect(() => {
+        const fetchRentalRate = async () => {
+            if (!id) return;
+            
+            setLoadingRate(true);
+            try {
+                const rateData = await getCarRentalRate(id);
+                setRentalRate(rateData);
+            } catch (error) {
+                console.error('Failed to fetch rental rate:', error);
+                // Keep default price if API fails
+            } finally {
+                setLoadingRate(false);
+            }
+        };
+
+        fetchRentalRate();
+    }, [id]);
+
+    // Mock reviews data (since API doesn't provide reviews yet)
+    const mockReviews = [
+        {
+            id: 1,
+            name: "Alex Stanton",
+            role: "CEO at Bukalapak",
+            date: "21 July 2022",
+            rating: 4,
+            comment: "We are very happy with the service from the MORENT App. Morent has a low price and also a large variety of cars with good and comfortable facilities. In addition, the service provided by the officers is also very friendly and very polite."
+        },
+        {
+            id: 2,
+            name: "Skylar Dias",
+            role: "CEO at Amazon",
+            date: "20 July 2022",
+            rating: 4,
+            comment: "We are greatly helped by the services of the MORENT Application. Morent has low prices and also a wide variety of cars with good and comfortable facilities. In addition, the service provided by the officers is also very friendly and very polite."
+        }
+    ];
+
+    // Helper function to process image URLs
+    const processImageUrl = (imageUrl) => {
+        if (!imageUrl) return 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop';
+        return imageUrl.replace('<url>', process.env.REACT_APP_STORAGE_URL || 'https://your-storage-url.com');
+    };
+
+    // Transform API car data to match the component's expected format
+    const carData = currentCar ? {
+        id: currentCar.id,
+        name: `${currentCar.manufacturer} ${currentCar.model}`,
+        type: currentCar.model,
+        rating: 4.5, // Mock rating
+        reviewCount: 440, // Mock review count
+        description: currentCar.description || `Experience the power and elegance of the ${currentCar.manufacturer} ${currentCar.model}. This ${currentCar.fuelType} vehicle offers exceptional performance and comfort.`,
+        specifications: {
+            typecar: currentCar.model,
+            capacity: `${currentCar.seats} Person`,
+            steering: currentCar.transmission,
+            fueltype: currentCar.fuelType,
+        },
+        price: rentalRate?.dailyRate || 10000, // Use API rental rate or fallback to 10000 VND
+        originalPrice: null, // No original price for API data
+        images: currentCar.imageUrls && currentCar.imageUrls.length > 0 
+            ? currentCar.imageUrls.map(url => processImageUrl(url))
+            : [
+                "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&h=300&fit=crop"
+            ],
+        reviews: mockReviews
+    } : null;
+
+    // Fetch all cars for related cars section
+    useEffect(() => {
+        if (cars.length === 0) {
+            dispatch(fetchAllCars());
+        }
+    }, [dispatch, cars.length]);
+
+    // Get related cars from API (all cars except current one)
+    const displayRelatedCars = cars.filter(car => car.id !== id).slice(0, 8);
+
+    const handleMainCarToggleFavorite = () => {
+        if (!carData) return;
+        
+        const mainCarData = {
+            id: id,
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
             name: carData.name,
             type: carData.type,
             price: carData.price,
             originalPrice: carData.originalPrice,
             image: carData.images[0],
+<<<<<<< HEAD
             specifications: carData.specifications,
         };
         handleToggleFavorite(parseInt(id) || 1, mainCarData);
+=======
+            fuel: carData.specifications.fueltype,
+            transmission: carData.specifications.steering,
+            capacity: carData.specifications.capacity,
+        };
+        dispatch(toggleFavorite({
+            carId: id,
+            carData: mainCarData
+        }));
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
     };
 
     const renderStars = (rating) => {
@@ -337,7 +486,11 @@ const CarDetail = () => {
     //                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     //                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
     //                     </svg>
+<<<<<<< HEAD
     //                     <span>{car.specifications.gasoline}</span>
+=======
+    //                     <span>{car.specifications.fueltype}</span>
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
     //                 </div>
     //                 <div className="flex items-center gap-1">
     //                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -369,6 +522,59 @@ const CarDetail = () => {
     //     );
     // };
 
+<<<<<<< HEAD
+=======
+    // Show loading state
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading car details...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Show error state
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-red-600 mb-4">Error loading car details: {error}</p>
+                    <button 
+                        onClick={() => dispatch(fetchCarById(id))}
+                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                    >
+                        Retry
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // Show not found state if car doesn't exist
+    if (!loading && !carData) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <svg className="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Car Not Found</h2>
+                    <p className="text-gray-600 mb-6">The car you're looking for doesn't exist or has been removed.</p>
+                    <Link 
+                        to="/cars"
+                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 inline-block"
+                    >
+                        Browse All Cars
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="container mx-auto px-6 py-8">
@@ -466,14 +672,20 @@ const CarDetail = () => {
                                 <p className="font-semibold text-gray-800 text-lg">{carData.specifications.steering}</p>
                             </div>
                             <div>
+<<<<<<< HEAD
                                 <span className="text-gray-400 text-sm block mb-2">Gasoline</span>
                                 <p className="font-semibold text-gray-800 text-lg">{carData.specifications.gasoline}</p>
+=======
+                                <span className="text-gray-400 text-sm block mb-2">Fuel Type</span>
+                                <p className="font-semibold text-gray-800 text-lg">{carData.specifications.fueltype}</p>
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                             </div>
                         </div>
 
                         <div className="flex items-center justify-between">
                             <div>
                                 <div className="flex items-baseline gap-1">
+<<<<<<< HEAD
                                     <span className="text-4xl font-bold text-gray-900">${typeof carData.price === 'number' ? carData.price.toFixed(2) : (parseFloat(carData.price) || 0).toFixed(2)}/</span>
                                     <span className="text-gray-500 text-4xl">day</span>
                                 </div>
@@ -487,6 +699,36 @@ const CarDetail = () => {
                             >
                                 Rent Now
                             </Link>
+=======
+                                    {loadingRate ? (
+                                        <span className="text-4xl font-bold text-gray-400">...</span>
+                                    ) : (
+                                        <>
+                                            <span className="text-4xl font-bold text-gray-900">{typeof carData.price === 'number' ? carData.price.toLocaleString('vi-VN') : (parseFloat(carData.price) || 0).toLocaleString('vi-VN')} đ/</span>
+                                            <span className="text-gray-500 text-4xl">day</span>
+                                        </>
+                                    )}
+                                </div>
+                                {carData.originalPrice && (
+                                    <div className="text-gray-400 line-through text-lg mt-1">{typeof carData.originalPrice === 'number' ? carData.originalPrice.toLocaleString('vi-VN') : (parseFloat(carData.originalPrice) || 0).toLocaleString('vi-VN')} đ</div>
+                                )}
+                            </div>
+                            <button 
+                                onClick={() => navigate('/payment', { 
+                                    state: { 
+                                        carId: id,
+                                        carName: carData.name,
+                                        carImage: carData.images[0],
+                                        carPrice: carData.price,
+                                        carRating: carData.rating,
+                                        carReviewCount: carData.reviewCount
+                                    } 
+                                })}
+                                className="bg-blue-600 text-white px-10 py-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg inline-block text-center"
+                            >
+                                Rent Now
+                            </button>
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                         </div>
                     </div>
                 </div>
@@ -538,6 +780,7 @@ const CarDetail = () => {
                 </div>
 
                 {/* Recent Cars */}
+<<<<<<< HEAD
                 <div className="mb-12">
                     <div className="flex items-center justify-between mb-8">
                         <h2 className="text-2xl font-bold text-gray-900">Recent Car</h2>
@@ -560,6 +803,32 @@ const CarDetail = () => {
                     </div>
                     <RecommendationCarsCarousel cars={displayRelatedCars} onToggleFavorite={handleToggleFavorite} />
                 </div>
+=======
+                {displayRelatedCars.length > 0 && (
+                    <div className="mb-12">
+                        <div className="flex items-center justify-between mb-8">
+                            <h2 className="text-2xl font-bold text-gray-900">Recent Car</h2>
+                            <Link to="/cars" className="text-blue-600 hover:text-blue-700 font-medium">
+                                View All
+                            </Link>
+                        </div>
+                        <RecentCarsCarousel cars={displayRelatedCars.slice(0, 6)} />
+                    </div>
+                )}
+
+                {/* Recommendation Cars */}
+                {displayRelatedCars.length > 0 && (
+                    <div>
+                        <div className="flex items-center justify-between mb-8">
+                            <h2 className="text-2xl font-bold text-gray-900">Recommendation Car</h2>
+                            <Link to="/cars" className="text-blue-600 hover:text-blue-700 font-medium">
+                                View All
+                            </Link>
+                        </div>
+                        <RecommendationCarsCarousel cars={displayRelatedCars} />
+                    </div>
+                )}
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
             </div>
         </div>
     );

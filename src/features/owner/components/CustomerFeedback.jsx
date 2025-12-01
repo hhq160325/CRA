@@ -173,10 +173,17 @@ const CustomerFeedback = () => {
     closeModal();
   };
 
+<<<<<<< HEAD
   const handleHideFeedback = (feedbackId) => {
     // Handle hide feedback logic
     console.log('Hiding feedback:', feedbackId);
   };
+=======
+  // const handleHideFeedback = (feedbackId) => {
+  //   // Handle hide feedback logic
+  //   console.log('Hiding feedback:', feedbackId);
+  // };
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 
   const filteredFeedbacks = feedbacks.filter(feedback => {
     const matchesSearch = feedback.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||

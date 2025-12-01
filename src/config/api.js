@@ -73,6 +73,7 @@ export const BOOKING_ENDPOINTS = {
   GET_ALL_BOOKINGS: `${API_CONFIG.BASE_URL}/Booking/GetAllBookings`,
   GET_CUSTOMER_BOOKINGS: (cusId) => `${API_CONFIG.BASE_URL}/Booking/GetBookingsFromCustomer/${cusId}`,
   GET_CAR_BOOKINGS: (carId) => `${API_CONFIG.BASE_URL}/Booking/GetBookingsForCar/${carId}`,
+  GET_BOOKING_BY_ID: (bookingId) => `${API_CONFIG.BASE_URL}/Booking/GetBookingById/${bookingId}`,
 };
 
 export const BOOKING_API_CONFIG = {
@@ -92,6 +93,7 @@ export const SCHEDULE_API_CONFIG = {
 
 // Invoice endpoints
 export const INVOICE_ENDPOINTS = {
+  GET_ALL_INVOICES: `${API_CONFIG.BASE_URL}/Invoice/AllInvoices`,
   GET_INVOICE_BY_ID: (invoiceId) => `${API_CONFIG.ALTER_URL}/${invoiceId}`,
 };
 
@@ -125,6 +127,7 @@ export const TRACKASIA_API_CONFIG = {
 // Feedback endpoints
 export const FEEDBACK_ENDPOINTS = {
   CREATE_FEEDBACK: `${API_CONFIG.BASE_URL}/Feedback`,
+  GET_FEEDBACK_BY_CAR: (carId) => `${API_CONFIG.BASE_URL}/Feedback/${carId}`,
 };
 
 export const FEEDBACK_API_CONFIG = {

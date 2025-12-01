@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 
+const RENTAL_DATES_KEY = 'rentalDates';
+
 // Custom Time Dropdown Component
 const TimeDropdown = ({ label, value, onChange, options, disabledTimes = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -48,7 +50,7 @@ const TimeDropdown = ({ label, value, onChange, options, disabledTimes = [] }) =
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-left focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent flex items-center justify-between"
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent flex items-center justify-between"
       >
         <span className="text-2xl font-semibold text-gray-900">{value}</span>
         <svg 
@@ -86,10 +88,10 @@ const TimeDropdown = ({ label, value, onChange, options, disabledTimes = [] }) =
                 }`}
               >
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                  value === time ? 'border-green-500' : 'border-gray-300'
+                  value === time ? 'border-blue-500' : 'border-gray-300'
                 }`}>
                   {value === time && (
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
                   )}
                 </div>
                 <span className={`text-lg ${
@@ -118,6 +120,22 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
   const [selectedDropoffDate, setSelectedDropoffDate] = useState(null); // { day, month, year }
   const [pickupTime, setPickupTime] = useState('06:00');
   const [dropoffTime, setDropoffTime] = useState('23:00');
+
+  // Load saved rental dates from localStorage on mount
+  useEffect(() => {
+    const savedData = localStorage.getItem(RENTAL_DATES_KEY);
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        if (parsed.selectedPickupDate) setSelectedPickupDate(parsed.selectedPickupDate);
+        if (parsed.selectedDropoffDate) setSelectedDropoffDate(parsed.selectedDropoffDate);
+        if (parsed.pickupTime) setPickupTime(parsed.pickupTime);
+        if (parsed.dropoffTime) setDropoffTime(parsed.dropoffTime);
+      } catch (error) {
+        console.error('Failed to load rental dates from localStorage:', error);
+      }
+    }
+  }, []);
 
   const monthNames = [
     'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
@@ -188,19 +206,34 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
     
     if (!selectedPickupDate) {
       setSelectedPickupDate(clickedDate);
+      saveToLocalStorage({ selectedPickupDate: clickedDate });
     } else if (!selectedDropoffDate) {
       const pickupTimestamp = new Date(selectedPickupDate.year, selectedPickupDate.month, selectedPickupDate.day).getTime();
       
       if (clickedTimestamp > pickupTimestamp) {
         setSelectedDropoffDate(clickedDate);
+        saveToLocalStorage({ selectedDropoffDate: clickedDate });
       } else {
         setSelectedPickupDate(clickedDate);
         setSelectedDropoffDate(null);
+        saveToLocalStorage({ selectedPickupDate: clickedDate, selectedDropoffDate: null });
       }
     } else {
       setSelectedPickupDate(clickedDate);
       setSelectedDropoffDate(null);
+      saveToLocalStorage({ selectedPickupDate: clickedDate, selectedDropoffDate: null });
     }
+  };
+
+  const saveToLocalStorage = (updates) => {
+    const currentData = {
+      selectedPickupDate,
+      selectedDropoffDate,
+      pickupTime,
+      dropoffTime,
+      ...updates
+    };
+    localStorage.setItem(RENTAL_DATES_KEY, JSON.stringify(currentData));
   };
 
   const isDateInRange = (day, month, year) => {
@@ -288,13 +321,21 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
 
   const handleConfirm = () => {
     if (selectedPickupDate && selectedDropoffDate && pickupTime && dropoffTime) {
-      onConfirm({
+      const duration = calculateDuration();
+      const rentalData = {
         pickupDate: `${selectedPickupDate.day}/${selectedPickupDate.month + 1}`,
         dropoffDate: `${selectedDropoffDate.day}/${selectedDropoffDate.month + 1}`,
         pickupTime,
         dropoffTime,
-        duration: calculateDuration()
-      });
+        duration,
+        selectedPickupDate,
+        selectedDropoffDate
+      };
+      
+      // Save complete data to localStorage
+      localStorage.setItem(RENTAL_DATES_KEY, JSON.stringify(rentalData));
+      
+      onConfirm(rentalData);
       onClose();
     }
   };
@@ -322,16 +363,9 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
           </button>
         </div>
 
-        {/* Tabs */}
-        <div className="px-6 pt-4">
-          <div className="flex border-b">
-            <button className="flex-1 pb-3 text-sm font-medium text-gray-900 relative border-b-2 border-green-500">
-              Thuê theo ngày
-            </button>
-            <button className="flex-1 pb-3 text-sm font-medium text-gray-400 relative">
-              Thuê theo giờ
-            </button>
-          </div>
+        {/* Header Title */}
+        <div className="px-6 pt-4 pb-2">
+          <h3 className="text-sm font-medium text-gray-900 text-center">Thuê theo ngày</h3>
         </div>
 
         {/* Calendar Content */}
@@ -372,9 +406,9 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
                         disabled={day < currentDate.getDate() && selectedMonth === currentDate.getMonth()}
                         className={`w-full h-full flex flex-col items-center justify-center text-sm transition-colors rounded ${
                           isDateSelected(day, selectedMonth, selectedYear)
-                            ? 'bg-green-500 text-white font-semibold'
+                            ? 'bg-blue-500 text-white font-semibold'
                             : isDateInRange(day, selectedMonth, selectedYear)
-                            ? 'bg-green-100 text-gray-900'
+                            ? 'bg-blue-100 text-gray-900'
                             : day < currentDate.getDate() && selectedMonth === currentDate.getMonth()
                             ? 'text-gray-300 cursor-not-allowed'
                             : 'hover:bg-gray-100 text-gray-700'
@@ -424,9 +458,9 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
                         onClick={() => handleDateClick(day, nextMonth, nextMonthYear)}
                         className={`w-full h-full flex flex-col items-center justify-center text-sm transition-colors rounded ${
                           isDateSelected(day, nextMonth, nextMonthYear)
-                            ? 'bg-green-500 text-white font-semibold'
+                            ? 'bg-blue-500 text-white font-semibold'
                             : isDateInRange(day, nextMonth, nextMonthYear)
-                            ? 'bg-green-100 text-gray-900'
+                            ? 'bg-blue-100 text-gray-900'
                             : 'hover:bg-gray-100 text-gray-700'
                         }`}
                       >
@@ -447,7 +481,10 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
             <TimeDropdown
               label="Nhận xe"
               value={pickupTime}
-              onChange={setPickupTime}
+              onChange={(time) => {
+                setPickupTime(time);
+                saveToLocalStorage({ pickupTime: time });
+              }}
               options={timeOptions}
               disabledTimes={getDisabledPickupTimes()}
             />
@@ -456,7 +493,10 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
             <TimeDropdown
               label="Trả xe"
               value={dropoffTime}
-              onChange={setDropoffTime}
+              onChange={(time) => {
+                setDropoffTime(time);
+                saveToLocalStorage({ dropoffTime: time });
+              }}
               options={timeOptions}
               disabledTimes={getDisabledDropoffTimes()}
             />
@@ -489,7 +529,7 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
                 )}
               </div>
               <div className="text-xs text-gray-600 mt-1">
-                Thời gian thuê: <span className="text-green-600 font-semibold">{calculateDuration()} ngày</span>
+                Thời gian thuê: <span className="text-blue-600 font-semibold">{calculateDuration()} ngày</span>
                 {calculateDuration() > 0 && (
                   <button className="ml-1 text-gray-400 hover:text-gray-600">
                     <svg className="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -502,7 +542,7 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
             <button
               onClick={handleConfirm}
               disabled={!selectedPickupDate || !selectedDropoffDate}
-              className="ml-4 px-6 py-2 bg-green-500 text-white rounded font-medium hover:bg-green-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed text-sm"
+              className="ml-4 px-6 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed text-sm"
             >
               Tiếp tục
             </button>

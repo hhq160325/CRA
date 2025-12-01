@@ -4,27 +4,28 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { fetchAllCars } from '../../cars/carsSlice';
 import CarCard from '../../cars/CarCard';
-import Calendar from '../../../shared/components/Calendar';
-import TimePicker from '../../../shared/components/TimePicker';
+import DeliveryLocationModal from '../../cars/components/CarDetailRevModal/DeliveryLocationModal';
+import DateAndTimePicker from '../../cars/components/CarDetailRevModal/DateAndTimePicker';
 
 const HomePage = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { cars, loading, error } = useSelector((state) => state.cars);
 
-  // Dropdown states
-  const [pickupDateOpen, setPickupDateOpen] = useState(false);
-  const [pickupTimeOpen, setPickupTimeOpen] = useState(false);
-  const [dropoffDateOpen, setDropoffDateOpen] = useState(false);
-  const [dropoffTimeOpen, setDropoffTimeOpen] = useState(false);
+  // Modal states
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
+  const [dateTimePickerOpen, setDateTimePickerOpen] = useState(false);
 
   // Selected values
-  const [pickupLocation, setPickupLocation] = useState('');
-  const [pickupDate, setPickupDate] = useState(null);
-  const [pickupTime, setPickupTime] = useState('');
-  const [dropoffLocation, setDropoffLocation] = useState('');
-  const [dropoffDate, setDropoffDate] = useState(null);
-  const [dropoffTime, setDropoffTime] = useState('');
+  const [location, setLocation] = useState('Pick your location');
+  const [locationAddress, setLocationAddress] = useState('');
+  const [locationCity, setLocationCity] = useState('Pick your location');
+  const [selectedAirport, setSelectedAirport] = useState('');
+  const [pickupDateStr, setPickupDateStr] = useState('01/12');
+  const [dropoffDateStr, setDropoffDateStr] = useState('02/12');
+  const [pickupTime, setPickupTime] = useState('21:00');
+  const [dropoffTime, setDropoffTime] = useState('20:00');
+  const [rentalDuration, setRentalDuration] = useState(1);
 
   useEffect(() => {
     dispatch(fetchAllCars());
@@ -94,209 +95,103 @@ const HomePage = () => {
         </div>
 
         {/* Pick-up and Drop-off Section */}
-        <div className='bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm mb-6 sm:mb-8 relative z-10'>
-          <div className='flex flex-col lg:flex-row gap-4 sm:gap-6'>
-            {/* Pick-up */}
-            <div className='flex-1'>
-              <div className='flex items-center space-x-2 mb-3 sm:mb-4'>
-                <div className='w-3 h-3 sm:w-4 sm:h-4 bg-blue-600 rounded-full flex-shrink-0'></div>
-                <h3 className='text-base sm:text-lg font-semibold text-gray-900'>{t('pickUp')}</h3>
-              </div>
-              <div className='grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4'>
-                {/* Pickup Location */}
-                <div className='w-full relative'>
-                  <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2'>{t('location')}</label>
-                  <input
-                    type="text"
-                    value={pickupLocation}
-                    onChange={(e) => setPickupLocation(e.target.value)}
-                    placeholder={t('selectCity')}
-                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white'
-                  />
-                </div>
-
-                {/* Pickup Date */}
-                <div className='w-full relative'>
-                  <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2'>{t('date')}</label>
-                  <button
-                    type="button"
-                    onClick={() => setPickupDateOpen(!pickupDateOpen)}
-                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
-                  >
-                    <span className={pickupDate ? 'text-gray-900' : 'text-gray-400'}>
-                      {pickupDate ? pickupDate.toLocaleDateString() : t('selectDate')}
-                    </span>
-                    <svg
-                      className={`w-4 h-4 text-gray-500 transition-transform ${pickupDateOpen ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </button>
-                  {pickupDateOpen && (
-                    <>
-                      <div
-                        className="fixed inset-0 z-10"
-                        onClick={() => setPickupDateOpen(false)}
-                      />
-                      <div className="absolute z-20 mt-1">
-                        <Calendar
-                          selectedDate={pickupDate}
-                          onDateSelect={setPickupDate}
-                          onClose={() => setPickupDateOpen(false)}
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {/* Pickup Time */}
-                <div className='w-full relative'>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">{t('time')}</label>
-                  <button
-                    type="button"
-                    onClick={() => setPickupTimeOpen(!pickupTimeOpen)}
-                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
-                  >
-                    <span className={pickupTime ? 'text-gray-900' : 'text-gray-400'}>
-                      {pickupTime || t('selectTime')}
-                    </span>
-                    <svg
-                      className={`w-4 h-4 text-gray-500 transition-transform ${pickupTimeOpen ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </button>
-                  {pickupTimeOpen && (
-                    <>
-                      <div
-                        className="fixed inset-0 z-10"
-                        onClick={() => setPickupTimeOpen(false)}
-                      />
-                      <div className="absolute z-20 mt-1">
-                        <TimePicker
-                          selectedTime={pickupTime}
-                          onTimeSelect={setPickupTime}
-                          onClose={() => setPickupTimeOpen(false)}
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Swap Button */}
-            <div className='flex items-center justify-center lg:items-end lg:pb-2'>
-              <button className='bg-blue-600 text-white p-3 sm:p-3.5 rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg'>
-                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+        <div className='bg-white rounded-xl p-3 sm:p-4 shadow-sm mb-6 sm:mb-8 relative z-10'>
+          <div className='flex flex-col md:flex-row items-stretch gap-2 md:gap-0'>
+            {/* Location Section */}
+            <div className='flex-1 relative border-r-0 md:border-r border-gray-200 pr-0 md:pr-4'>
+              <label className='flex items-center gap-1.5 text-xs font-medium text-gray-600 mb-1.5'>
+                <svg className="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                {t('location') || 'Địa điểm'}
+              </label>
+              <button
+                type="button"
+                onClick={() => setLocationModalOpen(true)}
+                className='w-full text-left flex items-center justify-between group hover:opacity-80 transition-opacity'
+              >
+                <span className='text-sm sm:text-base text-gray-900 font-medium'>
+                  {location}
+                </span>
+                <svg
+                  className='w-4 h-4 text-gray-400 flex-shrink-0 ml-2'
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
             </div>
 
-            {/* Drop-off */}
-            <div className='flex-1'>
-              <div className='flex items-center space-x-2 mb-3 sm:mb-4'>
-                <div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-600 rounded-full flex-shrink-0"></div>
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900">{t('dropOff')}</h3>
-              </div>
-              <div className='grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4'>
-                {/* Dropoff Location */}
-                <div className='w-full relative'>
-                  <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2'>{t('location')}</label>
-                  <input
-                    type="text"
-                    value={dropoffLocation}
-                    onChange={(e) => setDropoffLocation(e.target.value)}
-                    placeholder={t('selectCity')}
-                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white'
-                  />
-                </div>
+            {/* Time Range Section */}
+            <div className='flex-1 relative pl-0 md:pl-4'>
+              <label className='flex items-center gap-1.5 text-xs font-medium text-gray-600 mb-1.5'>
+                <svg className="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                {t('rentalPeriod') || 'Thời gian thuê'}
+              </label>
+              <button
+                type="button"
+                onClick={() => setDateTimePickerOpen(true)}
+                className='w-full text-left flex items-center justify-between group hover:opacity-80 transition-opacity'
+              >
+                <span className='text-sm sm:text-base text-gray-900 font-medium'>
+                  {`${pickupTime}, ${pickupDateStr}/2025 - ${dropoffTime}, ${dropoffDateStr}/2025`}
+                </span>
+                <svg
+                  className='w-4 h-4 text-gray-400 flex-shrink-0 ml-2'
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
 
-                {/* Dropoff Date */}
-                <div className='w-full relative'>
-                  <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2'>{t('date')}</label>
-                  <button
-                    type="button"
-                    onClick={() => setDropoffDateOpen(!dropoffDateOpen)}
-                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
-                  >
-                    <span className={dropoffDate ? 'text-gray-900' : 'text-gray-400'}>
-                      {dropoffDate ? dropoffDate.toLocaleDateString() : t('selectDate')}
-                    </span>
-                    <svg
-                      className={`w-4 h-4 text-gray-500 transition-transform ${dropoffDateOpen ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </button>
-                  {dropoffDateOpen && (
-                    <>
-                      <div
-                        className="fixed inset-0 z-10"
-                        onClick={() => setDropoffDateOpen(false)}
-                      />
-                      <div className="absolute z-20 mt-1">
-                        <Calendar
-                          selectedDate={dropoffDate}
-                          onDateSelect={setDropoffDate}
-                          onClose={() => setDropoffDateOpen(false)}
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {/* Dropoff Time */}
-                <div className='w-full relative'>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">{t('time')}</label>
-                  <button
-                    type="button"
-                    onClick={() => setDropoffTimeOpen(!dropoffTimeOpen)}
-                    className='w-full border border-gray-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-white text-left flex items-center justify-between'
-                  >
-                    <span className={dropoffTime ? 'text-gray-900' : 'text-gray-400'}>
-                      {dropoffTime || t('selectTime')}
-                    </span>
-                    <svg
-                      className={`w-4 h-4 text-gray-500 transition-transform ${dropoffTimeOpen ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </button>
-                  {dropoffTimeOpen && (
-                    <>
-                      <div
-                        className="fixed inset-0 z-10"
-                        onClick={() => setDropoffTimeOpen(false)}
-                      />
-                      <div className="absolute z-20 mt-1">
-                        <TimePicker
-                          selectedTime={dropoffTime}
-                          onTimeSelect={setDropoffTime}
-                          onClose={() => setDropoffTimeOpen(false)}
-                          minTime={pickupTime}
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
+            {/* Search Button */}
+            <div className='flex items-end md:items-center md:ml-3'>
+              <button className='w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium text-sm whitespace-nowrap'>
+                {t('search') || 'Tìm Xe'}
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Delivery Location Modal */}
+        <DeliveryLocationModal
+          isOpen={locationModalOpen}
+          onClose={() => setLocationModalOpen(false)}
+          locationAddress={locationAddress}
+          locationCity={locationCity}
+          selectedAirport={selectedAirport}
+          setSelectedAirport={setSelectedAirport}
+          onLocationUpdate={(newLocation) => {
+            setLocation(newLocation);
+            // Parse address and city if needed
+            const parts = newLocation.split(',');
+            if (parts.length >= 2) {
+              setLocationCity(parts[parts.length - 1].trim());
+              setLocationAddress(parts.slice(0, -1).join(',').trim());
+            }
+          }}
+        />
+
+        {/* Date and Time Picker Modal */}
+        <DateAndTimePicker
+          isOpen={dateTimePickerOpen}
+          onClose={() => setDateTimePickerOpen(false)}
+          onConfirm={(dateTimeData) => {
+            setPickupDateStr(dateTimeData.pickupDate);
+            setDropoffDateStr(dateTimeData.dropoffDate);
+            setPickupTime(dateTimeData.pickupTime);
+            setDropoffTime(dateTimeData.dropoffTime);
+            setRentalDuration(dateTimeData.duration);
+          }}
+        />
 
         {/* Popular Cars Section */}
         <div className="mb-6 sm:mb-8">

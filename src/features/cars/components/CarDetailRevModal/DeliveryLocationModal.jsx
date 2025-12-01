@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from '../../../location/useLocation';
+import { getCurrentLocationWithAddress } from '../../../location/locationService';
+
+const DELIVERY_LOCATION_KEY = 'deliveryLocation';
 
 const DeliveryLocationModal = ({ 
   isOpen, 
@@ -7,26 +9,52 @@ const DeliveryLocationModal = ({
   locationAddress, 
   locationCity,
   selectedAirport,
-  setSelectedAirport 
+  setSelectedAirport,
+  onLocationUpdate
 }) => {
   const [showAddressDropdown, setShowAddressDropdown] = useState(false);
   const [customAddress, setCustomAddress] = useState('');
-  
-  const { address, loading, error, getLocation } = useLocation({
-    fetchAddress: true,
-    useBestAccuracy: true
-  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (address?.formattedAddress) {
-      setCustomAddress(address.formattedAddress);
+    // Load saved location from localStorage first
+    const savedLocation = localStorage.getItem(DELIVERY_LOCATION_KEY);
+    
+    if (savedLocation) {
+      setCustomAddress(savedLocation);
+    } else if (locationAddress && locationCity) {
+      setCustomAddress(`${locationAddress}, ${locationCity}`);
     }
-  }, [address]);
+  }, [locationAddress, locationCity]);
 
   const handleGetCurrentLocation = async () => {
-    await getLocation();
-    if (error) {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const location = await getCurrentLocationWithAddress(true);
+      
+      if (location?.formattedAddress) {
+        setCustomAddress(location.formattedAddress);
+        // Save to localStorage
+        localStorage.setItem(DELIVERY_LOCATION_KEY, location.formattedAddress);
+      }
+    } catch (err) {
+      console.error('Location error:', err);
+      setError(err.message);
       alert('Không thể lấy vị trí hiện tại. Vui lòng kiểm tra quyền truy cập vị trí.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddressChange = (e) => {
+    const newAddress = e.target.value;
+    setCustomAddress(newAddress);
+    // Save to localStorage on change
+    if (newAddress.trim()) {
+      localStorage.setItem(DELIVERY_LOCATION_KEY, newAddress);
     }
   };
 
@@ -50,9 +78,9 @@ const DeliveryLocationModal = ({
 
         {/* Modal Content */}
         <div className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left: Map */}
-            <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+            {/* Left: Map */} {/*TODO*/}
+            {/* <div className="space-y-4">
               <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center relative overflow-hidden">
                 <iframe
                   src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.6!2d106.69!3d10.76!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTDCsDQ1JzM2LjAiTiAxMDbCsDQxJzI0LjAiRQ!5e0!3m2!1sen!2s!4v1234567890`}
@@ -70,7 +98,7 @@ const DeliveryLocationModal = ({
                   <p>Phí giao nhận xe (2 chiều) <span className="font-semibold float-right">30.000đ/km</span></p>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Right: Address & Airport Selection */}
             <div className="space-y-4">
@@ -79,7 +107,7 @@ const DeliveryLocationModal = ({
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-sm font-semibold text-gray-700">Địa chỉ tùy chỉnh</label>
                   <button 
-                    className="text-sm text-green-600 font-semibold hover:text-green-700 transition-colors"
+                    className="text-sm text-blue-600 font-semibold hover:text-blue-700 transition-colors"
                     onClick={() => setShowAddressDropdown(!showAddressDropdown)}
                   >
                     {showAddressDropdown ? 'Đóng ×' : 'Thay đổi ›'}
@@ -94,13 +122,13 @@ const DeliveryLocationModal = ({
                         type="text"
                         placeholder="Nhập địa chỉ giao xe..."
                         value={customAddress}
-                        onChange={(e) => setCustomAddress(e.target.value)}
-                        className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        onChange={handleAddressChange}
+                        className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                       <button
                         onClick={handleGetCurrentLocation}
                         disabled={loading}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 hover:text-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Lấy vị trí hiện tại"
                       >
                         {loading ? (
@@ -146,10 +174,10 @@ const DeliveryLocationModal = ({
                   </div>
                 )}
 
-                <div className="p-4 border-2 border-green-500 bg-green-50 rounded-lg">
+                <div className="p-4 border-2 border-blue-500 bg-blue-50 rounded-lg">
                   <div className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full border-2 border-green-600 flex items-center justify-center mt-0.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-green-600"></div>
+                    <div className="w-5 h-5 rounded-full border-2 border-blue-600 flex items-center justify-center mt-0.5">
+                      <div className="w-2.5 h-2.5 rounded-full bg-blue-600"></div>
                     </div>
                     <p className="text-sm text-gray-700 flex-1">
                       {customAddress || `${locationAddress}, ${locationCity}`}
@@ -159,10 +187,9 @@ const DeliveryLocationModal = ({
               </div>
 
               {/* Airport Options */}
-              <div>
+              {/* <div>
                 <label className="text-sm font-semibold text-gray-700 block mb-3">Giao xe sân bay</label>
                 <div className="space-y-3">
-                  {/* Tan Son Nhat Airport */}
                   <div 
                     className={`p-4 border rounded-lg cursor-pointer transition-all ${
                       selectedAirport === 'TSN' 
@@ -185,8 +212,6 @@ const DeliveryLocationModal = ({
                       <span className="text-sm font-semibold text-green-600">180.000₫</span>
                     </div>
                   </div>
-
-                  {/* Ga T3 Airport */}
                   <div 
                     className={`p-4 border rounded-lg cursor-pointer transition-all ${
                       selectedAirport === 'T3' 
@@ -210,22 +235,29 @@ const DeliveryLocationModal = ({
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
-              {/* Total Fee */}
-              <div className="pt-4 border-t">
+              {/* Total Fee - TODO  */}
+              {/* <div className="pt-4 border-t">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Tổng phí:</span>
                   <span className="text-lg font-bold text-green-600">
                     {selectedAirport ? '180.000₫' : '60.000₫'} (2 km)
                   </span>
                 </div>
-              </div>
+              </div> */}
 
               {/* Confirm Button */}
               <button 
-                onClick={onClose}
-                className="w-full bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors"
+                onClick={() => {
+                  if (onLocationUpdate && customAddress) {
+                    onLocationUpdate(customAddress);
+                    // Save to localStorage when confirming
+                    localStorage.setItem(DELIVERY_LOCATION_KEY, customAddress);
+                  }
+                  onClose();
+                }}
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
               >
                 Thay đổi
               </button>

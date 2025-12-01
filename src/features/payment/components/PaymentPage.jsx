@@ -4,9 +4,8 @@ import { useSelector } from 'react-redux';
 import { selectUser, selectIsAuthenticated } from '../../auth/authSlice';
 import { getUserById, getUserIdFromToken } from '../../user/api';
 import { createBooking } from '../api';
-import Calendar from '../../../shared/components/Calendar';
-import TimePicker from '../../../shared/components/TimePicker';
-import { LocationInput } from '../../location';
+import DeliveryLocationModal from '../../cars/components/CarDetailRevModal/DeliveryLocationModal';
+import DateAndTimePicker from '../../cars/components/CarDetailRevModal/DateAndTimePicker';
 
 const PaymentPage = () => {
     const location = useLocation();
@@ -22,6 +21,87 @@ const PaymentPage = () => {
         carReviewCount: 440
     };
 
+    const [billingInfo, setBillingInfo] = useState({
+        name: '',
+        phoneNumber: '',
+        address: '',
+        townCity: ''
+    });
+
+    // Modal states
+    const [locationModalOpen, setLocationModalOpen] = useState(false);
+    const [dateTimePickerOpen, setDateTimePickerOpen] = useState(false);
+
+    // Selected values - Initialize from localStorage using lazy initialization
+    const [rentalLocation, setRentalLocation] = useState(() => {
+        return localStorage.getItem('deliveryLocation') || 'Pick your location';
+    });
+    const [locationAddress, setLocationAddress] = useState('');
+    const [locationCity, setLocationCity] = useState(() => {
+        return localStorage.getItem('deliveryLocation') || 'Pick your location';
+    });
+    const [selectedAirport, setSelectedAirport] = useState('');
+    const [pickupDateStr, setPickupDateStr] = useState(() => {
+        const saved = localStorage.getItem('rentalDates');
+        if (saved) {
+            try {
+                const dates = JSON.parse(saved);
+                return dates.pickupDate || '01/12';
+            } catch (e) {
+                return '01/12';
+            }
+        }
+        return '01/12';
+    });
+    const [dropoffDateStr, setDropoffDateStr] = useState(() => {
+        const saved = localStorage.getItem('rentalDates');
+        if (saved) {
+            try {
+                const dates = JSON.parse(saved);
+                return dates.dropoffDate || '02/12';
+            } catch (e) {
+                return '02/12';
+            }
+        }
+        return '02/12';
+    });
+    const [pickupTime, setPickupTime] = useState(() => {
+        const saved = localStorage.getItem('rentalDates');
+        if (saved) {
+            try {
+                const dates = JSON.parse(saved);
+                return dates.pickupTime || '21:00';
+            } catch (e) {
+                return '21:00';
+            }
+        }
+        return '21:00';
+    });
+    const [dropoffTime, setDropoffTime] = useState(() => {
+        const saved = localStorage.getItem('rentalDates');
+        if (saved) {
+            try {
+                const dates = JSON.parse(saved);
+                return dates.dropoffTime || '20:00';
+            } catch (e) {
+                return '20:00';
+            }
+        }
+        return '20:00';
+    });
+    const [rentalDuration, setRentalDuration] = useState(() => {
+        const saved = localStorage.getItem('rentalDates');
+        if (saved) {
+            try {
+                const dates = JSON.parse(saved);
+                return dates.duration || 1;
+            } catch (e) {
+                return 1;
+            }
+        }
+        return 1;
+    });
+
     // Log car data on component mount
     useEffect(() => {
         console.log('PaymentPage - Car Data from location.state:', location.state);
@@ -29,12 +109,24 @@ const PaymentPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const [billingInfo, setBillingInfo] = useState({
-        name: '',
-        phoneNumber: '',
-        address: '',
-        townCity: ''
-    });
+    // Update localStorage when rental location changes
+    useEffect(() => {
+        if (rentalLocation && rentalLocation !== 'Pick your location') {
+            localStorage.setItem('deliveryLocation', rentalLocation);
+        }
+    }, [rentalLocation]);
+
+    // Update localStorage when rental dates change
+    useEffect(() => {
+        const rentalDatesData = {
+            pickupDate: pickupDateStr,
+            dropoffDate: dropoffDateStr,
+            pickupTime: pickupTime,
+            dropoffTime: dropoffTime,
+            duration: rentalDuration
+        };
+        localStorage.setItem('rentalDates', JSON.stringify(rentalDatesData));
+    }, [pickupDateStr, dropoffDateStr, pickupTime, dropoffTime, rentalDuration]);
 
     // Fetch full user data from API when component mounts
     useEffect(() => {
@@ -64,20 +156,6 @@ const PaymentPage = () => {
         fetchUserData();
     }, [isAuthenticated, user]);
 
-    // Dropdown states for rental info
-    const [pickupDateOpen, setPickupDateOpen] = useState(false);
-    const [pickupTimeOpen, setPickupTimeOpen] = useState(false);
-    const [dropoffDateOpen, setDropoffDateOpen] = useState(false);
-    const [dropoffTimeOpen, setDropoffTimeOpen] = useState(false);
-
-    // Selected values for rental info
-    const [pickupLocation, setPickupLocation] = useState('');
-    const [pickupDate, setPickupDate] = useState(null);
-    const [pickupTime, setPickupTime] = useState('');
-    const [dropoffLocation, setDropoffLocation] = useState('');
-    const [dropoffDate, setDropoffDate] = useState(null);
-    const [dropoffTime, setDropoffTime] = useState('');
-
 
     const [paymentMethod, setPaymentMethod] = useState('credit-card');
 
@@ -104,13 +182,8 @@ const PaymentPage = () => {
             return;
         }
 
-        if (!pickupLocation || !pickupDate || !pickupTime) {
-            setError('Please fill in all pickup information');
-            return;
-        }
-
-        if (!dropoffLocation || !dropoffDate || !dropoffTime) {
-            setError('Please fill in all drop-off information');
+        if (!rentalLocation || rentalLocation === 'Pick your location' || !pickupTime || !dropoffTime) {
+            setError('Please fill in all pickup and drop-off information');
             return;
         }
 
@@ -137,50 +210,32 @@ const PaymentPage = () => {
 
             console.log('PaymentPage - Creating booking with Car ID:', carData.carId);
 
-            // Combine date and time for pickup
-            const pickupDateTime = new Date(pickupDate);
-            const pickupTimeParts = pickupTime.split(' '); // Split "08:00 AM" into ["08:00", "AM"]
-            const [pickupHour, pickupMinute] = pickupTimeParts[0].split(':').map(Number);
-            const pickupPeriod = pickupTimeParts[1];
+            // Parse date strings (format: "01/12" means December 1st, 2025)
+            const [pickupDay, pickupMonth] = pickupDateStr.split('/').map(Number);
+            const [dropoffDay, dropoffMonth] = dropoffDateStr.split('/').map(Number);
             
-            // Convert to 24-hour format
-            let pickup24Hour = pickupHour;
-            if (pickupPeriod === 'PM' && pickupHour !== 12) {
-                pickup24Hour += 12;
-            } else if (pickupPeriod === 'AM' && pickupHour === 12) {
-                pickup24Hour = 0;
-            }
-            pickupDateTime.setHours(pickup24Hour, pickupMinute, 0, 0);
-
-            // Combine date and time for dropoff
-            const dropoffDateTime = new Date(dropoffDate);
-            const dropoffTimeParts = dropoffTime.split(' '); // Split "08:00 AM" into ["08:00", "AM"]
-            const [dropoffHour, dropoffMinute] = dropoffTimeParts[0].split(':').map(Number);
-            const dropoffPeriod = dropoffTimeParts[1];
+            // Create date objects for 2025
+            const pickupDateTime = new Date(2025, pickupMonth - 1, pickupDay);
+            const dropoffDateTime = new Date(2025, dropoffMonth - 1, dropoffDay);
             
-            // Convert to 24-hour format
-            let dropoff24Hour = dropoffHour;
-            if (dropoffPeriod === 'PM' && dropoffHour !== 12) {
-                dropoff24Hour += 12;
-            } else if (dropoffPeriod === 'AM' && dropoffHour === 12) {
-                dropoff24Hour = 0;
-            }
-            dropoffDateTime.setHours(dropoff24Hour, dropoffMinute, 0, 0);
-
-            // Calculate rental time in days
-            const timeDiff = dropoffDateTime - pickupDateTime;
-            const rentalDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+            // Parse time strings (format: "21:00" in 24-hour format)
+            const [pickupHour, pickupMinute] = pickupTime.split(':').map(Number);
+            const [dropoffHour, dropoffMinute] = dropoffTime.split(':').map(Number);
+            
+            // Set hours and minutes
+            pickupDateTime.setHours(pickupHour, pickupMinute, 0, 0);
+            dropoffDateTime.setHours(dropoffHour, dropoffMinute, 0, 0);
 
             const bookingData = {
                 customerId: customerId,
                 carId: carData.carId,
-                pickupPlace: pickupLocation,
+                pickupPlace: rentalLocation,
                 pickupTime: pickupDateTime.toISOString(),
-                dropoffPlace: dropoffLocation,
+                dropoffPlace: rentalLocation,
                 dropoffTime: dropoffDateTime.toISOString(),
                 bookingFee: 15, // 15% cut
                 carRentPrice: typeof carData.carPrice === 'number' ? carData.carPrice : parseFloat(carData.carPrice) || 0,
-                rentime: rentalDays,
+                rentime: rentalDuration,
                 rentType: "Daily Rental"
             };
             const response = await createBooking(bookingData);           
@@ -236,11 +291,11 @@ const PaymentPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
+        <div className="bg-gray-50 py-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="flex justify-center">
                     {/* Left Column - Forms */}
-                    <div className="lg:col-span-2 space-y-6">
+                    <div className="w-full max-w-4xl space-y-6">
                         {/* Billing Info */}
                         <div className="bg-white rounded-lg p-6 shadow-sm">
                             <div className="flex justify-between items-center mb-6">
@@ -301,211 +356,95 @@ const PaymentPage = () => {
                                 <span className="text-sm text-gray-500">Step 2 of 4</span>
                             </div>
 
-                            {/* Pick-Up */}
-                            <div className="mb-8">
-                                <div className="flex items-center mb-4">
-                                    <div className="w-4 h-4 bg-blue-600 rounded-full mr-3"></div>
-                                    <h3 className="text-lg font-semibold text-gray-900">Pick - Up</h3>
+                            {/* Pick-up and Drop-off Section */}
+                            <div className='flex flex-col md:flex-row items-stretch gap-2 md:gap-0'>
+                                {/* Location Section */}
+                                <div className='flex-1 relative border-r-0 md:border-r border-gray-200 pr-0 md:pr-4'>
+                                    <label className='flex items-center gap-1.5 text-xs font-medium text-gray-600 mb-1.5'>
+                                        <svg className="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        Location
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setLocationModalOpen(true)}
+                                        className='w-full text-left flex items-center justify-between group hover:opacity-80 transition-opacity'
+                                    >
+                                        <span className='text-sm sm:text-base text-gray-900 font-medium'>
+                                            {rentalLocation}
+                                        </span>
+                                        <svg
+                                            className='w-4 h-4 text-gray-400 flex-shrink-0 ml-2'
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {/* Pickup Location */}
-                                    <LocationInput
-                                        label="Location"
-                                        value={pickupLocation}
-                                        onChange={(address) => {
-                                            console.log('=== PaymentPage - Pickup Location Changed ===');
-                                            console.log('Address received:', address);
-                                            console.log('Type:', typeof address);
-                                            console.log('===========================================');
-                                            setPickupLocation(address);
-                                        }}
-                                        placeholder="Enter pickup location (e.g., 39 Nguyễn Tư Giản, Phường An Hội, Quận Gò Vấp)"
-                                    />
 
-                                    {/* Pickup Date & Time Combined */}
-                                    <div className="w-full">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Date & Time</label>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            {/* Date */}
-                                            <div className="relative">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setPickupDateOpen(!pickupDateOpen)}
-                                                    className="w-full border border-gray-200 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-left flex items-center justify-between"
-                                                >
-                                                    <span className={pickupDate ? 'text-gray-900 text-sm' : 'text-gray-400 text-sm'}>
-                                                        {pickupDate ? pickupDate.toLocaleDateString() : 'Date'}
-                                                    </span>
-                                                    <svg
-                                                        className="w-4 h-4 text-gray-500"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                    </svg>
-                                                </button>
-                                                {pickupDateOpen && (
-                                                    <>
-                                                        <div
-                                                            className="fixed inset-0 z-10"
-                                                            onClick={() => setPickupDateOpen(false)}
-                                                        />
-                                                        <div className="absolute z-20 mt-1">
-                                                            <Calendar
-                                                                selectedDate={pickupDate}
-                                                                onDateSelect={setPickupDate}
-                                                                onClose={() => setPickupDateOpen(false)}
-                                                            />
-                                                        </div>
-                                                    </>
-                                                )}
-                                            </div>
-
-                                            {/* Time */}
-                                            <div className="relative">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setPickupTimeOpen(!pickupTimeOpen)}
-                                                    className="w-full border border-gray-200 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-left flex items-center justify-between"
-                                                >
-                                                    <span className={pickupTime ? 'text-gray-900 text-sm' : 'text-gray-400 text-sm'}>
-                                                        {pickupTime || 'Time'}
-                                                    </span>
-                                                    <svg
-                                                        className="w-4 h-4 text-gray-500"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                </button>
-                                                {pickupTimeOpen && (
-                                                    <>
-                                                        <div
-                                                            className="fixed inset-0 z-10"
-                                                            onClick={() => setPickupTimeOpen(false)}
-                                                        />
-                                                        <div className="absolute z-20 mt-1">
-                                                            <TimePicker
-                                                                selectedTime={pickupTime}
-                                                                onTimeSelect={setPickupTime}
-                                                                onClose={() => setPickupTimeOpen(false)}
-                                                            />
-                                                        </div>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
+                                {/* Time Range Section */}
+                                <div className='flex-1 relative pl-0 md:pl-4'>
+                                    <label className='flex items-center gap-1.5 text-xs font-medium text-gray-600 mb-1.5'>
+                                        <svg className="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        Rental Period
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setDateTimePickerOpen(true)}
+                                        className='w-full text-left flex items-center justify-between group hover:opacity-80 transition-opacity'
+                                    >
+                                        <span className='text-sm sm:text-base text-gray-900 font-medium'>
+                                            {`${pickupTime}, ${pickupDateStr}/2025 - ${dropoffTime}, ${dropoffDateStr}/2025`}
+                                        </span>
+                                        <svg
+                                            className='w-4 h-4 text-gray-400 flex-shrink-0 ml-2'
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
 
-                            {/* Drop-Off */}
-                            <div>
-                                <div className="flex items-center mb-4">
-                                    <div className="w-4 h-4 bg-blue-600 rounded-full mr-3"></div>
-                                    <h3 className="text-lg font-semibold text-gray-900">Drop - Off</h3>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {/* Dropoff Location */}
-                                    <div className="w-full">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Enter dropoff location"
-                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            value={dropoffLocation}
-                                            onChange={(e) => setDropoffLocation(e.target.value)}
-                                        />
-                                    </div>
+                            {/* Delivery Location Modal */}
+                            <DeliveryLocationModal
+                                isOpen={locationModalOpen}
+                                onClose={() => setLocationModalOpen(false)}
+                                locationAddress={locationAddress}
+                                locationCity={locationCity}
+                                selectedAirport={selectedAirport}
+                                setSelectedAirport={setSelectedAirport}
+                                onLocationUpdate={(newLocation) => {
+                                    setRentalLocation(newLocation);
+                                    // Parse address and city if needed
+                                    const parts = newLocation.split(',');
+                                    if (parts.length >= 2) {
+                                        setLocationCity(parts[parts.length - 1].trim());
+                                        setLocationAddress(parts.slice(0, -1).join(',').trim());
+                                    }
+                                }}
+                            />
 
-                                    {/* Dropoff Date & Time Combined */}
-                                    <div className="w-full">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Date & Time</label>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            {/* Date */}
-                                            <div className="relative">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setDropoffDateOpen(!dropoffDateOpen)}
-                                                    className="w-full border border-gray-200 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-left flex items-center justify-between"
-                                                >
-                                                    <span className={dropoffDate ? 'text-gray-900 text-sm' : 'text-gray-400 text-sm'}>
-                                                        {dropoffDate ? dropoffDate.toLocaleDateString() : 'Date'}
-                                                    </span>
-                                                    <svg
-                                                        className="w-4 h-4 text-gray-500"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                    </svg>
-                                                </button>
-                                                {dropoffDateOpen && (
-                                                    <>
-                                                        <div
-                                                            className="fixed inset-0 z-10"
-                                                            onClick={() => setDropoffDateOpen(false)}
-                                                        />
-                                                        <div className="absolute z-20 mt-1">
-                                                            <Calendar
-                                                                selectedDate={dropoffDate}
-                                                                onDateSelect={setDropoffDate}
-                                                                onClose={() => setDropoffDateOpen(false)}
-                                                            />
-                                                        </div>
-                                                    </>
-                                                )}
-                                            </div>
-
-                                            {/* Time */}
-                                            <div className="relative">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setDropoffTimeOpen(!dropoffTimeOpen)}
-                                                    className="w-full border border-gray-200 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-left flex items-center justify-between"
-                                                >
-                                                    <span className={dropoffTime ? 'text-gray-900 text-sm' : 'text-gray-400 text-sm'}>
-                                                        {dropoffTime || 'Time'}
-                                                    </span>
-                                                    <svg
-                                                        className="w-4 h-4 text-gray-500"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                </button>
-                                                {dropoffTimeOpen && (
-                                                    <>
-                                                        <div
-                                                            className="fixed inset-0 z-10"
-                                                            onClick={() => setDropoffTimeOpen(false)}
-                                                        />
-                                                        <div className="absolute z-20 mt-1">
-                                                            <TimePicker
-                                                                selectedTime={dropoffTime}
-                                                                onTimeSelect={setDropoffTime}
-                                                                onClose={() => setDropoffTimeOpen(false)}
-                                                                minTime={
-                                                                    pickupDate && dropoffDate && 
-                                                                    pickupDate.toDateString() === dropoffDate.toDateString() 
-                                                                        ? pickupTime 
-                                                                        : null
-                                                                }
-                                                            />
-                                                        </div>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            {/* Date and Time Picker Modal */}
+                            <DateAndTimePicker
+                                isOpen={dateTimePickerOpen}
+                                onClose={() => setDateTimePickerOpen(false)}
+                                onConfirm={(dateTimeData) => {
+                                    setPickupDateStr(dateTimeData.pickupDate);
+                                    setDropoffDateStr(dateTimeData.dropoffDate);
+                                    setPickupTime(dateTimeData.pickupTime);
+                                    setDropoffTime(dateTimeData.dropoffTime);
+                                    setRentalDuration(dateTimeData.duration);
+                                }}
+                            />
                         </div>
 
                         {/* Payment Method */}
@@ -655,16 +594,16 @@ const PaymentPage = () => {
                             </p>
                         </div>
                     </div>
-
-                    {/* Right Column - Rental Summary */}
-                    <div className="lg:col-span-1">
+                </div>
+                {/* Right Column - Rental Summary */}
+                {/* <div className="lg:col-span-1">
                         <div className="bg-white rounded-lg p-6 shadow-sm sticky top-8">
                             <h3 className="text-xl font-bold text-gray-900 mb-4">Rental Summary</h3>
                             <p className="text-sm text-gray-500 mb-6">
                                 Prices may change depending on the length of the rental and the price of your rental car.
                             </p>
 
-                            {/* Car Info */}
+                            
                             <div className="flex items-center mb-6">
                                 <img
                                     src={carData.carImage}
@@ -687,7 +626,7 @@ const PaymentPage = () => {
 
                             <hr className="my-6" />
 
-                            {/* Price Breakdown */}
+                            
                             <div className="space-y-3 mb-6">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-600">Subtotal</span>
@@ -720,8 +659,7 @@ const PaymentPage = () => {
                                 <span className="text-2xl font-bold text-gray-900">{(typeof carData.carPrice === 'number' ? carData.carPrice : parseFloat(carData.carPrice) || 0).toLocaleString('vi-VN')} đ</span>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </div> */}
             </div>
         </div>
     );

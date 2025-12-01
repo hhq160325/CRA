@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
-import { BOOKING_ENDPOINTS, CAR_ENDPOINTS, USER_ENDPOINTS, INVOICE_ENDPOINTS, PAYMENT_ENDPOINTS } from '../../../config/api';
+import { BOOKING_ENDPOINTS, CAR_ENDPOINTS, USER_ENDPOINTS, INVOICE_ENDPOINTS, PAYMENT_ENDPOINTS, FEEDBACK_ENDPOINTS } from '../../../config/api';
 import RentalDetailsModal from './modal/RentalDetailsModal';
+import { getUserIdFromToken } from '../../user/api';
+import DropdownTemplate from '../../../shared/components/DropdownTemplate';
 
 const RentalHistory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [carFilter, setCarFilter] = useState('all');
-  const [dateFilter, setDateFilter] = useState('all');
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [selectedRental, setSelectedRental] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rentalHistory, setRentalHistory] = useState([]);
@@ -25,24 +29,24 @@ const RentalHistory = () => {
       setLoading(true);
       setError(null);
 
-      // Fetch all bookings
-      const bookingsResponse = await axiosInstance.get(BOOKING_ENDPOINTS.GET_ALL_BOOKINGS);
-      const bookings = bookingsResponse.data || [];
-
-      // Fetch all cars, users, and payments to enrich booking data
-      const [carsResponse, usersResponse, paymentsResponse] = await Promise.all([
+      // Fetch all invoices, cars, users, and payments
+      const [invoicesResponse, carsResponse, usersResponse, paymentsResponse] = await Promise.all([
+        axiosInstance.get(INVOICE_ENDPOINTS.GET_ALL_INVOICES),
         axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS),
         axiosInstance.get(USER_ENDPOINTS.GET_ALL_USERS),
         axiosInstance.get(PAYMENT_ENDPOINTS.GET_ALL_PAYMENTS)
       ]);
 
+      const allInvoices = invoicesResponse.data || [];
       const cars = carsResponse.data || [];
       const users = usersResponse.data || [];
       const payments = paymentsResponse.data || [];
 
-      // Debug: Log all users data
-      // console.log('All Users Response:', users);
-      // console.log('All Bookings Response:', bookings);
+      // Get logged-in user's ID (vendorId)
+      const currentUserId = getUserIdFromToken();
+
+      // Filter invoices to show only those where the current user is the vendor
+      const invoices = allInvoices.filter(invoice => invoice.vendorId === currentUserId);
 
       // Create lookup maps
       const carMap = cars.reduce((acc, car) => {
@@ -54,7 +58,6 @@ const RentalHistory = () => {
         acc[user.id] = user;
         return acc;
       }, {});
-      console.log("UserMaps", userMap);
 
       // Create payment lookup map by invoiceId
       const paymentMap = payments.reduce((acc, payment) => {
@@ -62,76 +65,145 @@ const RentalHistory = () => {
         return acc;
       }, {});
 
-      // Fetch invoice details for each booking
-      const enrichedBookings = await Promise.all(
-        bookings.map(async (booking, index) => {
-          const car = carMap[booking.carId] || {};
-          // Try to find user by userId or customerId
-          const user = userMap[booking.userId] || userMap[booking.customerId] || {};
-          console.log("CompareUser", userMap[booking.userId]);
-
-          // Debug logging
-          if (!user.fullName && booking.userId) {
-            console.log('User not found for booking:', {
-              bookingId: booking.id,
-              userId: booking.userId,
-              customerId: booking.customerId,
-              availableUserIds: Object.keys(userMap),
-              bookingData: booking
-            });
-          }
-
-          const payment = paymentMap[booking.invoiceId] || null;
-
-          let invoiceData = null;
-          if (booking.invoiceId) {
-            try {
-              const invoiceResponse = await axiosInstance.get(INVOICE_ENDPOINTS.GET_INVOICE_BY_ID(booking.invoiceId));
-              invoiceData = invoiceResponse.data;
-            } catch (err) {
-              console.error(`Error fetching invoice ${booking.invoiceId}:`, err);
-            }
-          }
-
-          // Calculate duration in days
-          const pickupDate = new Date(booking.pickupTime);
-          const dropoffDate = new Date(booking.dropoffTime);
-          const duration = Math.ceil((dropoffDate - pickupDate) / (1000 * 60 * 60 * 24));
-
-          return {
-            id: index + 1,
-            bookingId: booking.id.substring(0, 8).toUpperCase(),
-            carName: car.model || 'Unknown Car',
-            carId: booking.carId,
-            licensePlate: car.licensePlate || 'N/A',
-            customer: user.fullname || booking.customerName || booking.fullName || 'Unknown Customer',
-            customerEmail: user.email || booking.customerEmail || 'N/A',
-            customerPhone: user.phoneNumber || booking.customerPhone || 'N/A',
-            startDate: pickupDate.toISOString().split('T')[0],
-            endDate: dropoffDate.toISOString().split('T')[0],
-            pickupDate: pickupDate.toLocaleString(),
-            returnDate: dropoffDate.toLocaleString(),
-            duration: duration,
-            totalAmount: invoiceData?.totalAmount || 0,
-            dailyRate: invoiceData?.totalAmount ? Math.round(invoiceData.totalAmount / duration) : 0,
-            paymentStatus: payment?.status?.toLowerCase() || 'pending',
-            status: booking.status.toLowerCase(),
-            // Payment details from PayOS
-            paidAmount: payment?.paidAmount || 0,
-            paymentMethod: payment?.paymentMethod || 'N/A',
-            paymentItem: payment?.item || 'N/A',
-            invoiceId: booking.invoiceId,
-            mileageAtPickup: 0,
-            mileageAtReturn: 0,
-            mileageUsed: 0,
-            conditionAtPickup: 'N/A',
-            conditionAtReturn: 'N/A',
-            notes: '',
-            rating: 0,
-            feedback: ''
-          };
-        })
+      // Fetch bookings for each unique customer to get booking status
+      const uniqueCustomerIds = [...new Set(invoices.map(inv => inv.customerId))];
+      const bookingsResponses = await Promise.all(
+        uniqueCustomerIds.map(customerId =>
+          axiosInstance.get(BOOKING_ENDPOINTS.GET_CUSTOMER_BOOKINGS(customerId))
+            .catch(err => {
+              console.error(`Error fetching bookings for customer ${customerId}:`, err);
+              return { data: [] };
+            })
+        )
       );
+
+      // Create booking lookup map by invoiceId
+      const bookingMap = {};
+      bookingsResponses.forEach(response => {
+        const bookings = response.data || [];
+        bookings.forEach(booking => {
+          if (booking.invoiceId) {
+            bookingMap[booking.invoiceId] = booking;
+          }
+        });
+      });
+
+      // Helper function to extract car ID from invoice
+      const extractCarIdFromInvoice = (invoice) => {
+        const carRentalItem = invoice.invoiceItems?.find(item =>
+          item.description?.includes('Car ID:')
+        );
+        const carIdMatch = carRentalItem?.description?.match(/Car ID: ([a-f0-9-]+)/i);
+        return carIdMatch ? carIdMatch[1] : null;
+      };
+
+      // Fetch feedback/ratings for each unique car
+      const uniqueCarIds = [...new Set(
+        invoices.map(extractCarIdFromInvoice).filter(Boolean)
+      )];
+
+      const feedbackResponses = await Promise.all(
+        uniqueCarIds.map(carId =>
+          axiosInstance.get(FEEDBACK_ENDPOINTS.GET_FEEDBACK_BY_CAR(carId))
+            .catch(err => {
+              console.error(`Error fetching feedback for car ${carId}:`, err);
+              return { data: [] };
+            })
+        )
+      );
+
+      // Create feedback lookup map by carId with average rating
+      const feedbackMap = {};
+      feedbackResponses.forEach((response, index) => {
+        const carId = uniqueCarIds[index];
+        const feedbacks = response.data || [];
+        if (feedbacks.length > 0) {
+          const totalRating = feedbacks.reduce((sum, fb) => sum + (fb.rating || 0), 0);
+          const avgRating = totalRating / feedbacks.length;
+          feedbackMap[carId] = {
+            averageRating: avgRating,
+            totalFeedbacks: feedbacks.length,
+            feedbacks: feedbacks
+          };
+        }
+      });
+
+      // Process invoices to create rental history
+      const enrichedBookings = invoices.map((invoice, index) => {
+        const user = userMap[invoice.customerId] || {};
+        const payment = paymentMap[invoice.id] || null;
+        const booking = bookingMap[invoice.id] || null;
+
+        // Check booking status
+        const bookingStatus = booking?.status?.toLowerCase();
+        const isConfirmed = bookingStatus === 'confirmed';
+        const isCompleted = bookingStatus === 'completed';
+
+        // Extract car ID from invoice items using helper function
+        const carId = extractCarIdFromInvoice(invoice);
+
+        // Find the appropriate invoice item based on booking status
+        let carRentalItem;
+        if (isCompleted) {
+          carRentalItem = invoice.invoiceItems?.find(item => item.item === 'Car Rental After returned');
+        } else if (isConfirmed) {
+          carRentalItem = invoice.invoiceItems?.find(item => item.item === 'Booking Fees');
+        } else {
+          carRentalItem = invoice.invoiceItems?.find(item => item.description?.includes('Car ID:'));
+        }
+
+        // Always get daily rate from "Car Rental After returned" item
+        const carRentalAfterReturnedItem = invoice.invoiceItems?.find(item => item.item === 'Car Rental After returned');
+        const dailyRate = carRentalAfterReturnedItem?.unitPrice || 0;
+        // Get remaining after return cars
+        const remainingPayment = carRentalAfterReturnedItem?.total || 0;
+
+        const car = carId ? (carMap[carId] || {}) : {};
+        const carFeedback = carId ? (feedbackMap[carId] || null) : null;
+
+        // Calculate dates from invoice
+        const issueDate = new Date(invoice.issueDate);
+        const dueDate = new Date(invoice.dueDate);
+        const calculatedDuration = Math.ceil((dueDate - issueDate) / (1000 * 60 * 60 * 24));
+
+        // Get rental duration - prioritize "Car Rental After returned" quantity, then calculated duration
+        const rentalDays = carRentalAfterReturnedItem?.quantity || calculatedDuration;
+        return {
+          id: index + 1,
+          bookingId: invoice.invoiceNo || invoice.id.substring(0, 8).toUpperCase(),
+          carName: car.model || 'Unknown Car',
+          carId: carId || 'N/A',
+          licensePlate: car.licensePlate || 'N/A',
+          customer: user.fullname || user.fullName || 'Unknown Customer',
+          customerEmail: user.email || 'N/A',
+          customerPhone: user.phoneNumber || 'N/A',
+          startDate: issueDate.toISOString().split('T')[0],
+          endDate: dueDate.toISOString().split('T')[0],
+          pickupDate: issueDate.toLocaleString(),
+          returnDate: dueDate.toLocaleString(),
+          duration: rentalDays,
+          totalAmount: invoice.grandTotal || invoice.subTotal || 0,
+          dailyRate: dailyRate,
+          remainingPayment: remainingPayment,
+          paymentStatus: payment?.status?.toLowerCase() || invoice.status?.toLowerCase() || 'pending',
+          status: booking?.status?.toLowerCase() || 'pending',
+          // Payment details from PayOS
+          paidAmount: payment?.paidAmount || 0,
+          paymentMethod: payment?.paymentMethod || 'N/A',
+          paymentItem: payment?.item || invoice.note || 'N/A',
+          invoiceId: invoice.id,
+          invoiceItems: invoice.invoiceItems || [],
+          mileageAtPickup: 0,
+          mileageAtReturn: 0,
+          mileageUsed: 0,
+          conditionAtPickup: 'N/A',
+          conditionAtReturn: 'N/A',
+          notes: invoice.note || '',
+          rating: carFeedback?.averageRating || 0,
+          totalFeedbacks: carFeedback?.totalFeedbacks || 0,
+          feedback: carFeedback?.feedbacks || []
+        };
+      });
 
       setRentalHistory(enrichedBookings);
     } catch (err) {
@@ -143,17 +215,40 @@ const RentalHistory = () => {
   };
 
   // Get unique car names for filter
-  const uniqueCars = [...new Set(rentalHistory.map(rental => rental.carName))];
+  const uniqueCars = [...new Set(rentalHistory.map(rental => rental.carName))].sort();
+
+  // Prepare dropdown options
+  const carOptions = [
+    { id: 'all', value: 'all', label: 'All Cars' },
+    ...uniqueCars.map(car => ({ id: car, value: car, label: car }))
+  ];
+
+  const statusOptions = [
+    { id: 'all', value: 'all', label: 'All Status' },
+    { id: 'confirmed', value: 'confirmed', label: 'Confirmed' },
+    { id: 'completed', value: 'completed', label: 'Completed' },
+    { id: 'cancelled', value: 'cancelled', label: 'Cancelled' }
+  ];
+
+  const paymentStatusOptions = [
+    { id: 'all', value: 'all', label: 'All Payment Status' },
+    { id: 'paid', value: 'paid', label: 'Paid' },
+    { id: 'pending', value: 'pending', label: 'Pending' },
+    { id: 'refunded', value: 'refunded', label: 'Refunded' },
+    { id: 'cancelled', value: 'cancelled', label: 'Cancelled' }
+  ];
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
     switch (status) {
+      case 'confirmed':
+        return `${baseClasses} bg-blue-100 text-blue-800`;
       case 'completed':
         return `${baseClasses} bg-green-100 text-green-800`;
+      case 'cancelled':
+        return `${baseClasses} bg-red-100 text-red-800`;
       case 'active':
         return `${baseClasses} bg-blue-100 text-blue-800`;
-      case 'cancelled':
-        return `${baseClasses} bg-gray-100 text-gray-800`;
       case 'overdue':
         return `${baseClasses} bg-red-100 text-red-800`;
       default:
@@ -212,32 +307,29 @@ const RentalHistory = () => {
       rental.licensePlate.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || rental.status === statusFilter;
     const matchesCar = carFilter === 'all' || rental.carName === carFilter;
+    const matchesPaymentStatus = paymentStatusFilter === 'all' || rental.paymentStatus === paymentStatusFilter;
 
-
-    // Date filter logic
-    let matchesDate = true;
-    if (dateFilter !== 'all') {
-      const rentalDate = new Date(rental.startDate);
-      const now = new Date();
-      switch (dateFilter) {
-        case 'week':
-          matchesDate = rentalDate >= new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          break;
-        case 'month':
-          matchesDate = rentalDate >= new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-          break;
-        case 'quarter':
-          matchesDate = rentalDate >= new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-          break;
-        case 'year':
-          matchesDate = rentalDate >= new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-          break;
-        default:
-          matchesDate = true;
+    // Custom date range filter (when startDate or endDate is set)
+    let matchesDateRange = true;
+    if (startDate || endDate) {
+      const rentalStartDate = new Date(rental.startDate);
+      const rentalEndDate = new Date(rental.endDate);
+      
+      if (startDate && endDate) {
+        const filterStart = new Date(startDate);
+        const filterEnd = new Date(endDate);
+        // Check if rental period overlaps with filter range
+        matchesDateRange = rentalStartDate <= filterEnd && rentalEndDate >= filterStart;
+      } else if (startDate) {
+        const filterStart = new Date(startDate);
+        matchesDateRange = rentalEndDate >= filterStart;
+      } else if (endDate) {
+        const filterEnd = new Date(endDate);
+        matchesDateRange = rentalStartDate <= filterEnd;
       }
     }
 
-    return matchesSearch && matchesStatus && matchesCar && matchesDate;
+    return matchesSearch && matchesStatus && matchesCar && matchesPaymentStatus && matchesDateRange;
   });
 
   // Pagination calculations
@@ -249,7 +341,7 @@ const RentalHistory = () => {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, statusFilter, carFilter, dateFilter]);
+  }, [searchTerm, statusFilter, carFilter, paymentStatusFilter, startDate, endDate]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -305,7 +397,9 @@ const RentalHistory = () => {
 
   // console.log("FilterRentals",filteredRentals);
   // Calculate statistics
-  const totalRevenue = rentalHistory.reduce((sum, rental) => sum + rental.totalAmount, 0);
+  const totalRevenue = rentalHistory
+    .filter(rental => rental.status === 'confirmed' || rental.status === 'completed')
+    .reduce((sum, rental) => sum + rental.paidAmount, 0);
   const totalRentals = rentalHistory.length;
   const averageRating = (rentalHistory.reduce((sum, rental) => sum + rental.rating, 0) / totalRentals).toFixed(1);
   const totalMileage = rentalHistory.reduce((sum, rental) => sum + rental.mileageUsed, 0);
@@ -394,7 +488,7 @@ const RentalHistory = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-yellow-500">
+          {/* <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-yellow-500">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Average Rating</p>
@@ -406,9 +500,9 @@ const RentalHistory = () => {
                 </svg>
               </div>
             </div>
-          </div>
+          </div> */}
 
-          <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-purple-500">
+          {/* <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-purple-500">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Mileage</p>
@@ -420,59 +514,98 @@ const RentalHistory = () => {
                 </svg>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Filters */}
         <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-            <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 flex-1">
-              <div className="relative flex-1 max-w-md">
-                <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <input
-                  type="text"
-                  placeholder="Search by booking ID, customer, or car"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
-                />
+          <div className="flex flex-col space-y-4">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-4">
+              <div className="flex flex-col sm:flex-row gap-4 flex-1">
+                <div className="relative flex-1 max-w-md">
+                  <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder="Search by booking ID, customer, or car"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+                  />
+                </div>
+                
+                <div className="w-full sm:w-48">
+                  <DropdownTemplate
+                    value={carFilter}
+                    onChange={(option) => setCarFilter(option.value)}
+                    options={carOptions}
+                    placeholder="All Cars"
+                    searchable={true}
+                    searchPlaceholder="Search cars..."
+                  />
+                </div>
+                
+                <div className="w-full sm:w-48">
+                  <DropdownTemplate
+                    value={statusFilter}
+                    onChange={(option) => setStatusFilter(option.value)}
+                    options={statusOptions}
+                    placeholder="All Status"
+                    searchable={false}
+                  />
+                </div>
+                
+                <div className="w-full sm:w-48">
+                  <DropdownTemplate
+                    value={paymentStatusFilter}
+                    onChange={(option) => setPaymentStatusFilter(option.value)}
+                    options={paymentStatusOptions}
+                    placeholder="All Payment Status"
+                    searchable={false}
+                  />
+                </div>
               </div>
-              <select
-                value={carFilter}
-                onChange={(e) => setCarFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">All Cars</option>
-                {uniqueCars.map((car) => (
-                  <option key={car} value={car}>{car}</option>
-                ))}
-              </select>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">All Status</option>
-                <option value="completed">Completed</option>
-                <option value="active">Active</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-              <select
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">All Dates</option>
-                <option value="week">Last Week</option>
-                <option value="month">Last Month</option>
-                <option value="quarter">Last Quarter</option>
-                <option value="year">Last Year</option>
-              </select>
+              
+              <div className="text-sm text-gray-600 whitespace-nowrap">
+                Showing {filteredRentals.length} of {rentalHistory.length} rentals
+              </div>
             </div>
-            <div className="text-sm text-gray-600">
-              Showing {filteredRentals.length} of {rentalHistory.length} rentals
+
+            {/* Date Range Filter */}
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center pt-2 border-t border-gray-100">
+              <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Custom Date Range:</label>
+              <div className="flex flex-col sm:flex-row gap-3 flex-1">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-gray-600 whitespace-nowrap">From:</label>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-gray-600 whitespace-nowrap">To:</label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  />
+                </div>
+                {(startDate || endDate) && (
+                  <button
+                    onClick={() => {
+                      setStartDate('');
+                      setEndDate('');
+                    }}
+                    className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors whitespace-nowrap"
+                  >
+                    Clear Dates
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -483,14 +616,14 @@ const RentalHistory = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Booking ID</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Invoice ID</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Car Information</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Customer</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rental Period</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Duration</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Amount</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Payment Status</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rating</th>
+                  {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rating</th> */}
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Status</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th>
                 </tr>
@@ -537,9 +670,18 @@ const RentalHistory = () => {
                         </span>
                         <div className="text-xs text-gray-500 mt-1">Payment Method: {rental.paymentMethod}</div>
                       </td>
-                      <td className="py-4 px-6">
-                        <div className="font-medium text-gray-900 text-sm">1234567</div>
-                      </td>
+                      {/* <td className="py-4 px-6">
+                        <div className="font-medium text-gray-900 text-sm">
+                          {rental.rating > 0 ? (
+                            <>
+                              {rental.rating.toFixed(1)} ⭐
+                              <div className="text-xs text-gray-500">({rental.totalFeedbacks} reviews)</div>
+                            </>
+                          ) : (
+                            <span className="text-gray-400">No rating</span>
+                          )}
+                        </div>
+                      </td> */}
                       <td className="py-4 px-6">
                         <span className={getStatusBadge(rental.status)}>
                           {rental.status}

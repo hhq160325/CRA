@@ -15,189 +15,257 @@ export const exportReceiptToPDF = (rental, options = {}) => {
     logoUrl = null,
   } = options;
 
-  const doc = new jsPDF();
+  const doc = new jsPDF('p', 'mm', 'a4'); // Explicitly set A4 format
   const pageWidth = doc.internal.pageSize.getWidth();
-  let yPosition = 20;
+  const pageHeight = doc.internal.pageSize.getHeight();
+  let yPosition = 15; // Reduced top margin
+
+  // Determine receipt type based on booking status
+  const isCompleted = rental.status?.toLowerCase() === 'completed';
+  const isConfirmed = rental.status?.toLowerCase() === 'confirmed';
+  const receiptType = isCompleted ? 'FINAL PAYMENT RECEIPT' : isConfirmed ? 'BOOKING FEE RECEIPT' : 'RENTAL RECEIPT';
 
   // Header - Company Info
-  doc.setFontSize(20);
+  doc.setFontSize(16); // Reduced from 20
   doc.setFont('helvetica', 'bold');
   doc.text(companyName, pageWidth / 2, yPosition, { align: 'center' });
-  
-  yPosition += 8;
-  doc.setFontSize(10);
+
+  yPosition += 6; // Reduced spacing
+  doc.setFontSize(9); // Reduced from 10
   doc.setFont('helvetica', 'normal');
   doc.text(companyAddress, pageWidth / 2, yPosition, { align: 'center' });
-  
-  yPosition += 5;
+
+  yPosition += 4; // Reduced spacing
   doc.text(`Phone: ${companyPhone} | Email: ${companyEmail}`, pageWidth / 2, yPosition, { align: 'center' });
-  
-  yPosition += 10;
+
+  yPosition += 6; // Reduced spacing
   doc.setLineWidth(0.5);
   doc.line(15, yPosition, pageWidth - 15, yPosition);
-  
+
   // Receipt Title
-  yPosition += 10;
-  doc.setFontSize(16);
+  yPosition += 7; // Reduced spacing
+  doc.setFontSize(14); // Reduced from 16
   doc.setFont('helvetica', 'bold');
-  doc.text('RENTAL RECEIPT', pageWidth / 2, yPosition, { align: 'center' });
-  
+  doc.text(receiptType, pageWidth / 2, yPosition, { align: 'center' });
+
   // Booking Information
-  yPosition += 10;
-  doc.setFontSize(11);
+  yPosition += 7; // Reduced spacing
+  doc.setFontSize(10); // Reduced from 11
   doc.setFont('helvetica', 'bold');
   doc.text('Booking Information', 15, yPosition);
-  
-  yPosition += 7;
-  doc.setFontSize(10);
+
+  yPosition += 5; // Reduced spacing
+  doc.setFontSize(9); // Reduced from 10
   doc.setFont('helvetica', 'normal');
-  
+
   const bookingInfo = [
     ['Booking ID:', rental.bookingId],
     ['Invoice ID:', rental.invoiceId || 'N/A'],
     ['Booking Date:', new Date(rental.startDate).toLocaleDateString()],
     ['Status:', rental.status.toUpperCase()],
   ];
-  
+
   bookingInfo.forEach(([label, value]) => {
     doc.setFont('helvetica', 'bold');
     doc.text(label, 15, yPosition);
     doc.setFont('helvetica', 'normal');
     doc.text(value, 60, yPosition);
-    yPosition += 6;
+    yPosition += 5; // Reduced from 6
   });
-  
+
   // Customer Information
-  yPosition += 5;
-  doc.setFontSize(11);
+  yPosition += 3; // Reduced spacing
+  doc.setFontSize(10); // Reduced from 11
   doc.setFont('helvetica', 'bold');
   doc.text('Customer Information', 15, yPosition);
-  
-  yPosition += 7;
-  doc.setFontSize(10);
+
+  yPosition += 5; // Reduced spacing
+  doc.setFontSize(9); // Reduced from 10
   doc.setFont('helvetica', 'normal');
-  
+
   const customerInfo = [
     ['Name:', rental.customer],
     ['Email:', rental.customerEmail],
     ['Phone:', rental.customerPhone],
   ];
-  
+
   customerInfo.forEach(([label, value]) => {
     doc.setFont('helvetica', 'bold');
     doc.text(label, 15, yPosition);
     doc.setFont('helvetica', 'normal');
     doc.text(value, 60, yPosition);
-    yPosition += 6;
+    yPosition += 5; // Reduced from 6
   });
-  
+
   // Vehicle Information
-  yPosition += 5;
-  doc.setFontSize(11);
+  yPosition += 3; // Reduced spacing
+  doc.setFontSize(10); // Reduced from 11
   doc.setFont('helvetica', 'bold');
   doc.text('Vehicle Information', 15, yPosition);
-  
-  yPosition += 7;
-  doc.setFontSize(10);
+
+  yPosition += 5; // Reduced spacing
+  doc.setFontSize(9); // Reduced from 10
   doc.setFont('helvetica', 'normal');
-  
+
   const vehicleInfo = [
     ['Car Model:', rental.carName],
     ['License Plate:', rental.licensePlate],
     ['Car ID:', rental.carId],
   ];
-  
+
   vehicleInfo.forEach(([label, value]) => {
     doc.setFont('helvetica', 'bold');
     doc.text(label, 15, yPosition);
     doc.setFont('helvetica', 'normal');
     doc.text(value, 60, yPosition);
-    yPosition += 6;
+    yPosition += 5; // Reduced from 6
   });
-  
+
   // Rental Period
-  yPosition += 5;
-  doc.setFontSize(11);
+  yPosition += 3; // Reduced spacing
+  doc.setFontSize(10); // Reduced from 11
   doc.setFont('helvetica', 'bold');
   doc.text('Rental Period', 15, yPosition);
-  
-  yPosition += 7;
-  doc.setFontSize(10);
+
+  yPosition += 5; // Reduced spacing
+  doc.setFontSize(9); // Reduced from 10
   doc.setFont('helvetica', 'normal');
-  
+
   const rentalPeriod = [
     ['Pickup Date:', rental.pickupDate],
     ['Return Date:', rental.returnDate],
     ['Duration:', `${rental.duration} days`],
   ];
-  
+
   rentalPeriod.forEach(([label, value]) => {
     doc.setFont('helvetica', 'bold');
     doc.text(label, 15, yPosition);
     doc.setFont('helvetica', 'normal');
     doc.text(value, 60, yPosition);
-    yPosition += 6;
+    yPosition += 5; // Reduced from 6
   });
-  
+
   // Payment Details Table
-  yPosition += 10;
-  autoTable(doc, {
-    startY: yPosition,
-    head: [['Description', 'Rate', 'Days', 'Amount']],
-    body: [
-      ['Daily Rental Rate', `$${rental.dailyRate}`, rental.duration, `$${(rental.dailyRate * rental.duration).toLocaleString()}`],
-    ],
-    foot: [
-      ['', '', 'Total Amount:', `$${rental.paidAmount.toLocaleString()}`],
-    ],
-    theme: 'striped',
-    headStyles: { fillColor: [66, 139, 202], textColor: 255, fontStyle: 'bold' },
-    footStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' },
-    margin: { left: 15, right: 15 },
-  });
+  yPosition += 5; // Reduced spacing
   
-  yPosition = doc.lastAutoTable.finalY + 10;
-  
+  if (isCompleted) {
+    // Final Payment Receipt
+    const bookingFee = rental.totalAmount * 0.15;
+    const remainingAmount = rental.remainingPayment || (rental.totalAmount - bookingFee);
+    
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['Description', 'Amount']],
+      body: [
+        ['Total Rental Amount', `${rental.totalAmount.toLocaleString()} VND`],
+        ['Booking Fee Paid (15%)', `${bookingFee.toLocaleString()} VND`],
+        ['Remaining Payment (85%)', `${remainingAmount.toLocaleString()} VND`],
+      ],
+      foot: [
+        ['Amount Due Now:', `${rental.paidAmount.toLocaleString()} VND`],
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: [66, 139, 202], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+      bodyStyles: { fontSize: 9 },
+      footStyles: { fillColor: [34, 139, 34], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+      margin: { left: 15, right: 15 },
+      styles: { cellPadding: 3 }, // Reduced padding
+    });
+  } else if (isConfirmed) {
+    // Booking Fee Receipt
+    const bookingFee = rental.paidAmount;
+    const remainingAmount = rental.remainingPayment || (rental.totalAmount - bookingFee);
+    
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['Description', 'Amount']],
+      body: [
+        ['Estimated Total Amount', `${rental.totalAmount.toLocaleString()} VND`],
+        ['Booking Fee (15%)', `${bookingFee.toLocaleString()} VND`],
+        ['Remaining Balance (Due at checkout)', `${remainingAmount.toLocaleString()} VND`],
+      ],
+      foot: [
+        ['Paid Now:', `${rental.paidAmount.toLocaleString()} VND`],
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: [66, 139, 202], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+      bodyStyles: { fontSize: 9 },
+      footStyles: { fillColor: [34, 139, 34], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+      margin: { left: 15, right: 15 },
+      styles: { cellPadding: 3 }, // Reduced padding
+    });
+  } else {
+    // Default Receipt
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['Description', 'Rate', 'Days', 'Amount']],
+      body: [
+        ['Daily Rental Rate', `${rental.dailyRate.toLocaleString()} VND`, rental.duration, `${(rental.dailyRate * rental.duration).toLocaleString()} VND`],
+      ],
+      foot: [
+        ['', '', 'Total Amount:', `${rental.paidAmount.toLocaleString()} VND`],
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: [66, 139, 202], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+      bodyStyles: { fontSize: 9 },
+      footStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold', fontSize: 9 },
+      margin: { left: 15, right: 15 },
+      styles: { cellPadding: 3 }, // Reduced padding
+    });
+  }
+
+  yPosition = doc.lastAutoTable.finalY + 5; // Reduced spacing
+
   // Payment Information
-  doc.setFontSize(11);
+  doc.setFontSize(10); // Reduced from 11
   doc.setFont('helvetica', 'bold');
   doc.text('Payment Information', 15, yPosition);
-  
-  yPosition += 7;
-  doc.setFontSize(10);
+
+  yPosition += 5; // Reduced spacing
+  doc.setFontSize(9); // Reduced from 10
   doc.setFont('helvetica', 'normal');
-  
+
   const paymentInfo = [
+    ['Payment Type:', isCompleted ? 'Final Payment (85%)' : isConfirmed ? 'Booking Fee (15%)' : 'Payment'],
     ['Payment Status:', rental.paymentStatus.toUpperCase()],
     ['Payment Method:', rental.paymentMethod],
-    ['Paid Amount:', `$${rental.paidAmount.toLocaleString()}`],
+    ['Paid Amount:', `${rental.paidAmount.toLocaleString()} VND`],
   ];
-  
+
+  if (isConfirmed && rental.remainingPayment > 0) {
+    paymentInfo.push(['Remaining Balance:', `${rental.remainingPayment.toLocaleString()} VND (Due at checkout)`]);
+  }
+
   paymentInfo.forEach(([label, value]) => {
     doc.setFont('helvetica', 'bold');
     doc.text(label, 15, yPosition);
     doc.setFont('helvetica', 'normal');
     doc.text(value, 60, yPosition);
-    yPosition += 6;
+    yPosition += 5; // Reduced from 6
   });
   
-  // Footer
-  yPosition = doc.internal.pageSize.getHeight() - 30;
+  // Footer - Only add if there's space, otherwise skip
+  const footerHeight = 20;
+  const minYPosition = yPosition + 10;
+  
+  if (minYPosition + footerHeight < pageHeight - 10) {
+    yPosition = pageHeight - footerHeight;
+  } else {
+    yPosition += 8;
+  }
+  
   doc.setLineWidth(0.5);
   doc.line(15, yPosition, pageWidth - 15, yPosition);
-  
-  yPosition += 7;
-  doc.setFontSize(9);
+
+  yPosition += 5;
+  doc.setFontSize(8); // Reduced from 9
   doc.setFont('helvetica', 'italic');
   doc.text('Thank you for your business!', pageWidth / 2, yPosition, { align: 'center' });
-  
-  yPosition += 5;
-  doc.text('This is a computer-generated receipt and does not require a signature.', pageWidth / 2, yPosition, { align: 'center' });
-  
-  yPosition += 5;
-  doc.setFontSize(8);
+
+  yPosition += 4;
+  doc.setFontSize(7); // Reduced from 8
   doc.text(`Generated on: ${new Date().toLocaleString()}`, pageWidth / 2, yPosition, { align: 'center' });
-  
+
   // Save the PDF
   doc.save(`Receipt_${rental.bookingId}_${new Date().getTime()}.pdf`);
 };
@@ -215,13 +283,18 @@ export const printReceipt = (rental, options = {}) => {
     companyEmail = 'info@carrental.com',
   } = options;
 
+  // Determine receipt type based on booking status
+  const isCompleted = rental.status?.toLowerCase() === 'completed';
+  const isConfirmed = rental.status?.toLowerCase() === 'confirmed';
+  const receiptType = isCompleted ? 'FINAL PAYMENT RECEIPT' : isConfirmed ? 'BOOKING FEE RECEIPT' : 'RENTAL RECEIPT';
+
   const printWindow = window.open('', '_blank');
-  
+
   const htmlContent = `
     <!DOCTYPE html>
     <html>
     <head>
-      <title>Receipt - ${rental.bookingId}</title>
+      <title>${receiptType} - ${rental.bookingId}</title>
       <style>
         @media print {
           body { margin: 0; }
@@ -271,8 +344,9 @@ export const printReceipt = (rental, options = {}) => {
         }
         .info-label {
           font-weight: bold;
-          width: 150px;
+          width: 200px;
           color: #555;
+          word-wrap: break-word;
         }
         .info-value {
           flex: 1;
@@ -324,17 +398,14 @@ export const printReceipt = (rental, options = {}) => {
       </style>
     </head>
     <body>
-      <div class="print-button no-print">
-        <button onclick="window.print()">Print Receipt</button>
-      </div>
-      
+  
       <div class="header">
         <h1>${companyName}</h1>
         <p>${companyAddress}</p>
         <p>Phone: ${companyPhone} | Email: ${companyEmail}</p>
       </div>
       
-      <div class="receipt-title">RENTAL RECEIPT</div>
+      <div class="receipt-title">${receiptType}</div>
       
       <div class="section">
         <div class="section-title">Booking Information</div>
@@ -404,6 +475,65 @@ export const printReceipt = (rental, options = {}) => {
         </div>
       </div>
       
+      ${isCompleted ? `
+      <table>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Total Rental Amount</td>
+            <td>${rental.totalAmount.toLocaleString()} VND</td>
+          </tr>
+          <tr>
+            <td>Booking Fee Paid (15%)</td>
+            <td>${(rental.totalAmount * 0.15).toLocaleString()} VND</td>
+          </tr>
+          <tr>
+            <td>Remaining Payment (85%)</td>
+            <td>${(rental.remainingPayment || (rental.totalAmount - rental.totalAmount * 0.15)).toLocaleString()} VND</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td style="text-align: right; background-color: #228b22; color: white;">Amount Due Now:</td>
+            <td style="background-color: #228b22; color: white;">${rental.paidAmount.toLocaleString()} VND</td>
+          </tr>
+        </tfoot>
+      </table>
+      ` : isConfirmed ? `
+      <table>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Estimated Total Amount</td>
+            <td>${rental.totalAmount.toLocaleString()} VND</td>
+          </tr>
+          <tr>
+            <td>Booking Fee (15%)</td>
+            <td>${rental.paidAmount.toLocaleString()} VND</td>
+          </tr>
+          <tr>
+            <td>Remaining Balance (Due at checkout)</td>
+            <td>${(rental.remainingPayment || (rental.totalAmount - rental.paidAmount)).toLocaleString()} VND</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td style="text-align: right; background-color: #228b22; color: white;">Paid Now:</td>
+            <td style="background-color: #228b22; color: white;">${rental.paidAmount.toLocaleString()} VND</td>
+          </tr>
+        </tfoot>
+      </table>
+      ` : `
       <table>
         <thead>
           <tr>
@@ -416,21 +546,26 @@ export const printReceipt = (rental, options = {}) => {
         <tbody>
           <tr>
             <td>Daily Rental Rate</td>
-            <td>$${rental.dailyRate}</td>
+            <td>${rental.dailyRate.toLocaleString()} VND</td>
             <td>${rental.duration}</td>
-            <td>$${(rental.dailyRate * rental.duration).toLocaleString()}</td>
+            <td>${(rental.totalAmount).toLocaleString()} VND</td>
           </tr>
         </tbody>
         <tfoot>
           <tr>
             <td colspan="3" style="text-align: right;">Total Amount:</td>
-            <td>$${rental.paidAmount.toLocaleString()}</td>
+            <td>${rental.paidAmount.toLocaleString()} VND</td>
           </tr>
         </tfoot>
       </table>
+      `}
       
       <div class="section">
         <div class="section-title">Payment Information</div>
+        <div class="info-row">
+          <div class="info-label">Payment Type:</div>
+          <div class="info-value">${isCompleted ? 'Final Payment (85%)' : isConfirmed ? 'Booking Fee (15%)' : 'Payment'}</div>
+        </div>
         <div class="info-row">
           <div class="info-label">Payment Status:</div>
           <div class="info-value">${rental.paymentStatus.toUpperCase()}</div>
@@ -441,19 +576,28 @@ export const printReceipt = (rental, options = {}) => {
         </div>
         <div class="info-row">
           <div class="info-label">Paid Amount:</div>
-          <div class="info-value">$${rental.paidAmount.toLocaleString()}</div>
+          <div class="info-value">${rental.paidAmount.toLocaleString()} VND</div>
         </div>
+        ${isConfirmed && rental.remainingPayment > 0 ? `
+        <div class="info-row">
+          <div class="info-label">Remaining Balance:</div>
+          <div class="info-value">${rental.remainingPayment.toLocaleString()} VND (Due at checkout)</div>
+        </div>
+        ` : ''}
       </div>
       
       <div class="footer">
         <p><strong>Thank you for your business!</strong></p>
-        <p>This is a computer-generated receipt and does not require a signature.</p>
         <p>Generated on: ${new Date().toLocaleString()}</p>
+      </div>
+
+            <div class="print-button no-print">
+        <button onclick="window.print()">Print Receipt</button>
       </div>
     </body>
     </html>
   `;
-  
+
   printWindow.document.write(htmlContent);
   printWindow.document.close();
 };

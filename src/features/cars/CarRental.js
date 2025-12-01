@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import CarCard from './CarCard';
@@ -118,42 +118,65 @@ const CarRental = () => {
     }
   ];
 
-  const activeCars = cars.filter(car => car.status && car.status.toLowerCase() !== 'inactive');
-  const displayCars = activeCars.length > 0 ? activeCars : fallbackCars;
   const [filters, setFilters] = useState({
+    brands: [],
+    carTypes: [],
     fuelTypes: [],
     transmissions: [],
     seats: [],
     years: []
   });
 
-  // Apply filters to cars
-  const filteredCars = displayCars.filter(car => {
-    // If no filters selected, show all cars
-    const hasFilters = filters.fuelTypes.length > 0 || 
-                       filters.transmissions.length > 0 || 
-                       filters.seats.length > 0 || 
-                       filters.years.length > 0;
-    
-    if (!hasFilters) return true;
+  // Memoize display cars to prevent recalculation
+  // Only use fallback if there's an error, otherwise wait for API data
+  const displayCars = useMemo(() => {
+    if (loading && cars.length === 0) {
+      // Still loading initial data, don't show anything yet
+      return [];
+    }
+    const activeCars = cars.filter(car => car.status && car.status.toLowerCase() !== 'inactive');
+    // Only use fallback if API failed (error) and no cars available
+    if (activeCars.length === 0 && error) {
+      return fallbackCars;
+    }
+    return activeCars;
+  }, [cars, loading, error]);
 
-    // Check if car matches selected filters
-    const matchesFuelType = filters.fuelTypes.length === 0 || 
-                            filters.fuelTypes.includes(car.fuelType || car.fuel);
-    const matchesTransmission = filters.transmissions.length === 0 || 
-                                filters.transmissions.includes(car.transmission);
-    const matchesSeats = filters.seats.length === 0 || 
-                         filters.seats.includes(car.seats) ||
-                         (typeof car.capacity === 'string' && filters.seats.some(s => car.capacity.includes(s.toString())));
-    const matchesYear = filters.years.length === 0 || 
-                        filters.years.includes(car.yearOfManufacture);
+  // Memoize filtered cars to prevent unnecessary re-renders
+  const filteredCars = useMemo(() => {
+    return displayCars.filter(car => {
+      // If no filters selected, show all cars
+      const hasFilters = filters.brands.length > 0 ||
+                         filters.carTypes.length > 0 ||
+                         filters.fuelTypes.length > 0 || 
+                         filters.transmissions.length > 0 || 
+                         filters.seats.length > 0 || 
+                         filters.years.length > 0;
+      
+      if (!hasFilters) return true;
 
-    return matchesFuelType && matchesTransmission && matchesSeats && matchesYear;
-  });
+      // Check if car matches selected filters
+      const matchesBrand = filters.brands.length === 0 || 
+                           filters.brands.includes(car.manufacturer || car.brand || car.name?.split(' ')[0]);
+      const matchesCarType = filters.carTypes.length === 0 || 
+                             filters.carTypes.includes(car.carType || car.type);
+      const matchesFuelType = filters.fuelTypes.length === 0 || 
+                              filters.fuelTypes.includes(car.fuelType || car.fuel);
+      const matchesTransmission = filters.transmissions.length === 0 || 
+                                  filters.transmissions.includes(car.transmission);
+      const matchesSeats = filters.seats.length === 0 || 
+                           filters.seats.includes(car.seats) ||
+                           (typeof car.capacity === 'string' && filters.seats.some(s => car.capacity.includes(s.toString())));
+      const matchesYear = filters.years.length === 0 || 
+                          filters.years.includes(car.yearOfManufacture);
 
-  const handleFilterChange = (newFilters) => {
+      return matchesBrand && matchesCarType && matchesFuelType && matchesTransmission && matchesSeats && matchesYear;
+    });
+  }, [displayCars, filters]);
+
+  const handleFilterChange = useCallback((newFilters) => {
     setFilters(newFilters);
-  };
+  }, []);
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -190,15 +213,14 @@ const CarRental = () => {
           {/* Main Content */}
           <div className="flex-1">
             {/* Car Grid */}
-            {loading ? (
+            {loading && displayCars.length === 0 ? (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                 <p className="mt-4 text-gray-600">{t('loadingCars') || 'Loading cars...'}</p>
               </div>
-            ) : error ? (
-              <div className="text-center py-12">
-                <p className="text-red-600">{t('errorLoadingCars') || 'Error loading cars'}: {error}</p>
-                <p className="text-gray-500 mt-2">{t('showingFallbackData') || 'Showing sample data'}</p>
+            ) : error && displayCars.length > 0 ? (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <p className="text-yellow-800 text-sm">{t('showingFallbackData') || 'Showing sample data due to connection issue'}</p>
               </div>
             ) : null}
 

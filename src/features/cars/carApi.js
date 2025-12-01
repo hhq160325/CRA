@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { PARKLOT_ENDPOINTS, PARKLOT_API_CONFIG, CAR_ENDPOINTS, FEEDBACK_ENDPOINTS, BOOKING_ENDPOINTS, USER_ENDPOINTS } from '../../config/api';
+import { PARKLOT_ENDPOINTS, PARKLOT_API_CONFIG, CAR_ENDPOINTS, FEEDBACK_ENDPOINTS, BOOKING_ENDPOINTS, USER_ENDPOINTS, TRACKASIA_ENDPOINTS } from '../../config/api';
 import { decodeJWT } from '../auth/utils';
 
 
@@ -195,6 +195,23 @@ export const getUserById = async (userId) => {
         return response.data;
     } catch (error) {
         console.error('Error fetching user:', error);
+        throw error;
+    }
+};
+
+export const getDistanceBetweenAddresses = async (sourceAddress, destinationAddress) => {
+    try {
+        const response = await axios.post(TRACKASIA_ENDPOINTS.GET_DISTANCE_BETWEEN_ADDRESSES, {
+            sourceAddress,
+            destinationAddress
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error calculating distance:', error);
         throw error;
     }
 };

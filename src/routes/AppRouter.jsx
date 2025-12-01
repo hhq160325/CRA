@@ -4,7 +4,7 @@ import { RegisterCar, RegisterCarStep2, RegisterCarStep3, CarDetail, CarDetailRe
 import { ProfilePage } from '../features/user';
 import { PaymentPage, PaymentSuccess, PaymentCancel } from '../features/payment';
 import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring } from '../features/admin';
-import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter } from '../features/staff';
+import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter, ParklotCreate } from '../features/staff';
 import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments, CarRegisDocs } from '../features/owner';
 import { AuthPage } from '../features/auth';
 // import ForgotPassword from '../features/auth/components/ForgotPassword';
@@ -50,8 +50,8 @@ const AppRouter = () => {
       <Route path="/register-car/step-2" element={isAuthenticated ? <RegisterCarStep2 /> : <Navigate to="/auth" replace />} />
       <Route path="/register-car/step-3" element={isAuthenticated ? <RegisterCarStep3 /> : <Navigate to="/auth" replace />} />
       <Route path="/payment" element={isAuthenticated ? <PaymentPage /> : <Navigate to="/auth" replace />} />
-      <Route path="/payment-success" element={isAuthenticated ? <PaymentSuccess /> : <Navigate to="/auth" replace />} />
-      <Route path="/payment-cancel" element={isAuthenticated ? <PaymentCancel /> : <Navigate to="/auth" replace />} />
+      <Route path="/payment-success" element={<PaymentSuccess/>}/>
+      <Route path="/payment-cancel" element={<PaymentCancel />}/>
       
       {/* Admin Routes - Only accessible by Admin role */}
       <Route path="/admin" element={<RoleBasedRoute allowedRoles={[ROLES.ADMIN]}><AdminLayout /></RoleBasedRoute>}>
@@ -67,6 +67,7 @@ const AppRouter = () => {
         <Route path="customers" element={<CustomerManagement />} />
         <Route path="bookings" element={<BookingMonitoring />} />
         <Route path="notifications" element={<NotificationCenter />} />
+        <Route path="parklot-create" element={<ParklotCreate />} />
       </Route>
 
       {/* Car Owner (Manager) Routes */}

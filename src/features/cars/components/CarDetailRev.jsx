@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { fetchCarById } from '../carsSlice';
-import { getCarRentalRate, getCarFeedback, getBookingById, getUserById } from '../carApi';
+import { getCarRentalRate, getCarFeedback, getBookingById, getUserById, getDistanceBetweenAddresses } from '../carApi';
 import { DeliveryLocationModal, DateAndTimePicker, CarGallery } from './CarDetailRevModal';
 
 const CarDetailRev = () => {
@@ -29,6 +29,9 @@ const CarDetailRev = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [loadingFeedback, setLoadingFeedback] = useState(false);
   const [feedbackUsers, setFeedbackUsers] = useState({});
+  const [deliveryDistance, setDeliveryDistance] = useState(null);
+  const [deliveryFee, setDeliveryFee] = useState(60000);
+  const [loadingDistance, setLoadingDistance] = useState(false);
 
   // Load rental dates and delivery location from localStorage on mount
   useEffect(() => {
@@ -155,6 +158,53 @@ const CarDetailRev = () => {
 
     fetchFeedback();
   }, [id]);
+
+  // Calculate distance when delivery location changes
+  useEffect(() => {
+    const calculateDistance = async () => {
+      if (!deliveryLocation || !currentCar?.preferredLot) {
+        console.log('Distance calculation skipped:', { 
+          hasDeliveryLocation: !!deliveryLocation, 
+          hasPreferredLot: !!currentCar?.preferredLot 
+        });
+        return;
+      }
+
+      setLoadingDistance(true);
+      try {
+        const sourceAddress = `${currentCar.preferredLot.address}, ${currentCar.preferredLot.city}`;
+        console.log('Calculating distance from:', sourceAddress, 'to:', deliveryLocation);
+        
+        const distanceData = await getDistanceBetweenAddresses(sourceAddress, deliveryLocation);
+        console.log('Distance API response:', distanceData);
+        
+        // API returns distance in meters, convert to kilometers
+        const distanceInMeters = distanceData?.distanceInMeters;
+        
+        if (distanceInMeters) {
+          const distanceInKm = distanceInMeters / 1000;
+          setDeliveryDistance(distanceInKm);
+          // Calculate delivery fee based on distance (20000 VND per km, minimum 60000 VND)
+          const calculatedFee = Math.max(60000, Math.round(distanceInKm * 20000));
+          setDeliveryFee(calculatedFee);
+          console.log('Distance calculated:', distanceInKm.toFixed(2), 'km, Fee:', calculatedFee, 'VND');
+        } else {
+          console.warn('No distance found in response:', distanceData);
+          setDeliveryDistance(null);
+          setDeliveryFee(60000);
+        }
+      } catch (error) {
+        console.error('Failed to calculate distance:', error);
+        // Keep default fee if calculation fails
+        setDeliveryDistance(null);
+        setDeliveryFee(60000);
+      } finally {
+        setLoadingDistance(false);
+      }
+    };
+
+    calculateDistance();
+  }, [deliveryLocation, currentCar]);
 
   // Helper function to process image URLs
   const processImageUrl = (imageUrl) => {
@@ -741,12 +791,25 @@ const CarDetailRev = () => {
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
                           <p className="text-sm font-medium text-gray-700">{t('driverDelivery')}</p>
-                          <span className="text-sm font-semibold text-primary-600">60.000₫</span>
+                          <span className="text-sm font-semibold text-primary-600">
+                            {loadingDistance ? (
+                              <span className="text-gray-400">...</span>
+                            ) : (
+                              `${deliveryFee.toLocaleString('vi-VN')}₫`
+                            )}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <p className="text-sm text-gray-600">
-                            {deliveryLocation || `${locationAddress}, ${locationCity}`}
-                          </p>
+                          <div className="flex-1">
+                            <p className="text-sm text-gray-600">
+                              {deliveryLocation || `${locationAddress}, ${locationCity}`}
+                            </p>
+                            {deliveryDistance && (
+                              <p className="text-xs text-gray-500 mt-1">
+                                {t('distance')}: ~{deliveryDistance.toFixed(1)} km
+                              </p>
+                            )}
+                          </div>
                           <span className="text-gray-400">›</span>
                         </div>
                       </div>

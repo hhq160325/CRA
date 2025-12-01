@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
 import { CAR_ENDPOINTS, BOOKING_ENDPOINTS } from '../../../config/api';
 import DropdownTemplate from '../../../shared/components/DropdownTemplate';
+import { tokenUtils } from '../../auth/utils';
 
 const UsageTracking = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,8 +43,21 @@ const UsageTracking = () => {
     const fetchCarsWithBookings = async () => {
       try {
         setLoading(true);
+        
+        // Get current user ID from JWT token (more secure)
+        const currentOwnerId = tokenUtils.getUserId();
+        
+        if (!currentOwnerId) {
+          setError('Unable to identify current user. Please log in again.');
+          setLoading(false);
+          return;
+        }
+        
         const response = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS);
-        const cars = response.data || [];
+        const allCars = response.data || [];
+        
+        // Filter cars by current owner ID
+        const cars = allCars.filter(car => car.owner.id === currentOwnerId);
         
         // Fetch bookings for each car in parallel
         const carsWithBookings = await Promise.all(

@@ -114,7 +114,7 @@ const AdminLayout = () => {
             </nav>
           </div>
 
-          <div className="mb-8">
+          {/* <div className="mb-8">
             <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wide mb-4">{t('preferences')}</h2>
             <nav className="space-y-2">
               <button
@@ -149,7 +149,7 @@ const AdminLayout = () => {
                 </div>
               </div>
             </nav>
-          </div>
+          </div> */}
 
           <div className="pt-4 border-t">
             <LogoutButton />

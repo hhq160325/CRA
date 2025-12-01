@@ -72,13 +72,13 @@ const PaymentCancel = () => {
         )}
         
         <div className="space-y-3">
-          <button
+          {/* <button
             onClick={() => navigate('/payment')}
             disabled={isUpdatingBooking}
             className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {t('tryAgain')}
-          </button>
+          </button> */}
           
           <button
             onClick={() => navigate('/')}

@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { updateCarOwnerStatus } from '../staffSlice';
 import { CarOwnerModal } from './modals/carOwnerModal';
+import { axiosInstance } from '../../../shared/utils/axiosInstance';
+import { USER_ENDPOINTS } from '../../../config/api';
+import { ROLES } from '../../auth/utils';
 
 const CarOwnerManagement = () => {
   const { t } = useTranslation();
@@ -12,58 +15,59 @@ const CarOwnerManagement = () => {
   const [selectedOwner, setSelectedOwner] = useState(null);
   const [modalType, setModalType] = useState(null); // 'view', 'edit', 'suspend'
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [carOwners, setCarOwners] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock data for car owners
-  const carOwners = [
-    {
-      id: 1,
-      name: 'John Smith',
-      email: 'john.smith@email.com',
-      phone: '+1 (555) 123-4567',
-      status: 'active',
-      registrationDate: '2024-01-15',
-      carsListed: 3,
-      totalEarnings: 12450,
-      verificationStatus: 'verified',
-      lastActive: '2 hours ago'
-    },
-    {
-      id: 2,
-      name: 'Sarah Johnson',
-      email: 'sarah.j@email.com',
-      phone: '+1 (555) 234-5678',
-      status: 'pending',
-      registrationDate: '2024-02-20',
-      carsListed: 1,
-      totalEarnings: 0,
-      verificationStatus: 'pending',
-      lastActive: '1 day ago'
-    },
-    {
-      id: 3,
-      name: 'Mike Wilson',
-      email: 'mike.w@email.com',
-      phone: '+1 (555) 345-6789',
-      status: 'suspended',
-      registrationDate: '2023-12-10',
-      carsListed: 2,
-      totalEarnings: 8750,
-      verificationStatus: 'verified',
-      lastActive: '1 week ago'
-    },
-    {
-      id: 4,
-      name: 'Emma Davis',
-      email: 'emma.davis@email.com',
-      phone: '+1 (555) 456-7890',
-      status: 'active',
-      registrationDate: '2024-03-05',
-      carsListed: 5,
-      totalEarnings: 23100,
-      verificationStatus: 'verified',
-      lastActive: '30 minutes ago'
-    }
-  ];
+  // Fetch all users and filter out customers, admins, and staff
+  useEffect(() => {
+    const fetchCarOwners = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get(USER_ENDPOINTS.GET_ALL_USERS);
+        
+        // Filter out roleId 1 (Customer), 1001 (Admin), and 1002 (Staff)
+        const excludedRoles = [ROLES.CUSTOMER, ROLES.ADMIN, ROLES.STAFF];
+        const owners = response.data
+          .filter(user => !excludedRoles.includes(user.roleId))
+          .map(user => {
+            // Get name - prioritize full name over username over email
+            let name = 'N/A';
+            const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+            if (fullName) {
+              name = fullName;
+            } else if (user.username) {
+              name = user.username;
+            } else if (user.email) {
+              name = user.email;
+            }
+            
+            return {
+              id: user.id,
+              name: name,
+              email: user.email || 'N/A',
+              phone: user.phoneNumber || 'N/A',
+              status: user.status || 'active',
+              registrationDate: user.createdAt || user.registrationDate || 'N/A',
+              carsListed: user.carsListed || 0,
+              totalEarnings: user.totalEarnings || 0,
+              verificationStatus: user.verificationStatus || 'pending',
+              lastActive: user.lastActive || 'N/A'
+            };
+          });
+        
+        setCarOwners(owners);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching car owners:', err);
+        setError('Failed to load car owners');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCarOwners();
+  }, []);
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
@@ -136,6 +140,34 @@ const CarOwnerManagement = () => {
     const matchesStatus = statusFilter === 'all' || owner.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  if (loading) {
+    return (
+      <div className="p-8 space-y-6 space-y-reverse-0 min-h-full bg-gray-50">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">{t('loading') || 'Loading...'}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 space-y-6 space-y-reverse-0 min-h-full bg-gray-50">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <svg className="w-12 h-12 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="mt-4 text-gray-600">{error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 space-y-6 space-y-reverse-0 min-h-full bg-gray-50">

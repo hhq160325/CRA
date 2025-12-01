@@ -12,6 +12,7 @@ const CarCard = ({ car, isApiData = false }) => {
     const isCarFavorite = useSelector(selectIsFavorite(carId));
     const [rentalRate, setRentalRate] = useState(null);
     const [loadingRate, setLoadingRate] = useState(false);
+    const [imageLoaded, setImageLoaded] = useState(false);
 
     // Fetch rental rate when component mounts
     useEffect(() => {
@@ -119,11 +120,18 @@ const CarCard = ({ car, isApiData = false }) => {
 
     return (
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
-            <div className="relative">
+            <div className="relative bg-gray-100">
+                {!imageLoaded && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="animate-pulse bg-gray-200 w-full h-48"></div>
+                    </div>
+                )}
                 <img
                     src={carImage}
                     alt={carName}
-                    className="w-full h-48 object-cover"
+                    className={`w-full h-48 object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    onLoad={() => setImageLoaded(true)}
+                    loading="lazy"
                 />
                 <button
                     onClick={handleCarToggleFavorite}

@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { getCurrentLocationWithAddress } from '../../../location/locationService';
+import { TRACKASIA_ENDPOINTS, TRACKASIA_API_CONFIG, PARKLOT_ENDPOINTS, PARKLOT_API_CONFIG } from '../../../../config/api';
+import DropdownTemplate from '../../../../shared/components/DropdownTemplate';
 
 const DELIVERY_LOCATION_KEY = 'deliveryLocation';
+const DELIVERY_AIRPORT_KEY = 'deliveryAirport';
+
+// Airport addresses
+const AIRPORT_ADDRESSES = {
+  TSN: 'Sân bay Tân Sơn Nhất, Trường Sơn, Phường 2, Tân Bình, Hồ Chí Minh',
+  T3: 'Ga T3 Sân bay Tân Sơn Nhất, Trường Sơn, Phường 2, Tân Bình, Hồ Chí Minh'
+};
 
 const DeliveryLocationModal = ({ 
   isOpen, 
@@ -10,23 +19,60 @@ const DeliveryLocationModal = ({
   locationCity,
   selectedAirport,
   setSelectedAirport,
-  onLocationUpdate
+  onLocationUpdate,
+  showParkLotOptions = false // New prop to show park lot options
 }) => {
-  const [showAddressDropdown, setShowAddressDropdown] = useState(false);
+  const [showAddressDropdown, setShowAddressDropdown] = useState(true);
+  const [showDeliveryDropdown, setShowDeliveryDropdown] = useState(true);
   const [customAddress, setCustomAddress] = useState('');
   const [loading, setLoading] = useState(false);
+  const [airportLoading, setAirportLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [parkLots, setParkLots] = useState([]);
+  const [selectedParkLot, setSelectedParkLot] = useState(null);
 
   useEffect(() => {
-    // Load saved location from localStorage first
+    // Load saved airport selection first
+    const savedAirport = localStorage.getItem(DELIVERY_AIRPORT_KEY);
     const savedLocation = localStorage.getItem(DELIVERY_LOCATION_KEY);
     
-    if (savedLocation) {
+    if (savedAirport && AIRPORT_ADDRESSES[savedAirport]) {
+      setSelectedAirport(savedAirport);
+      setCustomAddress(AIRPORT_ADDRESSES[savedAirport]);
+    } else if (savedLocation) {
       setCustomAddress(savedLocation);
     } else if (locationAddress && locationCity) {
       setCustomAddress(`${locationAddress}, ${locationCity}`);
     }
   }, [locationAddress, locationCity]);
+
+  // Fetch park lots when modal opens and showParkLotOptions is true
+  useEffect(() => {
+    if (isOpen && showParkLotOptions) {
+      fetchParkLots();
+    }
+  }, [isOpen, showParkLotOptions]);
+
+  const fetchParkLots = async () => {
+    try {
+      const response = await fetch(PARKLOT_ENDPOINTS.GET_ALL, {
+        method: 'GET',
+        headers: PARKLOT_API_CONFIG.headers,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch park lots');
+      }
+
+      const data = await response.json();
+      setParkLots(data || []);
+      // Don't auto-select any park lot
+      setSelectedParkLot(null);
+    } catch (err) {
+      console.error('Error fetching park lots:', err);
+      setParkLots([]);
+    }
+  };
 
   const handleGetCurrentLocation = async () => {
     setLoading(true);
@@ -52,9 +98,54 @@ const DeliveryLocationModal = ({
   const handleAddressChange = (e) => {
     const newAddress = e.target.value;
     setCustomAddress(newAddress);
+    // Clear airport and park lot selection when manually editing address
+    setSelectedAirport(null);
+    setSelectedParkLot(null);
     // Save to localStorage on change
     if (newAddress.trim()) {
       localStorage.setItem(DELIVERY_LOCATION_KEY, newAddress);
+      localStorage.removeItem(DELIVERY_AIRPORT_KEY);
+    }
+  };
+
+  const handleAirportSelection = async (airportCode) => {
+    setSelectedAirport(airportCode);
+    setSelectedParkLot(null); // Clear park lot selection
+    
+    const address = AIRPORT_ADDRESSES[airportCode];
+    if (!address) return;
+
+    // Don't update customAddress - keep it separate
+    // setCustomAddress(address);
+    setAirportLoading(true);
+
+    try {
+      console.log('Calling API with address:', address);
+      console.log('Endpoint:', TRACKASIA_ENDPOINTS.GET_COORDINATE_FROM_ADDRESS);
+      
+      const response = await fetch(TRACKASIA_ENDPOINTS.GET_COORDINATE_FROM_ADDRESS, {
+        method: 'POST',
+        headers: TRACKASIA_API_CONFIG.headers,
+        body: JSON.stringify(address)
+      });
+
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', errorText);
+        throw new Error(`API returned ${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('Airport coordinates response:', data);
+      
+    } catch (err) {
+      console.error('Error getting airport coordinates:', err);
+      // Don't show alert, just log the error - the address is still set
+      console.warn('Failed to get coordinates, but address is still saved');
+    } finally {
+      setAirportLoading(false);
     }
   };
 
@@ -63,6 +154,7 @@ const DeliveryLocationModal = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fadeIn">
       <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
+        {/* This is for Cardetail and Payment Part */}
         {/* Modal Header */}
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-bold">Địa điểm giao nhận xe</h2>
@@ -75,8 +167,8 @@ const DeliveryLocationModal = ({
             </svg>
           </button>
         </div>
-
-        {/* Modal Content */}
+         {/* Add option for Car ParkLot location if open modal in home page */}
+        {/* Modal Content */} 
         <div className="p-6">
           <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
             {/* Left: Map */} {/*TODO*/}
@@ -102,158 +194,284 @@ const DeliveryLocationModal = ({
 
             {/* Right: Address & Airport Selection */}
             <div className="space-y-4">
-              {/* Current Address */}
+              {/* Park Lot Options - Dropdown */}
+              {showParkLotOptions && parkLots.length > 0 && (
+                <div onClick={(e) => e.stopPropagation()}>
+                  <label className="text-sm font-semibold text-gray-700 block mb-3">Nhận xe tại bãi đỗ</label>
+                  <DropdownTemplate
+                    value={selectedParkLot?.name || ''}
+                    onChange={(option) => {
+                      const parkLot = parkLots.find(p => p.name === option.value);
+                      if (parkLot) {
+                        setSelectedParkLot(parkLot);
+                        setSelectedAirport(null);
+                      }
+                    }}
+                    options={parkLots.map(parkLot => ({
+                      id: parkLot.name,
+                      value: parkLot.name,
+                      label: parkLot.name,
+                      address: parkLot.address,
+                      city: parkLot.city
+                    }))}
+                    placeholder="Chọn bãi đỗ xe"
+                    searchable={true}
+                    searchPlaceholder="Tìm kiếm bãi đỗ..."
+                    renderOption={(option) => (
+                      <div>
+                        <div className="font-medium text-gray-900">{option.label}</div>
+                        <div className="text-xs text-gray-500 mt-0.5">{option.address || option.city}</div>
+                      </div>
+                    )}
+                    renderSelected={(option) => (
+                      <span className={option ? 'text-gray-900' : 'text-gray-400'}>
+                        {option ? option.label : 'Chọn bãi đỗ xe'}
+                      </span>
+                    )}
+                  />
+                  {selectedParkLot && (
+                    <div className="mt-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">{selectedParkLot.name}</p>
+                          <p className="text-xs text-gray-600 mt-1">{selectedParkLot.address}</p>
+                          <p className="text-xs text-blue-600 font-semibold mt-2">Miễn phí giao nhận</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Delivery Group - Custom Address & Airport */}
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <label className="text-sm font-semibold text-gray-700">Địa chỉ tùy chỉnh</label>
+                <div className="flex items-center justify-between mb-3 cursor-pointer" onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDeliveryDropdown(!showDeliveryDropdown);
+                }}>
+                  <label className="text-sm font-semibold text-gray-700 cursor-pointer">Giao xe tận nơi (20.000₫/km)</label>
                   <button 
-                    className="text-sm text-blue-600 font-semibold hover:text-blue-700 transition-colors"
-                    onClick={() => setShowAddressDropdown(!showAddressDropdown)}
+                    className="text-gray-600 hover:text-blue-600 transition-all duration-200"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowDeliveryDropdown(!showDeliveryDropdown);
+                    }}
                   >
-                    {showAddressDropdown ? 'Đóng ×' : 'Thay đổi ›'}
+                    <svg 
+                      className={`w-5 h-5 transition-transform duration-300 ${showDeliveryDropdown ? 'rotate-180' : ''}`}
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                   </button>
                 </div>
-
-                {/* Address Dropdown */}
-                {showAddressDropdown && (
-                  <div className="mb-3 p-4 border border-gray-200 rounded-lg bg-white animate-slideDown">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Nhập địa chỉ giao xe..."
-                        value={customAddress}
-                        onChange={handleAddressChange}
-                        className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                      <button
-                        onClick={handleGetCurrentLocation}
-                        disabled={loading}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="Lấy vị trí hiện tại"
+                <div className={`overflow-hidden transition-all duration-300 ease-in-out ${showDeliveryDropdown ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <div className="space-y-4 pb-2" onClick={(e) => e.stopPropagation()}>
+                  {/* Current Address */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="text-sm font-medium text-gray-600">Địa chỉ tùy chỉnh</label>
+                      <button 
+                        className="text-sm text-blue-600 font-semibold hover:text-blue-700 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowAddressDropdown(!showAddressDropdown);
+                        }}
                       >
-                        {loading ? (
-                          <svg 
-                            className="w-5 h-5 animate-spin" 
-                            fill="none" 
-                            viewBox="0 0 24 24"
-                          >
-                            <circle 
-                              className="opacity-25" 
-                              cx="12" 
-                              cy="12" 
-                              r="10" 
-                              stroke="currentColor" 
-                              strokeWidth="4"
-                            />
-                            <path 
-                              className="opacity-75" 
-                              fill="currentColor" 
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            />
-                          </svg>
-                        ) : (
-                          <svg 
-                            className="w-5 h-5" 
-                            fill="none" 
-                            stroke="currentColor" 
-                            viewBox="0 0 24 24"
-                          >
-                            <path 
-                              strokeLinecap="round" 
-                              strokeLinejoin="round" 
-                              strokeWidth={2} 
-                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" 
-                            />
-                          </svg>
-                        )}
+                        {showAddressDropdown ? 'Đóng ×' : 'Thay đổi ›'}
                       </button>
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">
-                      Nhập địa chỉ cụ thể hoặc nhấn biểu tượng để lấy vị trí hiện tại
-                    </p>
-                  </div>
-                )}
 
-                <div className="p-4 border-2 border-blue-500 bg-blue-50 rounded-lg">
-                  <div className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full border-2 border-blue-600 flex items-center justify-center mt-0.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-blue-600"></div>
+                    {/* Address Dropdown */}
+                    {showAddressDropdown && (
+                      <div className="mb-3 p-4 border border-gray-200 rounded-lg bg-white animate-slideDown">
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder="Nhập địa chỉ giao xe..."
+                            value={customAddress}
+                            onChange={handleAddressChange}
+                            className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleGetCurrentLocation();
+                            }}
+                            disabled={loading}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Lấy vị trí hiện tại"
+                          >
+                            {loading ? (
+                              <svg 
+                                className="w-5 h-5 animate-spin" 
+                                fill="none" 
+                                viewBox="0 0 24 24"
+                              >
+                                <circle 
+                                  className="opacity-25" 
+                                  cx="12" 
+                                  cy="12" 
+                                  r="10" 
+                                  stroke="currentColor" 
+                                  strokeWidth="4"
+                                />
+                                <path 
+                                  className="opacity-75" 
+                                  fill="currentColor" 
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                />
+                              </svg>
+                            ) : (
+                              <svg 
+                                className="w-5 h-5" 
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                              >
+                                <path 
+                                  strokeLinecap="round" 
+                                  strokeLinejoin="round" 
+                                  strokeWidth={2} 
+                                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" 
+                                />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Nhập địa chỉ cụ thể hoặc nhấn biểu tượng để lấy vị trí hiện tại
+                        </p>
+                      </div>
+                    )}
+
+                    <div 
+                      className="p-4 border-2 border-blue-500 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
+                      onClick={() => setShowAddressDropdown(true)}
+                    >
+                      <div className="flex items-start gap-3">
+                        <svg 
+                          className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" 
+                          fill="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                        <p className="text-sm text-gray-700 flex-1">
+                          {customAddress || [locationAddress, locationCity].filter(Boolean).join(', ') || 'Pick your location'}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-700 flex-1">
-                      {customAddress || `${locationAddress}, ${locationCity}`}
-                    </p>
+                  </div>
+
+                  {/* Airport Options */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-600 block mb-3">Giao xe sân bay</label>
+                    <div className="space-y-3">
+                      <div 
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          selectedAirport === 'TSN' 
+                            ? 'border-blue-500 bg-blue-50' 
+                            : 'border-gray-200 hover:border-blue-300'
+                        } ${airportLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!airportLoading) handleAirportSelection('TSN');
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="radio"
+                              name="deliveryLocation"
+                              checked={selectedAirport === 'TSN'}
+                              onChange={() => {}}
+                              disabled={airportLoading}
+                              className="w-4 h-4 text-blue-600 accent-blue-600 pointer-events-none"
+                            />
+                            <span className="text-sm font-medium">Tân Sơn Nhất</span>
+                          </div>
+                          {/* <span className="text-sm font-semibold text-blue-600">180.000₫</span> */}
+                        </div>
+                      </div>
+                      <div 
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          selectedAirport === 'T3' 
+                            ? 'border-blue-500 bg-blue-50' 
+                            : 'border-gray-200 hover:border-blue-300'
+                        } ${airportLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!airportLoading) handleAirportSelection('T3');
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="radio"
+                              name="deliveryLocation"
+                              checked={selectedAirport === 'T3'}
+                              onChange={() => {}}
+                              disabled={airportLoading}
+                              className="w-4 h-4 text-blue-600 accent-blue-600 pointer-events-none"
+                            />
+                            <span className="text-sm font-medium">Ga T3 (TSN)</span>
+                          </div>
+                          {/* <span className="text-sm font-semibold text-blue-600">180.000₫</span> */}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   </div>
                 </div>
               </div>
 
-              {/* Airport Options */}
-              {/* <div>
-                <label className="text-sm font-semibold text-gray-700 block mb-3">Giao xe sân bay</label>
-                <div className="space-y-3">
-                  <div 
-                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                      selectedAirport === 'TSN' 
-                        ? 'border-green-500 bg-green-50' 
-                        : 'border-gray-200 hover:border-green-300'
-                    }`}
-                    onClick={() => setSelectedAirport('TSN')}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="radio"
-                          name="airport"
-                          checked={selectedAirport === 'TSN'}
-                          onChange={() => setSelectedAirport('TSN')}
-                          className="w-4 h-4 text-green-600"
-                        />
-                        <span className="text-sm font-medium">Tân Sơn Nhất</span>
-                      </div>
-                      <span className="text-sm font-semibold text-green-600">180.000₫</span>
-                    </div>
-                  </div>
-                  <div 
-                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                      selectedAirport === 'T3' 
-                        ? 'border-green-500 bg-green-50' 
-                        : 'border-gray-200 hover:border-green-300'
-                    }`}
-                    onClick={() => setSelectedAirport('T3')}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="radio"
-                          name="airport"
-                          checked={selectedAirport === 'T3'}
-                          onChange={() => setSelectedAirport('T3')}
-                          className="w-4 h-4 text-green-600"
-                        />
-                        <span className="text-sm font-medium">Ga T3 (TSN)</span>
-                      </div>
-                      <span className="text-sm font-semibold text-green-600">180.000₫</span>
+              {/* Note about fee calculation */}
+              <div className="pt-4 border-t">
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">Phí giao xe sẽ được tính dựa trên khoảng cách thực tế</p>
+                      <p className="text-xs text-gray-600 mt-1">20.000₫/km (tối thiểu 60.000₫)</p>
                     </div>
                   </div>
                 </div>
-              </div> */}
-
-              {/* Total Fee - TODO  */}
-              {/* <div className="pt-4 border-t">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Tổng phí:</span>
-                  <span className="text-lg font-bold text-green-600">
-                    {selectedAirport ? '180.000₫' : '60.000₫'} (2 km)
-                  </span>
-                </div>
-              </div> */}
+              </div>
 
               {/* Confirm Button */}
               <button 
                 onClick={() => {
-                  if (onLocationUpdate && customAddress) {
-                    onLocationUpdate(customAddress);
-                    // Save to localStorage when confirming
+                  // Save based on selection priority: park lot > airport > custom address
+                  if (selectedParkLot) {
+                    // Save park lot selection
+                    const parkLotAddress = selectedParkLot.address || selectedParkLot.name;
+                    localStorage.setItem(DELIVERY_LOCATION_KEY, parkLotAddress);
+                    localStorage.removeItem(DELIVERY_AIRPORT_KEY);
+                    if (onLocationUpdate) {
+                      onLocationUpdate(parkLotAddress);
+                    }
+                  } else if (selectedAirport) {
+                    // Save airport selection
+                    localStorage.setItem(DELIVERY_AIRPORT_KEY, selectedAirport);
+                    localStorage.setItem(DELIVERY_LOCATION_KEY, AIRPORT_ADDRESSES[selectedAirport]);
+                    if (onLocationUpdate) {
+                      onLocationUpdate(AIRPORT_ADDRESSES[selectedAirport]);
+                    }
+                  } else if (customAddress) {
+                    // Save custom address
                     localStorage.setItem(DELIVERY_LOCATION_KEY, customAddress);
+                    localStorage.removeItem(DELIVERY_AIRPORT_KEY);
+                    if (onLocationUpdate) {
+                      onLocationUpdate(customAddress);
+                    }
                   }
                   onClose();
                 }}

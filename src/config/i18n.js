@@ -8,7 +8,7 @@ const resources = {
       locale: "en-US",
 
       // NavBar
-      search: "Search something here",
+      search: "Searching",
       signIn: "Sign In",
       signUp: "Sign Up",
       notification: "Notification",
@@ -42,6 +42,7 @@ const resources = {
       pickUp: "Pick-up",
       dropOff: "Drop - Off",
       location: "Location",
+      pickYourLocation: "Pick your location",
       selectCity: "Select your city",
       hoChiMinhCity: "Ho Chi Minh City",
       hanoi: "Hanoi",
@@ -53,7 +54,9 @@ const resources = {
       nextWeek: "Next week",
       time: "Time",
       selectTime: "Select your time",
-
+      rentalPeriod:"Rental Period",
+      loadingCars: "Loading cars...",
+      errorLoadingCars: "Error loading cars:",
       // HomePage - Car Sections
       popularCar: "Popular Car",
       recommendationCar: "Recommendation Car",
@@ -138,7 +141,8 @@ const resources = {
       settings: "Settings",
       helpCenter: "Help & Center",
       darkMode: "Dark Mode",
-
+      ownerPage: "Owner Page",
+      staffPage: "Staff Page",
       // Admin - Status Overview
       statusOverview: "Status Overview",
       status: "Status",
@@ -302,6 +306,13 @@ const resources = {
       carOwners: "car owners",
       verification: "Verification",
       owner: "Owner",
+      allStatus: "All Status",
+      carsListed: "Cars Listed",
+      totalEarnings: "Total Earnings",
+      lastActive: "Last Active",
+      previous: "Previous",
+      next: "Next",
+      loading: "Loading",
 
       customerManagement: "Customer Management",
       viewAndManageCustomers: "View and manage customer accounts",
@@ -376,6 +387,33 @@ const resources = {
       monitorBookings: "Monitor Bookings",
       customerAccounts: "Customer Accounts",
       sendNotifications: "Send Notifications",
+      createParkingLot: "Create Parking Lot",
+
+      // Parking Lot Creation
+      parkingLotName: "Parking Lot Name",
+      enterParkingLotName: "Enter parking lot name",
+      parkingLotNameRequired: "Parking lot name is required",
+      addressRequired: "Address is required",
+      cityRequired: "City is required",
+      validCapacityRequired: "Valid capacity is required",
+      contactNumberRequired: "Contact number is required",
+      enterAddress: "Enter address",
+      useCurrent: "Use Current",
+      getting: "Getting...",
+      coordinates: "Coordinates",
+      city: "City",
+      enterCity: "Enter city",
+      capacity: "Capacity",
+      enterParkingCapacity: "Enter parking capacity",
+      contactNumber: "Contact Number",
+      enterContactNumber: "Enter contact number",
+      enterAdditionalNotes: "Enter any additional notes...",
+      createParkingLotButton: "Create Parking Lot",
+      creating: "Creating...",
+      parkingLotCreatedSuccessfully: "Parking lot created successfully!",
+      failedToCreateParkingLot: "Failed to create parking lot",
+      addNewParkingLot: "Add a new parking lot to the system",
+      failedToGetCurrentLocation: "Failed to get current location",
 
       noBookingsFound: "No Booking Found",
       allStatus: "All Status",
@@ -741,7 +779,7 @@ const resources = {
       deliveryFee: "Delivery fee",
       discount: "Discount",
       discountDesc: "Discount for daily rate",
-      
+
       // Additional Car Detail translations
       chooseOneOfTwo: "Choose 1 of 2 options",
       licenseAndPassportHold: "License (verify) & Passport (hold)",
@@ -752,7 +790,8 @@ const resources = {
       moreReviews: "reviews",
       bookingFeesPayNow: "Booking Fees (15%) - Pay Now",
       remainingAmountPayAfter: "Remaining Amount - Pay After",
-      totalPricePayNow: "Total Price - Pay Now"
+      totalPricePayNow: "Total Price - Pay Now",
+      distance: "Distance"
     }
   },
   vi: {
@@ -795,6 +834,7 @@ const resources = {
       pickUp: "Nhận xe",
       dropOff: "Trả xe",
       location: "Địa điểm",
+      pickYourLocation: "Chọn địa điểm của bạn",
       selectCity: "Chọn thành phố",
       hoChiMinhCity: "TP.Hồ Chí Minh",
       hanoi: "Hà Nội",
@@ -806,7 +846,9 @@ const resources = {
       nextWeek: "Tuần sau",
       time: "Giờ",
       selectTime: "Chọn giờ",
-
+      rentalPeriod:"Thời gian thuê",
+      loadingCars: "Đang tải xe...",
+      errorLoadingCars: "Lỗi khi tải xe:",
       // HomePage - Car Sections
       popularCar: "Xe Phổ Biến",
       recommendationCar: "Xe Đề Xuất",
@@ -891,7 +933,8 @@ const resources = {
       settings: "Cài đặt",
       helpCenter: "Trung tâm trợ giúp",
       darkMode: "Chế độ tối",
-
+      ownerPage: "Trang Quản Lý",
+      staffPage: "Trang Nhân Viên",
       // Admin - Status Overview
       statusOverview: "Tổng quan trạng thái",
       status: "Trạng thái",
@@ -1055,6 +1098,13 @@ const resources = {
       carOwners: "chủ xe",
       verification: "Xác minh",
       owner: "Chủ xe",
+      allStatus: "Tất cả trạng thái",
+      carsListed: "Xe đã đăng",
+      totalEarnings: "Tổng thu nhập",
+      lastActive: "Hoạt động lần cuối",
+      previous: "Trước",
+      next: "Tiếp",
+      loading: "Đang tải",
 
       customerManagement: "Quản lý khách hàng",
       viewAndManageCustomers: "Xem và quản lý tài khoản khách hàng",
@@ -1129,6 +1179,33 @@ const resources = {
       monitorBookings: "Giám sát đặt xe",
       customerAccounts: "Tài khoản khách hàng",
       sendNotifications: "Gửi thông báo",
+      createParkingLot: "Tạo Bãi Đỗ Xe",
+
+      // Parking Lot Creation
+      parkingLotName: "Tên Bãi Đỗ Xe",
+      enterParkingLotName: "Nhập tên bãi đỗ xe",
+      parkingLotNameRequired: "Tên bãi đỗ xe là bắt buộc",
+      addressRequired: "Địa chỉ là bắt buộc",
+      cityRequired: "Thành phố là bắt buộc",
+      validCapacityRequired: "Sức chứa hợp lệ là bắt buộc",
+      contactNumberRequired: "Số liên hệ là bắt buộc",
+      enterAddress: "Nhập địa chỉ",
+      useCurrent: "Dùng Vị Trí Hiện Tại",
+      getting: "Đang lấy...",
+      coordinates: "Tọa độ",
+      city: "Thành phố",
+      enterCity: "Nhập thành phố",
+      capacity: "Sức chứa",
+      enterParkingCapacity: "Nhập sức chứa bãi đỗ",
+      contactNumber: "Số Liên Hệ",
+      enterContactNumber: "Nhập số liên hệ",
+      enterAdditionalNotes: "Nhập ghi chú bổ sung...",
+      createParkingLotButton: "Tạo Bãi Đỗ Xe",
+      creating: "Đang tạo...",
+      parkingLotCreatedSuccessfully: "Tạo bãi đỗ xe thành công!",
+      failedToCreateParkingLot: "Không thể tạo bãi đỗ xe",
+      addNewParkingLot: "Thêm bãi đỗ xe mới vào hệ thống",
+      failedToGetCurrentLocation: "Không thể lấy vị trí hiện tại",
 
       noBookingsFound: "Không có đơn đặt xe",
       allStatus: "Tất cả trạng thái",
@@ -1494,7 +1571,7 @@ const resources = {
       deliveryFee: "Phí giao nhận xe",
       discount: "Chương trình giảm giá",
       discountDesc: "Giảm 120k cho đơn giá",
-      
+
       // Additional Car Detail translations
       chooseOneOfTwo: "Chọn 1 trong 2 hình thức",
       licenseAndPassportHold: "GPLX (đối chiếu) & Passport (giữ lại)",
@@ -1505,7 +1582,8 @@ const resources = {
       moreReviews: "đánh giá",
       bookingFeesPayNow: "Phí Đặt Cọc (15%) - Thanh Toán Ngay",
       remainingAmountPayAfter: "Số Tiền Còn Lại - Thanh Toán Sau",
-      totalPricePayNow: "Thành Tiền - Thanh Toán Ngay"
+      totalPricePayNow: "Thành Tiền - Thanh Toán Ngay",
+      distance: "Khoảng cách"
     }
   }
 };

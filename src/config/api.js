@@ -117,6 +117,8 @@ export const PAYMENT_API_CONFIG = {
 // TrackAsia endpoints
 export const TRACKASIA_ENDPOINTS = {
   REVERSE_GEOCODING: `${API_CONFIG.BASE_URL}/TrackAsia/GetReverseGeocoding`,
+  GET_COORDINATE_FROM_ADDRESS: `${API_CONFIG.BASE_URL}/TrackAsia/GetCoordinateFromAddress`,
+  GET_DISTANCE_BETWEEN_ADDRESSES: `${API_CONFIG.BASE_URL}/TrackAsia/GetDistanceBetweenAddresses`,
 };
 
 export const TRACKASIA_API_CONFIG = {

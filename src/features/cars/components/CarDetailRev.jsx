@@ -758,12 +758,45 @@ const CarDetailRev = () => {
                   <p className="text-sm font-semibold mb-3">{t('pickupLocation')}</p>
                   {/* Choose pick-up & drop-off location */}
                   {/* Option 1: Self pickup */}
-                  <div className="mb-3 p-4 border rounded-lg bg-white hover:border-primary-500 transition-colors cursor-pointer">
+                  <div className="mb-3 p-4 border rounded-lg bg-white hover:border-primary-500 transition-colors cursor-pointer"
+                    onClick={() => {
+                      setDeliveryLocation(null);
+                      setDeliveryDistance(null);
+                      localStorage.removeItem('deliveryLocation');
+                      localStorage.removeItem('carParkLot');
+                      // Save car park lot for self-pickup
+                      if (currentCar?.preferredLot) {
+                        const carParkLot = {
+                          name: currentCar.preferredLot.name,
+                          address: currentCar.preferredLot.address,
+                          city: currentCar.preferredLot.city,
+                          fullAddress: `${currentCar.preferredLot.address}, ${currentCar.preferredLot.city}`
+                        };
+                        localStorage.setItem('selfpickupparklot', JSON.stringify(carParkLot));
+                      }
+                    }}
+                  >
                     <div className="flex items-start gap-3">
                       <input
                         type="radio"
                         name="pickup-option"
-                        defaultChecked
+                        checked={!deliveryLocation}
+                        onChange={() => {
+                          setDeliveryLocation(null);
+                          setDeliveryDistance(null);
+                          localStorage.removeItem('deliveryLocation');
+                          localStorage.removeItem('carParkLot');
+                          // Save car park lot for self-pickup
+                          if (currentCar?.preferredLot) {
+                            const carParkLot = {
+                              name: currentCar.preferredLot.name,
+                              address: currentCar.preferredLot.address,
+                              city: currentCar.preferredLot.city,
+                              fullAddress: `${currentCar.preferredLot.address}, ${currentCar.preferredLot.city}`
+                            };
+                            localStorage.setItem('selfpickupparklot', JSON.stringify(carParkLot));
+                          }
+                        }}
                         className="mt-1 w-4 h-4 text-primary-600 focus:ring-primary-500"
                       />
                       <div className="flex-1">
@@ -785,6 +818,7 @@ const CarDetailRev = () => {
                       <input
                         type="radio"
                         name="pickup-option"
+                        checked={!!deliveryLocation}
                         className="mt-1 w-4 h-4 text-primary-600 focus:ring-primary-500"
                         onChange={() => setShowDeliveryModal(true)}
                       />
@@ -830,6 +864,19 @@ const CarDetailRev = () => {
                     )}
                   </span>
                 </div>
+
+                {deliveryLocation && (
+                  <div className="flex justify-between text-sm">
+                    <span>{t('deliveryFee')}</span>
+                    <span className="flex items-center gap-1">
+                      {loadingDistance ? (
+                        <span>...</span>
+                      ) : (
+                        <span>{deliveryFee.toLocaleString('vi-VN')}₫</span>
+                      )}
+                    </span>
+                  </div>
+                )}
                 
                 <div className="flex justify-between text-sm text-blue-600">
                   <span>{t('bookingFeesPayNow')}</span>
@@ -874,7 +921,7 @@ const CarDetailRev = () => {
                   {loadingRate ? (
                     <span className="text-gray-400">...</span>
                   ) : (
-                    <span>{Math.round(dailyPrice * rentalDates.duration * 0.15).toLocaleString('vi-VN')}₫</span>
+                    <span>{Math.round(dailyPrice * rentalDates.duration * 0.15 + (deliveryLocation ? deliveryFee : 0)).toLocaleString('vi-VN')}₫</span>
                   )}
                 </div>
                 {/* Rent Button */}
@@ -975,6 +1022,16 @@ const CarDetailRev = () => {
         setSelectedAirport={setSelectedAirport}
         onLocationUpdate={(newLocation) => {
           setDeliveryLocation(newLocation);
+          // Save car park lot information to localStorage for PaymentPage
+          if (currentCar?.preferredLot) {
+            const carParkLot = {
+              name: currentCar.preferredLot.name,
+              address: currentCar.preferredLot.address,
+              city: currentCar.preferredLot.city,
+              fullAddress: `${currentCar.preferredLot.address}, ${currentCar.preferredLot.city}`
+            };
+            localStorage.setItem('carParkLot', JSON.stringify(carParkLot));
+          }
         }}
       />
 

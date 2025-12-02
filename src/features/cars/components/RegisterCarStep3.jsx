@@ -69,12 +69,15 @@ const RegisterCarStep3 = () => {
                 const dailyPrice = step2Data.dailyPrice;
                 if (dailyPrice) {
                     try {
-                        // Remove commas and convert to number
-                        const priceNumber = parseFloat(dailyPrice.replace(/,/g, ''));
+                        // Handle both string and number formats
+                        const priceNumber = typeof dailyPrice === 'string' 
+                            ? parseFloat(dailyPrice.replace(/[.,]/g, '')) 
+                            : dailyPrice;
                         console.log('Setting rental rate with dailyPrice:', priceNumber);
                         
-                        await setCarRentalRate(carId, priceNumber);
-                        console.log('Rental rate set successfully');
+                        const rentalRateResponse = await setCarRentalRate(carId, priceNumber);
+                        console.log('Car rental price set successfully!');
+                        console.log('Rental rate response:', rentalRateResponse);
                     } catch (rentalRateError) {
                         console.error('Error setting rental rate:', rentalRateError);
                         // Don't fail the whole registration if rental rate fails

@@ -33,10 +33,11 @@ export const setCarRentalRate = async (carId, dailyRate) => {
         
         const rentalRateData = {
             dailyRate: dailyRate,
-            hourlyRate: 0,  // TODO: Future implementation
-            weeklyDiscount: 0,  // TODO: Future implementation
-            monthlyDiscount: 0,  // TODO: Future implementation
-            overtimeRate: 0,  // TODO: Future implementation
+            hourlyRate: 0,
+            weeklyDiscount: 0,
+            monthlyDiscount: 0,
+            maxDistancePerDay: 300,
+            overtravelRatePerKmInDongperKM: 0,
             carId: carId
         };
 

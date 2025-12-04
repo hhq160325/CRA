@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
 import { CAR_ENDPOINTS, BOOKING_ENDPOINTS } from '../../../config/api';
 import DropdownTemplate from '../../../shared/components/DropdownTemplate';
 import { tokenUtils } from '../../auth/utils';
+import { filterCarUsageData } from '../utils/filterUtils';
 
 const UsageTracking = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -158,17 +159,16 @@ const UsageTracking = () => {
     setSelectedCar(null);
   };
 
-  const filteredUsage = usageData.filter(car => {
-    const matchesSearch = car.carName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      car.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      car.carId.toString().toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesBrand = brandFilter === 'all' || car.brand === brandFilter;
-    const matchesModel = modelFilter === 'all' || car.model === modelFilter;
-    const matchesStatus = statusFilter === 'all' || car.currentStatus === statusFilter;
-    
-    return matchesSearch && matchesBrand && matchesModel && matchesStatus;
-  });
+  const filteredUsage = useMemo(() => {
+    return usageData.filter(car => 
+      filterCarUsageData(car, {
+        searchTerm,
+        brandFilter,
+        modelFilter,
+        statusFilter,
+      })
+    );
+  }, [usageData, searchTerm, brandFilter, modelFilter, statusFilter]);
 
   // Get unique brands, models and statuses for filter dropdowns
   const uniqueBrands = [...new Set(usageData.map(car => car.brand))].sort();
@@ -277,10 +277,6 @@ const UsageTracking = () => {
     return pages;
   };
 
-  // Calculate overall statistics
-  const totalCars = usageData.length;
-  const totalRentals = usageData.reduce((sum, car) => sum + car.totalRentals, 0);
-
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-full">
@@ -306,82 +302,6 @@ const UsageTracking = () => {
           <h1 className="text-2xl font-bold text-gray-900">Usage & Mileage</h1>
           <p className="text-gray-600">Monitor car usage, mileage and utilization details</p>
         </div>
-        <div className="flex space-x-3">
-          <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-            Export Report
-          </button>
-          <select
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-            <option value="quarter">This Quarter</option>
-            <option value="year">This Year</option>
-            <option value="all">All Time</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Cars</p>
-              <p className="text-2xl font-bold text-blue-600">{totalCars}</p>
-            </div>
-            <div className="bg-blue-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        {/* <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Mileage</p>
-              <p className="text-2xl font-bold text-green-600">{(totalMileage / 1000).toFixed(1)}k km</p>
-            </div>
-            <div className="bg-green-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
-            </div>
-          </div>
-        </div> */}
-
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-purple-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Rentals</p>
-              <p className="text-2xl font-bold text-purple-600">{totalRentals}</p>
-            </div>
-            <div className="bg-purple-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        {/* <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-orange-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Avg. Utilization</p>
-              <p className="text-2xl font-bold text-orange-600">{averageUtilization.toFixed(1)}%</p>
-            </div>
-            <div className="bg-orange-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </div>
-          </div>
-        </div> */}
       </div>
 
       {/* Search and Filters */}
@@ -466,10 +386,7 @@ const UsageTracking = () => {
                   </td>
                 </tr>
               ) : (
-                paginatedUsage.map((car) => {
-                  // const rentalPercentage = (car.rentalMileage / car.totalMileage * 100).toFixed(1);
-                  // const personalPercentage = (car.personalMileage / car.totalMileage * 100).toFixed(1);
-                  
+                paginatedUsage.map((car) => {         
                   return (
                     <tr key={car.id} className="hover:bg-gray-50">
                       <td className="py-4 px-6">
@@ -732,4 +649,3 @@ const UsageTracking = () => {
 };
 
 export default UsageTracking;
-

@@ -13,6 +13,7 @@ export const API_CONFIG = {
 export const AUTH_ENDPOINTS = {
   LOGIN: `${API_CONFIG.BASE_URL}/Authen/authenticate`,
   REGISTER: `${API_CONFIG.BASE_URL}/Authen/SignUp`,
+  LOGIN_GOOGLE: `${API_CONFIG.BASE_URL}/Authen/login/google`,
   FORGOT_PASSWORD: `${API_CONFIG.BASE_URL}/auth/forgot-password`,
   RESET_PASSWORD: `${API_CONFIG.BASE_URL}/auth/reset-password`,
   VERIFY_TOKEN: `${API_CONFIG.BASE_URL}/auth/verify-token`,
@@ -31,6 +32,7 @@ export const USER_ENDPOINTS = {
   GET_ALL_USERS: `${API_CONFIG.BASE_URL}/User/GetAllUsers`,
   UPDATE_USER_INFO: `${API_CONFIG.BASE_URL}/User/UpdateUserInfo`,
   UPLOAD_AVATAR: (userId) => `${API_CONFIG.BASE_URL}/User/upload-avatar/${userId}`,
+  UPLOAD_DRIVER_LICENSE: (userId) => `${API_CONFIG.BASE_URL}/User/driverLicense/${userId}`,
   PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
   UPDATE_PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
 };
@@ -94,6 +96,7 @@ export const SCHEDULE_API_CONFIG = {
 // Invoice endpoints
 export const INVOICE_ENDPOINTS = {
   GET_ALL_INVOICES: `${API_CONFIG.BASE_URL}/Invoice/AllInvoices`,
+  GET_ALL: `${API_CONFIG.ALTER_URL}/Invoice/All`,
   GET_INVOICE_BY_ID: (invoiceId) => `${API_CONFIG.ALTER_URL}/${invoiceId}`,
 };
 

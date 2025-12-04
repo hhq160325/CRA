@@ -43,7 +43,7 @@ const CarOwnerModal = ({
           <CarOwnerViewModal
             selectedOwner={selectedOwner}
             getStatusBadge={getStatusBadge}
-            // getVerificationBadge={getVerificationBadge}
+            getVerificationBadge={getVerificationBadge}
             onChangeModalType={onChangeModalType}
           />
         )}

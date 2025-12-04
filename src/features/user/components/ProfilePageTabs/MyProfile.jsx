@@ -590,7 +590,7 @@ const MyProfile = () => {
               </div>
             </div>
 
-            <div className="sm:col-span-2">
+            {/* <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('facebook')}</label>
               <div className="flex items-center justify-between">
                 {userInfo.facebook ? (
@@ -598,16 +598,16 @@ const MyProfile = () => {
                 ) : (
                   <span className="text-blue-600 text-sm cursor-pointer">{t('addLink')}</span>
                 )}
-                {/* <button
+                <button
                   onClick={() => handleEdit('facebook')}
                   className="text-blue-600 hover:text-blue-700 ml-2 flex-shrink-0"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                   </svg>
-                </button> */}
+                </button>
               </div>
-            </div>
+            </div> */}
 
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('google')}</label>
@@ -637,7 +637,7 @@ const MyProfile = () => {
       </div>
 
       {/* Driver's License Upload Section */}
-      <div className="mt-6">
+      <div className="mt-6 bg-white rounded-lg shadow-sm p-4 sm:p-6 lg:p-8 max-w-4xl">
         <UploadDriver />
       </div>
 

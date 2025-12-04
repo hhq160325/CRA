@@ -3,6 +3,26 @@ import { AUTH_ENDPOINTS } from "./api";
 import { authApiCall, tokenUtils, decodeJWT } from "./utils";
 import { logout } from "../../shared/authGlobal";
 
+// Google Login function
+export const loginWithGoogle = async (localURL) => {
+  try {
+    // Do a full-page navigation to avoid CORS issues
+    // The backend will redirect to Google OAuth
+    const url = `${AUTH_ENDPOINTS.LOGIN_GOOGLE}?localURL=${encodeURIComponent(localURL)}`;
+    
+    // Direct browser navigation (no CORS)
+    window.location.href = url;
+    
+    return {
+      success: true,
+      message: "Redirecting to Google login..."
+    };
+  } catch (error) {
+    console.error('Google login error:', error);
+    throw error;
+  }
+};
+
 // Login function
 export const login = async (credentials) => {
   try {

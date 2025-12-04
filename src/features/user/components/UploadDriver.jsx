@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { tokenUtils } from '../../auth/utils';
+import { USER_ENDPOINTS } from '../../../config/api';
 
 const UploadDriver = () => {
   const { t } = useTranslation();
@@ -52,26 +54,34 @@ const UploadDriver = () => {
     setError('');
 
     try {
-      const formData = new FormData();
-      formData.append('driverLicense', selectedFile);
+      const userId = tokenUtils.getUserId();
+      const token = tokenUtils.getAccessToken();
 
-      // Replace with your actual API endpoint
-      const response = await fetch('/api/user/driver-license', {
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
+
+      const formData = new FormData();
+      formData.append('images', selectedFile);
+      formData.append('userId', userId);
+
+      const response = await fetch(USER_ENDPOINTS.UPLOAD_DRIVER_LICENSE(userId), {
         method: 'POST',
         body: formData,
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
 
       if (!response.ok) {
-        throw new Error('Upload failed');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Upload failed');
       }
 
       setUploadSuccess(true);
       setTimeout(() => setUploadSuccess(false), 3000);
     } catch (err) {
-      setError(t('failedToUploadDriverLicense'));
+      setError(err.message || t('failedToUploadDriverLicense'));
     } finally {
       setUploading(false);
     }

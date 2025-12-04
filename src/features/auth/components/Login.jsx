@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { loginUser, clearError, selectIsLoading, selectError } from '../authSlice';
+import { loginUser, googleLoginUser, clearError, selectIsLoading, selectError } from '../authSlice';
 import { getRoleFromToken, getRedirectPathByRole } from '../utils';
 
 const Login = ({ onSwitchToRegister }) => {
@@ -18,6 +18,21 @@ const Login = ({ onSwitchToRegister }) => {
   });
   
   const [showPassword, setShowPassword] = useState(false);
+
+  // Listen for Google auth success from popup/tab
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.origin !== window.location.origin) return;
+      
+      if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
+        // Reload the page to update auth state
+        window.location.reload();
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -44,6 +59,19 @@ const Login = ({ onSwitchToRegister }) => {
       navigate(redirectPath);
     } catch (error) {
       // Error is handled by Redux
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    try {
+      // Open Google OAuth in a new tab
+      const localURL = 'https://localhost:7184/api/Authen/google-callback';
+      const googleAuthUrl = `https://localhost:7184/api/Authen/login/google?localURL=${encodeURIComponent(localURL)}`;
+      
+      // Open in new tab
+      window.open(googleAuthUrl, '_blank');
+    } catch (error) {
+      console.error('Google login error:', error);
     }
   };
   
@@ -179,7 +207,9 @@ const Login = ({ onSwitchToRegister }) => {
             {/* Google */}
             <button
               type="button"
-              className="flex items-center justify-center p-3 bg-white border border-gray-300 text-gray-900 rounded-lg hover:bg-gray-50 transition-colors"
+              onClick={handleGoogleLogin}
+              disabled={isLoading}
+              className="flex items-center justify-center p-3 bg-white border border-gray-300 text-gray-900 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Google"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">

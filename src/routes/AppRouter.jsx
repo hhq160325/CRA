@@ -6,7 +6,7 @@ import { PaymentPage, PaymentSuccess, PaymentCancel } from '../features/payment'
 import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring } from '../features/admin';
 import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter, ParklotCreate } from '../features/staff';
 import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments, CarRegisDocs } from '../features/owner';
-import { AuthPage } from '../features/auth';
+import { AuthPage, GoogleCallback } from '../features/auth';
 // import ForgotPassword from '../features/auth/components/ForgotPassword';
 import SearchResult from '../features/search/components/SearchResult';
 import { HomePage } from '../features/homepage';
@@ -14,7 +14,7 @@ import { selectIsAuthenticated } from '../features/auth/authSlice';
 import RoleBasedRoute from './RoleBasedRoute';
 import { ROLES, tokenUtils, getRedirectPathByRole } from '../features/auth/utils';
 import CalendarPage from '../features/owner/components/CalendarPage';
-
+import RentalMonitoring from '../features/staff/components/RentalMonitoring'
 // Component to redirect authenticated users based on their role
 const AuthRedirect = () => {
   const userRole = tokenUtils.getUserRole();
@@ -35,6 +35,7 @@ const AppRouter = () => {
       <Route path="/car-detail/:id" element={<CarDetailRev/>} />
       {/* Auth route - redirects based on user role if already authenticated */}
       <Route path="/auth" element={!isAuthenticated ? <AuthPage /> : <AuthRedirect />} />
+      <Route path="/auth/google-callback" element={<GoogleCallback />} />
       
       {/* Protected routes - authentication required */}
       <Route path="/profile" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
@@ -68,6 +69,7 @@ const AppRouter = () => {
         <Route path="bookings" element={<BookingMonitoring />} />
         <Route path="notifications" element={<NotificationCenter />} />
         <Route path="parklot-create" element={<ParklotCreate />} />
+        <Route path="rental-monitoring" element={<RentalMonitoring />} />
       </Route>
 
       {/* Car Owner (Manager) Routes */}

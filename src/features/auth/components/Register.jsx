@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { registerUser, clearError, clearSuccess, selectIsLoading, selectError, selectIsAuthenticated, selectSuccess } from '../authSlice';
+import { registerUser, googleLoginUser, clearError, clearSuccess, selectIsLoading, selectError, selectIsAuthenticated, selectSuccess } from '../authSlice';
+import { getRoleFromToken, getRedirectPathByRole } from '../utils';
 
 const Register = ({ onSwitchToLogin }) => {
   const { t } = useTranslation();
@@ -33,6 +34,21 @@ const Register = ({ onSwitchToLogin }) => {
       return () => clearTimeout(timer);
     }
   }, [isAuthenticated, navigate]);
+
+  // Listen for Google auth success from popup/tab
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.origin !== window.location.origin) return;
+      
+      if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
+        // Reload the page to update auth state
+        window.location.reload();
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
 
   const handleInputChange = (e) => {
@@ -75,6 +91,19 @@ const Register = ({ onSwitchToLogin }) => {
       // Redirect will happen via useEffect when isAuthenticated changes
     } catch (error) {
       // Error is handled by Redux, form stays filled for retry
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    try {
+      // Open Google OAuth in a new tab
+      const localURL = 'https://localhost:7184/api/Authen/google-callback';
+      const googleAuthUrl = `https://localhost:7184/api/Authen/login/google?localURL=${encodeURIComponent(localURL)}`;
+      
+      // Open in new tab
+      window.open(googleAuthUrl, '_blank');
+    } catch (error) {
+      console.error('Google login error:', error);
     }
   };
 
@@ -220,7 +249,9 @@ const Register = ({ onSwitchToLogin }) => {
         {/* Google sign in button */}
         <button
           type="button"
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          onClick={handleGoogleLogin}
+          disabled={isLoading}
+          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

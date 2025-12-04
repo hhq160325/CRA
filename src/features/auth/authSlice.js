@@ -14,6 +14,18 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+export const googleLoginUser = createAsyncThunk(
+  "auth/googleLogin",
+  async (localURL, { rejectWithValue }) => {
+    try {
+      const response = await authService.loginWithGoogle(localURL);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 export const registerUser = createAsyncThunk(
   "auth/register",
   async (userData, { rejectWithValue }) => {
@@ -133,6 +145,22 @@ export const authSlice = createSlice({
         state.error = action.payload || "Login failed";
         state.isAuthenticated = false;
         state.user = null;
+      });
+
+    // Google Login
+    builder
+      .addCase(googleLoginUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(googleLoginUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.success = action.payload.message || "Redirecting to Google...";
+        state.error = null;
+      })
+      .addCase(googleLoginUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || "Google login failed";
       });
 
     // Register

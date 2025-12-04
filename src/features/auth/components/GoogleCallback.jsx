@@ -1,108 +1,80 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { tokenUtils, decodeJWT, getRoleFromToken, getRedirectPathByRole } from '../utils';
-import { updateUserData } from '../authSlice';
 
 const GoogleCallback = () => {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    const handleGoogleCallback = async () => {
-      try {
-        // The backend returns JSON at this URL, we need to extract it
-        // Since we're already at the callback URL, try to get the response from the page
-        const pageText = document.body.innerText;
-        
-        let authData;
-        try {
-          // Try to parse the JSON from the page
-          authData = JSON.parse(pageText);
-        } catch (e) {
-          // If page doesn't contain JSON, it might be in URL params
-          const urlParams = new URLSearchParams(window.location.search);
-          const token = urlParams.get('token');
-          const email = urlParams.get('email');
-          const username = urlParams.get('username');
-          const expiration = urlParams.get('expiration');
-          
-          if (token) {
-            authData = { token, email, username, expiration };
-          } else {
-            throw new Error('No authentication data found');
-          }
+    // Parse URL parameters to get auth data from backend
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Get all possible auth data from URL
+    const token = urlParams.get('token') || urlParams.get('JwtToken');
+    const email = urlParams.get('email') || urlParams.get('Email');
+    const username = urlParams.get('username') || urlParams.get('Username');
+    const refreshToken = urlParams.get('refreshToken') || urlParams.get('RefreshToken');
+    const errorMsg = urlParams.get('error');
+
+    console.log('GoogleCallback: Received data from backend', {
+      hasToken: !!token,
+      hasEmail: !!email,
+      hasError: !!errorMsg,
+      hasOpener: !!window.opener
+    });
+
+    // Check if there's an error
+    if (errorMsg) {
+      console.error('GoogleCallback: Error from backend:', errorMsg);
+      setError(errorMsg);
+      setTimeout(() => {
+        if (window.opener) {
+          window.opener.postMessage({ error: errorMsg }, window.location.origin);
         }
+        window.close();
+      }, 2000);
+      return;
+    }
 
-        const { token, email, username, expiration, refreshToken } = authData;
-
-        if (!token) {
-          throw new Error('No token received from Google OAuth');
+    // Check if we have the required auth data
+    if (!token) {
+      console.error('GoogleCallback: No token received from backend');
+      setError('No authentication token received');
+      setTimeout(() => {
+        if (window.opener) {
+          window.opener.postMessage({ error: 'No token received' }, window.location.origin);
         }
+        window.close();
+      }, 2000);
+      return;
+    }
 
-        // Decode token to get role and user ID
-        const decoded = decodeJWT(token);
-        const roleId = getRoleFromToken(token);
-        const userId = decoded ? (decoded.sub || decoded.userId || decoded.id || decoded.nameid) : null;
-
-        // Prepare user object
-        const user = {
-          email: email || decoded?.email,
-          username: username || decoded?.name,
-          roleId: roleId
-        };
-
-        // Store tokens and user data
-        tokenUtils.storeTokens(token, refreshToken || token, user);
-
-        // Fetch full user data if we have userId
-        if (userId) {
-          try {
-            const { getUserById } = await import('../../user/api');
-            const userData = await getUserById();
-            
-            // Update localStorage with full user data
-            tokenUtils.updateUserData({
-              username: userData.username,
-              imageAvatar: userData.imageAvatar
-            });
-
-            // Update Redux state
-            dispatch(updateUserData({
-              username: userData.username,
-              imageAvatar: userData.imageAvatar
-            }));
-          } catch (userError) {
-            console.error('Failed to fetch user data:', userError);
-            // Continue with login even if user data fetch fails
-          }
-        }
-
-        // Check if this is opened in a new tab (has opener)
-        if (window.opener && !window.opener.closed) {
-          // Notify parent window and close this tab
-          window.opener.postMessage({ type: 'GOOGLE_AUTH_SUCCESS' }, window.location.origin);
-          window.close();
-        } else {
-          // If not in a new tab, redirect normally
-          const redirectPath = getRedirectPathByRole(roleId);
-          setTimeout(() => {
-            window.location.href = redirectPath;
-          }, 500);
-        }
-
-      } catch (error) {
-        console.error('Error handling Google callback:', error);
-        setError(error.message);
-        setTimeout(() => {
-          navigate('/auth', { replace: true });
-        }, 2000);
-      }
+    // Prepare auth data to send back to parent window
+    const authData = {
+      token,
+      email,
+      username,
+      refreshToken: refreshToken || token
     };
 
-    handleGoogleCallback();
-  }, [navigate, dispatch]);
+    console.log('GoogleCallback: Sending auth data to parent window');
+    
+    // Send data back to the opener (parent window)
+    if (window.opener) {
+      window.opener.postMessage(authData, window.location.origin);
+      setSuccess(true);
+      
+      // Close this popup after a short delay
+      setTimeout(() => {
+        window.close();
+      }, 1000);
+    } else {
+      console.error('GoogleCallback: No opener window found');
+      setError('Unable to communicate with parent window');
+      setTimeout(() => {
+        window.close();
+      }, 2000);
+    }
+  }, []);
 
   if (error) {
     return (

@@ -1,17 +1,95 @@
+<<<<<<< Updated upstream
+<<<<<<< HEAD
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import {
+  updateCustomerAccount,
+  setCustomers,
+  setLoading,
+  setError,
+  clearError,
+} from '../staffSlice';
+import { CustomerModal } from './modals/customerModal';
+import { fetchAllUsers } from '../api';
+const CustomerManagement = () => {
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const customers = useSelector((state) => state.staff?.customers || []);
+  const isLoading = useSelector(
+    (state) => state.staff?.loading?.customers || false
+  );
+  const error = useSelector((state) => state.staff?.errors?.customers);
+=======
 import { useState } from 'react';
+=======
+import { useState, useEffect } from 'react';
+>>>>>>> Stashed changes
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { updateCustomerAccount } from '../staffSlice';
 import { CustomerModal } from './modals/customerModal';
+import { USER_ENDPOINTS } from '../../../config/api';
+import axios from 'axios';
+import Pagination from '../../../shared/components/Pagination';
 const CustomerManagement = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [modalType, setModalType] = useState(null); // 'view', 'edit', 'suspend'
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
+<<<<<<< Updated upstream
+<<<<<<< HEAD
+  useEffect(() => {
+    const loadCustomers = async () => {
+      try {
+        dispatch(setLoading({ section: 'customers', loading: true }));
+        const users = await fetchAllUsers();
+        // Filter customers: roleId === 1 (Customer) and not car owner
+        const customerRows = (users || [])
+          .filter((u) => u.roleId === 1 && !u.isCarOwner)
+          .map((u) => ({
+            id: u.id,
+            name: u.fullname || u.username,
+            email: u.email,
+            phone: u.phoneNumber || '',
+            status: (u.status || 'active').toLowerCase(),
+            registrationDate: '', // backend không trả, để trống
+            totalBookings: 0,
+            totalSpent: 0,
+            lastBooking: null,
+            verificationStatus:
+              (u.status || '').toLowerCase() === 'active'
+                ? 'verified'
+                : 'pending',
+            complianceIssues: 0,
+          }));
+        dispatch(setCustomers(customerRows));
+        dispatch(clearError('customers'));
+      } catch (e) {
+        dispatch(
+          setError({
+            section: 'customers',
+            error: e?.message || 'Failed to load customers',
+          })
+        );
+      } finally {
+        dispatch(setLoading({ section: 'customers', loading: false }));
+      }
+    };
+
+    loadCustomers();
+  }, [dispatch]);
+=======
   // Mock data for customers
   const customers = [
     {
@@ -80,6 +158,50 @@ const CustomerManagement = () => {
       complianceIssues: 0
     }
   ];
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
+=======
+  // Fetch all users from API
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        const response = await axios.get(USER_ENDPOINTS.GET_ALL_USERS, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        // Transform API data to match component structure
+        const transformedUsers = response.data.map(user => ({
+          id: user.userId,
+          name: user.fullname || 'N/A',
+          email: user.email || 'N/A',
+          phone: user.phoneNumber || 'N/A',
+          status: user.status,
+          registrationDate: user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A',
+          totalBookings: user.totalBookings || 0,
+          totalSpent: user.totalSpent || 0,
+          lastBooking: user.lastBooking || null,
+          verificationStatus: user.isVerified ? 'verified' : 'pending',
+          complianceIssues: user.complianceIssues || 0,
+          role: user.role || 'customer'
+        }));
+
+        setCustomers(transformedUsers);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching users:', err);
+        setError(err.response?.data?.message || 'Failed to fetch users');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+>>>>>>> Stashed changes
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
@@ -158,13 +280,76 @@ const CustomerManagement = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentCustomers = filteredCustomers.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="p-8 space-y-6 min-h-full bg-gray-50">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">{t('loading') || 'Loading...'}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-8 space-y-6 min-h-full bg-gray-50">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <div className="flex items-center">
+            <svg className="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <h3 className="text-red-800 font-medium">{t('error') || 'Error'}</h3>
+              <p className="text-red-600 text-sm mt-1">{error}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            {t('retry') || 'Retry'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-8 space-y-6 min-h-full bg-gray-50">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
+<<<<<<< HEAD
+          <h1 className="text-2xl font-bold text-gray-900">
+            {t('customerManagement')}
+          </h1>
+          <p className="text-gray-600">{t('viewAndManageCustomers')}</p>
+          {isLoading && (
+            <p className="text-xs text-gray-400 mt-1">{t('loading')}...</p>
+          )}
+          {error && (
+            <p className="text-xs text-red-500 mt-1">
+              {t('error')}: {error}
+            </p>
+          )}
+=======
           <h1 className="text-2xl font-bold text-gray-900">{t('customerManagement')}</h1>
           <p className="text-gray-600">{t('viewAndManageCustomers')}</p>
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
         </div>
         <div className="flex space-x-3">
           <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
@@ -260,7 +445,7 @@ const CustomerManagement = () => {
             </select>
           </div>
           <div className="text-sm text-gray-600">
-            {t('showing')} {filteredCustomers.length} {t('of')} {customers.length} {t('customers')}
+            {t('showing')} {currentCustomers.length} {t('of')} {filteredCustomers.length} {t('customers')}
           </div>
         </div>
       </div>
@@ -274,7 +459,7 @@ const CustomerManagement = () => {
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('customer')}</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('status')}</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('verification')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('tier')}</th>
+                {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('tier')}</th> */}
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookings')}</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('totalSpent')}</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('issues')}</th>
@@ -282,8 +467,8 @@ const CustomerManagement = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredCustomers.map((customer) => {
-                const tier = getCustomerTier(customer.totalSpent);
+              {currentCustomers.map((customer) => {
+                // const tier = getCustomerTier(customer.totalSpent);
                 return (
                   <tr key={customer.id} className="hover:bg-gray-50">
                     <td className="py-4 px-6">
@@ -303,11 +488,11 @@ const CustomerManagement = () => {
                         {customer.verificationStatus}
                       </span>
                     </td>
-                    <td className="py-4 px-6">
+                    {/* <td className="py-4 px-6">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${tier.class}`}>
                         {tier.tier}
                       </span>
-                    </td>
+                    </td> */}
                     <td className="py-4 px-6 text-gray-600 text-sm">{customer.totalBookings}</td>
                     <td className="py-4 px-6 text-gray-600 text-sm">${(customer.totalSpent || 0).toLocaleString()}</td>
                     <td className="py-4 px-6">
@@ -362,17 +547,12 @@ const CustomerManagement = () => {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-center py-4 border-t border-gray-200">
-          <div className="flex items-center space-x-2">
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Previous</button>
-            <div className="flex space-x-1">
-              <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
-              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
-              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
-            </div>
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Next</button>
-          </div>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filteredCustomers.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={handlePageChange}
+        />
       </div>
 
       {/* Modal */}

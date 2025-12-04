@@ -63,6 +63,8 @@ export const updateUserInfo = async (userData) => {
     console.error("Error updating user data:", error);
     throw error;
   }
+<<<<<<< HEAD
+=======
 };
 
 // Upload user avatar
@@ -94,4 +96,5 @@ export const uploadAvatar = async (imageFile) => {
     console.error("Error uploading avatar:", error);
     throw error;
   }
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 };

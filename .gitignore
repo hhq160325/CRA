@@ -1,4 +1,8 @@
 node_modules
 .history/
+<<<<<<< HEAD
+.kiro/
+=======
 .kiro/
 .env
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328

@@ -5,6 +5,32 @@ const OperationsDashboard = () => {
     const { t } = useTranslation();
     const [selectedTimeRange, setSelectedTimeRange] = useState('24h');
 
+<<<<<<< HEAD
+    // Mock data for operations
+    const systemMetrics = {
+        uptime: '99.9%',
+        activeUsers: 1247,
+        totalRequests: 45678,
+        errorRate: '0.1%',
+        responseTime: '120ms',
+        serverLoad: '67%'
+    };
+
+    const operationalAlerts = [
+        { id: 1, type: 'warning', message: 'High server load detected', time: '2 min ago', severity: 'medium' },
+        { id: 2, type: 'info', message: 'Scheduled maintenance completed', time: '15 min ago', severity: 'low' },
+        { id: 3, type: 'error', message: 'Payment gateway timeout', time: '1 hour ago', severity: 'high' },
+        { id: 4, type: 'success', message: 'Database backup completed', time: '2 hours ago', severity: 'low' }
+    ];
+
+    const serviceStatus = [
+        { name: 'Authentication Service', status: 'operational', uptime: '99.9%', responseTime: '45ms' },
+        { name: 'Payment Gateway', status: 'degraded', uptime: '98.2%', responseTime: '180ms' },
+        { name: 'Car Booking API', status: 'operational', uptime: '99.8%', responseTime: '67ms' },
+        { name: 'Notification Service', status: 'operational', uptime: '99.5%', responseTime: '23ms' },
+        { name: 'File Storage', status: 'maintenance', uptime: '95.1%', responseTime: '340ms' },
+        { name: 'Analytics Engine', status: 'operational', uptime: '99.7%', responseTime: '89ms' }
+=======
     // Mock data for self-driving car rental operations
     const systemMetrics = {
         activeCars: 156,
@@ -30,6 +56,7 @@ const OperationsDashboard = () => {
         { name: 'AI Navigation Service', status: 'operational', uptime: '99.5%', responseTime: '89ms' },
         { name: 'Vehicle Control System', status: 'operational', uptime: '99.7%', responseTime: '34ms' },
         { name: 'Customer Support Chat', status: 'degraded', uptime: '97.2%', responseTime: '340ms' }
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
     ];
 
     const getStatusColor = (status) => {
@@ -77,13 +104,22 @@ const OperationsDashboard = () => {
                 </div>
             </div>
 
+<<<<<<< HEAD
+            {/* System Metrics Overview */}
+=======
             {/* Fleet Metrics Overview */}
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
+<<<<<<< HEAD
+                            <p className="text-sm font-medium text-gray-600">{t('systemUptime')}</p>
+                            <p className="text-2xl font-bold text-green-600">{systemMetrics.uptime}</p>
+=======
                             <p className="text-sm font-medium text-gray-600">{t('activeCars')}</p>
                             <p className="text-2xl font-bold text-green-600">{systemMetrics.activeCars}</p>
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                         </div>
                         <div className="p-3 bg-green-100 rounded-full">
                             <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,6 +132,13 @@ const OperationsDashboard = () => {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
+<<<<<<< HEAD
+                            <p className="text-sm font-medium text-gray-600">{t('activeUsers')}</p>
+                            <p className="text-2xl font-bold text-blue-600">{systemMetrics.activeUsers.toLocaleString()}</p>
+                        </div>
+                        <div className="p-3 bg-blue-100 rounded-full">
+                            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+=======
                             <p className="text-sm font-medium text-gray-600">{t('carsInUse')}</p>
                             <p className="text-2xl font-bold text-blue-600">{systemMetrics.carsInUse}</p>
                         </div>
@@ -129,6 +172,7 @@ const OperationsDashboard = () => {
                         </div>
                         <div className="p-3 bg-indigo-100 rounded-full">
                             <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                             </svg>
                         </div>
@@ -138,12 +182,13 @@ const OperationsDashboard = () => {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-gray-600">{t('RoleManagementCarOwners')}</p>
-                            <p className="text-2xl font-bold text-orange-600">{systemMetrics.RoleManagementCarOwners}</p>
+<<<<<<< HEAD
+                            <p className="text-sm font-medium text-gray-600">{t('totalRequests')}</p>
+                            <p className="text-2xl font-bold text-purple-600">{systemMetrics.totalRequests.toLocaleString()}</p>
                         </div>
-                        <div className="p-3 bg-orange-100 rounded-full">
-                            <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        <div className="p-3 bg-purple-100 rounded-full">
+                            <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
                             </svg>
                         </div>
                     </div>
@@ -152,12 +197,57 @@ const OperationsDashboard = () => {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
+                            <p className="text-sm font-medium text-gray-600">{t('errorRate')}</p>
+                            <p className="text-2xl font-bold text-red-600">{systemMetrics.errorRate}</p>
+                        </div>
+                        <div className="p-3 bg-red-100 rounded-full">
+                            <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-gray-600">{t('responseTime')}</p>
+                            <p className="text-2xl font-bold text-orange-600">{systemMetrics.responseTime}</p>
+                        </div>
+                        <div className="p-3 bg-orange-100 rounded-full">
+                            <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+=======
+                            <p className="text-sm font-medium text-gray-600">{t('RoleManagementCarOwners')}</p>
+                            <p className="text-2xl font-bold text-orange-600">{systemMetrics.RoleManagementCarOwners}</p>
+                        </div>
+                        <div className="p-3 bg-orange-100 rounded-full">
+                            <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div className="flex items-center justify-between">
+                        <div>
+<<<<<<< HEAD
+                            <p className="text-sm font-medium text-gray-600">{t('serverLoad')}</p>
+                            <p className="text-2xl font-bold text-yellow-600">{systemMetrics.serverLoad}</p>
+                        </div>
+                        <div className="p-3 bg-yellow-100 rounded-full">
+                            <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+=======
                             <p className="text-sm font-medium text-gray-600">{t('RoleManagementStaff')}</p>
                             <p className="text-2xl font-bold text-teal-600">{systemMetrics.RoleManagementStaff}</p>
                         </div>
                         <div className="p-3 bg-teal-100 rounded-full">
                             <svg className="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                             </svg>
                         </div>
                     </div>
@@ -226,6 +316,47 @@ const OperationsDashboard = () => {
                 </div>
             </div>
 
+<<<<<<< HEAD
+            {/* User Role Management */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                <div className="p-6 border-b border-gray-200">
+                    <h2 className="text-xl font-semibold text-gray-900">{t('userRoleManagement')}</h2>
+                    <p className="text-gray-600 text-sm mt-1">{t('userRoleManagementSubtitle')}</p>
+                </div>
+                <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="text-center p-6 bg-blue-50 rounded-lg">
+                            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                                </svg>
+                            </div>
+                            <h3 className="font-semibold text-gray-900 mb-2">{t('adminUsers')}</h3>
+                            <p className="text-2xl font-bold text-blue-600 mb-2">12</p>
+                            <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">{t('manageAdmins')}</button>
+                        </div>
+
+                        <div className="text-center p-6 bg-green-50 rounded-lg">
+                            <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <h3 className="font-semibold text-gray-900 mb-2">{t('regularUsers')}</h3>
+                            <p className="text-2xl font-bold text-green-600 mb-2">1,235</p>
+                            <button className="text-green-600 hover:text-green-700 text-sm font-medium">{t('viewUsers')}</button>
+                        </div>
+
+                        <div className="text-center p-6 bg-purple-50 rounded-lg">
+                            <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                            </div>
+                            <h3 className="font-semibold text-gray-900 mb-2">{t('permissions')}</h3>
+                            <p className="text-2xl font-bold text-purple-600 mb-2">24</p>
+                            <button className="text-purple-600 hover:text-purple-700 text-sm font-medium">{t('configure')}</button>
+=======
             {/* Role Management - Users, Car Owners, Staff */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200">
                 <div className="p-3 border-b border-gray-200">
@@ -267,6 +398,7 @@ const OperationsDashboard = () => {
                             {/* <p className="text-2xl font-bold text-teal-600 mb-2">{systemMetrics.staffMembers}</p> */}
                             <p className="text-sm text-gray-600 mb-4">{t('supportMaintenanceTeam')}</p>
                             {/* <button className="text-teal-600 hover:text-teal-700 text-sm font-medium">{t('manageStaff')}</button> */}
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                         </div>
                     </div>
                 </div>

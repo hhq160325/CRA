@@ -160,7 +160,11 @@ const AdminLayout = () => {
       {/* Main Content */}
       <div className="flex-1">
         {/* Page Content */}
+<<<<<<< HEAD
+        <main className="h-full overflow-auto bg-gray-50">
+=======
         <main className="h-full overflow-auto bg-gray-50 scrollbar-hide">
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
           <Outlet />
         </main>
       </div>

@@ -125,12 +125,14 @@ export const register = async (userData) => {
     if (data.token && data.expiration) {
       // Store the token from registration response
       const decoded = decodeJWT(data.token);
+      const roleId = decoded ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] : null;
       const userId = decoded ? (decoded.sub || decoded.userId || decoded.id || decoded.nameid) : null;
       
       const user = {
         email: userData.email,
         username: userData.username,
-        phoneNumber: userData.phoneNumber
+        phoneNumber: userData.phoneNumber,
+        roleId: roleId ? parseInt(roleId, 10) : null
       };
       
       tokenUtils.storeTokens(data.token, data.token, user);

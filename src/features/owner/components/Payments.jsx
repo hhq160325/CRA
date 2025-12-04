@@ -1,154 +1,152 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { axiosInstance } from '../../../shared/utils/axiosInstance';
+import { INVOICE_ENDPOINTS, USER_ENDPOINTS, CAR_ENDPOINTS } from '../../../config/api';
+import { getUserIdFromToken } from '../../user/api';
+import { filterPaymentData } from '../utils/filterUtils';
+import DropdownTemplate from '../../../shared/components/DropdownTemplate';
+import Pagination from '../../../shared/components/Pagination';
+import { paymentTypeOptions, getPaymentMethodOptions, paymentStatusOptions, dateFilterOptions } from '../owner-utils/dropdownOptions';
 
 const Payments = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all'); // all, payout, payment
+  const [typeFilter, setTypeFilter] = useState('all'); // all, booking_fee, rental_fee
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  // Mock data for payments and payouts
-  const payments = [
-    {
-      id: 1,
-      transactionId: 'TXN001',
-      type: 'payout',
-      bookingId: 'BK001',
-      carName: 'Tesla Model 3',
-      customer: 'Alice Cooper',
-      amount: 356.40, // After 10% platform fee
-      grossAmount: 396.00,
-      fee: 39.60,
-      feePercentage: 10,
-      date: '2024-10-06',
-      status: 'completed',
-      paymentMethod: 'Bank Transfer',
-      accountLast4: '1234',
-      description: 'Payout for booking BK001',
-      notes: 'Payment processed successfully'
-    },
-    {
-      id: 2,
-      transactionId: 'TXN002',
-      type: 'payout',
-      bookingId: 'BK002',
-      carName: 'BMW X5',
-      customer: 'Bob Johnson',
-      amount: 279.00,
-      grossAmount: 310.00,
-      fee: 31.00,
-      feePercentage: 10,
-      date: '2024-10-05',
-      status: 'completed',
-      paymentMethod: 'Bank Transfer',
-      accountLast4: '1234',
-      description: 'Payout for booking BK002',
-      notes: 'Payment processed successfully'
-    },
-    {
-      id: 3,
-      transactionId: 'TXN003',
-      type: 'payout',
-      bookingId: 'BK003',
-      carName: 'Honda Civic',
-      customer: 'Carol Smith',
-      amount: 64.80,
-      grossAmount: 72.00,
-      fee: 7.20,
-      feePercentage: 10,
-      date: '2024-10-04',
-      status: 'pending',
-      paymentMethod: 'Bank Transfer',
-      accountLast4: '1234',
-      description: 'Payout for booking BK003',
-      notes: 'Processing...'
-    },
-    {
-      id: 4,
-      transactionId: 'TXN004',
-      type: 'payout',
-      bookingId: 'BK004',
-      carName: 'Mercedes C-Class',
-      customer: 'David Wilson',
-      amount: 652.50,
-      grossAmount: 725.00,
-      fee: 72.50,
-      feePercentage: 10,
-      date: '2024-10-03',
-      status: 'completed',
-      paymentMethod: 'Bank Transfer',
-      accountLast4: '1234',
-      description: 'Payout for booking BK004',
-      notes: 'Payment processed successfully'
-    },
-    {
-      id: 5,
-      transactionId: 'TXN005',
-      type: 'payment',
-      bookingId: 'BK005',
-      carName: 'Toyota Camry',
-      customer: 'Eva Brown',
-      amount: 160.00,
-      grossAmount: 160.00,
-      fee: 0.00,
-      feePercentage: 0,
-      date: '2024-10-02',
-      status: 'completed',
-      paymentMethod: 'Credit Card',
-      accountLast4: '5678',
-      description: 'Customer payment for booking BK005',
-      notes: 'Payment received'
-    },
-    {
-      id: 6,
-      transactionId: 'TXN006',
-      type: 'payout',
-      bookingId: 'BK006',
-      carName: 'Tesla Model 3',
-      customer: 'Frank Miller',
-      amount: 445.50,
-      grossAmount: 495.00,
-      fee: 49.50,
-      feePercentage: 10,
-      date: '2024-10-01',
-      status: 'completed',
-      paymentMethod: 'Bank Transfer',
-      accountLast4: '1234',
-      description: 'Payout for booking BK006',
-      notes: 'Payment processed successfully'
-    },
-    {
-      id: 7,
-      transactionId: 'TXN007',
-      type: 'payout',
-      bookingId: 'BK007',
-      carName: 'BMW X5',
-      customer: 'Grace Lee',
-      amount: 558.00,
-      grossAmount: 620.00,
-      fee: 62.00,
-      feePercentage: 10,
-      date: '2024-09-30',
-      status: 'failed',
-      paymentMethod: 'Bank Transfer',
-      accountLast4: '1234',
-      description: 'Payout for booking BK007',
-      notes: 'Payment failed due to insufficient account details'
+  useEffect(() => {
+    fetchPayments();
+  }, []);
+
+  const fetchPayments = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const currentUserId = getUserIdFromToken();
+      
+      // Fetch invoices, payments, users, and cars
+      const [invoicesResponse, paymentsResponse, usersResponse, carsResponse] = await Promise.all([
+        axiosInstance.get(INVOICE_ENDPOINTS.GET_ALL_INVOICES),
+        axiosInstance.get(INVOICE_ENDPOINTS.GET_ALL),
+        axiosInstance.get(USER_ENDPOINTS.GET_ALL_USERS),
+        axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS)
+      ]);
+      
+      const allInvoices = invoicesResponse.data || [];
+      const allPayments = paymentsResponse.data || [];
+      const allUsers = usersResponse.data || [];
+      const allCars = carsResponse.data || [];
+      
+      console.log('Current User ID:', currentUserId);
+      console.log('All Invoices:', allInvoices);
+      console.log('All Payments:', allPayments);
+      console.log('All Users:', allUsers);
+      console.log('All Cars:', allCars);
+      
+      // Create a map of user IDs to full names for quick lookup
+      const userMap = new Map(
+        allUsers.map(user => [user.id, user.fullname || user.userName || 'N/A'])
+      );
+      
+      // Create a map of car IDs to car details for quick lookup
+      const carMap = new Map(
+        allCars.map(car => [car.id, {
+          name: `${car.brand || ''} ${car.model || ''}`.trim() || 'N/A',
+          licensePlate: car.licensePlate || ''
+        }])
+      );
+      
+      // Helper function to extract car ID from invoice items
+      const extractCarIdFromInvoice = (invoice) => {
+        if (!invoice?.invoiceItems || invoice.invoiceItems.length === 0) return null;
+        
+        // Look for car rental item with Car ID in description
+        const rentalItem = invoice.invoiceItems.find(item => 
+          item.description?.includes('Car ID:')
+        );
+        
+        if (rentalItem) {
+          const match = rentalItem.description.match(/Car ID:\s*([a-f0-9-]+)/i);
+          if (match && match[1]) {
+            return match[1];
+          }
+        }
+        
+        return null;
+      };
+      
+      // Filter invoices for current vendor
+      const vendorInvoices = allInvoices.filter(invoice => invoice.vendorId === currentUserId);
+      console.log('Vendor Invoices:', vendorInvoices);
+      
+      // Create a map of invoice IDs for quick lookup
+      const vendorInvoiceMap = new Map(
+        vendorInvoices.map(invoice => [invoice.id, invoice])
+      );
+      
+      // Filter and transform payments that belong to vendor's invoices
+      const vendorPayments = allPayments
+        .filter(payment => vendorInvoiceMap.has(payment.invoiceId))
+        .map((payment) => {
+          const invoice = vendorInvoiceMap.get(payment.invoiceId);
+          const customerId = invoice?.customerId;
+          const customerName = customerId ? userMap.get(customerId) || 'N/A' : 'N/A';
+          
+          // Extract car ID from invoice items and get car details
+          const carId = extractCarIdFromInvoice(invoice);
+          const carDetails = carId ? carMap.get(carId) : null;
+          
+          return {
+            id: payment.id,
+            transactionId: payment.orderCode || payment.id.substring(0, 8).toUpperCase(),
+            type: payment.item?.toLowerCase().includes('booking') ? 'booking_fee' : 'rental_fee',
+            invoiceId: payment.invoiceId,
+            bookingId: invoice?.invoiceNo || payment.invoiceNo || 'N/A',
+            customerId: customerId,
+            customerName: customerName,
+            vendorId: invoice?.vendorId,
+            carId: carId,
+            carName: carDetails?.name || 'N/A',
+            licensePlate: carDetails?.licensePlate || '',
+            amount: payment.paidAmount || 0,
+            date: payment.createDate ? new Date(payment.createDate).toISOString().split('T')[0] : 'N/A',
+            status: payment.status?.toLowerCase() || 'pending',
+            paymentMethod: payment.paymentMethod || 'N/A',
+            description: payment.item || 'Payment',
+            notes: payment.note || ''
+          };
+        });
+
+      console.log('Filtered Vendor Payments:', vendorPayments);
+      setPayments(vendorPayments);
+    } catch (err) {
+      console.error('Error fetching payments:', err);
+      setError('Failed to load payments. Please try again later.');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
     switch (status) {
       case 'completed':
+      case 'paid':
+      case 'success':
         return `${baseClasses} bg-green-100 text-green-800`;
       case 'pending':
         return `${baseClasses} bg-yellow-100 text-yellow-800`;
       case 'failed':
+      case 'cancelled':
         return `${baseClasses} bg-red-100 text-red-800`;
-      case 'processing':
-        return `${baseClasses} bg-blue-100 text-blue-800`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800`;
     }
@@ -157,12 +155,23 @@ const Payments = () => {
   const getTypeBadge = (type) => {
     const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
     switch (type) {
-      case 'payout':
+      case 'booking_fee':
         return `${baseClasses} bg-blue-100 text-blue-800`;
-      case 'payment':
+      case 'rental_fee':
         return `${baseClasses} bg-purple-100 text-purple-800`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800`;
+    }
+  };
+
+  const formatTypeName = (type) => {
+    switch (type) {
+      case 'booking_fee':
+        return 'Booking Fee';
+      case 'rental_fee':
+        return 'Rental Fee';
+      default:
+        return type;
     }
   };
 
@@ -176,51 +185,156 @@ const Payments = () => {
     setSelectedPayment(null);
   };
 
-  const handleRequestPayout = () => {
-    // Handle request payout logic
-    console.log('Requesting payout...');
+  const handleExportReceipt = (payment) => {
+    // Generate receipt data
+    const receiptData = {
+      transactionId: payment.transactionId,
+      date: payment.date,
+      type: formatTypeName(payment.type),
+      customerName: payment.customerName,
+      carName: payment.carName,
+      licensePlate: payment.licensePlate,
+      amount: payment.amount,
+      paymentMethod: payment.paymentMethod,
+      status: payment.status,
+      description: payment.description
+    };
+
+    // Create downloadable receipt (simple text format)
+    const receiptText = `
+PAYMENT RECEIPT
+=====================================
+Transaction ID: ${receiptData.transactionId}
+Date: ${receiptData.date}
+Type: ${receiptData.type}
+Customer: ${receiptData.customerName}
+Car: ${receiptData.carName}${receiptData.licensePlate ? ` (${receiptData.licensePlate})` : ''}
+Amount: ${formatVND(receiptData.amount)}
+Payment Method: ${receiptData.paymentMethod}
+Status: ${receiptData.status.toUpperCase()}
+Description: ${receiptData.description}
+=====================================
+    `.trim();
+
+    const blob = new Blob([receiptText], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `receipt_${receiptData.transactionId}_${receiptData.date}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
-  const filteredPayments = payments.filter(payment => {
-    const matchesSearch = payment.transactionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.bookingId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.carName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
-    const matchesType = typeFilter === 'all' || payment.type === typeFilter;
-    
-    // Date filter logic
-    let matchesDate = true;
-    if (dateFilter !== 'all') {
-      const paymentDate = new Date(payment.date);
-      const now = new Date();
-      switch (dateFilter) {
-        case 'week':
-          matchesDate = paymentDate >= new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          break;
-        case 'month':
-          matchesDate = paymentDate >= new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-          break;
-        case 'quarter':
-          matchesDate = paymentDate >= new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-          break;
-        default:
-          matchesDate = true;
-      }
-    }
-    
-    return matchesSearch && matchesStatus && matchesType && matchesDate;
-  });
+  const handleExportAllReceipts = () => {
+    const csvContent = [
+      ['Transaction ID', 'Date', 'Type', 'Customer', 'Car', 'License Plate', 'Amount (VND)', 'Payment Method', 'Status', 'Description'].join(','),
+      ...filteredPayments.map(p => [
+        p.transactionId,
+        p.date,
+        formatTypeName(p.type),
+        `"${p.customerName}"`,
+        `"${p.carName}"`,
+        p.licensePlate || '',
+        p.amount,
+        p.paymentMethod,
+        p.status,
+        `"${p.description}"`
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `payments_report_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
+  const formatVND = (amount) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(amount);
+  };
+
+  // Get unique payment methods for filter dropdown
+  const uniquePaymentMethods = useMemo(() => {
+    const methods = [...new Set(payments.map(p => p.paymentMethod).filter(Boolean))];
+    return methods.sort();
+  }, [payments]);
+
+  // Generate payment method options from unique methods
+  const paymentMethodOptions = useMemo(() => 
+    getPaymentMethodOptions(uniquePaymentMethods), 
+    [uniquePaymentMethods]
+  );
+
+  // Apply filters using utility function
+  const filteredPayments = useMemo(() => {
+    return payments.filter(payment => 
+      filterPaymentData(payment, {
+        searchTerm,
+        searchFields: ['transactionId', 'bookingId', 'description'],
+        statusFilter,
+        typeFilter,
+        paymentMethodFilter,
+        dateFilter,
+      })
+    );
+  }, [payments, searchTerm, statusFilter, typeFilter, paymentMethodFilter, dateFilter]);
+
+  // Paginate filtered payments
+  const paginatedPayments = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredPayments.slice(startIndex, endIndex);
+  }, [filteredPayments, currentPage, itemsPerPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, typeFilter, paymentMethodFilter, dateFilter]);
 
   // Calculate statistics
-  const totalPayouts = payments.filter(p => p.type === 'payout' && p.status === 'completed').reduce((sum, p) => sum + p.amount, 0);
-  const pendingPayouts = payments.filter(p => p.type === 'payout' && p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
-  const totalFees = payments.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.fee, 0);
-  const thisMonthPayouts = payments.filter(p => {
-    const paymentDate = new Date(p.date);
-    const now = new Date();
-    return p.type === 'payout' && p.status === 'completed' && paymentDate >= new Date(now.getFullYear(), now.getMonth(), 1);
-  }).reduce((sum, p) => sum + p.amount, 0);
+  const totalReceived = payments.filter(p => p.status === 'paid' || p.status === 'completed' || p.status === 'success').reduce((sum, p) => sum + p.amount, 0);
+  const pendingPayments = payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
+  const bookingFeeTotal = payments.filter(p => p.type === 'booking_fee' && (p.status === 'paid' || p.status === 'completed' || p.status === 'success')).reduce((sum, p) => sum + p.amount, 0);
+  const rentalFeeTotal = payments.filter(p => p.type === 'rental_fee' && (p.status === 'paid' || p.status === 'completed' || p.status === 'success')).reduce((sum, p) => sum + p.amount, 0);
+
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-full bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading payments...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 min-h-full bg-gray-50">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <svg className="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-red-800 font-medium">{error}</p>
+          <button
+            onClick={fetchPayments}
+            className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 space-y-6 min-h-full bg-gray-50">
@@ -228,17 +342,15 @@ const Payments = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
-          <p className="text-gray-600">View and manage payouts and payments</p>
+          <p className="text-gray-600">View payment history and export receipts</p>
         </div>
         <div className="flex space-x-3">
           <button 
-            onClick={handleRequestPayout}
-            className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+            onClick={handleExportAllReceipts}
+            disabled={filteredPayments.length === 0}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Request Payout
-          </button>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-            Export Report
+            Export All Receipts
           </button>
         </div>
       </div>
@@ -248,8 +360,8 @@ const Payments = () => {
         <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Payouts</p>
-              <p className="text-2xl font-bold text-green-600">${totalPayouts.toLocaleString()}</p>
+              <p className="text-sm text-gray-600">Total Received</p>
+              <p className="text-2xl font-bold text-green-600">{formatVND(totalReceived)}</p>
             </div>
             <div className="bg-green-100 rounded-full p-3">
               <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -262,8 +374,8 @@ const Payments = () => {
         <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-yellow-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Pending Payouts</p>
-              <p className="text-2xl font-bold text-yellow-600">${pendingPayouts.toLocaleString()}</p>
+              <p className="text-sm text-gray-600">Pending Payments</p>
+              <p className="text-2xl font-bold text-yellow-600">{formatVND(pendingPayments)}</p>
             </div>
             <div className="bg-yellow-100 rounded-full p-3">
               <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,28 +385,28 @@ const Payments = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-red-500">
+        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Fees</p>
-              <p className="text-2xl font-bold text-red-600">${totalFees.toLocaleString()}</p>
+              <p className="text-sm text-gray-600">Booking Fees</p>
+              <p className="text-2xl font-bold text-blue-600">{formatVND(bookingFeeTotal)}</p>
             </div>
-            <div className="bg-red-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2m3-4h-8m0 0l3-3m-3 3l3 3" />
+            <div className="bg-blue-100 rounded-full p-3">
+              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
+        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-purple-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">This Month</p>
-              <p className="text-2xl font-bold text-blue-600">${thisMonthPayouts.toLocaleString()}</p>
+              <p className="text-sm text-gray-600">Rental Fees</p>
+              <p className="text-2xl font-bold text-purple-600">{formatVND(rentalFeeTotal)}</p>
             </div>
-            <div className="bg-blue-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-purple-100 rounded-full p-3">
+              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
@@ -318,36 +430,38 @@ const Payments = () => {
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
               />
             </div>
-            <select
+            <DropdownTemplate
               value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">All Types</option>
-              <option value="payout">Payouts</option>
-              <option value="payment">Payments</option>
-            </select>
-            <select
+              onChange={(option) => setTypeFilter(option.value)}
+              options={paymentTypeOptions}
+              placeholder="All Types"
+              className="min-w-[160px]"
+            />
+            <DropdownTemplate
+              value={paymentMethodFilter}
+              onChange={(option) => setPaymentMethodFilter(option.value)}
+              options={paymentMethodOptions}
+              placeholder="All Payment Methods"
+              searchable={paymentMethodOptions.length > 5}
+              searchPlaceholder="Search payment methods..."
+              className="min-w-[200px]"
+            />
+            <DropdownTemplate
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">All Status</option>
-              <option value="completed">Completed</option>
-              <option value="pending">Pending</option>
-              <option value="processing">Processing</option>
-              <option value="failed">Failed</option>
-            </select>
-            <select
+              onChange={(option) => setStatusFilter(option.value)}
+              options={paymentStatusOptions}
+              placeholder="All Status"
+              searchable
+              searchPlaceholder="Search status..."
+              className="min-w-[160px]"
+            />
+            <DropdownTemplate
               value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">All Dates</option>
-              <option value="week">Last Week</option>
-              <option value="month">Last Month</option>
-              <option value="quarter">Last Quarter</option>
-            </select>
+              onChange={(option) => setDateFilter(option.value)}
+              options={dateFilterOptions}
+              placeholder="All Dates"
+              className="min-w-[160px]"
+            />
           </div>
           <div className="text-sm text-gray-600">
             Showing {filteredPayments.length} of {payments.length} transactions
@@ -363,82 +477,88 @@ const Payments = () => {
               <tr className="border-b border-gray-200 bg-gray-50">
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Transaction ID</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Type</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Booking</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Car & Customer</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Gross Amount</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Fee</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Net Amount</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Description</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Customer & Car</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Amount</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Payment Method</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Date</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Status</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th>
+                <th className="text-center py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredPayments.map((payment) => (
-                <tr key={payment.id} className="hover:bg-gray-50">
-                  <td className="py-4 px-6">
-                    <div className="font-medium text-gray-900 text-sm">{payment.transactionId}</div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className={getTypeBadge(payment.type)}>
-                      {payment.type}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="text-sm text-gray-900">{payment.bookingId}</div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="text-sm text-gray-900">{payment.carName}</div>
-                    <div className="text-xs text-gray-500">{payment.customer}</div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="text-sm font-medium text-gray-900">${payment.grossAmount.toFixed(2)}</div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="text-sm text-gray-600">${payment.fee.toFixed(2)}</div>
-                    {payment.feePercentage > 0 && (
-                      <div className="text-xs text-gray-500">({payment.feePercentage}%)</div>
-                    )}
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className={`text-sm font-bold ${payment.type === 'payout' ? 'text-green-600' : 'text-purple-600'}`}>
-                      ${payment.amount.toFixed(2)}
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="text-sm text-gray-900">{payment.date}</div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className={getStatusBadge(payment.status)}>
-                      {payment.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <button
-                      onClick={() => openModal(payment)}
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                    >
-                      View Details
-                    </button>
+              {paginatedPayments.length === 0 ? (
+                <tr>
+                  <td colSpan="9" className="py-8 text-center text-gray-500">
+                    No payments found
                   </td>
                 </tr>
-              ))}
+              ) : (
+                paginatedPayments.map((payment) => (
+                  <tr key={payment.id} className="hover:bg-gray-50">
+                    <td className="py-4 px-6">
+                      <div className="font-medium text-gray-900 text-sm">{payment.transactionId}</div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className={getTypeBadge(payment.type)}>
+                        {formatTypeName(payment.type)}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="text-sm text-gray-900">{payment.description}</div>
+                      <div className="text-xs text-gray-500">Invoice: {payment.bookingId}</div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="text-sm text-gray-900 font-medium">{payment.customerName}</div>
+                      <div className="text-xs text-gray-500">
+                        {payment.carName}
+                        {payment.licensePlate && ` • ${payment.licensePlate}`}
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="text-sm font-bold text-green-600">{formatVND(payment.amount)}</div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="text-sm text-gray-900">{payment.paymentMethod}</div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="text-sm text-gray-900">{payment.date}</div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className={getStatusBadge(payment.status)}>
+                        {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex flex-col items-center space-y-1">
+                        <button
+                          onClick={() => openModal(payment)}
+                          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                        >
+                          View Details
+                        </button>
+                        <button
+                          onClick={() => handleExportReceipt(payment)}
+                          className="text-green-600 hover:text-green-700 text-sm font-medium"
+                        >
+                          Export Receipt
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-center py-4 border-t border-gray-200">
-          <div className="flex items-center space-x-2">
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Previous</button>
-            <div className="flex space-x-1">
-              <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
-              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
-              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
-            </div>
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Next</button>
-          </div>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filteredPayments.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       {/* Modal for payment details */}
@@ -459,18 +579,33 @@ const Payments = () => {
               </div>
             </div>
             <div className="p-6 space-y-6">
-              {/* Transaction Info */}
+              {/* Payment Info */}
               <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Transaction Information</h3>
+                <h3 className="font-semibold text-gray-900 mb-3">Payment Information</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <p className="text-gray-600">Transaction ID</p>
                     <p className="font-medium text-gray-900">{selectedPayment.transactionId}</p>
                   </div>
                   <div>
+                    <p className="text-gray-600">Invoice ID</p>
+                    <p className="font-medium text-gray-900">{selectedPayment.bookingId}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Customer Name</p>
+                    <p className="font-medium text-gray-900">{selectedPayment.customerName}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Rented Car</p>
+                    <p className="font-medium text-gray-900">
+                      {selectedPayment.carName}
+                      {selectedPayment.licensePlate && ` (${selectedPayment.licensePlate})`}
+                    </p>
+                  </div>
+                  <div>
                     <p className="text-gray-600">Type</p>
                     <span className={getTypeBadge(selectedPayment.type)}>
-                      {selectedPayment.type}
+                      {formatTypeName(selectedPayment.type)}
                     </span>
                   </div>
                   <div>
@@ -483,68 +618,26 @@ const Payments = () => {
                     <p className="text-gray-600">Date</p>
                     <p className="font-medium text-gray-900">{selectedPayment.date}</p>
                   </div>
-                </div>
-              </div>
-
-              {/* Booking Info */}
-              <div className="bg-blue-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Booking Information</h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-gray-600">Booking ID</p>
-                    <p className="font-medium text-gray-900">{selectedPayment.bookingId}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Car</p>
-                    <p className="font-medium text-gray-900">{selectedPayment.carName}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Customer</p>
-                    <p className="font-medium text-gray-900">{selectedPayment.customer}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Description</p>
-                    <p className="font-medium text-gray-900">{selectedPayment.description}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Financial Details */}
-              <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
-                <h3 className="font-semibold text-gray-900 mb-3">Financial Details</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Gross Amount</span>
-                    <span className="font-medium text-gray-900">${selectedPayment.grossAmount.toFixed(2)}</span>
-                  </div>
-                  {selectedPayment.fee > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">
-                        Platform Fee ({selectedPayment.feePercentage}%)
-                      </span>
-                      <span className="font-medium text-red-600">-${selectedPayment.fee.toFixed(2)}</span>
-                    </div>
-                  )}
-                  <div className="border-t border-green-300 pt-3 flex justify-between items-center">
-                    <span className="font-semibold text-gray-900">Net Amount</span>
-                    <span className={`text-xl font-bold ${selectedPayment.type === 'payout' ? 'text-green-600' : 'text-purple-600'}`}>
-                      ${selectedPayment.amount.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Payment Method */}
-              <div className="bg-purple-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Payment Method</h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-gray-600">Method</p>
+                    <p className="text-gray-600">Payment Method</p>
                     <p className="font-medium text-gray-900">{selectedPayment.paymentMethod}</p>
                   </div>
-                  <div>
-                    <p className="text-gray-600">Account</p>
-                    <p className="font-medium text-gray-900">****{selectedPayment.accountLast4}</p>
+                </div>
+              </div>
+
+              {/* Amount Details */}
+              <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+                <h3 className="font-semibold text-gray-900 mb-3">Amount Details</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Description</span>
+                    <span className="font-medium text-gray-900">{selectedPayment.description}</span>
+                  </div>
+                  <div className="border-t border-green-300 pt-3 flex justify-between items-center">
+                    <span className="font-semibold text-gray-900">Amount Received</span>
+                    <span className="text-xl font-bold text-green-600">
+                      {formatVND(selectedPayment.amount)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -565,19 +658,14 @@ const Payments = () => {
                 >
                   Close
                 </button>
-                {selectedPayment.status === 'failed' && (
-                  <button
-                    onClick={() => console.log('Retry payment:', selectedPayment.id)}
-                    className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Retry Payment
-                  </button>
-                )}
                 <button
-                  onClick={() => console.log('Download receipt:', selectedPayment.id)}
+                  onClick={() => {
+                    handleExportReceipt(selectedPayment);
+                    closeModal();
+                  }}
                   className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
                 >
-                  Download Receipt
+                  Export Receipt
                 </button>
               </div>
             </div>

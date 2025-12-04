@@ -23,6 +23,8 @@ body {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;  /* Safari and Chrome */
+<<<<<<< HEAD
+=======
 }
 
 /* Animations */
@@ -100,4 +102,5 @@ body {
 
 .animate-slideDown {
   animation: slideDown 0.3s ease-out;
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 }

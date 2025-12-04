@@ -1,3 +1,17 @@
+<<<<<<< HEAD
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import {
+  updateBookingStatus,
+  setBookingActivities,
+  setLoading,
+  setError,
+  clearError,
+} from '../staffSlice';
+import BookingModal from './modals/bookingModal/BookingModal';
+import { fetchAllBookings, fetchAllInvoices } from '../api';
+=======
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -5,19 +19,89 @@ import { updateBookingStatus, setBookingActivities, setLoading, setError } from 
 import BookingModal from './modals/bookingModal/BookingModal';
 import { getAllBookings } from '../api/bookingApi';
 import { getAllPayments } from '../api/paymentApi';
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 
 const BookingMonitoring = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+<<<<<<< HEAD
+  const bookingActivities = useSelector(
+    (state) => state.staff?.bookingActivities || []
+  );
+  const isLoading = useSelector(
+    (state) => state.staff?.loading?.bookings || false
+  );
+  const error = useSelector((state) => state.staff?.errors?.bookings);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+=======
   const bookingActivities = useSelector((state) => state.staff.bookingActivities);
   const loading = useSelector((state) => state.staff.loading.bookings);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
   const [dateFilter, setDateFilter] = useState('all');
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [modalType, setModalType] = useState(null); // 'view', 'edit', 'cancel', 'resolve'
   const [isModalOpen, setIsModalOpen] = useState(false);
+<<<<<<< HEAD
+
+  useEffect(() => {
+    const normalizePaymentStatus = (status) => {
+      const s = (status || '').toLowerCase();
+      if (s.includes('paid') || s === 'completed') return 'paid';
+      if (s.includes('refund')) return 'refunded';
+      if (s.includes('fail')) return 'failed';
+      return 'pending';
+    };
+
+    const loadBookings = async () => {
+      try {
+        dispatch(setLoading({ section: 'bookings', loading: true }));
+        const [bookings, invoices] = await Promise.all([
+          fetchAllBookings(),
+          fetchAllInvoices(),
+        ]);
+
+        const invoiceById = new Map(
+          (invoices || []).map((inv) => [inv.id, inv])
+        );
+
+        const bookingRows = (bookings || []).map((b) => {
+          const inv = b.invoiceId ? invoiceById.get(b.invoiceId) : null;
+          const amount = inv?.grandTotal ?? 0;
+          const paymentStatus = normalizePaymentStatus(inv?.status);
+
+          return {
+            id: b.id,
+            bookingId: b.invoiceNo || (b.id || '').toString().slice(0, 8),
+            customer: b.user?.fullname || b.user?.username || '',
+            carOwner:
+              b.car?.owner?.fullname || b.car?.owner?.username || '',
+            car: b.car
+              ? `${b.car.manufacturer || ''} ${b.car.model || ''}`.trim()
+              : '',
+            status: (b.status || 'pending').toLowerCase(),
+            startDate: b.pickupTime,
+            endDate: b.dropoffTime,
+            totalAmount: amount,
+            paymentStatus,
+            createdAt: b.createDate,
+            notes: '',
+          };
+        });
+
+        dispatch(setBookingActivities(bookingRows));
+        dispatch(clearError('bookings'));
+      } catch (e) {
+        dispatch(
+          setError({
+            section: 'bookings',
+            error: e?.message || 'Failed to load bookings',
+          })
+        );
+=======
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
@@ -148,12 +232,17 @@ const BookingMonitoring = () => {
         dispatch(setError({ section: 'bookings', error: error.message }));
         dispatch(setBookingActivities([]));
         console.error('Failed to fetch bookings:', error);
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       } finally {
         dispatch(setLoading({ section: 'bookings', loading: false }));
       }
     };
 
+<<<<<<< HEAD
+    loadBookings();
+=======
     fetchBookings();
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
   }, [dispatch]);
 
   const getStatusBadge = (status) => {
@@ -163,7 +252,11 @@ const BookingMonitoring = () => {
         return `${baseClasses} bg-green-100 text-green-800`;
       case 'pending':
         return `${baseClasses} bg-yellow-100 text-yellow-800`;
+<<<<<<< HEAD
+      case 'completed':
+=======
       case 'confirmed':
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
         return `${baseClasses} bg-blue-100 text-blue-800`;
       case 'cancelled':
         return `${baseClasses} bg-gray-100 text-gray-800`;
@@ -174,6 +267,8 @@ const BookingMonitoring = () => {
     }
   };
 
+<<<<<<< HEAD
+=======
   const getStatusText = (status) => {
     switch (status) {
       case 'active':
@@ -193,6 +288,7 @@ const BookingMonitoring = () => {
     }
   };
 
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
   const getPaymentBadge = (status) => {
     const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
     switch (status) {
@@ -204,13 +300,18 @@ const BookingMonitoring = () => {
         return `${baseClasses} bg-blue-100 text-blue-800`;
       case 'failed':
         return `${baseClasses} bg-red-100 text-red-800`;
+<<<<<<< HEAD
+=======
       case 'expired':
         return `${baseClasses} bg-gray-100 text-gray-800`;
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       default:
         return `${baseClasses} bg-gray-100 text-gray-800`;
     }
   };
 
+<<<<<<< HEAD
+=======
   const getPaymentStatusText = (status) => {
     switch (status) {
       case 'paid':
@@ -228,6 +329,7 @@ const BookingMonitoring = () => {
     }
   };
 
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
   const handleStatusUpdate = (bookingId, newStatus, notes = '') => {
     dispatch(updateBookingStatus({ id: bookingId, status: newStatus, notes }));
   };
@@ -268,6 +370,16 @@ const BookingMonitoring = () => {
     setModalType(newType);
   };
 
+<<<<<<< HEAD
+  const filteredBookings = bookingActivities.filter(booking => {
+    const matchesSearch = booking.bookingId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.car.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+=======
   // Format amount to Vietnamese currency format
   const formatCurrency = (amount) => {
     if (!amount && amount !== 0) return 'N/A';
@@ -296,13 +408,29 @@ const BookingMonitoring = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
   return (
     <div className="p-8 space-y-6 min-h-full bg-gray-50">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
+<<<<<<< HEAD
+          <h1 className="text-2xl font-bold text-gray-900">
+            {t('bookingMonitoring')}
+          </h1>
+          <p className="text-gray-600">{t('monitorAndManageBookings')}</p>
+          {isLoading && (
+            <p className="text-xs text-gray-400 mt-1">{t('loading')}...</p>
+          )}
+          {error && (
+            <p className="text-xs text-red-500 mt-1">
+              {t('error')}: {error}
+            </p>
+          )}
+=======
           <h1 className="text-2xl font-bold text-gray-900">{t('bookingMonitoring')}</h1>
           <p className="text-gray-600">{t('monitorAndManageBookings')}</p>
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
         </div>
         <div className="flex space-x-3">
           <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
@@ -343,6 +471,8 @@ const BookingMonitoring = () => {
               <option value="overdue">{t('overdue')}</option>
             </select>
             <select
+<<<<<<< HEAD
+=======
               value={paymentStatusFilter}
               onChange={(e) => setPaymentStatusFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -354,6 +484,7 @@ const BookingMonitoring = () => {
               <option value="failed">{t('failed')}</option>
             </select>
             <select
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -372,6 +503,103 @@ const BookingMonitoring = () => {
 
       {/* Bookings Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+<<<<<<< HEAD
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingId')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('customer')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('car')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('duration')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('amount')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('status')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('paymentStatus')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('actions')}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {filteredBookings.map((booking) => (
+                <tr key={booking.id} className="hover:bg-gray-50">
+                  <td className="py-4 px-6">
+                    <div className="font-medium text-gray-900 text-sm">{booking.bookingId}</div>
+                    <div className="text-xs text-gray-500">{booking.createdAt}</div>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div className="font-medium text-gray-900 text-sm">{booking.customer}</div>
+                    <div className="text-xs text-gray-500">{t('owner')}: {booking.carOwner}</div>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div className="font-medium text-gray-900 text-sm">{booking.car}</div>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div className="text-sm text-gray-600">{booking.startDate}</div>
+                    <div className="text-sm text-gray-600">{t('to')} {booking.endDate}</div>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div className="font-medium text-gray-900 text-sm">${booking.totalAmount}</div>
+                  </td>
+                  <td className="py-4 px-6">
+                    <span className={getStatusBadge(booking.status)}>
+                      {booking.status}
+                    </span>
+                  </td>
+                  <td className="py-4 px-6">
+                    <span className={getPaymentBadge(booking.paymentStatus)}>
+                      {booking.paymentStatus}
+                    </span>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => openModal(booking, 'view')}
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                      >
+                        {t('view')}
+                      </button>
+                      <button
+                        onClick={() => openModal(booking, 'edit')}
+                        className="text-gray-600 hover:text-gray-700 text-sm font-medium"
+                      >
+                        {t('edit')}
+                      </button>
+                      {booking.status === 'overdue' && (
+                        <button
+                          onClick={() => openModal(booking, 'resolve')}
+                          className="text-green-600 hover:text-green-700 text-sm font-medium"
+                        >
+                          {t('resolve')}
+                        </button>
+                      )}
+                      {(booking.status === 'pending' || booking.status === 'active') && (
+                        <button
+                          onClick={() => openModal(booking, 'cancel')}
+                          className="text-red-600 hover:text-red-700 text-sm font-medium"
+                        >
+                          {t('cancel')}
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-center py-4 border-t border-gray-200">
+          <div className="flex items-center space-x-2">
+            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('previous')}</button>
+            <div className="flex space-x-1">
+              <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
+              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
+              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
+            </div>
+            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('next')}</button>
+          </div>
+        </div>
+=======
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -569,6 +797,7 @@ const BookingMonitoring = () => {
             </div>
           </div>
         )}
+>>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       </div>
 
       {/* Modal */}

@@ -1,27 +1,29 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import LogoutButton from '../../../shared/components/LogoutButton';
 import MyProfile from './ProfilePageTabs/MyProfile';
 import FavouriteCarPage from './ProfilePageTabs/FavouriteCarPage';
 import RentalHistoryPage from './ProfilePageTabs/RentalHistoryPage';
-<<<<<<< HEAD
-import InboxPage from './ProfilePageTabs/InboxPage';
-import CalendarPage from './ProfilePageTabs/CalendarPage';
-=======
 import PaymentHistoryPage from './ProfilePageTabs/PaymentHistoryPage';
 import InboxPage from './ProfilePageTabs/InboxPage';
 import CalendarPage from '../../owner/components/CalendarPage';
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 import ReimbursePage from './ProfilePageTabs/ReimbursePage';
 import SettingsPage from './ProfilePageTabs/SettingsPage';
 import HelpCenterPage from './ProfilePageTabs/HelpCenterPage';
+import { selectUser } from '../../auth/authSlice';
+import { ROLES } from '../../auth/utils';
 
 // Combined ProfileSidebar component (previously separate)
 const ProfileSidebar = () => {
   const { t } = useTranslation();
   const [showSidebar, setShowSidebar] = useState(false);
   const location = useLocation();
+  const user = useSelector(selectUser);
+  const isStaff = user?.roleId === ROLES.STAFF;
+  const isOwner = user?.roleId === 2;
+  const isAdmin = user?.roleId === ROLES.ADMIN;
 
   const getPageTitle = () => {
     switch (location.pathname) {
@@ -29,22 +31,14 @@ const ProfileSidebar = () => {
         return t('myProfile');
       case '/profile/rental-history':
         return t('rentalHistory');
-<<<<<<< HEAD
-=======
       case '/profile/payment-history':
         return t('paymentHistory');
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       case '/profile/favourite-car':
         return t('favouriteCars');
       case '/profile/inbox':
         return t('inbox');
-<<<<<<< HEAD
-      case '/profile/calendar':
-        return t('calendar');
-=======
       // case '/profile/calendar':
       //   return t('calendar');
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       case '/profile/reimburse':
         return t('reimburse');
       case '/profile/security':
@@ -59,11 +53,7 @@ const ProfileSidebar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-<<<<<<< HEAD
-    <>
-=======
     <div className="w-full lg:w-64">
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       {/* Mobile Header */}
       <div className="lg:hidden bg-white shadow-sm p-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-gray-900">{getPageTitle()}</h1>
@@ -78,13 +68,8 @@ const ProfileSidebar = () => {
       </div>
 
       {/* Sidebar */}
-<<<<<<< HEAD
-      <div className={`${showSidebar ? 'block' : 'hidden'} lg:block w-full lg:w-64 bg-white shadow-sm min-h-screen lg:min-h-screen`}>
-        <div className="px-6 pt-4">
-=======
       <div className={`${showSidebar ? 'block' : 'hidden'} lg:block lg:sticky lg:top-6 pt-8`}>
         <div className="px-6 py-4 bg-white rounded-2 shadow p-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
           <div className="mb-8">
             <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wide mb-4">{t('mainMenu')}</h2>
             <nav className="space-y-2">
@@ -113,8 +98,6 @@ const ProfileSidebar = () => {
                 {t('Rental History')}
               </Link>
               <Link
-<<<<<<< HEAD
-=======
                 to="/profile/payment-history"
                 className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/payment-history')
                   ? 'text-white bg-blue-600'
@@ -127,7 +110,6 @@ const ProfileSidebar = () => {
                 {t('Payment History')}
               </Link>
               <Link
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                 to="/profile/favourite-car"
                 className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/favourite-car')
                   ? 'text-white bg-blue-600'
@@ -157,11 +139,7 @@ const ProfileSidebar = () => {
                 </svg>
                 {t('inbox')}
               </Link>
-<<<<<<< HEAD
-              <Link to="/profile/calendar" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/calendar')
-=======
               {/* <Link to="/profile/calendar" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/calendar')
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                   ? 'text-white bg-blue-600'
                   : 'text-gray-600 hover:bg-gray-50'
                   }`}>
@@ -169,11 +147,40 @@ const ProfileSidebar = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 {t('calendar')}
-<<<<<<< HEAD
-              </Link>
-=======
               </Link> */}
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
+              {isOwner && (
+                <Link to="/owner" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/owner')
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-600 hover:bg-gray-50'
+                    }`}>
+                  <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  {t('ownerPage') || 'Owner Page'}
+                </Link>
+              )}
+              {isStaff && (
+                <Link to="/staff" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/staff')
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-600 hover:bg-gray-50'
+                    }`}>
+                  <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  {t('staffPage') || 'Staff Page'}
+                </Link>
+              )}
+              {isAdmin && (
+                <Link to="/admin" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/admin')
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-600 hover:bg-gray-50'
+                    }`}>
+                  <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  {t('adminPage') || 'Admin Page'}
+                </Link>
+              )}
             </nav>
           </div>
 
@@ -219,11 +226,7 @@ const ProfileSidebar = () => {
           </div>
         </div>
       </div>
-<<<<<<< HEAD
-    </>
-=======
     </div>
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
   );
 };
 
@@ -234,11 +237,8 @@ const ProfilePage = () => {
     switch (location.pathname) {
       case '/profile/rental-history':
         return <RentalHistoryPage />;
-<<<<<<< HEAD
-=======
       case '/profile/payment-history':
         return <PaymentHistoryPage />;
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       case '/profile/favourite-car':
         return <FavouriteCarPage />;
       case '/profile/inbox':

@@ -6,23 +6,15 @@ const resources = {
     translation: {
       // Locale
       locale: "en-US",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // NavBar
-      search: "Search something here",
+      search: "Searching",
       signIn: "Sign In",
       signUp: "Sign Up",
       notification: "Notification",
       noNotifications: "No notifications",
       bookingSuccessful: "Booking successful",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Filters
       filters: "Filters",
       carName: "Car name",
@@ -38,26 +30,19 @@ const resources = {
       diesel: "Diesel",
       cancel: "Cancel",
       apply: "Apply",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // HomePage - Hero Section
       heroTitle: "The Best Platform for Car Rental",
       heroSubtitle: "Ease of doing a car rental safely and reliably. Of course at a low price.",
       heroTitle2: "Easy way to rent a car at a low price",
       heroSubtitle2: "Providing cheap car rental services and safe and comfortable facilities.",
       rentalCar: "Rental Car",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // HomePage - Search Section
       pickUp: "Pick-up",
       dropOff: "Drop - Off",
       location: "Location",
+      pickYourLocation: "Pick your location",
       selectCity: "Select your city",
       hoChiMinhCity: "Ho Chi Minh City",
       hanoi: "Hanoi",
@@ -69,11 +54,9 @@ const resources = {
       nextWeek: "Next week",
       time: "Time",
       selectTime: "Select your time",
-<<<<<<< HEAD
-      
-=======
-
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
+      rentalPeriod:"Rental Period",
+      loadingCars: "Loading cars...",
+      errorLoadingCars: "Error loading cars:",
       // HomePage - Car Sections
       popularCar: "Popular Car",
       recommendationCar: "Recommendation Car",
@@ -82,22 +65,11 @@ const resources = {
       perDay: "/day",
       showMoreCar: "Show more car",
       car: "Car",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Car Card
       manual: "Manual",
       automatic: "Automatic",
       people: "People",
-<<<<<<< HEAD
-      
-      // Auth - Login
-      logIn: "Log in",
-      newToDesignSpace: "New to Design Space?",
-      signUpForFree: "Sign up for free",
-=======
       person: "Person",
       Gasoline: "Gasoline",
       Diesel: "Diesel",
@@ -107,7 +79,6 @@ const resources = {
       OrSignupwith: "Or Sign-up with",
       newToDesignSpace: "Create new account ?",
       signUpForFree: "Sign up",
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       demoCredentials: "Demo Credentials:",
       useDemo: "Use Demo",
       emailAddress: "Email address",
@@ -116,11 +87,7 @@ const resources = {
       hide: "Hide",
       forgotPassword: "Forgot password?",
       loggingIn: "Logging in...",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Auth - Register
       alreadyHaveAccount: "Already have an account?",
       enterDetailsToCreate: "Enter your details to create an account.",
@@ -138,11 +105,7 @@ const resources = {
       signInWithFacebook: "Sign in with Facebook",
       success: "Success!",
       redirectingToHomepage: "Redirecting to homepage...",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Footer
       footerVision: "Our vision is to provide convenience and help increase your sales business.",
       about: "About",
@@ -163,11 +126,7 @@ const resources = {
       allRightsReserved: "©2022 MORENT. All rights reserved",
       privacyPolicy: "Privacy & Policy",
       termsCondition: "Terms & Condition",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Admin - Sidebar
       mainMenu: "MAIN MENU",
       dashboard: "Dashboard",
@@ -182,11 +141,8 @@ const resources = {
       settings: "Settings",
       helpCenter: "Help & Center",
       darkMode: "Dark Mode",
-<<<<<<< HEAD
-      
-=======
-
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
+      ownerPage: "Owner Page",
+      staffPage: "Staff Page",
       // Admin - Status Overview
       statusOverview: "Status Overview",
       status: "Status",
@@ -198,11 +154,7 @@ const resources = {
       returned: "Returned",
       previous: "Previous",
       next: "Next",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Admin - Top Car Rental
       topCarRental: "Top 5 Car Rental",
       sportCar: "Sport Car",
@@ -210,17 +162,10 @@ const resources = {
       coupe: "Coupe",
       hatchback: "Hatchback",
       mpv: "MPV",
-<<<<<<< HEAD
-      
-      // Admin - Recent Transaction
-      recentTransaction: "Recent Transaction",
-      
-=======
 
       // Admin - Recent Transaction
       recentTransaction: "Recent Transaction",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Admin - Operations Dashboard
       operationsDashboardTitle: "Operations Dashboard",
       operationsDashboardSubtitle: "High-level overview to manage user roles and system settings",
@@ -257,9 +202,6 @@ const resources = {
       viewUsers: "View Users",
       permissions: "Permissions",
       configure: "Configure",
-<<<<<<< HEAD
-      
-=======
       roleManagement: "Account Number",
       RoleManagementUsers: "User",
       RoleManagementCarOwners: "Car Owners",
@@ -267,7 +209,6 @@ const resources = {
       activeCars: "Active Cars",
       carsInUse: "Car in use",
       TotalBookings: "Total Bookings",
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Booking Modal
       bookingDetails: "Booking Details",
       cancelBooking: "Cancel Booking",
@@ -304,13 +245,9 @@ const resources = {
       currentNotes: "Current Notes",
       noNotes: "No notes",
       markAsCompleted: "Mark as Completed",
-<<<<<<< HEAD
-      
-=======
       pickupDetails: "Pickup Details",
       dropoffDetails: "Dropoff Details",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Car Owner Modal
       carOwnerDetails: "Car Owner Details",
       editCarOwner: "Edit Car Owner",
@@ -326,11 +263,7 @@ const resources = {
       accountDetails: "Account Details:",
       suspendAccount: "Suspend Account",
       suspended: "Suspended",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Customer Modal
       customerDetails: "Car Customer Details",
       editCustomer: "Edit Car Customer",
@@ -339,10 +272,7 @@ const resources = {
       suspendCustomerWarning: "Are you sure you want to suspend",
       suspendCustomerDescription: "'s account? This will prevent them from accessing their account and listing new cars.",
       totalBookings: "Total Bookings",
-<<<<<<< HEAD
-=======
       canceledBookings: "Canceled Bookings",
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       totalSpent: "Total Spent",
       lastBooking: "Last Booking",
       noBookingsYet: "No bookings yet",
@@ -351,11 +281,7 @@ const resources = {
       noIssues: "No issues",
       verified: "Verified",
       rejected: "Rejected",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Staff Components
       bookingMonitoring: "Booking Monitoring",
       monitorAndManageBookings: "Monitor and manage all booking activities",
@@ -372,11 +298,7 @@ const resources = {
       view: "View",
       activate: "Activate",
       message: "Message",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       carOwnerManagement: "Car Owner Management",
       viewAndManageCarOwners: "View and manage car owner accounts",
       exportData: "Export Data",
@@ -384,11 +306,14 @@ const resources = {
       carOwners: "car owners",
       verification: "Verification",
       owner: "Owner",
-<<<<<<< HEAD
-      
-=======
+      allStatus: "All Status",
+      carsListed: "Cars Listed",
+      totalEarnings: "Total Earnings",
+      lastActive: "Last Active",
+      previous: "Previous",
+      next: "Next",
+      loading: "Loading",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       customerManagement: "Customer Management",
       viewAndManageCustomers: "View and manage customer accounts",
       sendBulkMessage: "Send Bulk Message",
@@ -399,15 +324,9 @@ const resources = {
       customers: "customers",
       tier: "Tier",
       none: "None",
-<<<<<<< HEAD
-      
-      platformOverview: "Platform Overview",
-      
-=======
 
       platformOverview: "Platform Overview",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       notificationCenter: "Notification Center",
       sendSystemWideNotifications: "Send system-wide notifications to users",
       createNotification: "Create Notification",
@@ -440,19 +359,11 @@ const resources = {
       read: "Read",
       viewDetails: "View Details",
       duplicate: "Duplicate",
-<<<<<<< HEAD
-      
-      pendingVerifications: "Pending Verifications",
-      review: "Review",
-      viewAllPendingVerifications: "View All Pending Verifications",
-      
-=======
 
       pendingVerifications: "Pending Verifications",
       review: "Review",
       viewAllPendingVerifications: "View All Pending Verifications",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       recentActivities: "Recent Activities",
       newBookingCreated: "New booking created",
       carOwnerVerificationCompleted: "Car owner verification completed",
@@ -460,12 +371,6 @@ const resources = {
       customerAccountUpdated: "Customer account updated",
       bookingCompleted: "Booking completed",
       by: "by",
-<<<<<<< HEAD
-      confirmed: "confirmed",
-      approved: "approved",
-      updated: "updated",
-      
-=======
       confirmed: "Confirmed",
       approved: "Approved",
       updated: "Updated",
@@ -477,21 +382,43 @@ const resources = {
       daysAgo: "days ago",
       noRecentActivities: "No recent activities",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       staffMenu: "STAFF MENU",
       carOwnerAccounts: "Car Owner Accounts",
       monitorBookings: "Monitor Bookings",
       customerAccounts: "Customer Accounts",
       sendNotifications: "Send Notifications",
-<<<<<<< HEAD
-      
-=======
+      createParkingLot: "Create Parking Lot",
+
+      // Parking Lot Creation
+      parkingLotName: "Parking Lot Name",
+      enterParkingLotName: "Enter parking lot name",
+      parkingLotNameRequired: "Parking lot name is required",
+      addressRequired: "Address is required",
+      cityRequired: "City is required",
+      validCapacityRequired: "Valid capacity is required",
+      contactNumberRequired: "Contact number is required",
+      enterAddress: "Enter address",
+      useCurrent: "Use Current",
+      getting: "Getting...",
+      coordinates: "Coordinates",
+      city: "City",
+      enterCity: "Enter city",
+      capacity: "Capacity",
+      enterParkingCapacity: "Enter parking capacity",
+      contactNumber: "Contact Number",
+      enterContactNumber: "Enter contact number",
+      enterAdditionalNotes: "Enter any additional notes...",
+      createParkingLotButton: "Create Parking Lot",
+      creating: "Creating...",
+      parkingLotCreatedSuccessfully: "Parking lot created successfully!",
+      failedToCreateParkingLot: "Failed to create parking lot",
+      addNewParkingLot: "Add a new parking lot to the system",
+      failedToGetCurrentLocation: "Failed to get current location",
 
       noBookingsFound: "No Booking Found",
       allStatus: "All Status",
       allPaymentStatus: "All Payment Status",
       searchBookings: "Search Bookings",
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Calendar Components
       month: "Month",
       week: "Week",
@@ -536,30 +463,18 @@ const resources = {
       update: "Update",
       close: "Close",
       more: "more",
-<<<<<<< HEAD
-      
-      // Profile - Update Email Dialog
-      updateEmail: "Update Email",
-      newEmail: "New Email",
-      
-=======
       allEvents: "All Events",
 
       // Profile - Update Email Dialog
       updateEmail: "Update Email",
       newEmail: "New Email",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Profile - Favourite Car Page
       favouriteCar: "Favourite Car",
       noFavouriteCars: "No Favourite Cars",
       noFavouriteCarsMessage: "You haven't added any cars to your favorites yet.",
       browseCars: "Browse Cars",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Profile - Help Center Page
       helpCenterDescription: "Find answers, get support, and learn how to use the app.",
       accountAndProfile: "Account & Profile",
@@ -571,11 +486,7 @@ const resources = {
       stillNeedHelp: "Still need help?",
       contactSupport: "Contact support",
       openTicket: "Open a ticket",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Profile - Inbox Page
       markAllAsRead: "Mark all as read",
       searchMessages: "Search messages...",
@@ -592,11 +503,7 @@ const resources = {
       page: "Page",
       deleteMessage: "Delete message",
       deleteMessageConfirm: "Delete",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Profile - My Profile Page
       accountInformation: "Account Information",
       save: "Save",
@@ -611,12 +518,8 @@ const resources = {
       google: "Google",
       connected: "Connected",
       addLink: "Add link",
-<<<<<<< HEAD
-      
-=======
       enterFullName: "Full Name",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Profile - Reimburse Page
       totalSubmitted: "Total Submitted",
       submitReimbursement: "Submit a reimbursement",
@@ -630,20 +533,10 @@ const resources = {
       fuel: "Fuel",
       toll: "Toll",
       parking: "Parking",
-<<<<<<< HEAD
-      maintenance: "Maintenance",
-      other: "Other",
-      optionalDetails: "Optional details",
-      reset: "Reset",
-      submit: "Submit",
-      approved: "Approved",
-      
-=======
       optionalDetails: "Optional details",
       reset: "Reset",
       submit: "Submit",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Profile - Rental History Page
       type: "Type",
       brand: "Brand",
@@ -651,11 +544,7 @@ const resources = {
       rentDay: "Rent Day",
       paymentDate: "Payment Date",
       noPayment: "No Payment",
-<<<<<<< HEAD
-      
-=======
       noRentalHistory: "No Rental History",
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Profile - Settings Page
       security: "Security",
       securityDescription: "Manage account security and verification settings.",
@@ -666,22 +555,11 @@ const resources = {
       unverified: "Unverified",
       verifyEmailDescription: "Verify your email to enhance account security and receive important notifications.",
       sendVerificationEmail: "Send verification email",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Profile - Sidebar
       myProfile: "My Profile",
       "Rental History": "Rental History",
       favouriteCars: "Favourite Cars",
-<<<<<<< HEAD
-      
-      // Logout
-      logOut: "Log Out",
-      doYouWantToLogout: "Do you want to logout?",
-      yes: "Yes"
-=======
 
       // Logout
       logOut: "Log Out",
@@ -892,7 +770,7 @@ const resources = {
       dropoffDate: "Dropoff",
       pickupLocation: "Pickup location",
       selfPickup: "Self pickup",
-      driverDelivery: "Driver delivers vehicle (within 5km)",
+      driverDelivery: "Delivers vehicle ",
       priceBreakdown: "Price breakdown",
       insuranceFee: "Insurance fee",
       physicalInsurance: "Physical insurance",
@@ -901,7 +779,7 @@ const resources = {
       deliveryFee: "Delivery fee",
       discount: "Discount",
       discountDesc: "Discount for daily rate",
-      
+
       // Additional Car Detail translations
       chooseOneOfTwo: "Choose 1 of 2 options",
       licenseAndPassportHold: "License (verify) & Passport (hold)",
@@ -912,19 +790,15 @@ const resources = {
       moreReviews: "reviews",
       bookingFeesPayNow: "Booking Fees (15%) - Pay Now",
       remainingAmountPayAfter: "Remaining Amount - Pay After",
-      totalPricePayNow: "Total Price - Pay Now"
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
+      totalPricePayNow: "Total Price",
+      distance: "Distance"
     }
   },
   vi: {
     translation: {
       // Locale
       locale: "vi-VN",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // NavBar
       search: "Tìm kiếm ở đây",
       signIn: "Đăng nhập",
@@ -932,11 +806,7 @@ const resources = {
       notification: "Thông báo",
       noNotifications: "Không có thông báo",
       bookingSuccessful: "Đặt xe thành công",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Filters
       filters: "Bộ lọc",
       carName: "Tên xe",
@@ -952,32 +822,21 @@ const resources = {
       diesel: "Dầu",
       cancel: "Hủy",
       apply: "Áp dụng",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // HomePage - Hero Section
       heroTitle: "Nền Tảng Tốt Nhất Cho Thuê Xe",
       heroSubtitle: "Dễ dàng thuê xe một cách an toàn và đáng tin cậy. Tất nhiên với giá cả phải chăng.",
       heroTitle2: "Cách dễ dàng để thuê xe với giá rẻ",
       heroSubtitle2: "Cung cấp dịch vụ cho thuê xe giá rẻ với tiện nghi an toàn và thoải mái.",
       rentalCar: "Thuê Xe",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // HomePage - Search Section
       pickUp: "Nhận xe",
       dropOff: "Trả xe",
       location: "Địa điểm",
+      pickYourLocation: "Chọn địa điểm của bạn",
       selectCity: "Chọn thành phố",
-<<<<<<< HEAD
-      hoChiMinhCity: "Thành phố Hồ Chí Minh",
-=======
       hoChiMinhCity: "TP.Hồ Chí Minh",
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       hanoi: "Hà Nội",
       daNang: "Đà Nẵng",
       date: "Ngày",
@@ -987,11 +846,9 @@ const resources = {
       nextWeek: "Tuần sau",
       time: "Giờ",
       selectTime: "Chọn giờ",
-<<<<<<< HEAD
-      
-=======
-
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
+      rentalPeriod:"Thời gian thuê",
+      loadingCars: "Đang tải xe...",
+      errorLoadingCars: "Lỗi khi tải xe:",
       // HomePage - Car Sections
       popularCar: "Xe Phổ Biến",
       recommendationCar: "Xe Đề Xuất",
@@ -1000,22 +857,11 @@ const resources = {
       perDay: "/ngày",
       showMoreCar: "Xem thêm xe",
       car: "Xe",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Car Card
       manual: "Số sàn",
       automatic: "Số tự động",
       people: "Người",
-<<<<<<< HEAD
-      
-      // Auth - Login
-      logIn: "Đăng nhập",
-      newToDesignSpace: "Mới đến Design Space?",
-      signUpForFree: "Đăng ký miễn phí",
-=======
       person: "chỗ",
       Gasoline: "Xăng",
       Diesel: "Dầu",
@@ -1025,7 +871,6 @@ const resources = {
       OrSignupwith: "Hoặc đăng nhập với",
       newToDesignSpace: "Tạo tài khoản mới",
       signUpForFree: "Đăng ký",
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       demoCredentials: "Tài khoản Demo:",
       useDemo: "Dùng Demo",
       emailAddress: "Địa chỉ email",
@@ -1034,11 +879,7 @@ const resources = {
       hide: "Ẩn",
       forgotPassword: "Quên mật khẩu?",
       loggingIn: "Đang đăng nhập...",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Auth - Register
       alreadyHaveAccount: "Đã có tài khoản?",
       enterDetailsToCreate: "Nhập thông tin của bạn để tạo tài khoản.",
@@ -1056,11 +897,7 @@ const resources = {
       signInWithFacebook: "Đăng nhập với Facebook",
       success: "Thành công!",
       redirectingToHomepage: "Đang chuyển đến trang chủ...",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Footer
       footerVision: "Tầm nhìn của chúng tôi là mang lại sự tiện lợi và giúp tăng doanh số kinh doanh của bạn.",
       about: "Về chúng tôi",
@@ -1081,11 +918,7 @@ const resources = {
       allRightsReserved: "©2022 MORENT. Bảo lưu mọi quyền",
       privacyPolicy: "Chính sách bảo mật",
       termsCondition: "Điều khoản & Điều kiện",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Admin - Sidebar
       mainMenu: "MENU CHÍNH",
       dashboard: "Bảng điều khiển",
@@ -1100,11 +933,8 @@ const resources = {
       settings: "Cài đặt",
       helpCenter: "Trung tâm trợ giúp",
       darkMode: "Chế độ tối",
-<<<<<<< HEAD
-      
-=======
-
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
+      ownerPage: "Trang Quản Lý",
+      staffPage: "Trang Nhân Viên",
       // Admin - Status Overview
       statusOverview: "Tổng quan trạng thái",
       status: "Trạng thái",
@@ -1116,11 +946,7 @@ const resources = {
       returned: "Đã trả",
       previous: "Trước",
       next: "Tiếp",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Admin - Top Car Rental
       topCarRental: "Top 5 Xe Cho Thuê",
       sportCar: "Xe thể thao",
@@ -1128,17 +954,10 @@ const resources = {
       coupe: "Coupe",
       hatchback: "Hatchback",
       mpv: "MPV",
-<<<<<<< HEAD
-      
-      // Admin - Recent Transaction
-      recentTransaction: "Giao dịch gần đây",
-      
-=======
 
       // Admin - Recent Transaction
       recentTransaction: "Giao dịch gần đây",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Admin - Operations Dashboard
       operationsDashboardTitle: "Bảng điều khiển vận hành",
       operationsDashboardSubtitle: "Tổng quan cấp cao để quản lý vai trò người dùng và cài đặt hệ thống",
@@ -1175,9 +994,6 @@ const resources = {
       viewUsers: "Xem người dùng",
       permissions: "Quyền hạn",
       configure: "Cấu hình",
-<<<<<<< HEAD
-      
-=======
       roleManagement: "Số lượng tài khoản",
       RoleManagementUsers: "Người dùng",
       RoleManagementCarOwners: "Quản lý",
@@ -1185,7 +1001,6 @@ const resources = {
       activeCars: "Xe đang hoạt động",
       carsInUse: "Xe đang vận hành",
       TotalBookings: "Tổng số đơn đặt",
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Booking Modal
       bookingDetails: "Chi tiết đặt xe",
       cancelBooking: "Hủy đặt xe",
@@ -1222,13 +1037,9 @@ const resources = {
       currentNotes: "Ghi chú hiện tại",
       noNotes: "Không có ghi chú",
       markAsCompleted: "Đánh dấu hoàn thành",
-<<<<<<< HEAD
-      
-=======
       pickupDetails: "Địa điểm nhận xe",
       dropoffDetails: "Địa điểm trả xe",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Car Owner Modal
       carOwnerDetails: "Chi tiết chủ xe",
       editCarOwner: "Chỉnh sửa chủ xe",
@@ -1244,11 +1055,7 @@ const resources = {
       accountDetails: "Chi tiết tài khoản:",
       suspendAccount: "Tạm ngưng tài khoản",
       suspended: "Đã tạm ngưng",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Customer Modal
       customerDetails: "Chi tiết khách hàng",
       editCustomer: "Chỉnh sửa khách hàng",
@@ -1257,10 +1064,7 @@ const resources = {
       suspendCustomerWarning: "Bạn có chắc chắn muốn tạm ngưng tài khoản của",
       suspendCustomerDescription: "? Điều này sẽ ngăn họ truy cập tài khoản và đặt xe mới.",
       totalBookings: "Tổng số đặt xe",
-<<<<<<< HEAD
-=======
       canceledBookings: "Đơn đặt xe đã hủy",
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       totalSpent: "Tổng chi tiêu",
       lastBooking: "Đặt xe lần cuối",
       noBookingsYet: "Chưa có đặt xe",
@@ -1269,11 +1073,7 @@ const resources = {
       noIssues: "Không có vấn đề",
       verified: "Đã xác minh",
       rejected: "Đã từ chối",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Staff Components
       bookingMonitoring: "Giám sát đặt xe",
       monitorAndManageBookings: "Giám sát và quản lý tất cả hoạt động đặt xe",
@@ -1290,11 +1090,7 @@ const resources = {
       view: "Xem",
       activate: "Kích hoạt",
       message: "Tin nhắn",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       carOwnerManagement: "Quản lý chủ xe",
       viewAndManageCarOwners: "Xem và quản lý tài khoản chủ xe",
       exportData: "Xuất dữ liệu",
@@ -1302,11 +1098,14 @@ const resources = {
       carOwners: "chủ xe",
       verification: "Xác minh",
       owner: "Chủ xe",
-<<<<<<< HEAD
-      
-=======
+      allStatus: "Tất cả trạng thái",
+      carsListed: "Xe đã đăng",
+      totalEarnings: "Tổng thu nhập",
+      lastActive: "Hoạt động lần cuối",
+      previous: "Trước",
+      next: "Tiếp",
+      loading: "Đang tải",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       customerManagement: "Quản lý khách hàng",
       viewAndManageCustomers: "Xem và quản lý tài khoản khách hàng",
       sendBulkMessage: "Gửi tin nhắn hàng loạt",
@@ -1317,15 +1116,9 @@ const resources = {
       customers: "khách hàng",
       tier: "Hạng",
       none: "Không có",
-<<<<<<< HEAD
-      
-      platformOverview: "Tổng quan nền tảng",
-      
-=======
 
       platformOverview: "Tổng quan nền tảng",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       notificationCenter: "Trung tâm thông báo",
       sendSystemWideNotifications: "Gửi thông báo toàn hệ thống cho người dùng",
       createNotification: "Tạo thông báo",
@@ -1358,19 +1151,11 @@ const resources = {
       read: "Đã đọc",
       viewDetails: "Xem chi tiết",
       duplicate: "Nhân bản",
-<<<<<<< HEAD
-      
-      pendingVerifications: "Xác minh đang chờ",
-      review: "Xem xét",
-      viewAllPendingVerifications: "Xem tất cả xác minh đang chờ",
-      
-=======
 
       pendingVerifications: "Xác minh đang chờ",
       review: "Xem xét",
       viewAllPendingVerifications: "Xem tất cả xác minh đang chờ",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       recentActivities: "Hoạt động gần đây",
       newBookingCreated: "Đặt xe mới được tạo",
       carOwnerVerificationCompleted: "Xác minh chủ xe hoàn tất",
@@ -1381,9 +1166,6 @@ const resources = {
       confirmed: "đã xác nhận",
       approved: "đã phê duyệt",
       updated: "đã cập nhật",
-<<<<<<< HEAD
-      
-=======
       failed: "Thất bại",
       expired: "Hết hạn",
       justNow: "Vừa xong",
@@ -1392,21 +1174,43 @@ const resources = {
       daysAgo: "ngày trước",
       noRecentActivities: "Không có hoạt động gần đây",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       staffMenu: "MENU NHÂN VIÊN",
       carOwnerAccounts: "Tài khoản chủ xe",
       monitorBookings: "Giám sát đặt xe",
       customerAccounts: "Tài khoản khách hàng",
       sendNotifications: "Gửi thông báo",
-<<<<<<< HEAD
-      
-=======
+      createParkingLot: "Tạo Bãi Đỗ Xe",
+
+      // Parking Lot Creation
+      parkingLotName: "Tên Bãi Đỗ Xe",
+      enterParkingLotName: "Nhập tên bãi đỗ xe",
+      parkingLotNameRequired: "Tên bãi đỗ xe là bắt buộc",
+      addressRequired: "Địa chỉ là bắt buộc",
+      cityRequired: "Thành phố là bắt buộc",
+      validCapacityRequired: "Sức chứa hợp lệ là bắt buộc",
+      contactNumberRequired: "Số liên hệ là bắt buộc",
+      enterAddress: "Nhập địa chỉ",
+      useCurrent: "Dùng Vị Trí Hiện Tại",
+      getting: "Đang lấy...",
+      coordinates: "Tọa độ",
+      city: "Thành phố",
+      enterCity: "Nhập thành phố",
+      capacity: "Sức chứa",
+      enterParkingCapacity: "Nhập sức chứa bãi đỗ",
+      contactNumber: "Số Liên Hệ",
+      enterContactNumber: "Nhập số liên hệ",
+      enterAdditionalNotes: "Nhập ghi chú bổ sung...",
+      createParkingLotButton: "Tạo Bãi Đỗ Xe",
+      creating: "Đang tạo...",
+      parkingLotCreatedSuccessfully: "Tạo bãi đỗ xe thành công!",
+      failedToCreateParkingLot: "Không thể tạo bãi đỗ xe",
+      addNewParkingLot: "Thêm bãi đỗ xe mới vào hệ thống",
+      failedToGetCurrentLocation: "Không thể lấy vị trí hiện tại",
 
       noBookingsFound: "Không có đơn đặt xe",
       allStatus: "Tất cả trạng thái",
       allPaymentStatus: "Tất cả trạng thái thanh toán",
       searchBookings: "Tìm đơn đặt hàng",
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Calendar Components
       month: "Tháng",
       week: "Tuần",
@@ -1451,30 +1255,18 @@ const resources = {
       update: "Cập nhật",
       close: "Đóng",
       more: "thêm",
-<<<<<<< HEAD
-      
-      // Profile - Update Email Dialog
-      updateEmail: "Cập nhật Email",
-      newEmail: "Email mới",
-      
-=======
       allEvents: "Tất Cả Sự Kiện",
 
       // Profile - Update Email Dialog
       updateEmail: "Cập nhật Email",
       newEmail: "Email mới",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Profile - Favourite Car Page
       favouriteCar: "Xe Yêu Thích",
       noFavouriteCars: "Không Có Xe Yêu Thích",
       noFavouriteCarsMessage: "Bạn chưa thêm xe nào vào danh sách yêu thích.",
       browseCars: "Duyệt Xe",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Profile - Help Center Page
       helpCenterDescription: "Tìm câu trả lời, nhận hỗ trợ và học cách sử dụng ứng dụng.",
       accountAndProfile: "Tài khoản & Hồ sơ",
@@ -1486,11 +1278,7 @@ const resources = {
       stillNeedHelp: "Vẫn cần trợ giúp?",
       contactSupport: "Liên hệ hỗ trợ",
       openTicket: "Mở phiếu yêu cầu",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Profile - Inbox Page
       markAllAsRead: "Đánh dấu tất cả đã đọc",
       searchMessages: "Tìm kiếm tin nhắn...",
@@ -1507,11 +1295,7 @@ const resources = {
       page: "Trang",
       deleteMessage: "Xóa tin nhắn",
       deleteMessageConfirm: "Xóa",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Profile - My Profile Page
       accountInformation: "Thông tin tài khoản",
       save: "Lưu",
@@ -1526,11 +1310,7 @@ const resources = {
       google: "Google",
       connected: "Đã kết nối",
       addLink: "Thêm liên kết",
-<<<<<<< HEAD
-      
-=======
       enterFullName: "Họ và Tên",
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Profile - Reimburse Page
       totalSubmitted: "Tổng đã gửi",
       submitReimbursement: "Gửi yêu cầu hoàn tiền",
@@ -1544,20 +1324,10 @@ const resources = {
       fuel: "Nhiên liệu",
       toll: "Phí cầu đường",
       parking: "Đỗ xe",
-<<<<<<< HEAD
-      maintenance: "Bảo trì",
-      other: "Khác",
-      optionalDetails: "Chi tiết tùy chọn",
-      reset: "Đặt lại",
-      submit: "Gửi",
-      approved: "Đã phê duyệt",
-      
-=======
       optionalDetails: "Chi tiết tùy chọn",
       reset: "Đặt lại",
       submit: "Gửi",
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Profile - Rental History Page
       type: "Loại",
       brand: "Thương hiệu",
@@ -1565,11 +1335,7 @@ const resources = {
       rentDay: "Ngày thuê",
       paymentDate: "Ngày thanh toán",
       noPayment: "Chưa thanh toán",
-<<<<<<< HEAD
-      
-=======
       noRentalHistory: "Không có lịch sử thuê xe",
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Profile - Settings Page
       security: "Bảo mật",
       securityDescription: "Quản lý bảo mật tài khoản và cài đặt xác minh.",
@@ -1580,22 +1346,11 @@ const resources = {
       unverified: "Chưa xác minh",
       verifyEmailDescription: "Xác minh email của bạn để tăng cường bảo mật tài khoản và nhận thông báo quan trọng.",
       sendVerificationEmail: "Gửi email xác minh",
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       // Profile - Sidebar
       myProfile: "Hồ Sơ Của Tôi",
       "Rental History": "Lịch Sử Thuê Xe",
       favouriteCars: "Xe Yêu Thích",
-<<<<<<< HEAD
-      
-      // Logout
-      logOut: "Đăng Xuất",
-      doYouWantToLogout: "Bạn có muốn đăng xuất?",
-      yes: "Có"
-=======
 
       // Logout
       logOut: "Đăng Xuất",
@@ -1807,7 +1562,7 @@ const resources = {
       dropoffDate: "Trả xe",
       pickupLocation: "Địa điểm giao nhận xe",
       selfPickup: "Tự tới lấy xe",
-      driverDelivery: "Tài xế đưa xe tận nơi (trong 5km)",
+      driverDelivery: "Tài xế đưa xe tận nơi",
       priceBreakdown: "Bảng giá chi tiết",
       insuranceFee: "Bảo hiểm thuê xe",
       physicalInsurance: "Bảo hiểm thể dưỡng",
@@ -1816,7 +1571,7 @@ const resources = {
       deliveryFee: "Phí giao nhận xe",
       discount: "Chương trình giảm giá",
       discountDesc: "Giảm 120k cho đơn giá",
-      
+
       // Additional Car Detail translations
       chooseOneOfTwo: "Chọn 1 trong 2 hình thức",
       licenseAndPassportHold: "GPLX (đối chiếu) & Passport (giữ lại)",
@@ -1827,8 +1582,8 @@ const resources = {
       moreReviews: "đánh giá",
       bookingFeesPayNow: "Phí Đặt Cọc (15%) - Thanh Toán Ngay",
       remainingAmountPayAfter: "Số Tiền Còn Lại - Thanh Toán Sau",
-      totalPricePayNow: "Thành Tiền - Thanh Toán Ngay"
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
+      totalPricePayNow: "Thành Tiền",
+      distance: "Khoảng cách"
     }
   }
 };
@@ -1844,8 +1599,6 @@ i18n
     }
   });
 
-<<<<<<< HEAD
-=======
 i18n
   .use(initReactI18next)
   .init({
@@ -1857,5 +1610,4 @@ i18n
     }
   });
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 export default i18n;

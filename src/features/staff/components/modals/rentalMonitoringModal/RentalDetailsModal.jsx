@@ -1,4 +1,4 @@
-import { exportReceiptToPDF, printReceipt } from '../../owner-utils/ExportReceiptToPDF';
+import { exportReceiptToPDF, printReceipt } from '../../../staff-util/ExportReceiptToPDF';
 
 const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymentBadge }) => {
   if (!isOpen || !rental) return null;

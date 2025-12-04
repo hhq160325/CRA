@@ -30,18 +30,34 @@ import { useTranslation } from 'react-i18next';
 
 const CarFilters = ({ cars = [], onFilterChange }) => {
   const { t } = useTranslation();
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [selectedCarTypes, setSelectedCarTypes] = useState([]);
   const [selectedFuelTypes, setSelectedFuelTypes] = useState([]);
   const [selectedTransmissions, setSelectedTransmissions] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [selectedYears, setSelectedYears] = useState([]);
 
+  // Collapsible sections state
+  const [expandedSections, setExpandedSections] = useState({
+    brand: true,
+    carType: true,
+    fuelType: true,
+    transmission: true,
+    capacity: true,
+    year: true
+  });
+
   // Extract unique values from cars
+  const brands = [...new Set(cars.map(car => car.manufacturer || car.brand || car.name?.split(' ')[0]).filter(Boolean))].sort();
+  const carTypes = [...new Set(cars.map(car => car.carType || car.type).filter(Boolean))].sort();
   const fuelTypes = [...new Set(cars.map(car => car.fuelType).filter(Boolean))];
   const transmissions = [...new Set(cars.map(car => car.transmission).filter(Boolean))];
   const seats = [...new Set(cars.map(car => car.seats).filter(Boolean))].sort((a, b) => a - b);
   const years = [...new Set(cars.map(car => car.yearOfManufacture).filter(Boolean))].sort((a, b) => b - a);
 
   // Count cars for each filter option
+  const countByBrand = (brand) => cars.filter(car => (car.manufacturer || car.brand || car.name?.split(' ')[0]) === brand).length;
+  const countByCarType = (type) => cars.filter(car => (car.carType || car.type) === type).length;
   const countByFuelType = (type) => cars.filter(car => car.fuelType === type).length;
   const countByTransmission = (trans) => cars.filter(car => car.transmission === trans).length;
   const countBySeats = (seat) => cars.filter(car => car.seats === seat).length;
@@ -51,13 +67,40 @@ const CarFilters = ({ cars = [], onFilterChange }) => {
   useEffect(() => {
     if (onFilterChange) {
       onFilterChange({
+        brands: selectedBrands,
+        carTypes: selectedCarTypes,
         fuelTypes: selectedFuelTypes,
         transmissions: selectedTransmissions,
         seats: selectedSeats,
         years: selectedYears
       });
     }
-  }, [selectedFuelTypes, selectedTransmissions, selectedSeats, selectedYears, onFilterChange]);
+  }, [selectedBrands, selectedCarTypes, selectedFuelTypes, selectedTransmissions, selectedSeats, selectedYears, onFilterChange]);
+
+  const toggleSection = (section) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  const handleBrandChange = (brand, event) => {
+    setSelectedBrands(prev =>
+      prev.includes(brand)
+        ? prev.filter(b => b !== brand)
+        : [...prev, brand]
+    );
+    event.target.blur();
+  };
+
+  const handleCarTypeChange = (type, event) => {
+    setSelectedCarTypes(prev =>
+      prev.includes(type)
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    );
+    event.target.blur();
+  };
 
   const handleFuelTypeChange = (type, event) => {
     setSelectedFuelTypes(prev =>
@@ -231,134 +274,122 @@ const CarFilters = ({ cars = [], onFilterChange }) => {
     return trans;
   };
 
-  return (
-    <div className="bg-white rounded-xl p-6 shadow-sm">
-      {/* Fuel Type Filter */}
-      {fuelTypes.length > 0 && (
-        <div className="mb-12">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-7">
-            {t('fuelType') || 'FUEL TYPE'}
+  const renderFilterSection = (title, items, selectedItems, onItemChange, countFn, labelFn, sectionKey) => {
+    if (items.length === 0) return null;
+
+    return (
+      <div key={sectionKey} className="mb-8 border-b border-gray-100 pb-8 last:border-b-0 last:pb-0">
+        <button
+          onClick={() => toggleSection(sectionKey)}
+          className="flex items-center justify-between w-full text-left mb-4 hover:text-blue-600 transition-colors"
+        >
+          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            {title}
           </h3>
-          <div className="space-y-8">
-            {fuelTypes.map((type) => (
-              <label key={type} className="flex items-center cursor-pointer group">
+          <svg
+            className={`w-4 h-4 text-gray-400 transform transition-transform ${expandedSections[sectionKey] ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {expandedSections[sectionKey] && (
+          <div className="space-y-6">
+            {items.map((item) => (
+              <label key={item} className="flex items-center cursor-pointer group">
                 <div className="relative">
                   <input
                     type="checkbox"
-                    checked={selectedFuelTypes.includes(type)}
-                    onChange={(e) => handleFuelTypeChange(type, e)}
+                    checked={selectedItems.includes(item)}
+                    onChange={(e) => onItemChange(item, e)}
                     className="w-5 h-5 text-blue-600 border-2 border-gray-200 rounded focus:ring-blue-500 focus:ring-2"
                   />
-                  {selectedFuelTypes.includes(type) && (
+                  {selectedItems.includes(item) && (
                     <svg className="absolute inset-0 w-5 h-5 text-blue-600 pointer-events-none" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M1827.701 303.065 698.835 1431.801 92.299 825.266 0 917.564 698.835 1616.4 1919.869 395.234z" fillRule="evenodd"></path>
                     </svg>
                   )}
                 </div>
                 <span className="ml-4 text-gray-600 flex-1 font-medium group-hover:text-gray-900 transition-colors">
-                  {getFuelTypeLabel(type)}
+                  {labelFn ? labelFn(item) : item}
                 </span>
-                <span className="text-gray-400 text-sm">({countByFuelType(type)})</span>
+                <span className="text-gray-400 text-sm">({countFn(item)})</span>
               </label>
             ))}
           </div>
-        </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="bg-white rounded-xl p-6 shadow-sm">
+      {/* Brand Filter */}
+      {renderFilterSection(
+        t('brand') || 'BRAND',
+        brands,
+        selectedBrands,
+        handleBrandChange,
+        countByBrand,
+        null,
+        'brand'
+      )}
+
+      {/* Car Type Filter */}
+      {renderFilterSection(
+        t('carType') || 'CAR TYPE',
+        carTypes,
+        selectedCarTypes,
+        handleCarTypeChange,
+        countByCarType,
+        null,
+        'carType'
+      )}
+
+      {/* Fuel Type Filter */}
+      {renderFilterSection(
+        t('fuelType') || 'FUEL TYPE',
+        fuelTypes,
+        selectedFuelTypes,
+        handleFuelTypeChange,
+        countByFuelType,
+        getFuelTypeLabel,
+        'fuelType'
       )}
 
       {/* Transmission Filter */}
-      {transmissions.length > 0 && (
-        <div className="mb-12">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-7">
-            {t('transmission') || 'TRANSMISSION'}
-          </h3>
-          <div className="space-y-8">
-            {transmissions.map((trans) => (
-              <label key={trans} className="flex items-center cursor-pointer group">
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    checked={selectedTransmissions.includes(trans)}
-                    onChange={(e) => handleTransmissionChange(trans, e)}
-                    className="w-5 h-5 text-blue-600 border-2 border-gray-200 rounded focus:ring-blue-500 focus:ring-2"
-                  />
-                  {selectedTransmissions.includes(trans) && (
-                    <svg className="absolute inset-0 w-5 h-5 text-blue-600 pointer-events-none" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M1827.701 303.065 698.835 1431.801 92.299 825.266 0 917.564 698.835 1616.4 1919.869 395.234z" fillRule="evenodd"></path>
-                    </svg>
-                  )}
-                </div>
-                <span className="ml-4 text-gray-600 flex-1 font-medium group-hover:text-gray-900 transition-colors">
-                  {getTransmissionLabel(trans)}
-                </span>
-                <span className="text-gray-400 text-sm">({countByTransmission(trans)})</span>
-              </label>
-            ))}
-          </div>
-        </div>
+      {renderFilterSection(
+        t('transmission') || 'TRANSMISSION',
+        transmissions,
+        selectedTransmissions,
+        handleTransmissionChange,
+        countByTransmission,
+        getTransmissionLabel,
+        'transmission'
       )}
 
       {/* Seats Filter */}
-      {seats.length > 0 && (
-        <div className="mb-12">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-7">
-            {t('capacity') || 'CAPACITY'}
-          </h3>
-          <div className="space-y-8">
-            {seats.map((seat) => (
-              <label key={seat} className="flex items-center cursor-pointer group">
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    checked={selectedSeats.includes(seat)}
-                    onChange={(e) => handleSeatsChange(seat, e)}
-                    className="w-5 h-5 text-blue-600 border-2 border-gray-200 rounded focus:ring-blue-500 focus:ring-2"
-                  />
-                  {selectedSeats.includes(seat) && (
-                    <svg className="absolute inset-0 w-5 h-5 text-blue-600 pointer-events-none" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M1827.701 303.065 698.835 1431.801 92.299 825.266 0 917.564 698.835 1616.4 1919.869 395.234z" fillRule="evenodd"></path>
-                    </svg>
-                  )}
-                </div>
-                <span className="ml-4 text-gray-600 flex-1 font-medium group-hover:text-gray-900 transition-colors">
-                  {seat} {t('people') || 'People'}
-                </span>
-                <span className="text-gray-400 text-sm">({countBySeats(seat)})</span>
-              </label>
-            ))}
-          </div>
-        </div>
+      {renderFilterSection(
+        t('capacity') || 'CAPACITY',
+        seats,
+        selectedSeats,
+        handleSeatsChange,
+        countBySeats,
+        (seat) => `${seat} ${t('people') || 'People'}`,
+        'capacity'
       )}
 
       {/* Year Filter */}
-      {years.length > 0 && (
-        <div>
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-7">
-            {t('yearOfManufacture') || 'YEAR'}
-          </h3>
-          <div className="space-y-8">
-            {years.map((year) => (
-              <label key={year} className="flex items-center cursor-pointer group">
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    checked={selectedYears.includes(year)}
-                    onChange={(e) => handleYearChange(year, e)}
-                    className="w-5 h-5 text-blue-600 border-2 border-gray-200 rounded focus:ring-blue-500 focus:ring-2"
-                  />
-                  {selectedYears.includes(year) && (
-                    <svg className="absolute inset-0 w-5 h-5 text-blue-600 pointer-events-none" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M1827.701 303.065 698.835 1431.801 92.299 825.266 0 917.564 698.835 1616.4 1919.869 395.234z" fillRule="evenodd"></path>
-                    </svg>
-                  )}
-                </div>
-                <span className="ml-4 text-gray-600 flex-1 font-medium group-hover:text-gray-900 transition-colors">
-                  {year}
-                </span>
-                <span className="text-gray-400 text-sm">({countByYear(year)})</span>
-              </label>
-            ))}
-          </div>
-        </div>
+      {renderFilterSection(
+        t('yearOfManufacture') || 'YEAR',
+        years,
+        selectedYears,
+        handleYearChange,
+        countByYear,
+        null,
+        'year'
       )}
 >>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
     </div>

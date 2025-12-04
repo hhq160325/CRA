@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-
-const PaymentCancel = () => {
-  const navigate = useNavigate();
-=======
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -53,7 +46,6 @@ const PaymentCancel = () => {
       }
     }
   }, []);
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -65,21 +57,6 @@ const PaymentCancel = () => {
         </div>
         
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
-<<<<<<< HEAD
-          Payment Cancelled
-        </h1>
-        
-        <p className="text-gray-600 mb-8">
-          Your payment has been cancelled. No charges have been made to your account.
-        </p>
-        
-        <div className="space-y-3">
-          <button
-            onClick={() => navigate('/payment')}
-            className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            Try Again
-=======
           {t('paymentCancelled')}
         </h1>
         
@@ -95,27 +72,20 @@ const PaymentCancel = () => {
         )}
         
         <div className="space-y-3">
-          <button
+          {/* <button
             onClick={() => navigate('/payment')}
             disabled={isUpdatingBooking}
             className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {t('tryAgain')}
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
-          </button>
+          </button> */}
           
           <button
             onClick={() => navigate('/')}
-<<<<<<< HEAD
-            className="w-full bg-gray-200 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors font-medium"
-          >
-            Back to Home
-=======
             disabled={isUpdatingBooking}
             className="w-full bg-gray-200 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
             {t('backToHome')}
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
           </button>
         </div>
       </div>

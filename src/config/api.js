@@ -1,13 +1,8 @@
 // Central API configuration
-<<<<<<< HEAD
-export const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_URL || "https://localhost:7269/api",
-=======
 //https://localhost:7269/api
 export const API_CONFIG = {
   BASE_URL: process.env.REACT_APP_API_URL || "https://localhost:7184/api",
   ALTER_URL:process.env.REACT_APP_API_ALTER_URL || "https://localhost:7184", //For PayOSAllPayments
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
   TIMEOUT: 10000,
   HEADERS: {
     "Content-Type": "application/json",
@@ -16,13 +11,9 @@ export const API_CONFIG = {
 
 // Auth endpoints
 export const AUTH_ENDPOINTS = {
-<<<<<<< HEAD
-  LOGIN: `${API_CONFIG.BASE_URL}/User/authenticate`,
-  REGISTER: `${API_CONFIG.BASE_URL}/User/SignUp`,
-=======
   LOGIN: `${API_CONFIG.BASE_URL}/Authen/authenticate`,
   REGISTER: `${API_CONFIG.BASE_URL}/Authen/SignUp`,
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
+  LOGIN_GOOGLE: `${API_CONFIG.BASE_URL}/Authen/login/google`,
   FORGOT_PASSWORD: `${API_CONFIG.BASE_URL}/auth/forgot-password`,
   RESET_PASSWORD: `${API_CONFIG.BASE_URL}/auth/reset-password`,
   VERIFY_TOKEN: `${API_CONFIG.BASE_URL}/auth/verify-token`,
@@ -37,16 +28,11 @@ export const AUTH_API_CONFIG = {
 
 // User endpoints
 export const USER_ENDPOINTS = {
-<<<<<<< HEAD
-  GET_ALL_USERS: `${API_CONFIG.BASE_URL}/User/GetAllUsers`,
-  GET_USER_BY_ID: (userId) => `${API_CONFIG.BASE_URL}/User/GetUserById?userId=${userId}`,
-  UPDATE_USER_INFO: `${API_CONFIG.BASE_URL}/User/UpdateUserInfo`,
-=======
   GET_USER_BY_ID: (userId) => `${API_CONFIG.BASE_URL}/User/GetUserById?userId=${userId}`,
   GET_ALL_USERS: `${API_CONFIG.BASE_URL}/User/GetAllUsers`,
   UPDATE_USER_INFO: `${API_CONFIG.BASE_URL}/User/UpdateUserInfo`,
   UPLOAD_AVATAR: (userId) => `${API_CONFIG.BASE_URL}/User/upload-avatar/${userId}`,
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
+  UPLOAD_DRIVER_LICENSE: (userId) => `${API_CONFIG.BASE_URL}/User/driverLicense/${userId}`,
   PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
   UPDATE_PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
 };
@@ -56,13 +42,6 @@ export const USER_API_CONFIG = {
   headers: API_CONFIG.HEADERS,
 };
 
-<<<<<<< HEAD
-// Admin / staff endpoints
-export const ADMIN_STAFF_ENDPOINTS = {
-  GET_ALL_USERS: USER_ENDPOINTS.GET_ALL_USERS,
-  GET_ALL_BOOKINGS: `${API_CONFIG.BASE_URL}/Booking/GetAllBookings`,
-  GET_ALL_INVOICES: `${API_CONFIG.BASE_URL}/Invoice/AllInvoices`,
-=======
 // Park Lot endpoints
 export const PARKLOT_ENDPOINTS = {
   GET_ALL: `${API_CONFIG.BASE_URL}/ParkLot`,
@@ -117,6 +96,7 @@ export const SCHEDULE_API_CONFIG = {
 // Invoice endpoints
 export const INVOICE_ENDPOINTS = {
   GET_ALL_INVOICES: `${API_CONFIG.BASE_URL}/Invoice/AllInvoices`,
+  GET_ALL: `${API_CONFIG.ALTER_URL}/Invoice/All`,
   GET_INVOICE_BY_ID: (invoiceId) => `${API_CONFIG.ALTER_URL}/${invoiceId}`,
 };
 
@@ -140,6 +120,8 @@ export const PAYMENT_API_CONFIG = {
 // TrackAsia endpoints
 export const TRACKASIA_ENDPOINTS = {
   REVERSE_GEOCODING: `${API_CONFIG.BASE_URL}/TrackAsia/GetReverseGeocoding`,
+  GET_COORDINATE_FROM_ADDRESS: `${API_CONFIG.BASE_URL}/TrackAsia/GetCoordinateFromAddress`,
+  GET_DISTANCE_BETWEEN_ADDRESSES: `${API_CONFIG.BASE_URL}/TrackAsia/GetDistanceBetweenAddresses`,
 };
 
 export const TRACKASIA_API_CONFIG = {
@@ -158,5 +140,4 @@ export const FEEDBACK_API_CONFIG = {
   headers: {
     'Content-Type': 'multipart/form-data',
   },
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 };

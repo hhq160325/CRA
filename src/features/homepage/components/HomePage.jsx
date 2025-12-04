@@ -280,9 +280,9 @@ const HomePage = () => {
   const [dateTimePickerOpen, setDateTimePickerOpen] = useState(false);
 
   // Selected values
-  const [location, setLocation] = useState('Pick your location');
+  const [location, setLocation] = useState('');
   const [locationAddress, setLocationAddress] = useState('');
-  const [locationCity, setLocationCity] = useState('Pick your location');
+  const [locationCity, setLocationCity] = useState('');
   const [selectedAirport, setSelectedAirport] = useState('');
   const [pickupDateStr, setPickupDateStr] = useState('01/12');
   const [dropoffDateStr, setDropoffDateStr] = useState('02/12');
@@ -486,7 +486,7 @@ const HomePage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                {t('location') || 'Địa điểm'}
+                {t('location')}
               </label>
               <button
                 type="button"
@@ -494,7 +494,7 @@ const HomePage = () => {
                 className='w-full text-left flex items-center justify-between group hover:opacity-80 transition-opacity'
               >
                 <span className='text-sm sm:text-base text-gray-900 font-medium'>
-                  {location}
+                  {location || t('pickYourLocation')}
                 </span>
                 <svg
                   className='w-4 h-4 text-gray-400 flex-shrink-0 ml-2'
@@ -513,7 +513,7 @@ const HomePage = () => {
                 <svg className="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                {t('rentalPeriod') || 'Thời gian thuê'}
+                {t('rentalPeriod')}
               </label>
               <button
                 type="button"
@@ -537,7 +537,7 @@ const HomePage = () => {
             {/* Search Button */}
             <div className='flex items-end md:items-center md:ml-3'>
               <button className='w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium text-sm whitespace-nowrap'>
-                {t('search') || 'Tìm Xe'}
+                {t('search')}
               </button>
 >>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
             </div>
@@ -583,6 +583,7 @@ const HomePage = () => {
           locationCity={locationCity}
           selectedAirport={selectedAirport}
           setSelectedAirport={setSelectedAirport}
+          showParkLotOptions={true}
           onLocationUpdate={(newLocation) => {
             setLocation(newLocation);
             // Parse address and city if needed
@@ -618,11 +619,11 @@ const HomePage = () => {
           {loading ? (
             <div className="text-center py-8">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <p className="mt-2 text-gray-600">Loading cars...</p>
+              <p className="mt-2 text-gray-600">{t('loadingCars')}</p>
             </div>
           ) : error ? (
             <div className="text-center py-8">
-              <p className="text-red-600">Error loading cars: {error}</p>
+              <p className="text-red-600">{t('errorLoadingCars')} {error}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">

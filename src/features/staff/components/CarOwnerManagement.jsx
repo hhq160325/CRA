@@ -1,134 +1,73 @@
-<<<<<<< HEAD
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
-import {
-  updateCarOwnerStatus,
-  setCarOwners,
-  setLoading,
-  setError,
-  clearError,
-} from '../staffSlice';
-import { CarOwnerModal } from './modals/carOwnerModal';
-import { fetchAllUsers } from '../api';
-=======
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { updateCarOwnerStatus } from '../staffSlice';
 import { CarOwnerModal } from './modals/carOwnerModal';
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
+import { axiosInstance } from '../../../shared/utils/axiosInstance';
+import { USER_ENDPOINTS } from '../../../config/api';
+import { ROLES } from '../../auth/utils';
 
 const CarOwnerManagement = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-<<<<<<< HEAD
-  const carOwners = useSelector((state) => state.staff?.carOwners || []);
-  const isLoading = useSelector(
-    (state) => state.staff?.loading?.carOwners || false
-  );
-  const error = useSelector((state) => state.staff?.errors?.carOwners);
-=======
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedOwner, setSelectedOwner] = useState(null);
   const [modalType, setModalType] = useState(null); // 'view', 'edit', 'suspend'
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [carOwners, setCarOwners] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-<<<<<<< HEAD
+  // Fetch all users and filter out customers, admins, and staff
   useEffect(() => {
-    const loadCarOwners = async () => {
+    const fetchCarOwners = async () => {
       try {
-        dispatch(setLoading({ section: 'carOwners', loading: true }));
-        const users = await fetchAllUsers();
-        // Car owners: IsCarOwner true or RoleId == 2 (Car Owner)
-        const ownerRows = (users || [])
-          .filter((u) => u.isCarOwner || u.roleId === 2)
-          .map((u) => ({
-            id: u.id,
-            name: u.fullname || u.username,
-            email: u.email,
-            phone: u.phoneNumber || '',
-            status: (u.status || 'active').toLowerCase(),
-            registrationDate: '',
-            carsListed: 0,
-            totalEarnings: 0,
-            verificationStatus:
-              (u.status || '').toLowerCase() === 'active'
-                ? 'verified'
-                : 'pending',
-            lastActive: '',
-          }));
-        dispatch(setCarOwners(ownerRows));
-        dispatch(clearError('carOwners'));
-      } catch (e) {
-        dispatch(
-          setError({
-            section: 'carOwners',
-            error: e?.message || 'Failed to load car owners',
-          })
-        );
+        setLoading(true);
+        const response = await axiosInstance.get(USER_ENDPOINTS.GET_ALL_USERS);
+        
+        // Filter out roleId 1 (Customer), 1001 (Admin), and 1002 (Staff)
+        const excludedRoles = [ROLES.CUSTOMER, ROLES.ADMIN, ROLES.STAFF];
+        const owners = response.data
+          .filter(user => !excludedRoles.includes(user.roleId))
+          .map(user => {
+            // Get name - prioritize full name over username over email
+            let name = 'N/A';
+            const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+            if (fullName) {
+              name = fullName;
+            } else if (user.username) {
+              name = user.username;
+            } else if (user.email) {
+              name = user.email;
+            }
+            
+            return {
+              id: user.id,
+              name: name,
+              email: user.email || 'N/A',
+              phone: user.phoneNumber || 'N/A',
+              status: user.status || 'active',
+              registrationDate: user.createdAt || user.registrationDate || 'N/A',
+              carsListed: user.carsListed || 0,
+              totalEarnings: user.totalEarnings || 0,
+              verificationStatus: user.verificationStatus || 'pending',
+              lastActive: user.lastActive || 'N/A'
+            };
+          });
+        
+        setCarOwners(owners);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching car owners:', err);
+        setError('Failed to load car owners');
       } finally {
-        dispatch(setLoading({ section: 'carOwners', loading: false }));
+        setLoading(false);
       }
     };
 
-    loadCarOwners();
-  }, [dispatch]);
-=======
-  // Mock data for car owners
-  const carOwners = [
-    {
-      id: 1,
-      name: 'John Smith',
-      email: 'john.smith@email.com',
-      phone: '+1 (555) 123-4567',
-      status: 'active',
-      registrationDate: '2024-01-15',
-      carsListed: 3,
-      totalEarnings: 12450,
-      verificationStatus: 'verified',
-      lastActive: '2 hours ago'
-    },
-    {
-      id: 2,
-      name: 'Sarah Johnson',
-      email: 'sarah.j@email.com',
-      phone: '+1 (555) 234-5678',
-      status: 'pending',
-      registrationDate: '2024-02-20',
-      carsListed: 1,
-      totalEarnings: 0,
-      verificationStatus: 'pending',
-      lastActive: '1 day ago'
-    },
-    {
-      id: 3,
-      name: 'Mike Wilson',
-      email: 'mike.w@email.com',
-      phone: '+1 (555) 345-6789',
-      status: 'suspended',
-      registrationDate: '2023-12-10',
-      carsListed: 2,
-      totalEarnings: 8750,
-      verificationStatus: 'verified',
-      lastActive: '1 week ago'
-    },
-    {
-      id: 4,
-      name: 'Emma Davis',
-      email: 'emma.davis@email.com',
-      phone: '+1 (555) 456-7890',
-      status: 'active',
-      registrationDate: '2024-03-05',
-      carsListed: 5,
-      totalEarnings: 23100,
-      verificationStatus: 'verified',
-      lastActive: '30 minutes ago'
-    }
-  ];
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
+    fetchCarOwners();
+  }, []);
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
@@ -202,28 +141,41 @@ const CarOwnerManagement = () => {
     return matchesSearch && matchesStatus;
   });
 
+  if (loading) {
+    return (
+      <div className="p-8 space-y-6 space-y-reverse-0 min-h-full bg-gray-50">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">{t('loading') || 'Loading...'}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 space-y-6 space-y-reverse-0 min-h-full bg-gray-50">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <svg className="w-12 h-12 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="mt-4 text-gray-600">{error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-8 space-y-6 space-y-reverse-0 min-h-full bg-gray-50">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-<<<<<<< HEAD
-          <h1 className="text-2xl font-bold text-gray-900">
-            {t('carOwnerManagement')}
-          </h1>
-          <p className="text-gray-600">{t('viewAndManageCarOwners')}</p>
-          {isLoading && (
-            <p className="text-xs text-gray-400 mt-1">{t('loading')}...</p>
-          )}
-          {error && (
-            <p className="text-xs text-red-500 mt-1">
-              {t('error')}: {error}
-            </p>
-          )}
-=======
           <h1 className="text-2xl font-bold text-gray-900">{t('carOwnerManagement')}</h1>
           <p className="text-gray-600">{t('viewAndManageCarOwners')}</p>
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
         </div>
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
           {t('exportData')}

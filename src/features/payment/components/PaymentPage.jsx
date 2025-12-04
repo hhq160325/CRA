@@ -58,11 +58,45 @@ const PaymentPage = () => {
 
     // Selected values - Initialize from localStorage using lazy initialization
     const [rentalLocation, setRentalLocation] = useState(() => {
-        return localStorage.getItem('deliveryLocation') || 'Pick your location';
+        // Check for delivery location first
+        const deliveryLocation = localStorage.getItem('deliveryLocation');
+        if (deliveryLocation) {
+            return deliveryLocation;
+        }
+        
+        // Check for self-pickup park lot
+        const selfPickupParkLot = localStorage.getItem('selfpickupparklot');
+        if (selfPickupParkLot) {
+            try {
+                const parkLot = JSON.parse(selfPickupParkLot);
+                return parkLot.fullAddress || parkLot.address || 'Pick your location';
+            } catch (e) {
+                console.error('Failed to parse selfpickupparklot:', e);
+            }
+        }
+        
+        return 'Pick your location';
     });
     const [locationAddress, setLocationAddress] = useState('');
     const [locationCity, setLocationCity] = useState(() => {
-        return localStorage.getItem('deliveryLocation') || 'Pick your location';
+        // Check for delivery location first
+        const deliveryLocation = localStorage.getItem('deliveryLocation');
+        if (deliveryLocation) {
+            return deliveryLocation;
+        }
+        
+        // Check for self-pickup park lot
+        const selfPickupParkLot = localStorage.getItem('selfpickupparklot');
+        if (selfPickupParkLot) {
+            try {
+                const parkLot = JSON.parse(selfPickupParkLot);
+                return parkLot.city || 'Pick your location';
+            } catch (e) {
+                console.error('Failed to parse selfpickupparklot:', e);
+            }
+        }
+        
+        return 'Pick your location';
     });
     const [selectedAirport, setSelectedAirport] = useState('');
     const [pickupDateStr, setPickupDateStr] = useState(() => {
@@ -273,12 +307,40 @@ const PaymentPage = () => {
             pickupDateTime.setHours(pickupHour, pickupMinute, 0, 0);
             dropoffDateTime.setHours(dropoffHour, dropoffMinute, 0, 0);
 
+            // Get car park lot from localStorage
+            const carParkLotData = localStorage.getItem('carParkLot'); // For delivery option
+            const selfPickupParkLotData = localStorage.getItem('selfpickupparklot'); // For self-pickup option
+            let pickupPlace = rentalLocation;
+            let dropoffPlace = rentalLocation;
+            
+            // If delivery option is selected (carParkLot exists)
+            if (carParkLotData) {
+                try {
+                    const carParkLot = JSON.parse(carParkLotData);
+                    pickupPlace = carParkLot.fullAddress || carParkLot.address || rentalLocation;
+                    dropoffPlace = rentalLocation; // Delivery location as dropoff place
+                } catch (e) {
+                    console.error('Failed to parse carParkLot from localStorage:', e);
+                }
+            }
+            // If self-pickup option is selected (selfpickupparklot exists)
+            else if (selfPickupParkLotData) {
+                try {
+                    const selfPickupParkLot = JSON.parse(selfPickupParkLotData);
+                    const parkLotAddress = selfPickupParkLot.fullAddress || selfPickupParkLot.address;
+                    pickupPlace = parkLotAddress || rentalLocation;
+                    dropoffPlace = parkLotAddress || rentalLocation; // Same location for self-pickup
+                } catch (e) {
+                    console.error('Failed to parse selfpickupparklot from localStorage:', e);
+                }
+            }
+
             const bookingData = {
                 customerId: customerId,
                 carId: carData.carId,
-                pickupPlace: rentalLocation,
+                pickupPlace: pickupPlace,
                 pickupTime: pickupDateTime.toISOString(),
-                dropoffPlace: rentalLocation,
+                dropoffPlace: dropoffPlace,
                 dropoffTime: dropoffDateTime.toISOString(),
                 bookingFee: 15, // 15% cut
                 carRentPrice: typeof carData.carPrice === 'number' ? carData.carPrice : parseFloat(carData.carPrice) || 0,

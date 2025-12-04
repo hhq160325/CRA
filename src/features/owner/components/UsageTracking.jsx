@@ -1,122 +1,12 @@
-<<<<<<< HEAD
-import { useState } from 'react';
-=======
 import { useState, useEffect } from 'react';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
 import { CAR_ENDPOINTS, BOOKING_ENDPOINTS } from '../../../config/api';
 import DropdownTemplate from '../../../shared/components/DropdownTemplate';
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
+import { tokenUtils } from '../../auth/utils';
 
 const UsageTracking = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('month');
-<<<<<<< HEAD
-  const [selectedCar, setSelectedCar] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // Mock data for usage tracking
-  const usageData = [
-    {
-      id: 1,
-      carId: 'C001',
-      carName: 'Tesla Model 3',
-      carModel: '2022',
-      licensePlate: 'ABC-1234',
-      totalMileage: 18500,
-      rentalMileage: 14200,
-      personalMileage: 4300,
-      totalRentals: 45,
-      totalDaysRented: 120,
-      availabilityRate: 75,
-      utilizationRate: 65,
-      averageDailyMileage: 154,
-      lastRentalDate: '2024-10-06',
-      currentStatus: 'available'
-    },
-    {
-      id: 2,
-      carId: 'C002',
-      carName: 'BMW X5',
-      carModel: '2021',
-      licensePlate: 'XYZ-5678',
-      totalMileage: 28750,
-      rentalMileage: 22100,
-      personalMileage: 6650,
-      totalRentals: 62,
-      totalDaysRented: 185,
-      availabilityRate: 68,
-      utilizationRate: 58,
-      averageDailyMileage: 155,
-      lastRentalDate: '2024-10-05',
-      currentStatus: 'rented'
-    },
-    {
-      id: 3,
-      carId: 'C003',
-      carName: 'Honda Civic',
-      carModel: '2023',
-      licensePlate: 'DEF-9012',
-      totalMileage: 9200,
-      rentalMileage: 6800,
-      personalMileage: 2400,
-      totalRentals: 28,
-      totalDaysRented: 85,
-      availabilityRate: 82,
-      utilizationRate: 72,
-      averageDailyMileage: 108,
-      lastRentalDate: '2024-10-04',
-      currentStatus: 'available'
-    },
-    {
-      id: 4,
-      carId: 'C004',
-      carName: 'Mercedes C-Class',
-      carModel: '2022',
-      licensePlate: 'GHI-3456',
-      totalMileage: 31200,
-      rentalMileage: 24500,
-      personalMileage: 6700,
-      totalRentals: 78,
-      totalDaysRented: 210,
-      availabilityRate: 70,
-      utilizationRate: 60,
-      averageDailyMileage: 149,
-      lastRentalDate: '2024-10-07',
-      currentStatus: 'maintenance'
-    },
-    {
-      id: 5,
-      carId: 'C005',
-      carName: 'Toyota Camry',
-      carModel: '2023',
-      licensePlate: 'JKL-7890',
-      totalMileage: 14800,
-      rentalMileage: 11200,
-      personalMileage: 3600,
-      totalRentals: 35,
-      totalDaysRented: 105,
-      availabilityRate: 80,
-      utilizationRate: 70,
-      averageDailyMileage: 141,
-      lastRentalDate: '2024-10-03',
-      currentStatus: 'available'
-    }
-  ];
-
-  const getStatusBadge = (status) => {
-    const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
-    switch (status) {
-      case 'available':
-        return `${baseClasses} bg-green-100 text-green-800`;
-      case 'rented':
-        return `${baseClasses} bg-blue-100 text-blue-800`;
-      case 'maintenance':
-        return `${baseClasses} bg-yellow-100 text-yellow-800`;
-      case 'unavailable':
-        return `${baseClasses} bg-red-100 text-red-800`;
-      default:
-        return `${baseClasses} bg-gray-100 text-gray-800`;
-=======
   const [brandFilter, setBrandFilter] = useState('all');
   const [modelFilter, setModelFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -153,8 +43,21 @@ const UsageTracking = () => {
     const fetchCarsWithBookings = async () => {
       try {
         setLoading(true);
+        
+        // Get current user ID from JWT token (more secure)
+        const currentOwnerId = tokenUtils.getUserId();
+        
+        if (!currentOwnerId) {
+          setError('Unable to identify current user. Please log in again.');
+          setLoading(false);
+          return;
+        }
+        
         const response = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS);
-        const cars = response.data || [];
+        const allCars = response.data || [];
+        
+        // Filter cars by current owner ID
+        const cars = allCars.filter(car => car.owner.id === currentOwnerId);
         
         // Fetch bookings for each car in parallel
         const carsWithBookings = await Promise.all(
@@ -242,7 +145,6 @@ const UsageTracking = () => {
         return { className: `${baseClasses} bg-red-100 text-red-800`, label: 'unavailable' };
       default:
         return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: displayStatus || 'unknown' };
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
     }
   };
 
@@ -259,19 +161,6 @@ const UsageTracking = () => {
   const filteredUsage = usageData.filter(car => {
     const matchesSearch = car.carName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       car.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-<<<<<<< HEAD
-      car.carId.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  });
-
-  // Calculate overall statistics
-  const totalCars = usageData.length;
-  const totalMileage = usageData.reduce((sum, car) => sum + car.totalMileage, 0);
-  const totalRentals = usageData.reduce((sum, car) => sum + car.totalRentals, 0);
-  const averageUtilization = usageData.reduce((sum, car) => sum + car.utilizationRate, 0) / totalCars;
-
-  return (
-=======
       car.carId.toString().toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesBrand = brandFilter === 'all' || car.brand === brandFilter;
@@ -410,7 +299,6 @@ const UsageTracking = () => {
 
   return (
     <>
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
     <div className="p-8 space-y-6 min-h-full bg-gray-50">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -437,11 +325,7 @@ const UsageTracking = () => {
       </div>
 
       {/* Statistics Cards */}
-<<<<<<< HEAD
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-=======
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
         <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
             <div>
@@ -457,11 +341,7 @@ const UsageTracking = () => {
           </div>
         </div>
 
-<<<<<<< HEAD
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
-=======
         {/* <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Mileage</p>
@@ -473,11 +353,7 @@ const UsageTracking = () => {
               </svg>
             </div>
           </div>
-<<<<<<< HEAD
-        </div>
-=======
         </div> */}
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 
         <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-purple-500">
           <div className="flex items-center justify-between">
@@ -493,11 +369,7 @@ const UsageTracking = () => {
           </div>
         </div>
 
-<<<<<<< HEAD
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-orange-500">
-=======
         {/* <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-orange-500">
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Avg. Utilization</p>
@@ -509,27 +381,6 @@ const UsageTracking = () => {
               </svg>
             </div>
           </div>
-<<<<<<< HEAD
-        </div>
-      </div>
-
-      {/* Search Filter */}
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-          <div className="relative flex-1 max-w-md">
-            <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search by car name, license plate, or ID"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
-            />
-          </div>
-          <div className="text-sm text-gray-600">
-=======
         </div> */}
       </div>
 
@@ -585,7 +436,6 @@ const UsageTracking = () => {
           </div>
           
           <div className="text-sm text-gray-600 whitespace-nowrap">
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
             Showing {filteredUsage.length} of {usageData.length} cars
           </div>
         </div>
@@ -598,98 +448,17 @@ const UsageTracking = () => {
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50">
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Car Information</th>
-<<<<<<< HEAD
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Total Mileage</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rental vs Personal</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rentals</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Days Rented</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Utilization</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Avg. Daily Mileage</th>
-=======
                 {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Total Mileage</th> */}
                 {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rental vs Personal</th> */}
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rentals</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Days Rented</th>
                 {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Utilization</th> */}
                 {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Avg. Daily Mileage</th> */}
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Status</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-<<<<<<< HEAD
-              {filteredUsage.map((car) => {
-                const rentalPercentage = (car.rentalMileage / car.totalMileage * 100).toFixed(1);
-                const personalPercentage = (car.personalMileage / car.totalMileage * 100).toFixed(1);
-                
-                return (
-                  <tr key={car.id} className="hover:bg-gray-50">
-                    <td className="py-4 px-6">
-                      <div className="font-medium text-gray-900 text-sm">{car.carName}</div>
-                      <div className="text-xs text-gray-500">{car.carModel} • {car.licensePlate}</div>
-                      <div className="text-xs text-gray-400">{car.carId}</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="text-sm font-medium text-gray-900">{car.totalMileage.toLocaleString()} km</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="space-y-1">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-24 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-blue-600 h-2 rounded-full" 
-                              style={{ width: `${rentalPercentage}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-xs text-gray-600">{rentalPercentage}%</span>
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          Rental: {car.rentalMileage.toLocaleString()} km | Personal: {car.personalMileage.toLocaleString()} km
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="text-sm text-gray-900">{car.totalRentals}</div>
-                      <div className="text-xs text-gray-500">Total bookings</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="text-sm text-gray-900">{car.totalDaysRented}</div>
-                      <div className="text-xs text-gray-500">days</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-green-600 h-2 rounded-full" 
-                            style={{ width: `${car.utilizationRate}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm font-medium text-gray-900">{car.utilizationRate}%</span>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">Availability: {car.availabilityRate}%</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="text-sm text-gray-900">{car.averageDailyMileage} km</div>
-                      <div className="text-xs text-gray-500">per day</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={getStatusBadge(car.currentStatus)}>
-                        {car.currentStatus}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <button
-                        onClick={() => openModal(car)}
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                      >
-                        View Details
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-=======
               {paginatedUsage.length === 0 ? (
                 <tr>
                   <td colSpan="5" className="py-8 text-center text-gray-500">
@@ -769,30 +538,11 @@ const UsageTracking = () => {
                   );
                 })
               )}
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
             </tbody>
           </table>
         </div>
 
         {/* Pagination */}
-<<<<<<< HEAD
-        <div className="flex items-center justify-center py-4 border-t border-gray-200">
-          <div className="flex items-center space-x-2">
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Previous</button>
-            <div className="flex space-x-1">
-              <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
-              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
-              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
-            </div>
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Next</button>
-          </div>
-        </div>
-      </div>
-
-      {/* Modal for detailed usage view */}
-      {isModalOpen && selectedCar && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-=======
         <div className="flex items-center justify-between py-4 px-6 border-t border-gray-200">
           <div className="text-sm text-gray-600">
             {filteredUsage.length > 0 ? (
@@ -855,7 +605,6 @@ const UsageTracking = () => {
       {/* Modal for detailed usage view */}
       {isModalOpen && selectedCar && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
           <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
@@ -967,16 +716,10 @@ const UsageTracking = () => {
                   </div>
                   <div>
                     <p className="text-gray-600">Current Status</p>
-<<<<<<< HEAD
-                    <span className={getStatusBadge(selectedCar.currentStatus)}>
-                      {selectedCar.currentStatus}
-                    </span>
-=======
                     {(() => {
                       const badge = getStatusBadge(selectedCar.currentStatus);
                       return <span className={badge.className}>{badge.label}</span>;
                     })()}
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                   </div>
                 </div>
               </div>
@@ -984,11 +727,7 @@ const UsageTracking = () => {
           </div>
         </div>
       )}
-<<<<<<< HEAD
-    </div>
-=======
     </>
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
   );
 };
 

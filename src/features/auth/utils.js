@@ -57,15 +57,30 @@ export const decodeJWT = (token) => {
 export const getRoleFromToken = (token) => {
   const decoded = decodeJWT(token);
   if (!decoded) return null;
-  
+
   // Check for role claim in the token
   const roleClaim = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
   return roleClaim ? parseInt(roleClaim, 10) : null;
 };
 
+// Extract userId from JWT token
+export const getUserIdFromToken = (token) => {
+  const decoded = decodeJWT(token);
+  if (!decoded) return null;
+
+  // Common JWT claims for user ID
+  return decoded.sub || 
+         decoded.userId || 
+         decoded.id || 
+         decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] ||
+         decoded.nameid ||
+         null;
+};
+
 // Role constants
 export const ROLES = {
   CUSTOMER: 1,
+  OWNER: 2,
   ADMIN: 1001,
   STAFF: 1002
 };
@@ -79,6 +94,8 @@ export const getRedirectPathByRole = (roleId) => {
       return '/admin';
     case ROLES.STAFF:
       return '/staff';
+    case ROLES.OWNER:
+      return '/owner';
     default:
       return '/';
   }
@@ -151,6 +168,12 @@ export const tokenUtils = {
   getUserRole: () => {
     const token = tokenUtils.getAccessToken();
     return getRoleFromToken(token);
+  },
+
+  // Get user ID from token
+  getUserId: () => {
+    const token = tokenUtils.getAccessToken();
+    return getUserIdFromToken(token);
   }
 };
 
@@ -162,7 +185,7 @@ export const passwordValidation = {
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
     const hasNumbers = /\d/.test(password);
-    
+
     return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers;
   },
 

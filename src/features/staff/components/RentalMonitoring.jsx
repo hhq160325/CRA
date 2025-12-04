@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
 import { BOOKING_ENDPOINTS, CAR_ENDPOINTS, USER_ENDPOINTS, INVOICE_ENDPOINTS, PAYMENT_ENDPOINTS, FEEDBACK_ENDPOINTS } from '../../../config/api';
-import RentalDetailsModal from './modal/RentalDetailsModal';
+import RentalDetailsModal from './modals/rentalMonitoringModal/RentalDetailsModal';
 import { getUserIdFromToken } from '../../user/api';
 import DropdownTemplate from '../../../shared/components/DropdownTemplate';
 
-const RentalHistory = () => {
+const RentalMonitoring = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [carFilter, setCarFilter] = useState('all');
@@ -44,10 +44,12 @@ const RentalHistory = () => {
       const payments = paymentsResponse.data || [];
 
       // Get logged-in user's ID (vendorId)
-      const currentUserId = getUserIdFromToken();
+      // const currentUserId = getUserIdFromToken();
 
       // Filter invoices to show only those where the current user is the vendor
-      const invoices = allInvoices.filter(invoice => invoice.vendorId === currentUserId);
+      // TEMPORARILY DISABLED: Show all invoices regardless of vendor
+      const invoices = allInvoices;
+      // const invoices = allInvoices.filter(invoice => invoice.vendorId === currentUserId);
 
       // Create lookup maps
       const carMap = cars.reduce((acc, car) => {
@@ -506,7 +508,7 @@ const RentalHistory = () => {
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
             <div className="flex items-center justify-between">
               <div>
@@ -535,7 +537,7 @@ const RentalHistory = () => {
             </div>
           </div>
 
-          {/* <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-yellow-500">
+          <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-yellow-500">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Average Rating</p>
@@ -547,9 +549,9 @@ const RentalHistory = () => {
                 </svg>
               </div>
             </div>
-          </div> */}
+          </div>
 
-          {/* <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-purple-500">
+          <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-purple-500">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Mileage</p>
@@ -561,8 +563,8 @@ const RentalHistory = () => {
                 </svg>
               </div>
             </div>
-          </div> */}
-        </div>
+          </div>
+        </div> */}
 
         {/* Filters */}
         <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
@@ -624,9 +626,9 @@ const RentalHistory = () => {
                 </div>
               </div>
               
-              <div className="text-sm text-gray-600 whitespace-nowrap">
+              {/* <div className="text-sm text-gray-600 whitespace-nowrap">
                 Showing {filteredRentals.length} of {rentalHistory.length} rentals
-              </div>
+              </div> */}
             </div>
 
             {/* Date Range Filter */}
@@ -824,5 +826,5 @@ const RentalHistory = () => {
   );
 };
 
-export default RentalHistory;
+export default RentalMonitoring;
 

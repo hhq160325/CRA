@@ -1,17 +1,8 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import LogoutButton from '../../../shared/components/LogoutButton';
-import MyProfile from './ProfilePageTabs/MyProfile';
-import FavouriteCarPage from './ProfilePageTabs/FavouriteCarPage';
-import RentalHistoryPage from './ProfilePageTabs/RentalHistoryPage';
-import PaymentHistoryPage from './ProfilePageTabs/PaymentHistoryPage';
-import InboxPage from './ProfilePageTabs/InboxPage';
-import CalendarPage from '../../owner/components/CalendarPage';
-import ReimbursePage from './ProfilePageTabs/ReimbursePage';
-import SettingsPage from './ProfilePageTabs/SettingsPage';
-import HelpCenterPage from './ProfilePageTabs/HelpCenterPage';
 import { selectUser } from '../../auth/authSlice';
 import { ROLES } from '../../auth/utils';
 
@@ -231,32 +222,6 @@ const ProfileSidebar = () => {
 };
 
 const ProfilePage = () => {
-  const location = useLocation();
-
-  const renderContent = () => {
-    switch (location.pathname) {
-      case '/profile/rental-history':
-        return <RentalHistoryPage />;
-      case '/profile/payment-history':
-        return <PaymentHistoryPage />;
-      case '/profile/favourite-car':
-        return <FavouriteCarPage />;
-      case '/profile/inbox':
-        return <InboxPage />;
-      case '/profile/calendar':
-        return <CalendarPage />;
-      case '/profile/reimburse':
-        return <ReimbursePage />;
-      case '/profile/security':
-        return <SettingsPage />;
-      case '/profile/help-center':
-        return <HelpCenterPage />;
-      case '/profile':
-      default:
-        return <MyProfile />;
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex flex-col lg:flex-row max-w-7xl mx-auto">
@@ -264,7 +229,7 @@ const ProfilePage = () => {
 
         {/* Main Content */}
         <div className="flex-1 p-4 sm:p-6 lg:p-8">
-          {renderContent()}
+          <Outlet />
         </div>
       </div>
     </div>

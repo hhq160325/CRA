@@ -1,6 +1,12 @@
 export { default as ProfilePage } from './ProfilePage';
 export { default as RentalHistoryPage } from './ProfilePageTabs/RentalHistoryPage';
 export { default as FavouriteCarPage } from './ProfilePageTabs/FavouriteCarPage';
+export { default as PaymentHistoryPage } from './ProfilePageTabs/PaymentHistoryPage';
+export { default as InboxPage } from './ProfilePageTabs/InboxPage';
+export { default as ReimbursePage } from './ProfilePageTabs/ReimbursePage';
+export { default as SettingsPage } from './ProfilePageTabs/SettingsPage';
+export { default as HelpCenterPage } from './ProfilePageTabs/HelpCenterPage';
+export { default as MyProfile } from './ProfilePageTabs/MyProfile';
 export { default as UpdateProfileDialog } from './ProfilePageTabs/MyProfileDialog/UpdateProfileDialog';
 export { default as UpdateEmailDialog } from './ProfilePageTabs/MyProfileDialog/UpdateEmailDialog';
 export { default as UpdatePhoneDialog } from './ProfilePageTabs/MyProfileDialog/UpdatePhoneDialog';

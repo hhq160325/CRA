@@ -1,5 +1,4 @@
-import { useState, useMemo } from 'react';
-import { filterBookingData } from '../utils/filterUtils';
+import { useState } from 'react';
 
 const BookingManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -234,14 +233,14 @@ const BookingManagement = () => {
     }
   };
 
-  const filteredBookings = useMemo(() => {
-    return bookings.filter(booking => 
-      filterBookingData(booking, {
-        searchTerm,
-        statusFilter,
-      })
-    );
-  }, [bookings, searchTerm, statusFilter]);
+  const filteredBookings = bookings.filter(booking => {
+    const matchesSearch = booking.bookingId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.carName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.licensePlate.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   // Calculate statistics
   const confirmedCount = bookings.filter(b => b.status === 'confirmed').length;

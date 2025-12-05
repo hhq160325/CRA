@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 const CarOwnerViewModal = ({
   selectedOwner,
   getStatusBadge,
-  // getVerificationBadge,
+  getVerificationBadge,
   onChangeModalType
 }) => {
   const { t } = useTranslation();
@@ -35,6 +35,12 @@ const CarOwnerViewModal = ({
             <p className="text-gray-900">{selectedOwner.registrationDate}</p>
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('verificationStatus')}</label>
+            <span className={getVerificationBadge(selectedOwner.verificationStatus)}>
+              {selectedOwner.verificationStatus}
+            </span>
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('carsListed')}</label>
             <p className="text-gray-900">{selectedOwner.carsListed}</p>
           </div>
@@ -42,17 +48,21 @@ const CarOwnerViewModal = ({
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('totalEarnings')}</label>
             <p className="text-gray-900">${(selectedOwner.totalEarnings || 0).toLocaleString()}</p>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('lastActive')}</label>
+            <p className="text-gray-900">{selectedOwner.lastActive}</p>
+          </div>
         </div>
       </div>
 
       {/* View Mode Action Buttons */}
       <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-        {/* <button
+        <button
           onClick={() => onChangeModalType('edit')}
           className="px-4 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
         >
           {t('edit')}
-        </button> */}
+        </button>
         {selectedOwner.status === 'active' && (
           <button
             onClick={() => onChangeModalType('suspend')}

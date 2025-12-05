@@ -14,6 +14,7 @@ export const AUTH_ENDPOINTS = {
   LOGIN: `${API_CONFIG.BASE_URL}/Authen/authenticate`,
   REGISTER: `${API_CONFIG.BASE_URL}/Authen/SignUp`,
   LOGIN_GOOGLE: `${API_CONFIG.BASE_URL}/Authen/login/google`,
+  GOOGLE_CALLBACK: `${API_CONFIG.BASE_URL}/Authen/google-callback`,
   FORGOT_PASSWORD: `${API_CONFIG.BASE_URL}/auth/forgot-password`,
   RESET_PASSWORD: `${API_CONFIG.BASE_URL}/auth/reset-password`,
   VERIFY_TOKEN: `${API_CONFIG.BASE_URL}/auth/verify-token`,
@@ -86,6 +87,8 @@ export const BOOKING_API_CONFIG = {
 // Schedule endpoints
 export const SCHEDULE_ENDPOINTS = {
   GET_USER_SCHEDULES: (userId) => `${API_CONFIG.BASE_URL}/Schedule/user/${userId}`,
+  GET_CAR_SCHEDULES: (carId) =>`${API_CONFIG.BASE_URL}/Schedule/car/${carId}`,
+  CREATE_CAR_SCHEDULES:`${API_CONFIG.BASE_URL}/Schedule/maintenance`
 };
 
 export const SCHEDULE_API_CONFIG = {

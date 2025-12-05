@@ -1,89 +1,131 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { axiosInstance } from '../../../shared/utils/axiosInstance';
+import { CAR_ENDPOINTS, SCHEDULE_ENDPOINTS } from '../../../config/api';
+import { getUserIdFromToken } from '../../user/api';
 
 const MaintenanceSchedule = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedCar, setSelectedCar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [maintenanceSchedules, setMaintenanceSchedules] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock data for maintenance schedules
-  const maintenanceSchedules = [
-    {
-      id: 1,
-      carId: 'C001',
-      carName: 'Tesla Model 3',
-      carModel: '2022',
-      licensePlate: 'ABC-1234',
-      lastMaintenanceDate: '2024-09-15',
-      nextMaintenanceDate: '2024-11-15',
-      mileageAtLastService: 15000,
-      currentMileage: 18500,
-      maintenanceType: 'Regular Service',
-      status: 'upcoming',
-      daysUntil: 31,
-      priority: 'medium'
-    },
-    {
-      id: 2,
-      carId: 'C002',
-      carName: 'BMW X5',
-      carModel: '2021',
-      licensePlate: 'XYZ-5678',
-      lastMaintenanceDate: '2024-08-20',
-      nextMaintenanceDate: '2024-10-20',
-      mileageAtLastService: 25000,
-      currentMileage: 28750,
-      maintenanceType: 'Oil Change',
-      status: 'overdue',
-      daysUntil: -5,
-      priority: 'high'
-    },
-    {
-      id: 3,
-      carId: 'C003',
-      carName: 'Honda Civic',
-      carModel: '2023',
-      licensePlate: 'DEF-9012',
-      lastMaintenanceDate: '2024-10-01',
-      nextMaintenanceDate: '2024-12-01',
-      mileageAtLastService: 8000,
-      currentMileage: 9200,
-      maintenanceType: 'Regular Service',
-      status: 'upcoming',
-      daysUntil: 52,
-      priority: 'low'
-    },
-    {
-      id: 4,
-      carId: 'C004',
-      carName: 'Mercedes C-Class',
-      carModel: '2022',
-      licensePlate: 'GHI-3456',
-      lastMaintenanceDate: '2024-10-05',
-      nextMaintenanceDate: '2024-11-05',
-      mileageAtLastService: 30000,
-      currentMileage: 31200,
-      maintenanceType: 'Major Service',
-      status: 'upcoming',
-      daysUntil: 21,
-      priority: 'high'
-    },
-    {
-      id: 5,
-      carId: 'C005',
-      carName: 'Toyota Camry',
-      carModel: '2023',
-      licensePlate: 'JKL-7890',
-      lastMaintenanceDate: '2024-09-10',
-      nextMaintenanceDate: '2024-10-10',
-      mileageAtLastService: 12000,
-      currentMileage: 14800,
-      maintenanceType: 'Oil Change',
-      status: 'due',
-      daysUntil: 0,
-      priority: 'high'
+  useEffect(() => {
+    fetchMaintenanceSchedules();
+  }, []);
+
+  const fetchMaintenanceSchedules = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Get current user ID
+      const currentUserId = getUserIdFromToken();
+
+      // Fetch all cars
+      const carsResponse = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS);
+      const allCars = carsResponse.data || [];
+
+      // Filter cars owned by current user and with Inactive status (in maintenance)
+      const inactiveCars = allCars.filter(car => 
+        car.owner.id === currentUserId && car.status?.toLowerCase() === 'inactive'
+      );
+
+      // Fetch schedules for each inactive car
+      const schedulePromises = inactiveCars.map(car =>
+        axiosInstance.get(SCHEDULE_ENDPOINTS.GET_CAR_SCHEDULES(car.id))
+          .then(response => ({
+            car,
+            schedules: response.data || []
+          }))
+          .catch(err => {
+            console.error(`Error fetching schedule for car ${car.id}:`, err);
+            return { car, schedules: [] };
+          })
+      );
+
+      const carSchedulesData = await Promise.all(schedulePromises);
+
+      // Process and format the data
+      const formattedSchedules = [];
+      let idCounter = 1;
+
+      carSchedulesData.forEach(({ car, schedules }) => {
+        if (schedules.length > 0) {
+          // Process each schedule for the car
+          schedules.forEach(schedule => {
+            const startDate = new Date(schedule.startDate);
+            const endDate = new Date(schedule.endDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Calculate days until maintenance
+            const daysUntil = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
+
+            // Determine status based on dates
+            let status = 'upcoming';
+            let priority = 'low';
+
+            if (today > endDate) {
+              status = 'overdue';
+              priority = 'high';
+            } else if (today >= startDate && today <= endDate) {
+              status = 'due';
+              priority = 'high';
+            } else if (daysUntil <= 7) {
+              priority = 'high';
+            } else if (daysUntil <= 14) {
+              priority = 'medium';
+            }
+
+            formattedSchedules.push({
+              id: idCounter++,
+              carId: car.id,
+              carName: car.model || 'Unknown Model',
+              carModel: car.year?.toString() || 'N/A',
+              licensePlate: car.licensePlate || 'N/A',
+              lastMaintenanceDate: schedule.startDate ? new Date(schedule.startDate).toISOString().split('T')[0] : 'N/A',
+              nextMaintenanceDate: schedule.endDate ? new Date(schedule.endDate).toISOString().split('T')[0] : 'N/A',
+              mileageAtLastService: car.mileage || 0,
+              currentMileage: car.mileage || 0,
+              maintenanceType: 'Scheduled Maintenance',
+              status: status,
+              daysUntil: daysUntil,
+              priority: priority,
+              scheduleId: schedule.id
+            });
+          });
+        } else {
+          // Car is inactive but has no schedule data
+          formattedSchedules.push({
+            id: idCounter++,
+            carId: car.id,
+            carName: car.model || 'Unknown Model',
+            carModel: car.year?.toString() || 'N/A',
+            licensePlate: car.licensePlate || 'N/A',
+            lastMaintenanceDate: 'N/A',
+            nextMaintenanceDate: 'N/A',
+            mileageAtLastService: car.mileage || 0,
+            currentMileage: car.mileage || 0,
+            maintenanceType: 'Maintenance Required',
+            status: 'due',
+            daysUntil: 0,
+            priority: 'high',
+            scheduleId: null
+          });
+        }
+      });
+
+      setMaintenanceSchedules(formattedSchedules);
+    } catch (err) {
+      console.error('Error fetching maintenance schedules:', err);
+      setError('Failed to load maintenance schedules. Please try again later.');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
@@ -149,6 +191,36 @@ const MaintenanceSchedule = () => {
   const overdueCount = maintenanceSchedules.filter(s => s.status === 'overdue').length;
   const dueCount = maintenanceSchedules.filter(s => s.status === 'due').length;
   const upcomingCount = maintenanceSchedules.filter(s => s.status === 'upcoming').length;
+
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-full bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading maintenance schedules...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 min-h-full bg-gray-50">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <svg className="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-red-800 font-medium">{error}</p>
+          <button
+            onClick={fetchMaintenanceSchedules}
+            className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 space-y-6 min-h-full bg-gray-50">

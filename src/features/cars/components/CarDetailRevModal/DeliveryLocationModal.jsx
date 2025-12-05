@@ -8,8 +8,8 @@ const DELIVERY_AIRPORT_KEY = 'deliveryAirport';
 
 // Airport addresses
 const AIRPORT_ADDRESSES = {
-  TSN: 'Sân bay Tân Sơn Nhất, Trường Sơn, Phường 2, Tân Bình, Hồ Chí Minh',
-  T3: 'Ga T3 Sân bay Tân Sơn Nhất, Trường Sơn, Phường 2, Tân Bình, Hồ Chí Minh'
+  TSN: 'Sân bay Tân Sơn Nhất, Đường Trường Sa, phường Tân Sơn Hòa, thành phố Hồ Chí Minh',
+  T3: 'Nhà ga T3 Sân bay Tân Sơn Nhất,Phường Tân Sơn , Thành phố Hồ Chí Minh'
 };
 
 const DeliveryLocationModal = ({ 
@@ -27,7 +27,6 @@ const DeliveryLocationModal = ({
   const [customAddress, setCustomAddress] = useState('');
   const [loading, setLoading] = useState(false);
   const [airportLoading, setAirportLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [parkLots, setParkLots] = useState([]);
   const [selectedParkLot, setSelectedParkLot] = useState(null);
 
@@ -44,7 +43,7 @@ const DeliveryLocationModal = ({
     } else if (locationAddress && locationCity) {
       setCustomAddress(`${locationAddress}, ${locationCity}`);
     }
-  }, [locationAddress, locationCity]);
+  }, [locationAddress, locationCity, setSelectedAirport]);
 
   // Fetch park lots when modal opens and showParkLotOptions is true
   useEffect(() => {
@@ -76,7 +75,6 @@ const DeliveryLocationModal = ({
 
   const handleGetCurrentLocation = async () => {
     setLoading(true);
-    setError(null);
     
     try {
       const location = await getCurrentLocationWithAddress(true);
@@ -88,7 +86,6 @@ const DeliveryLocationModal = ({
       }
     } catch (err) {
       console.error('Location error:', err);
-      setError(err.message);
       alert('Không thể lấy vị trí hiện tại. Vui lòng kiểm tra quyền truy cập vị trí.');
     } finally {
       setLoading(false);
@@ -350,23 +347,42 @@ const DeliveryLocationModal = ({
                       </div>
                     )}
 
-                    <div 
-                      className="p-4 border-2 border-blue-500 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
-                      onClick={() => setShowAddressDropdown(true)}
-                    >
-                      <div className="flex items-start gap-3">
-                        <svg 
-                          className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" 
-                          fill="currentColor" 
-                          viewBox="0 0 24 24"
+                    {/* Summary display box - shows current address and opens dropdown when clicked */}
+                    {/* Confirm Custom Address Button */}
+                    {customAddress && (
+                      <div className="mt-3">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Clear airport and park lot selections
+                            setSelectedAirport(null);
+                            setSelectedParkLot(null);
+                            // Save custom address to localStorage
+                            localStorage.setItem(DELIVERY_LOCATION_KEY, customAddress);
+                            localStorage.removeItem(DELIVERY_AIRPORT_KEY);
+                            // Close the address dropdown
+                            setShowAddressDropdown(false);
+                          }}
+                          className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm"
                         >
-                          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                        </svg>
-                        <p className="text-sm text-gray-700 flex-1">
-                          {customAddress || [locationAddress, locationCity].filter(Boolean).join(', ') || 'Pick your location'}
-                        </p>
+                          Xác nhận địa chỉ
+                        </button>
+                        {!showAddressDropdown && (
+                          <div className="mt-2 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                            <div className="flex items-start gap-2">
+                              <svg 
+                                className="w-4 h-4 text-gray-600 flex-shrink-0 mt-0.5" 
+                                fill="currentColor" 
+                                viewBox="0 0 24 24"
+                              >
+                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                              </svg>
+                              <p className="text-xs text-gray-700 flex-1">{customAddress}</p>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   {/* Airport Options */}

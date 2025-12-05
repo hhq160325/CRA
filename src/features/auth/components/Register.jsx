@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { registerUser, googleLoginUser, clearError, clearSuccess, selectIsLoading, selectError, selectIsAuthenticated, selectSuccess } from '../authSlice';
+import { registerUser, loginUser, googleLoginUser, clearError, clearSuccess, selectIsLoading, selectError, selectIsAuthenticated, selectSuccess } from '../authSlice';
 import { getRoleFromToken, getRedirectPathByRole } from '../utils';
 
 const Register = ({ onSwitchToLogin }) => {
@@ -40,12 +40,57 @@ const Register = ({ onSwitchToLogin }) => {
         dataKeys: Object.keys(data)
       });
       
-      // Check if this is Google auth data (has token - check both lowercase and capitalized)
+      // Check if this is Google auth data
       const token = data.token || data.JwtToken;
-      if (token) {
+      const isGoogleAuth = data.IsGoogle === "True" || data.IsGoogle === true;
+      
+      if (isGoogleAuth) {
         try {
           const email = data.email || data.Email;
           const username = data.username || data.Username;
+          
+          // If no token, this is a registration response - need to call google-callback to get token
+          if (!token) {
+            console.log('Register: No token received, calling google-callback to get JWT...');
+            
+            try {
+              // Import API config
+              const { AUTH_ENDPOINTS } = await import('../../../config/api');
+              
+              // Call the google-callback endpoint to get the JWT token
+              const response = await fetch(AUTH_ENDPOINTS.GOOGLE_CALLBACK, {
+                method: 'GET',
+                credentials: 'include'
+              });
+              
+              if (!response.ok) {
+                throw new Error('Failed to get JWT token from google-callback');
+              }
+              
+              // Extract JWT from HTML response
+              const html = await response.text();
+              console.log('google-callback response body:', html);
+              
+              // Extract JSON data from the postMessage script
+              const jsonMatch = html.match(/window\.opener\.postMessage\((.*?),\s*'\*'\)/s);
+              if (jsonMatch) {
+                const jsonData = JSON.parse(jsonMatch[1]);
+                console.log('Extracted token data:', jsonData);
+                
+                // Trigger the message handler with the extracted data
+                window.postMessage(jsonData, window.location.origin);
+                return;
+              } else {
+                console.error('Could not extract token from HTML response');
+                return;
+              }
+            } catch (callbackError) {
+              console.error('Error calling google-callback:', callbackError);
+              return;
+            }
+          }
+          
+          // If we have a token, process it
           const refreshToken = data.refreshToken || data.RefreshToken;
           
           // Decode token to get role and user ID
@@ -65,10 +110,9 @@ const Register = ({ onSwitchToLogin }) => {
           tokenUtils.storeTokens(token, refreshToken || token, user);
 
           // Update Redux state immediately with basic user data
-          dispatch(registerUser.fulfilled({
+          dispatch(loginUser.fulfilled({
             user: user,
-            autoLogin: true,
-            message: 'Google registration successful!'
+            accessToken: token
           }));
 
           // Fetch full user data if we have userId
@@ -151,11 +195,13 @@ const Register = ({ onSwitchToLogin }) => {
     }
   };
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     try {
+      // Import API config
+      const { AUTH_ENDPOINTS } = await import('../../../config/api');
+      
       // Open Google OAuth in a new tab
-      const localURL = 'https://localhost:7184/api/Authen/google-callback';
-      const googleAuthUrl = `https://localhost:7184/api/Authen/login/google?localURL=${encodeURIComponent(localURL)}`;
+      const googleAuthUrl = `${AUTH_ENDPOINTS.LOGIN_GOOGLE}?localURL=${encodeURIComponent(AUTH_ENDPOINTS.GOOGLE_CALLBACK)}`;
       
       // Open in new tab
       window.open(googleAuthUrl, '_blank');

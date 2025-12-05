@@ -134,6 +134,16 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
       } catch (error) {
         console.error('Failed to load rental dates from localStorage:', error);
       }
+    } else {
+      // Set default pickup date to current day if no saved data
+      const today = new Date();
+      const defaultPickupDate = {
+        day: today.getDate(),
+        month: today.getMonth(),
+        year: today.getFullYear()
+      };
+      setSelectedPickupDate(defaultPickupDate);
+      saveToLocalStorage({ selectedPickupDate: defaultPickupDate });
     }
   }, []);
 

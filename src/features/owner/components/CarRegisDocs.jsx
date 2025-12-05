@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { axiosInstance } from '../../../shared/utils/axiosInstance';
-import { CAR_ENDPOINTS } from '../../../config/api';
 import { getUserIdFromToken } from '../../user/api';
+import { getAllCars, uploadCarRegistrationDocuments } from '../ownerApi';
 
 const CarRegisDocs = () => {
   const [cars, setCars] = useState([]);
@@ -19,10 +18,10 @@ const CarRegisDocs = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS);
+      const allCars = await getAllCars();
       
       // Filter cars that belong to the current user
-      const userCars = response.data.filter(car => car.owner?.id === currentUserId);
+      const userCars = allCars.filter(car => car.owner?.id === currentUserId);
       setCars(userCars);
     } catch (err) {
       console.error('Error fetching cars:', err);
@@ -42,20 +41,8 @@ const CarRegisDocs = () => {
     try {
       setUploadingCarId(carId);
       setUploadSuccessCarId(null);
-      const formData = new FormData();
-      formData.append('CarId', carId);
-      formData.append('UserId', currentUserId);
       
-      // Append all selected files
-      Array.from(files).forEach((file) => {
-        formData.append('images', file);
-      });
-
-      await axiosInstance.post('/Car/registerCar/regDoc', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      await uploadCarRegistrationDocuments(carId, currentUserId, files);
 
       // Show success state
       setUploadSuccessCarId(carId);

@@ -1,6 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import { axiosInstance } from '../../../shared/utils/axiosInstance';
-import { BOOKING_ENDPOINTS, CAR_ENDPOINTS, USER_ENDPOINTS, INVOICE_ENDPOINTS, PAYMENT_ENDPOINTS, FEEDBACK_ENDPOINTS } from '../../../config/api';
 import RentalDetailsModal from './modal/RentalDetailsModal';
 import { getUserIdFromToken } from '../../user/api';
 import DropdownTemplate from '../../../shared/components/DropdownTemplate';
@@ -8,6 +6,7 @@ import Pagination from '../../../shared/components/Pagination';
 import { getStatusBadge, getPaymentBadge } from '../owner-utils/ownerStatusBadge';
 import { getCarOptions, statusOptions, bookingFeeStatusOptions, rentalFeeStatusOptions } from '../owner-utils/dropdownOptions';
 import { filterRentalData } from '../utils/filterUtils';
+import { fetchRentalHistoryData, getCustomerBookings } from '../ownerApi';
 
 const RentalHistory = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,18 +33,8 @@ const RentalHistory = () => {
       setLoading(true);
       setError(null);
 
-      // Fetch all invoices, cars, users, and payments
-      const [invoicesResponse, carsResponse, usersResponse, paymentsResponse] = await Promise.all([
-        axiosInstance.get(INVOICE_ENDPOINTS.GET_ALL_INVOICES),
-        axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS),
-        axiosInstance.get(USER_ENDPOINTS.GET_ALL_USERS),
-        axiosInstance.get(INVOICE_ENDPOINTS.GET_ALL)
-      ]);
-
-      const allInvoices = invoicesResponse.data || [];
-      const cars = carsResponse.data || [];
-      const users = usersResponse.data || [];
-      const payments = paymentsResponse.data || [];
+      // Fetch all data using centralized API function
+      const { invoices: allInvoices, cars, users, payments } = await fetchRentalHistoryData();
 
       // Get logged-in user's ID (vendorId)
       const currentUserId = getUserIdFromToken();
@@ -77,19 +66,12 @@ const RentalHistory = () => {
       // Fetch bookings for each unique customer to get booking status
       const uniqueCustomerIds = [...new Set(invoices.map(inv => inv.customerId))];
       const bookingsResponses = await Promise.all(
-        uniqueCustomerIds.map(customerId =>
-          axiosInstance.get(BOOKING_ENDPOINTS.GET_CUSTOMER_BOOKINGS(customerId))
-            .catch(err => {
-              console.error(`Error fetching bookings for customer ${customerId}:`, err);
-              return { data: [] };
-            })
-        )
+        uniqueCustomerIds.map(customerId => getCustomerBookings(customerId))
       );
 
       // Create booking lookup map by invoiceId
       const bookingMap = {};
-      bookingsResponses.forEach(response => {
-        const bookings = response.data || [];
+      bookingsResponses.forEach(bookings => {
         bookings.forEach(booking => {
           if (booking.invoiceId) {
             bookingMap[booking.invoiceId] = booking;

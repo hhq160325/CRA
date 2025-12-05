@@ -1,11 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
-import { axiosInstance } from '../../../shared/utils/axiosInstance';
-import { INVOICE_ENDPOINTS, USER_ENDPOINTS, CAR_ENDPOINTS } from '../../../config/api';
 import { getUserIdFromToken } from '../../user/api';
 import { filterPaymentData } from '../utils/filterUtils';
 import DropdownTemplate from '../../../shared/components/DropdownTemplate';
 import Pagination from '../../../shared/components/Pagination';
 import { paymentTypeOptions, getPaymentMethodOptions, paymentStatusOptions, dateFilterOptions } from '../owner-utils/dropdownOptions';
+import { fetchOwnerPaymentsData } from '../ownerApi';
 
 const Payments = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,18 +31,8 @@ const Payments = () => {
 
       const currentUserId = getUserIdFromToken();
       
-      // Fetch invoices, payments, users, and cars
-      const [invoicesResponse, paymentsResponse, usersResponse, carsResponse] = await Promise.all([
-        axiosInstance.get(INVOICE_ENDPOINTS.GET_ALL_INVOICES),
-        axiosInstance.get(INVOICE_ENDPOINTS.GET_ALL),
-        axiosInstance.get(USER_ENDPOINTS.GET_ALL_USERS),
-        axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS)
-      ]);
-      
-      const allInvoices = invoicesResponse.data || [];
-      const allPayments = paymentsResponse.data || [];
-      const allUsers = usersResponse.data || [];
-      const allCars = carsResponse.data || [];
+      // Fetch all data using centralized API function
+      const { invoices: allInvoices, payments: allPayments, users: allUsers, cars: allCars } = await fetchOwnerPaymentsData();
       
       console.log('Current User ID:', currentUserId);
       console.log('All Invoices:', allInvoices);

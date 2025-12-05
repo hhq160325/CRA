@@ -1,9 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
-import { axiosInstance } from '../../../shared/utils/axiosInstance';
-import { CAR_ENDPOINTS, BOOKING_ENDPOINTS, SCHEDULE_ENDPOINTS } from '../../../config/api';
 import DropdownTemplate from '../../../shared/components/DropdownTemplate';
 import { tokenUtils } from '../../auth/utils';
 import { filterCarUsageData } from '../utils/filterUtils';
+import { getAllCars, getCarBookings, createCarSchedule } from '../ownerApi';
 
 const UsageTracking = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,16 +31,7 @@ const UsageTracking = () => {
   const [maintenanceError, setMaintenanceError] = useState(null);
   const [maintenanceSuccess, setMaintenanceSuccess] = useState(false);
 
-  // Helper function to fetch bookings for a car
-  const fetchCarBookings = async (carId) => {
-    try {
-      const response = await axiosInstance.get(BOOKING_ENDPOINTS.GET_CAR_BOOKINGS(carId));
-      return response.data || [];
-    } catch (error) {
-      console.error(`Error fetching bookings for car ${carId}:`, error);
-      return [];
-    }
-  };
+
 
   // Helper function to calculate days between two dates
   const calculateDays = (startDate, endDate) => {
@@ -67,8 +57,7 @@ const UsageTracking = () => {
           return;
         }
         
-        const response = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS);
-        const allCars = response.data || [];
+        const allCars = await getAllCars();
         
         // Filter cars by current owner ID
         const cars = allCars.filter(car => car.owner.id === currentOwnerId);
@@ -76,7 +65,7 @@ const UsageTracking = () => {
         // Fetch bookings for each car in parallel
         const carsWithBookings = await Promise.all(
           cars.map(async (car) => {
-            const bookings = await fetchCarBookings(car.id);
+            const bookings = await getCarBookings(car.id);
             
             // Calculate rental statistics (exclude canceled bookings)
             const activeBookings = bookings.filter(b => 
@@ -237,7 +226,7 @@ const UsageTracking = () => {
         carId: selectedCar.id
       };
 
-      await axiosInstance.post(SCHEDULE_ENDPOINTS.CREATE_CAR_SCHEDULES, payload);
+      await createCarSchedule(payload);
       
       setMaintenanceSuccess(true);
       setTimeout(() => {

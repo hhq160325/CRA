@@ -12,12 +12,6 @@ module.exports = {
           600: '#2563eb',
           700: '#1d4ed8',
         }
-<<<<<<< HEAD
-      }
-    },
-  },
-  plugins: [],
-=======
       },
       keyframes: {
         fadeIn: {
@@ -56,5 +50,4 @@ module.exports = {
       })
     }
   ],
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 }

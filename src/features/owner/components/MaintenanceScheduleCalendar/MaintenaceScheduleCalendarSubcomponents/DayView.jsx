@@ -1,12 +1,10 @@
 import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
-import { useTranslation } from 'react-i18next';
-import { openEventModal } from '../../calendarSlice';
+import { openEventModal } from '../../../maintenanceCalendarSlice';
 import EventCard from './EventCard';
 
 const DayView = ({ events, currentDate }) => {
   const dispatch = useDispatch();
-  const { t } = useTranslation();
 
   const day = useMemo(() => {
     return currentDate instanceof Date ? currentDate : new Date(currentDate);

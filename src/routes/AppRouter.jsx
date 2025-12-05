@@ -15,6 +15,7 @@ import RoleBasedRoute from './RoleBasedRoute';
 import { ROLES, tokenUtils, getRedirectPathByRole } from '../features/auth/utils';
 import CalendarPage from '../features/owner/components/CalendarPage';
 import RentalMonitoring from '../features/staff/components/RentalMonitoring'
+import MaintenanceCalendar from '../features/owner/components/MaintenanceScheduleCalendar/MaintenanceCalendar';
 // Component to redirect authenticated users based on their role
 const AuthRedirect = () => {
   const userRole = tokenUtils.getUserRole();
@@ -76,6 +77,7 @@ const AppRouter = () => {
       <Route path="/owner" element={isAuthenticated ? <OwnerLayout /> : <Navigate to="/auth" replace />}>
         <Route index element={<OwnerDashboard />} />
         <Route path="maintenance" element={<MaintenanceSchedule />} />
+        <Route path="maintenance-calendar" element={<MaintenanceCalendar/>}/>
         <Route path="usage" element={<UsageTracking />} />
         <Route path="rentals" element={<RentalHistory />} />
         <Route path="feedback" element={<CustomerFeedback />} />

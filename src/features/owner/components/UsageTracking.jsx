@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
-import { CAR_ENDPOINTS, BOOKING_ENDPOINTS } from '../../../config/api';
+import { CAR_ENDPOINTS, BOOKING_ENDPOINTS, SCHEDULE_ENDPOINTS } from '../../../config/api';
 import DropdownTemplate from '../../../shared/components/DropdownTemplate';
 import { tokenUtils } from '../../auth/utils';
 
@@ -12,11 +12,24 @@ const UsageTracking = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedCar, setSelectedCar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
   const [usageData, setUsageData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  
+  // Maintenance form state
+  const [maintenanceForm, setMaintenanceForm] = useState({
+    title: '',
+    location: '',
+    startDate: '',
+    endDate: '',
+    note: '',
+  });
+  const [maintenanceLoading, setMaintenanceLoading] = useState(false);
+  const [maintenanceError, setMaintenanceError] = useState(null);
+  const [maintenanceSuccess, setMaintenanceSuccess] = useState(false);
 
   // Helper function to fetch bookings for a car
   const fetchCarBookings = async (carId) => {
@@ -128,23 +141,23 @@ const UsageTracking = () => {
     const normalizedStatus = status?.toLowerCase();
     
     // Map pending to active for display
-    const displayStatus = normalizedStatus === 'pending' ? 'active' : normalizedStatus;
+    // const displayStatus = normalizedStatus === 'pending' ? 'active' : normalizedStatus;
     
     switch (normalizedStatus) {
       case 'available':
-        return { className: `${baseClasses} bg-green-100 text-green-800`, label: 'available' };
-      case 'rented':
-        return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: 'rented' };
+        return { className: `${baseClasses} bg-green-100 text-green-800`, label: 'Available' };
+      case 'reserved':
+        return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: 'Reserved' };
       case 'pending':
-        return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: 'active' };
-      case 'maintenance':
-        return { className: `${baseClasses} bg-yellow-100 text-yellow-800`, label: 'maintenance' };
+        return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: 'Active' };
       case 'inactive':
-        return { className: `${baseClasses} bg-red-100 text-red-800`, label: 'inactive' };
+        return { className: `${baseClasses} bg-yellow-100 text-yellow-800`, label: 'Maintenance' };
+      // case 'inactive':
+      //   return { className: `${baseClasses} bg-red-100 text-red-800`, label: 'Inactive' };
       case 'unavailable':
-        return { className: `${baseClasses} bg-red-100 text-red-800`, label: 'unavailable' };
+        return { className: `${baseClasses} bg-red-100 text-red-800`, label: 'Unavailable' };
       default:
-        return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: displayStatus || 'unknown' };
+        return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: 'unknown' };
     }
   };
 
@@ -158,17 +171,96 @@ const UsageTracking = () => {
     setSelectedCar(null);
   };
 
-  const filteredUsage = usageData.filter(car => {
-    const matchesSearch = car.carName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      car.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      car.carId.toString().toLowerCase().includes(searchTerm.toLowerCase());
+  const openMaintenanceModal = (car) => {
+    setSelectedCar(car);
+    setIsMaintenanceModalOpen(true);
+    setMaintenanceForm({
+      title: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      note: '',
+    });
+    setMaintenanceError(null);
+    setMaintenanceSuccess(false);
+  };
+
+  const closeMaintenanceModal = () => {
+    setIsMaintenanceModalOpen(false);
+    setSelectedCar(null);
+    setMaintenanceForm({
+      title: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      note: '',
+    });
+    setMaintenanceError(null);
+    setMaintenanceSuccess(false);
+  };
+
+  const handleMaintenanceFormChange = (e) => {
+    const { name, value } = e.target;
+    setMaintenanceForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleScheduleMaintenance = async (e) => {
+    e.preventDefault();
     
-    const matchesBrand = brandFilter === 'all' || car.brand === brandFilter;
-    const matchesModel = modelFilter === 'all' || car.model === modelFilter;
-    const matchesStatus = statusFilter === 'all' || car.currentStatus === statusFilter;
+    if (!selectedCar) return;
     
-    return matchesSearch && matchesBrand && matchesModel && matchesStatus;
-  });
+    // Validation
+    if (!maintenanceForm.title || !maintenanceForm.location || !maintenanceForm.startDate || !maintenanceForm.endDate) {
+      setMaintenanceError('Please fill in all required fields');
+      return;
+    }
+
+    if (new Date(maintenanceForm.startDate) >= new Date(maintenanceForm.endDate)) {
+      setMaintenanceError('End date must be after start date');
+      return;
+    }
+
+    try {
+      setMaintenanceLoading(true);
+      setMaintenanceError(null);
+
+      const payload = {
+        title: maintenanceForm.title,
+        location: maintenanceForm.location,
+        startDate: new Date(maintenanceForm.startDate).toISOString(),
+        endDate: new Date(maintenanceForm.endDate).toISOString(),
+        note: maintenanceForm.note || '',
+        carId: selectedCar.id
+      };
+
+      await axiosInstance.post(SCHEDULE_ENDPOINTS.CREATE_CAR_SCHEDULES, payload);
+      
+      setMaintenanceSuccess(true);
+      setTimeout(() => {
+        closeMaintenanceModal();
+      }, 2000);
+      
+    } catch (err) {
+      console.error('Error scheduling maintenance:', err);
+      setMaintenanceError(err.response?.data?.message || 'Failed to schedule maintenance. Please try again.');
+    } finally {
+      setMaintenanceLoading(false);
+    }
+  };
+
+  const filteredUsage = useMemo(() => {
+    return usageData.filter(car => 
+      filterCarUsageData(car, {
+        searchTerm,
+        brandFilter,
+        modelFilter,
+        statusFilter,
+      })
+    );
+  }, [usageData, searchTerm, brandFilter, modelFilter, statusFilter]);
 
   // Get unique brands, models and statuses for filter dropdowns
   const uniqueBrands = [...new Set(usageData.map(car => car.brand))].sort();
@@ -527,12 +619,25 @@ const UsageTracking = () => {
                         })()}
                       </td>
                       <td className="py-4 px-6">
-                        <button
-                          onClick={() => openModal(car)}
-                          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                        >
-                          View Details
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => openModal(car)}
+                            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                          >
+                            View Details
+                          </button>
+                          {car.currentStatus === 'pending' && (
+                            <>
+                              <span className="text-gray-300">|</span>
+                              <button
+                                onClick={() => openMaintenanceModal(car)}
+                                className="text-orange-600 hover:text-orange-700 text-sm font-medium"
+                              >
+                                Schedule
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
@@ -633,7 +738,7 @@ const UsageTracking = () => {
               </div>
 
               {/* Mileage Stats */}
-              <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+              {/* <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                 <h3 className="font-semibold text-gray-900">Mileage Statistics</h3>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
@@ -661,10 +766,10 @@ const UsageTracking = () => {
                     ></div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Rental Stats */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="bg-blue-50 rounded-lg p-4">
                   <p className="text-sm text-gray-600">Total Rentals</p>
                   <p className="text-2xl font-bold text-blue-600">{selectedCar.totalRentals}</p>
@@ -673,15 +778,15 @@ const UsageTracking = () => {
                   <p className="text-sm text-gray-600">Total Days Rented</p>
                   <p className="text-2xl font-bold text-green-600">{selectedCar.totalDaysRented}</p>
                 </div>
-                <div className="bg-orange-50 rounded-lg p-4">
+                {/* <div className="bg-orange-50 rounded-lg p-4">
                   <p className="text-sm text-gray-600">Avg. Daily Mileage</p>
                   <p className="text-2xl font-bold text-orange-600">{selectedCar.averageDailyMileage} km</p>
-                </div>
+                </div> */}
               </div>
 
               {/* Utilization Stats */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 rounded-lg p-4">
+              <div className="grid grid-cols-1 gap-4">
+                {/* <div className="bg-gray-50 rounded-lg p-4">
                   <p className="text-sm text-gray-600 mb-2">Utilization Rate</p>
                   <div className="flex items-center space-x-4">
                     <div className="flex-1 bg-gray-200 rounded-full h-3">
@@ -692,7 +797,7 @@ const UsageTracking = () => {
                     </div>
                     <span className="text-lg font-bold text-gray-900">{selectedCar.utilizationRate}%</span>
                   </div>
-                </div>
+                </div> */}
                 <div className="bg-gray-50 rounded-lg p-4">
                   <p className="text-sm text-gray-600 mb-2">Availability Rate</p>
                   <div className="flex items-center space-x-4">
@@ -709,11 +814,11 @@ const UsageTracking = () => {
 
               {/* Additional Info */}
               <div className="pt-4 border-t border-gray-200">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
+                <div className="grid grid-cols-1 gap-4 text-sm">
+                  {/* <div>
                     <p className="text-gray-600">Last Rental Date</p>
                     <p className="font-medium text-gray-900">{selectedCar.lastRentalDate}</p>
-                  </div>
+                  </div> */}
                   <div>
                     <p className="text-gray-600">Current Status</p>
                     {(() => {
@@ -723,7 +828,172 @@ const UsageTracking = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Schedule Maintenance Button */}
+              {selectedCar.currentStatus === 'pending' && (
+                <div className="pt-4 border-t border-gray-200">
+                  <button
+                    onClick={() => {
+                      closeModal();
+                      openMaintenanceModal(selectedCar);
+                    }}
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                  >
+                    Schedule Maintenance
+                  </button>
+                </div>
+              )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Maintenance Scheduling Modal */}
+      {isMaintenanceModalOpen && selectedCar && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900">Schedule Maintenance</h2>
+                <button
+                  onClick={closeMaintenanceModal}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <form onSubmit={handleScheduleMaintenance} className="p-6 space-y-6">
+              {/* Car Info */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600">Car</p>
+                <p className="font-medium text-gray-900 text-lg">{selectedCar.carName}</p>
+                <p className="text-sm text-gray-500">{selectedCar.licensePlate}</p>
+              </div>
+
+              {/* Success Message */}
+              {maintenanceSuccess && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <p className="text-green-800 font-medium">Maintenance scheduled successfully!</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Error Message */}
+              {maintenanceError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <p className="text-red-800 text-sm">{maintenanceError}</p>
+                </div>
+              )}
+
+              {/* Form Fields */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Title <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={maintenanceForm.title}
+                    onChange={handleMaintenanceFormChange}
+                    placeholder="e.g., Oil Change, Tire Replacement"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    required
+                    disabled={maintenanceLoading || maintenanceSuccess}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Location <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="location"
+                    value={maintenanceForm.location}
+                    onChange={handleMaintenanceFormChange}
+                    placeholder="e.g., ABC Auto Service Center"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    required
+                    disabled={maintenanceLoading || maintenanceSuccess}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Start Date <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="datetime-local"
+                      name="startDate"
+                      value={maintenanceForm.startDate}
+                      onChange={handleMaintenanceFormChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      required
+                      disabled={maintenanceLoading || maintenanceSuccess}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      End Date <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="datetime-local"
+                      name="endDate"
+                      value={maintenanceForm.endDate}
+                      onChange={handleMaintenanceFormChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      required
+                      disabled={maintenanceLoading || maintenanceSuccess}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Note
+                  </label>
+                  <textarea
+                    name="note"
+                    value={maintenanceForm.note}
+                    onChange={handleMaintenanceFormChange}
+                    placeholder="Additional notes or instructions..."
+                    rows="4"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                    disabled={maintenanceLoading || maintenanceSuccess}
+                  />
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={closeMaintenanceModal}
+                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={maintenanceLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  disabled={maintenanceLoading || maintenanceSuccess}
+                >
+                  {maintenanceLoading ? 'Scheduling...' : 'Schedule Maintenance'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

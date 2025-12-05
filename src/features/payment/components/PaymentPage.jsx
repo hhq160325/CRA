@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-import React, { useState } from 'react';
-
-const PaymentPage = () => {
-=======
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -26,7 +21,6 @@ const PaymentPage = () => {
         carReviewCount: 440
     };
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
     const [billingInfo, setBillingInfo] = useState({
         name: '',
         phoneNumber: '',
@@ -34,24 +28,6 @@ const PaymentPage = () => {
         townCity: ''
     });
 
-<<<<<<< HEAD
-    const [rentalInfo, setRentalInfo] = useState({
-        pickUpLocation: '',
-        pickUpDate: '',
-        pickUpTime: '',
-        dropOffLocation: '',
-        dropOffDate: '',
-        dropOffTime: ''
-    });
-
-    const [paymentMethod, setPaymentMethod] = useState('credit-card');
-    const [cardInfo, setCardInfo] = useState({
-        cardNumber: '',
-        expirationDate: '',
-        cardHolder: '',
-        cvc: ''
-    });
-=======
     // Modal states
     const [locationModalOpen, setLocationModalOpen] = useState(false);
     const [dateTimePickerOpen, setDateTimePickerOpen] = useState(false);
@@ -216,46 +192,23 @@ const PaymentPage = () => {
 
 
     const [paymentMethod, setPaymentMethod] = useState('credit-card');
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 
     const [confirmations, setConfirmations] = useState({
         marketing: false,
         terms: false
     });
 
-<<<<<<< HEAD
-=======
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
     const handleBillingChange = (field, value) => {
         setBillingInfo(prev => ({ ...prev, [field]: value }));
     };
 
-<<<<<<< HEAD
-    const handleRentalChange = (field, value) => {
-        setRentalInfo(prev => ({ ...prev, [field]: value }));
-    };
-
-    const handleCardChange = (field, value) => {
-        setCardInfo(prev => ({ ...prev, [field]: value }));
-    };
-
-=======
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
     const handleConfirmationChange = (field) => {
         setConfirmations(prev => ({ ...prev, [field]: !prev[field] }));
     };
 
-<<<<<<< HEAD
-    return (
-        <div className="min-h-screen bg-gray-50 py-8">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Left Column - Forms */}
-                    <div className="lg:col-span-2 space-y-6">
-=======
     const handleRentNow = async () => {
         // Validate required fields
         if (!confirmations.terms) {
@@ -405,7 +358,6 @@ const PaymentPage = () => {
                 <div className="flex justify-center">
                     {/* Left Column - Forms */}
                     <div className="w-full max-w-4xl space-y-6">
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                         {/* Billing Info */}
                         <div className="bg-white rounded-lg p-6 shadow-sm">
                             <div className="flex justify-between items-center mb-6">
@@ -435,11 +387,7 @@ const PaymentPage = () => {
                                         onChange={(e) => handleBillingChange('phoneNumber', e.target.value)}
                                     />
                                 </div>
-<<<<<<< HEAD
-                                <div>
-=======
                                 <div className="md:col-span-2">
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
                                     <input
                                         type="text"
@@ -449,11 +397,7 @@ const PaymentPage = () => {
                                         onChange={(e) => handleBillingChange('address', e.target.value)}
                                     />
                                 </div>
-<<<<<<< HEAD
-                                <div>
-=======
                                 {/* <div>
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Town / City</label>
                                     <input
                                         type="text"
@@ -462,11 +406,7 @@ const PaymentPage = () => {
                                         value={billingInfo.townCity}
                                         onChange={(e) => handleBillingChange('townCity', e.target.value)}
                                     />
-<<<<<<< HEAD
-                                </div>
-=======
                                 </div> */}
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                             </div>
                         </div>
 
@@ -478,89 +418,6 @@ const PaymentPage = () => {
                                 <span className="text-sm text-gray-500">Step 2 of 4</span>
                             </div>
 
-<<<<<<< HEAD
-                            {/* Pick-Up */}
-                            <div className="mb-8">
-                                <div className="flex items-center mb-4">
-                                    <div className="w-4 h-4 bg-blue-500 rounded-full mr-3"></div>
-                                    <h3 className="text-lg font-semibold text-gray-900">Pick - Up</h3>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Locations</label>
-                                        <select
-                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            value={rentalInfo.pickUpLocation}
-                                            onChange={(e) => handleRentalChange('pickUpLocation', e.target.value)}
-                                        >
-                                            <option value="">Select your city</option>
-                                            <option value="new-york">New York</option>
-                                            <option value="los-angeles">Los Angeles</option>
-                                            <option value="chicago">Chicago</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
-                                        <input
-                                            type="date"
-                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            value={rentalInfo.pickUpDate}
-                                            onChange={(e) => handleRentalChange('pickUpDate', e.target.value)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
-                                        <input
-                                            type="time"
-                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            value={rentalInfo.pickUpTime}
-                                            onChange={(e) => handleRentalChange('pickUpTime', e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Drop-Off */}
-                            <div>
-                                <div className="flex items-center mb-4">
-                                    <div className="w-4 h-4 bg-blue-500 rounded-full mr-3"></div>
-                                    <h3 className="text-lg font-semibold text-gray-900">Drop - Off</h3>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Locations</label>
-                                        <select
-                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            value={rentalInfo.dropOffLocation}
-                                            onChange={(e) => handleRentalChange('dropOffLocation', e.target.value)}
-                                        >
-                                            <option value="">Select your city</option>
-                                            <option value="new-york">New York</option>
-                                            <option value="los-angeles">Los Angeles</option>
-                                            <option value="chicago">Chicago</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
-                                        <input
-                                            type="date"
-                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            value={rentalInfo.dropOffDate}
-                                            onChange={(e) => handleRentalChange('dropOffDate', e.target.value)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
-                                        <input
-                                            type="time"
-                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            value={rentalInfo.dropOffTime}
-                                            onChange={(e) => handleRentalChange('dropOffTime', e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-=======
                             {/* Pick-up and Drop-off Section */}
                             <div className='flex flex-col md:flex-row items-stretch gap-2 md:gap-0'>
                                 {/* Location Section */}
@@ -650,7 +507,6 @@ const PaymentPage = () => {
                                     setRentalDuration(dateTimeData.duration);
                                 }}
                             />
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                         </div>
 
                         {/* Payment Method */}
@@ -660,79 +516,12 @@ const PaymentPage = () => {
                                 <span className="text-sm text-gray-500">Please enter your payment method</span>
                                 <span className="text-sm text-gray-500">Step 3 of 4</span>
                             </div>
-<<<<<<< HEAD
-
-                            {/* Credit Card */}
-=======
                             {/* Cash */}
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                             <div className="mb-6">
                                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-4">
                                     <div className="flex items-center">
                                         <input
                                             type="radio"
-<<<<<<< HEAD
-                                            id="credit-card"
-                                            name="payment-method"
-                                            value="credit-card"
-                                            checked={paymentMethod === 'credit-card'}
-                                            onChange={(e) => setPaymentMethod(e.target.value)}
-                                            className="mr-3"
-                                        />
-                                        <label htmlFor="credit-card" className="font-medium text-gray-900">Credit Card</label>
-                                    </div>
-                                    <svg className="h-6 w-10" viewBox="0 0 40 24" fill="none">
-                                        <rect width="40" height="24" rx="4" fill="#374151" stroke="#6B7280" strokeWidth="1"/>
-                                        <rect x="4" y="6" width="32" height="3" fill="#9CA3AF"/>
-                                        <rect x="4" y="12" width="12" height="2" fill="#D1D5DB"/>
-                                        <rect x="4" y="16" width="8" height="2" fill="#D1D5DB"/>
-                                        <rect x="28" y="12" width="8" height="6" fill="#E5E7EB" rx="1"/>
-                                        <text x="32" y="16" fontSize="3" fill="#6B7280" textAnchor="middle">****</text>
-                                    </svg>
-                                </div>
-
-                                {paymentMethod === 'credit-card' && (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Card Number</label>
-                                            <input
-                                                type="text"
-                                                placeholder="Card number"
-                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                value={cardInfo.cardNumber}
-                                                onChange={(e) => handleCardChange('cardNumber', e.target.value)}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Expiration Date</label>
-                                            <input
-                                                type="text"
-                                                placeholder="DD / MM / YY"
-                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                value={cardInfo.expirationDate}
-                                                onChange={(e) => handleCardChange('expirationDate', e.target.value)}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Card Holder</label>
-                                            <input
-                                                type="text"
-                                                placeholder="Card holder"
-                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                value={cardInfo.cardHolder}
-                                                onChange={(e) => handleCardChange('cardHolder', e.target.value)}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">CVC</label>
-                                            <input
-                                                type="text"
-                                                placeholder="CVC"
-                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                value={cardInfo.cvc}
-                                                onChange={(e) => handleCardChange('cvc', e.target.value)}
-                                            />
-=======
                                             id="cash"
                                             name="payment-method"
                                             value="cash"
@@ -771,7 +560,6 @@ const PaymentPage = () => {
                                                     By selecting cash payment, you agree to pay the full rental amount at the pickup location.
                                                 </p>
                                             </div>
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                                         </div>
                                     </div>
                                 )}
@@ -800,35 +588,9 @@ const PaymentPage = () => {
                                 {paymentMethod === 'qr-payment' && (
                                     <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
                                         <h4 className="text-lg font-semibold text-gray-900 mb-4">Scan QR Code to Pay</h4>
-<<<<<<< HEAD
-                                        <div className="flex justify-center mb-4">
-                                            <div className="bg-white p-4 border-2 border-gray-300 rounded-lg">
-                                                <img 
-                                                    src="https://genqrcode.com/embedded?style=0&inner_eye_style=0&outer_eye_style=0&logo=null&color=%23000000FF&background_color=%23FFFFFFFF&inner_eye_color=%23000000&outer_eye_color=%23000000&imageformat=svg&language=en&frame_style=0&frame_text=SCAN%20ME&frame_text_icon_color=%23000000&frame_text_icon=null&frame_color=%23000000&frame_background_color=%23FFFFFF&frame_text_color=%23FFFFFF&invert_colors=false&gradient_style=0&gradient_color_start=%23FF0000&gradient_color_end=%237F007F&gradient_start_offset=5&gradient_end_offset=95&stl_type=1&logo_remove_background=null&stl_size=100&stl_qr_height=1.5&stl_base_height=2&stl_include_stands=false&stl_qr_magnet_type=3&stl_qr_magnet_count=0&type=0&text=https%3A%2F%2Fpokemondb.net%2Fpokedex%2Foshawott%23dex-evolution&width=500&height=500&bordersize=2" 
-                                                    alt="QR code for payment" 
-                                                    className="w-48 h-48 mx-auto"
-                                                />
-                                            </div>
-                                        </div>
-                                        <p className="text-sm text-gray-600 mb-4">
-                                            Use your mobile banking app or digital wallet to scan this QR code
-                                        </p>
-                                        <div className="border-t pt-4">
-                                            <p className="text-sm text-gray-500 mb-2">Can't scan the QR code?</p>
-                                            <a
-                                                href="https://payment.example.com/pay/rental-80usd"
-                                                className="text-blue-600 hover:text-blue-700 underline text-sm font-medium"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                Click here to pay online
-                                            </a>
-                                        </div>
-=======
                                         <p className="text-sm text-gray-600 mb-4">
                                             Use your mobile banking app or digital wallet to scan QR code
                                         </p>
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                                     </div>
                                 )}
                             </div>
@@ -869,10 +631,6 @@ const PaymentPage = () => {
                                 </div>
                             </div>
 
-<<<<<<< HEAD
-                            <button className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors mb-4">
-                                Rent Now
-=======
                             {error && (
                                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                                     <p className="text-sm text-red-600">{error}</p>
@@ -885,7 +643,6 @@ const PaymentPage = () => {
                                 className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors mb-4 disabled:bg-gray-400 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? 'Processing...' : 'Rent Now'}
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                             </button>
 
                             <div className="flex items-center text-sm text-gray-500">
@@ -899,32 +656,15 @@ const PaymentPage = () => {
                             </p>
                         </div>
                     </div>
-<<<<<<< HEAD
-
-                    {/* Right Column - Rental Summary */}
-                    <div className="lg:col-span-1">
-=======
                 </div>
                 {/* Right Column - Rental Summary */}
                 {/* <div className="lg:col-span-1">
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                         <div className="bg-white rounded-lg p-6 shadow-sm sticky top-8">
                             <h3 className="text-xl font-bold text-gray-900 mb-4">Rental Summary</h3>
                             <p className="text-sm text-gray-500 mb-6">
                                 Prices may change depending on the length of the rental and the price of your rental car.
                             </p>
 
-<<<<<<< HEAD
-                            {/* Car Info */}
-                            <div className="flex items-center mb-6">
-                                <img
-                                    src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=120&h=80&fit=crop"
-                                    alt="Nissan GT-R"
-                                    className="w-20 h-16 object-cover rounded-lg mr-4"
-                                />
-                                <div>
-                                    <h4 className="font-bold text-gray-900">Nissan GT - R</h4>
-=======
                             
                             <div className="flex items-center mb-6">
                                 <img
@@ -934,38 +674,20 @@ const PaymentPage = () => {
                                 />
                                 <div>
                                     <h4 className="font-bold text-gray-900">{carData.carName}</h4>
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                                     <div className="flex items-center text-sm text-gray-500">
                                         <div className="flex items-center mr-2">
                                             <svg className="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                             </svg>
-<<<<<<< HEAD
-                                            4.8
-                                        </div>
-                                        <span>(440+ Reviewer)</span>
-=======
                                             {carData.carRating}
                                         </div>
                                         <span>({carData.carReviewCount}+ Reviewer)</span>
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                                     </div>
                                 </div>
                             </div>
 
                             <hr className="my-6" />
 
-<<<<<<< HEAD
-                            {/* Price Breakdown */}
-                            <div className="space-y-3 mb-6">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-gray-600">Subtotal</span>
-                                    <span className="font-medium">$80.00</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-gray-600">Tax</span>
-                                    <span className="font-medium">$0</span>
-=======
                             
                             <div className="space-y-3 mb-6">
                                 <div className="flex justify-between text-sm">
@@ -975,7 +697,6 @@ const PaymentPage = () => {
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-600">Tax</span>
                                     <span className="font-medium">0 đ</span>
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
                                 </div>
                             </div>
 
@@ -997,18 +718,10 @@ const PaymentPage = () => {
                                     <span className="text-lg font-bold text-gray-900">Total Rental Price</span>
                                     <p className="text-xs text-gray-500">Overall price and includes rental discount</p>
                                 </div>
-<<<<<<< HEAD
-                                <span className="text-2xl font-bold text-gray-900">$80.00</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-=======
                                 <span className="text-2xl font-bold text-gray-900">{(typeof carData.carPrice === 'number' ? carData.carPrice : parseFloat(carData.carPrice) || 0).toLocaleString('vi-VN')} đ</span>
                             </div>
                         </div>
                     </div> */}
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
             </div>
         </div>
     );

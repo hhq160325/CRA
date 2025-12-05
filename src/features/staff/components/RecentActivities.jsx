@@ -1,58 +1,5 @@
 
 import { useTranslation } from 'react-i18next';
-<<<<<<< HEAD
-
-const RecentActivities = () => {
-  const { t } = useTranslation();
-  // Mock data for recent activities
-  const recentActivities = [
-    {
-      id: 1,
-      type: 'booking',
-      user: 'Alice Cooper',
-      action: t('newBookingCreated'),
-      car: 'Tesla Model 3',
-      timestamp: '5 minutes ago',
-      status: 'confirmed'
-    },
-    {
-      id: 2,
-      type: 'verification',
-      user: 'Bob Johnson',
-      action: t('carOwnerVerificationCompleted'),
-      car: 'BMW X5',
-      timestamp: '15 minutes ago',
-      status: 'approved'
-    },
-    {
-      id: 3,
-      type: 'booking',
-      user: 'Carol Smith',
-      action: t('bookingCancelled'),
-      car: 'Audi A4',
-      timestamp: '1 hour ago',
-      status: 'cancelled'
-    },
-    {
-      id: 4,
-      type: 'customer',
-      user: 'David Wilson',
-      action: t('customerAccountUpdated'),
-      car: null,
-      timestamp: '2 hours ago',
-      status: 'updated'
-    },
-    {
-      id: 5,
-      type: 'booking',
-      user: 'Emma Davis',
-      action: t('bookingCompleted'),
-      car: 'Mercedes C-Class',
-      timestamp: '3 hours ago',
-      status: 'completed'
-    }
-  ];
-=======
 import { useState, useEffect } from 'react';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
 import { BOOKING_ENDPOINTS, USER_ENDPOINTS } from '../../../config/api';
@@ -205,7 +152,6 @@ const RecentActivities = () => {
     if (timeString.includes('hour')) return value * 60;
     return value;
   };
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 
   const getActivityIcon = (type) => {
     switch (type) {
@@ -262,8 +208,6 @@ const RecentActivities = () => {
     }
   };
 
-<<<<<<< HEAD
-=======
   if (loading) {
     return (
       <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
@@ -274,7 +218,6 @@ const RecentActivities = () => {
     );
   }
 
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-6">
@@ -285,30 +228,6 @@ const RecentActivities = () => {
       </div>
 
       <div className="space-y-4">
-<<<<<<< HEAD
-        {recentActivities.map((activity) => (
-          <div key={activity.id} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors">
-            <div className="flex items-center space-x-4">
-              {getActivityIcon(activity.type)}
-              
-              <div>
-                <h3 className="font-medium text-gray-900 text-sm">{activity.action}</h3>
-                <p className="text-sm text-gray-600">{t('by')} {activity.user}</p>
-                {activity.car && (
-                  <p className="text-xs text-gray-500">{activity.car}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="text-right">
-              <div className="text-xs text-gray-500 mb-2">{activity.timestamp}</div>
-              <span className={getStatusBadge(activity.status)}>
-                {t(activity.status)}
-              </span>
-            </div>
-          </div>
-        ))}
-=======
         {recentActivities.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             {t('noRecentActivities')}
@@ -337,7 +256,6 @@ const RecentActivities = () => {
             </div>
           ))
         )}
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
       </div>
     </div>
   );

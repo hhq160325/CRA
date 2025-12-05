@@ -1,25 +1,3 @@
-<<<<<<< HEAD
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
-import {
-  updateCustomerAccount,
-  setCustomers,
-  setLoading,
-  setError,
-  clearError,
-} from '../staffSlice';
-import { CustomerModal } from './modals/customerModal';
-import { fetchAllUsers } from '../api';
-const CustomerManagement = () => {
-  const { t } = useTranslation();
-  const dispatch = useDispatch();
-  const customers = useSelector((state) => state.staff?.customers || []);
-  const isLoading = useSelector(
-    (state) => state.staff?.loading?.customers || false
-  );
-  const error = useSelector((state) => state.staff?.errors?.customers);
-=======
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -28,55 +6,12 @@ import { CustomerModal } from './modals/customerModal';
 const CustomerManagement = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [modalType, setModalType] = useState(null); // 'view', 'edit', 'suspend'
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-<<<<<<< HEAD
-  useEffect(() => {
-    const loadCustomers = async () => {
-      try {
-        dispatch(setLoading({ section: 'customers', loading: true }));
-        const users = await fetchAllUsers();
-        // Filter customers: roleId === 1 (Customer) and not car owner
-        const customerRows = (users || [])
-          .filter((u) => u.roleId === 1 && !u.isCarOwner)
-          .map((u) => ({
-            id: u.id,
-            name: u.fullname || u.username,
-            email: u.email,
-            phone: u.phoneNumber || '',
-            status: (u.status || 'active').toLowerCase(),
-            registrationDate: '', // backend không trả, để trống
-            totalBookings: 0,
-            totalSpent: 0,
-            lastBooking: null,
-            verificationStatus:
-              (u.status || '').toLowerCase() === 'active'
-                ? 'verified'
-                : 'pending',
-            complianceIssues: 0,
-          }));
-        dispatch(setCustomers(customerRows));
-        dispatch(clearError('customers'));
-      } catch (e) {
-        dispatch(
-          setError({
-            section: 'customers',
-            error: e?.message || 'Failed to load customers',
-          })
-        );
-      } finally {
-        dispatch(setLoading({ section: 'customers', loading: false }));
-      }
-    };
-
-    loadCustomers();
-  }, [dispatch]);
-=======
   // Mock data for customers
   const customers = [
     {
@@ -145,7 +80,6 @@ const CustomerManagement = () => {
       complianceIssues: 0
     }
   ];
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
@@ -229,23 +163,8 @@ const CustomerManagement = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-<<<<<<< HEAD
-          <h1 className="text-2xl font-bold text-gray-900">
-            {t('customerManagement')}
-          </h1>
-          <p className="text-gray-600">{t('viewAndManageCustomers')}</p>
-          {isLoading && (
-            <p className="text-xs text-gray-400 mt-1">{t('loading')}...</p>
-          )}
-          {error && (
-            <p className="text-xs text-red-500 mt-1">
-              {t('error')}: {error}
-            </p>
-          )}
-=======
           <h1 className="text-2xl font-bold text-gray-900">{t('customerManagement')}</h1>
           <p className="text-gray-600">{t('viewAndManageCustomers')}</p>
->>>>>>> b4dae4ad57ebf4aa5136a81faef04684f2a03328
         </div>
         <div className="flex space-x-3">
           <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">

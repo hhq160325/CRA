@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { openEventModal } from '../../calendarSlice';
+import { openEventModal } from '../../../maintenanceCalendarSlice';
 import EventCard from './EventCard';
 
 const AgendaView = ({ events, currentDate }) => {
@@ -17,14 +17,25 @@ const AgendaView = ({ events, currentDate }) => {
 
     const groups = {};
     sorted.forEach(event => {
-      if (!event.start) return;
-      const date = event.start instanceof Date ? event.start : new Date(event.start);
-      const dateKey = date.toISOString().split('T')[0];
+      if (!event.start || !event.end) return;
       
-      if (!groups[dateKey]) {
-        groups[dateKey] = [];
+      // Add event to pickup date
+      const startDate = event.start instanceof Date ? event.start : new Date(event.start);
+      const startKey = startDate.toISOString().split('T')[0];
+      if (!groups[startKey]) {
+        groups[startKey] = [];
       }
-      groups[dateKey].push(event);
+      groups[startKey].push({ ...event, eventType: 'pickup' });
+      
+      // Add event to dropoff date (if different from pickup)
+      const endDate = event.end instanceof Date ? event.end : new Date(event.end);
+      const endKey = endDate.toISOString().split('T')[0];
+      if (startKey !== endKey) {
+        if (!groups[endKey]) {
+          groups[endKey] = [];
+        }
+        groups[endKey].push({ ...event, eventType: 'dropoff' });
+      }
     });
 
     return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
@@ -73,13 +84,25 @@ const AgendaView = ({ events, currentDate }) => {
             </div>
             
             <div className="space-y-3">
-              {dayEvents.map(event => (
+              {dayEvents.map((event, idx) => (
                 <div
-                  key={event.id}
+                  key={`${event.id}-${event.eventType || idx}`}
                   onClick={() => dispatch(openEventModal(event))}
                   className="cursor-pointer"
                 >
-                  <EventCard event={event} />
+                  <div className="flex items-start gap-2">
+                    <span className="text-lg mt-1">
+                      {event.eventType === 'pickup' ? '📤' : event.eventType === 'dropoff' ? '📥' : '🚗'}
+                    </span>
+                    <div className="flex-1">
+                      <EventCard event={event} />
+                      {event.eventType && (
+                        <p className="text-xs text-gray-500 mt-1 ml-2">
+                          {event.eventType === 'pickup' ? t('pickupDate') || 'Pickup' : t('dropoffDate') || 'Dropoff'}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>

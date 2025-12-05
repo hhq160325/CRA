@@ -1,21 +1,122 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { axiosInstance } from '../../shared/utils/axiosInstance';
+import { SCHEDULE_ENDPOINTS, PAYMENT_ENDPOINTS, INVOICE_ENDPOINTS, CAR_ENDPOINTS } from '../../config/api';
+import { decodeJWT } from '../auth/utils';
+
+// Helper function to get user ID from token
+const getUserIdFromToken = () => {
+  const token = localStorage.getItem('accessToken');
+  if (!token) return null;
+  
+  const decoded = decodeJWT(token);
+  if (!decoded) return null;
+  
+  // Try different possible user ID claims
+  return decoded.sub || decoded.userId || decoded.id || decoded.nameid || null;
+};
+
+// Helper function to fetch all payments and create a lookup map
+const fetchAllPayments = async () => {
+  try {
+    const response = await axiosInstance.get(PAYMENT_ENDPOINTS.GET_ALL_PAYMENTS);
+    const payments = response.data || [];
+    
+    // Create a map of invoiceId -> payment for quick lookup
+    const paymentMap = {};
+    payments.forEach(payment => {
+      if (payment.invoiceId) {
+        paymentMap[payment.invoiceId] = payment;
+      }
+    });
+    
+    return paymentMap;
+  } catch (error) {
+    console.error('Error fetching payments:', error);
+    return {};
+  }
+};
+
+// Helper function to fetch invoice details
+const fetchInvoiceDetails = async (invoiceId) => {
+  try {
+    if (!invoiceId) return null;
+    const response = await axiosInstance.get(INVOICE_ENDPOINTS.GET_INVOICE_BY_ID(invoiceId));
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching invoice ${invoiceId}:`, error);
+    return null;
+  }
+};
 
 // Async thunks
 export const fetchUserBookings = createAsyncThunk(
   'calendar/fetchUserBookings',
-  async (userId, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/users/${userId}/bookings`);
-      return response.data;
-    } catch (error) {
-      // Return empty array for now if API doesn't exist
-      if (error.response?.status === 404) {
-        console.warn('Bookings API not available, using empty array');
+      const userId = getUserIdFromToken();
+      if (!userId) {
+        console.warn('No user ID found in token');
         return [];
       }
-      console.warn('Bookings API not available, using empty array:', error.message);
-      return [];
+
+      // Fetch all cars and payments in parallel
+      const [carsResponse, paymentMap] = await Promise.all([
+        axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS),
+        fetchAllPayments()
+      ]);
+      
+      const allCars = carsResponse.data || [];
+      
+      // Filter for inactive cars (cars with maintenance schedules)
+      const inactiveCars = allCars.filter(car => car.status === 'Inactive');
+      
+      if (inactiveCars.length === 0) {
+        console.log('No inactive cars found');
+        return [];
+      }
+
+      // Fetch schedules for all inactive cars
+      const schedulePromises = inactiveCars.map(car => 
+        axiosInstance.get(SCHEDULE_ENDPOINTS.GET_CAR_SCHEDULES(car.id))
+          .then(response => response.data || [])
+          .catch(error => {
+            console.error(`Error fetching schedules for car ${car.id}:`, error);
+            return [];
+          })
+      );
+
+      const scheduleArrays = await Promise.all(schedulePromises);
+      const schedules = scheduleArrays.flat();
+
+      // Fetch invoice details and match with payments
+      const schedulesWithDetails = await Promise.all(
+        schedules.map(async (schedule) => {
+          const booking = schedule.booking || {};
+          let invoiceData = null;
+          let paymentData = null;
+          
+          if (booking.invoiceId) {
+            // Fetch invoice details
+            invoiceData = await fetchInvoiceDetails(booking.invoiceId);
+            // Get payment data from the map
+            paymentData = paymentMap[booking.invoiceId];
+          }
+          
+          return {
+            ...schedule,
+            invoice: invoiceData,
+            payment: paymentData,
+          };
+        })
+      );
+
+      return schedulesWithDetails;
+    } catch (error) {
+      console.error('Error fetching schedules:', error);
+      if (error.response?.status === 404) {
+        return [];
+      }
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -62,6 +163,8 @@ const initialState = {
   currentDate: new Date().toISOString(),
   selectedEvent: null,
   isEventModalOpen: false,
+  selectedDayEvents: [],
+  isDayEventsModalOpen: false,
   searchQuery: '',
   filters: {
     status: 'all',
@@ -106,6 +209,14 @@ const calendarSlice = createSlice({
       state.isEventModalOpen = false;
       state.selectedEvent = null;
     },
+    openDayEventsModal: (state, action) => {
+      state.selectedDayEvents = action.payload;
+      state.isDayEventsModalOpen = true;
+    },
+    closeDayEventsModal: (state) => {
+      state.isDayEventsModalOpen = false;
+      state.selectedDayEvents = [];
+    },
     setSearchQuery: (state, action) => {
       state.searchQuery = action.payload;
     },
@@ -128,25 +239,51 @@ const calendarSlice = createSlice({
       })
       .addCase(fetchUserBookings.fulfilled, (state, action) => {
         state.loading = false;
-        // Transform booking data to calendar events
-        state.events = action.payload.map(booking => {
-          const startDate = booking.startDate || booking.start;
-          const endDate = booking.endDate || booking.end;
+        // Transform schedule data to calendar events
+        state.events = (action.payload || []).map(schedule => {
+          const car = schedule.car || {};
+          const booking = schedule.booking || {};
+          const invoice = schedule.invoice || {};
+          const payment = schedule.payment || {};
+          const carName = `${car.manufacturer || ''} ${car.model || ''}`.trim() || 'Unknown Car';
           
           return {
-            id: booking.id,
-            title: `${booking.car || 'Car'} - ${booking.bookingId || booking.id}`,
-            start: new Date(startDate ? `${startDate}T09:00` : Date.now()),
-            end: new Date(endDate ? `${endDate}T17:00` : Date.now()),
+            id: schedule.id,
+            title: `${schedule.title} - ${carName}`,
+            start: schedule.startDate ? new Date(schedule.startDate) : new Date(),
+            end: schedule.endDate ? new Date(schedule.endDate) : new Date(),
             allDay: false,
-            status: booking.status || 'pending',
-            car: booking.car || '',
-            customer: booking.customer || '',
-            carOwner: booking.carOwner || '',
-            amount: booking.totalAmount || booking.amount || 0,
-            paymentStatus: booking.paymentStatus || 'pending',
-            notes: booking.notes || '',
-            bookingId: booking.bookingId || booking.id,
+            // Store full schedule details for modal display
+            scheduleId: schedule.id,
+            scheduleType: schedule.scheduleType,
+            priority: schedule.priority,
+            isBlocking: schedule.isBlocking,
+            status: schedule.status,
+            notes: schedule.note,
+            // Car details
+            carId: car.id,
+            carName: carName,
+            licensePlate: car.licensePlate,
+            seats: car.seats,
+            transmission: car.transmission,
+            fuelType: car.fuelType,
+            // Booking details
+            bookingId: booking.id,
+            pickupPlace: booking.pickupPlace,
+            dropoffPlace: booking.dropoffPlace,
+            pickupTime: booking.pickupTime,
+            dropoffTime: booking.dropoffTime,
+            bookingStatus: booking.status,
+            invoiceId: booking.invoiceId,
+            invoiceNo: booking.invoiceNo,
+            // Invoice/Payment details
+            totalAmount: invoice.totalAmount || 0,
+            carRentPrice: invoice.carRentPrice || 0,
+            bookingFee: invoice.bookingFee || 0,
+            // Payment status from PayOS
+            paymentStatus: payment.status || 'pending',
+            paymentMethod: payment.paymentMethod,
+            paymentDate: payment.paymentDate,
           };
         });
       })
@@ -208,6 +345,8 @@ export const {
   goToToday,
   openEventModal,
   closeEventModal,
+  openDayEventsModal,
+  closeDayEventsModal,
   setSearchQuery,
   setFilter,
   updateEventInState,

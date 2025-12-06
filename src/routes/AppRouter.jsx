@@ -4,7 +4,7 @@ import { RegisterCar, RegisterCarStep2, RegisterCarStep3, CarDetail, CarDetailRe
 import { ProfilePage } from '../features/user';
 import { PaymentPage, PaymentSuccess, PaymentCancel } from '../features/payment';
 import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring } from '../features/admin';
-import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter, ParklotCreate, RegDocsApproved } from '../features/staff';
+import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter, ParklotCreate, RegDocsApproved, DriverLicenseApprove } from '../features/staff';
 import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments, CarRegisDocs } from '../features/owner';
 import { AuthPage, GoogleCallback } from '../features/auth';
 // import ForgotPassword from '../features/auth/components/ForgotPassword';
@@ -75,6 +75,7 @@ const AppRouter = () => {
         <Route path="parklot-create" element={<ParklotCreate />} />
         <Route path="rental-monitoring" element={<RentalMonitoring />} />
         <Route path="reg-docs" element={<RegDocsApproved />} />
+        <Route path="driver-license-approve" element={<DriverLicenseApprove />} />
       </Route>
 
       {/* Car Owner (Manager) Routes */}

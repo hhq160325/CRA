@@ -388,7 +388,10 @@ const resources = {
       customerAccounts: "Customer Accounts",
       sendNotifications: "Send Notifications",
       createParkingLot: "Create Parking Lot",
-
+      registrationDocuments: "Registration Documents",
+      driverLicenseApprove: "Driver License Approve",
+      reviewAndApproveDriverLicenses: "Review And Approve Driver Licenses",
+      noLicensesFound: "No Licenses Found",
       // Parking Lot Creation
       parkingLotName: "Parking Lot Name",
       enterParkingLotName: "Enter parking lot name",
@@ -624,6 +627,7 @@ const resources = {
       payments: "Payments",
       registerNewCar: "Register New Car",
       registerNewCarSection: "Register New Car",
+      maintenanceCalendar:"Maintenance Calendar",
       // Register Car Step 3 - Photo Upload
       clickToUpload: "Click to upload",
       orDragAndDrop: "or drag and drop",

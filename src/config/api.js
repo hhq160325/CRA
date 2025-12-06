@@ -60,6 +60,8 @@ export const CAR_ENDPOINTS = {
   GET_RENTAL_RATE: (carId) => `${API_CONFIG.BASE_URL}/Car/rentalRate/${carId}`,
   GET_ALL_CARS: `${API_CONFIG.BASE_URL}/Car/AllCars`,
   GET_CAR_BY_ID: (carId) => `${API_CONFIG.BASE_URL}/Car/${carId}`,
+  GET_ALL_REG_DOCS: `${API_CONFIG.BASE_URL}/Car/regDoc/all`,
+  APPROVE_REG_DOC: `${API_CONFIG.BASE_URL}/Car/regDoc/approve`,
 };
 
 export const CAR_API_CONFIG = {

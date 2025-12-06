@@ -8,9 +8,18 @@ const MaintenanceSchedule = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedCar, setSelectedCar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [maintenanceSchedules, setMaintenanceSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [scheduleFormData, setScheduleFormData] = useState({
+    title: '',
+    location: '',
+    startDate: '',
+    endDate: '',
+    note: ''
+  });
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetchMaintenanceSchedules();
@@ -175,10 +184,80 @@ const MaintenanceSchedule = () => {
     closeModal();
   };
 
-  const handleScheduleMaintenance = (id) => {
-    // Handle schedule maintenance logic
-    console.log('Scheduling maintenance for car:', id);
-    closeModal();
+  const handleScheduleMaintenance = (schedule) => {
+    // Open schedule modal with car info
+    setSelectedCar(schedule);
+    setIsScheduleModalOpen(true);
+    setIsModalOpen(false);
+    
+    // Pre-fill form with existing data if available
+    if (schedule.startDateMaintenanceDate !== 'N/A') {
+      setScheduleFormData({
+        title: schedule.maintenanceType || '',
+        location: '',
+        startDate: schedule.startDateMaintenanceDate,
+        endDate: schedule.endDateMaintenanceDate,
+        note: ''
+      });
+    }
+  };
+
+  const closeScheduleModal = () => {
+    setIsScheduleModalOpen(false);
+    setSelectedCar(null);
+    setScheduleFormData({
+      title: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      note: ''
+    });
+  };
+
+  const handleScheduleFormChange = (e) => {
+    const { name, value } = e.target;
+    setScheduleFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmitSchedule = async (e) => {
+    e.preventDefault();
+    
+    if (!selectedCar) return;
+    
+    try {
+      setSubmitting(true);
+      
+      // Format dates to ISO 8601 format with time
+      const startDateTime = `${scheduleFormData.startDate}T00:00:00.000Z`;
+      const endDateTime = `${scheduleFormData.endDate}T23:59:59.000Z`;
+      
+      const scheduleData = {
+        title: scheduleFormData.title,
+        location: scheduleFormData.location,
+        startDate: startDateTime,
+        endDate: endDateTime,
+        note: scheduleFormData.note,
+        carId: selectedCar.carId
+      };
+
+      await axiosInstance.post(SCHEDULE_ENDPOINTS.CREATE_CAR_SCHEDULES, scheduleData);
+      
+      // Show success message
+      alert('Maintenance schedule created successfully!');
+      
+      // Close modal and refresh data
+      closeScheduleModal();
+      fetchMaintenanceSchedules();
+      
+    } catch (err) {
+      console.error('Error creating maintenance schedule:', err);
+      alert('Failed to create maintenance schedule. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const filteredSchedules = maintenanceSchedules.filter(schedule => {
@@ -400,7 +479,7 @@ const MaintenanceSchedule = () => {
                         View
                       </button>
                       <button
-                        onClick={() => handleScheduleMaintenance(schedule.id)}
+                        onClick={() => handleScheduleMaintenance(schedule)}
                         className="text-green-600 hover:text-green-700 text-sm font-medium"
                       >
                         Schedule
@@ -434,6 +513,132 @@ const MaintenanceSchedule = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal for creating/editing maintenance schedule */}
+      {isScheduleModalOpen && selectedCar && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900">Schedule Maintenance</h2>
+                <button
+                  onClick={closeScheduleModal}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <form onSubmit={handleSubmitSchedule} className="p-6 space-y-4">
+              {/* Car Information */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600 mb-2">Car Information</p>
+                <p className="font-medium text-gray-900">{selectedCar.carName}</p>
+                <p className="text-sm text-gray-600">{selectedCar.licensePlate} • {selectedCar.carId}</p>
+              </div>
+
+              {/* Title */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={scheduleFormData.title}
+                  onChange={handleScheduleFormChange}
+                  required
+                  placeholder="e.g., Oil Change, Tire Rotation"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Location */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Location <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="location"
+                  value={scheduleFormData.location}
+                  onChange={handleScheduleFormChange}
+                  required
+                  placeholder="e.g., Main Service Center"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Date Range */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Start Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="startDate"
+                    value={scheduleFormData.startDate}
+                    onChange={handleScheduleFormChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    End Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="endDate"
+                    value={scheduleFormData.endDate}
+                    onChange={handleScheduleFormChange}
+                    required
+                    min={scheduleFormData.startDate}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              {/* Note */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Note
+                </label>
+                <textarea
+                  name="note"
+                  value={scheduleFormData.note}
+                  onChange={handleScheduleFormChange}
+                  rows="3"
+                  placeholder="Additional notes about the maintenance..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={closeScheduleModal}
+                  className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                  disabled={submitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400"
+                  disabled={submitting}
+                >
+                  {submitting ? 'Creating...' : 'Create Schedule'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Modal for viewing maintenance details */}
       {isModalOpen && selectedCar && (
@@ -487,7 +692,7 @@ const MaintenanceSchedule = () => {
               </div>
               <div className="pt-4 flex space-x-3">
                 <button
-                  onClick={() => handleScheduleMaintenance(selectedCar.id)}
+                  onClick={() => handleScheduleMaintenance(selectedCar)}
                   className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Schedule Maintenance

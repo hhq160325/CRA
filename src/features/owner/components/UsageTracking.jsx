@@ -1,8 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import DropdownTemplate from '../../../shared/components/DropdownTemplate';
+import Pagination from '../../../shared/components/Pagination';
 import { tokenUtils } from '../../auth/utils';
 import { filterCarUsageData } from '../utils/filterUtils';
-import { getAllCars, getCarBookings, createCarSchedule } from '../ownerApi';
+import { getAllCars, getCarBookings } from '../ownerApi';
+import { MaintenanceSchedulingModal, UsageDetailsModal } from './modal';
 
 const UsageTracking = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,18 +20,6 @@ const UsageTracking = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  
-  // Maintenance form state
-  const [maintenanceForm, setMaintenanceForm] = useState({
-    title: '',
-    location: '',
-    startDate: '',
-    endDate: '',
-    note: '',
-  });
-  const [maintenanceLoading, setMaintenanceLoading] = useState(false);
-  const [maintenanceError, setMaintenanceError] = useState(null);
-  const [maintenanceSuccess, setMaintenanceSuccess] = useState(false);
 
 
 
@@ -47,28 +37,28 @@ const UsageTracking = () => {
     const fetchCarsWithBookings = async () => {
       try {
         setLoading(true);
-        
+
         // Get current user ID from JWT token (more secure)
         const currentOwnerId = tokenUtils.getUserId();
-        
+
         if (!currentOwnerId) {
           setError('Unable to identify current user. Please log in again.');
           setLoading(false);
           return;
         }
-        
+
         const allCars = await getAllCars();
-        
+
         // Filter cars by current owner ID
         const cars = allCars.filter(car => car.owner.id === currentOwnerId);
-        
+
         // Fetch bookings for each car in parallel
         const carsWithBookings = await Promise.all(
           cars.map(async (car) => {
             const bookings = await getCarBookings(car.id);
-            
+
             // Calculate rental statistics (exclude canceled bookings)
-            const activeBookings = bookings.filter(b => 
+            const activeBookings = bookings.filter(b =>
               b.status && b.status.toLowerCase() !== 'canceled' && b.status.toLowerCase() !== 'cancelled'
             );
             const totalRentals = activeBookings.length;
@@ -78,15 +68,15 @@ const UsageTracking = () => {
               }
               return sum;
             }, 0);
-            
+
             // Find last rental date
             const sortedBookings = bookings
               .filter(b => b.pickupTime)
               .sort((a, b) => new Date(b.pickupTime) - new Date(a.pickupTime));
-            const lastRentalDate = sortedBookings.length > 0 
+            const lastRentalDate = sortedBookings.length > 0
               ? new Date(sortedBookings[0].pickupTime).toLocaleDateString()
               : 'N/A';
-            
+
             return {
               id: car.id,
               carId: car.id,
@@ -95,14 +85,8 @@ const UsageTracking = () => {
               model: car.model || 'Unknown',
               carModel: car.yearofManufacture?.toString() || 'N/A',
               licensePlate: car.licensePlate || 'N/A',
-              totalMileage: 0, // Not available in API
-              rentalMileage: 0, // Not available in API
-              personalMileage: 0, // Not available in API
               totalRentals,
               totalDaysRented,
-              availabilityRate: 0, // Would need more data to calculate
-              utilizationRate: 0, // Would need more data to calculate
-              averageDailyMileage: 0, // Not available in API
               lastRentalDate,
               currentStatus: car.status?.toLowerCase() || 'unknown',
               seats: car.seats,
@@ -112,7 +96,7 @@ const UsageTracking = () => {
             };
           })
         );
-        
+
         setUsageData(carsWithBookings);
         setError(null);
       } catch (err) {
@@ -129,17 +113,19 @@ const UsageTracking = () => {
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
     const normalizedStatus = status?.toLowerCase();
-    
+
     // Map pending to active for display
     // const displayStatus = normalizedStatus === 'pending' ? 'active' : normalizedStatus;
-    
+
     switch (normalizedStatus) {
-      case 'available':
+      case 'active':
         return { className: `${baseClasses} bg-green-100 text-green-800`, label: 'Available' };
       case 'reserved':
         return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: 'Reserved' };
       case 'pending':
         return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: 'Active' };
+      // case 'active':
+      //   return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: 'Active' };
       case 'inactive':
         return { className: `${baseClasses} bg-yellow-100 text-yellow-800`, label: 'Maintenance' };
       // case 'inactive':
@@ -164,85 +150,15 @@ const UsageTracking = () => {
   const openMaintenanceModal = (car) => {
     setSelectedCar(car);
     setIsMaintenanceModalOpen(true);
-    setMaintenanceForm({
-      title: '',
-      location: '',
-      startDate: '',
-      endDate: '',
-      note: '',
-    });
-    setMaintenanceError(null);
-    setMaintenanceSuccess(false);
   };
 
   const closeMaintenanceModal = () => {
     setIsMaintenanceModalOpen(false);
     setSelectedCar(null);
-    setMaintenanceForm({
-      title: '',
-      location: '',
-      startDate: '',
-      endDate: '',
-      note: '',
-    });
-    setMaintenanceError(null);
-    setMaintenanceSuccess(false);
-  };
-
-  const handleMaintenanceFormChange = (e) => {
-    const { name, value } = e.target;
-    setMaintenanceForm(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleScheduleMaintenance = async (e) => {
-    e.preventDefault();
-    
-    if (!selectedCar) return;
-    
-    // Validation
-    if (!maintenanceForm.title || !maintenanceForm.location || !maintenanceForm.startDate || !maintenanceForm.endDate) {
-      setMaintenanceError('Please fill in all required fields');
-      return;
-    }
-
-    if (new Date(maintenanceForm.startDate) >= new Date(maintenanceForm.endDate)) {
-      setMaintenanceError('End date must be after start date');
-      return;
-    }
-
-    try {
-      setMaintenanceLoading(true);
-      setMaintenanceError(null);
-
-      const payload = {
-        title: maintenanceForm.title,
-        location: maintenanceForm.location,
-        startDate: new Date(maintenanceForm.startDate).toISOString(),
-        endDate: new Date(maintenanceForm.endDate).toISOString(),
-        note: maintenanceForm.note || '',
-        carId: selectedCar.id
-      };
-
-      await createCarSchedule(payload);
-      
-      setMaintenanceSuccess(true);
-      setTimeout(() => {
-        closeMaintenanceModal();
-      }, 2000);
-      
-    } catch (err) {
-      console.error('Error scheduling maintenance:', err);
-      setMaintenanceError(err.response?.data?.message || 'Failed to schedule maintenance. Please try again.');
-    } finally {
-      setMaintenanceLoading(false);
-    }
   };
 
   const filteredUsage = useMemo(() => {
-    return usageData.filter(car => 
+    return usageData.filter(car =>
       filterCarUsageData(car, {
         searchTerm,
         brandFilter,
@@ -254,12 +170,12 @@ const UsageTracking = () => {
 
   // Get unique brands, models and statuses for filter dropdowns
   const uniqueBrands = [...new Set(usageData.map(car => car.brand))].sort();
-  
+
   // Get models based on selected brand
-  const availableModels = brandFilter === 'all' 
+  const availableModels = brandFilter === 'all'
     ? [...new Set(usageData.map(car => car.model))].sort()
     : [...new Set(usageData.filter(car => car.brand === brandFilter).map(car => car.model))].sort();
-  
+
   const uniqueStatuses = [...new Set(usageData.map(car => car.currentStatus))].sort();
 
   // Reset model filter when brand changes
@@ -288,10 +204,10 @@ const UsageTracking = () => {
     { id: 'all', value: 'all', label: 'All Status' },
     ...uniqueStatuses.map(status => {
       const badge = getStatusBadge(status);
-      return { 
-        id: status, 
-        value: status, 
-        label: badge.label.charAt(0).toUpperCase() + badge.label.slice(1) 
+      return {
+        id: status,
+        value: status,
+        label: badge.label.charAt(0).toUpperCase() + badge.label.slice(1)
       };
     })
   ];
@@ -307,57 +223,7 @@ const UsageTracking = () => {
     setCurrentPage(1);
   }, [searchTerm, dateFilter, brandFilter, modelFilter, statusFilter]);
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
 
-  const handlePrevious = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const handleNext = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  // Generate page numbers to display
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxPagesToShow = 5;
-    
-    if (totalPages <= maxPagesToShow) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) {
-          pages.push(i);
-        }
-        pages.push('...');
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1);
-        pages.push('...');
-        for (let i = totalPages - 3; i <= totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        pages.push(1);
-        pages.push('...');
-        pages.push(currentPage - 1);
-        pages.push(currentPage);
-        pages.push(currentPage + 1);
-        pages.push('...');
-        pages.push(totalPages);
-      }
-    }
-    
-    return pages;
-  };
 
   if (loading) {
     return (
@@ -377,109 +243,109 @@ const UsageTracking = () => {
 
   return (
     <>
-    <div className="p-8 space-y-6 min-h-full bg-gray-50">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Usage & Mileage</h1>
-          <p className="text-gray-600">Monitor car usage, mileage and utilization details</p>
-        </div>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-4">
-          <div className="flex flex-col sm:flex-row gap-4 flex-1">
-            <div className="relative flex-1 max-w-md">
-              <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search by car name, license plate, or ID"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
-              />
-            </div>
-            
-            <div className="w-full sm:w-48">
-              <DropdownTemplate
-                value={brandFilter}
-                onChange={(option) => setBrandFilter(option.value)}
-                options={brandOptions}
-                placeholder="All Brands"
-                searchable={true}
-                searchPlaceholder="Search brands..."
-              />
-            </div>
-            
-            <div className="w-full sm:w-48">
-              <DropdownTemplate
-                value={modelFilter}
-                onChange={(option) => setModelFilter(option.value)}
-                options={modelOptions}
-                placeholder="All Models"
-                searchable={true}
-                searchPlaceholder="Search models..."
-                disabled={brandFilter === 'all'}
-              />
-            </div>
-            
-            <div className="w-full sm:w-48">
-              <DropdownTemplate
-                value={statusFilter}
-                onChange={(option) => setStatusFilter(option.value)}
-                options={statusOptions}
-                placeholder="All Status"
-                searchable={false}
-              />
-            </div>
-          </div>
-          
-          <div className="text-sm text-gray-600 whitespace-nowrap">
-            Showing {filteredUsage.length} of {usageData.length} cars
+      <div className="p-8 space-y-6 min-h-full bg-gray-50">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Usage & Mileage</h1>
+            <p className="text-gray-600">Monitor car usage, mileage and utilization details</p>
           </div>
         </div>
-      </div>
 
-      {/* Usage Tracking Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Car Information</th>
-                {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Total Mileage</th> */}
-                {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rental vs Personal</th> */}
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rentals</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Days Rented</th>
-                {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Utilization</th> */}
-                {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Avg. Daily Mileage</th> */}
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Status</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {paginatedUsage.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="py-8 text-center text-gray-500">
-                    No cars found
-                  </td>
+        {/* Search and Filters */}
+        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-4">
+            <div className="flex flex-col sm:flex-row gap-4 flex-1">
+              <div className="relative flex-1 max-w-md">
+                <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search by car name, license plate, or ID"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+                />
+              </div>
+
+              <div className="w-full sm:w-48">
+                <DropdownTemplate
+                  value={brandFilter}
+                  onChange={(option) => setBrandFilter(option.value)}
+                  options={brandOptions}
+                  placeholder="All Brands"
+                  searchable={true}
+                  searchPlaceholder="Search brands..."
+                />
+              </div>
+
+              <div className="w-full sm:w-48">
+                <DropdownTemplate
+                  value={modelFilter}
+                  onChange={(option) => setModelFilter(option.value)}
+                  options={modelOptions}
+                  placeholder="All Models"
+                  searchable={true}
+                  searchPlaceholder="Search models..."
+                  disabled={brandFilter === 'all'}
+                />
+              </div>
+
+              <div className="w-full sm:w-48">
+                <DropdownTemplate
+                  value={statusFilter}
+                  onChange={(option) => setStatusFilter(option.value)}
+                  options={statusOptions}
+                  placeholder="All Status"
+                  searchable={false}
+                />
+              </div>
+            </div>
+
+            <div className="text-sm text-gray-600 whitespace-nowrap">
+              Showing {filteredUsage.length} of {usageData.length} cars
+            </div>
+          </div>
+        </div>
+
+        {/* Usage Tracking Table */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200 bg-gray-50">
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Car Information</th>
+                  {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Total Mileage</th> */}
+                  {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rental vs Personal</th> */}
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rentals</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Days Rented</th>
+                  {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Utilization</th> */}
+                  {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Avg. Daily Mileage</th> */}
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Status</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th>
                 </tr>
-              ) : (
-                paginatedUsage.map((car) => {         
-                  return (
-                    <tr key={car.id} className="hover:bg-gray-50">
-                      <td className="py-4 px-6">
-                        <div className="font-medium text-gray-900 text-sm">{car.carName}</div>
-                        <div className="text-xs text-gray-500">{car.carModel} • {car.licensePlate}</div>
-                        <div className="text-xs text-gray-400">{car.seats} seats • {car.transmission} • {car.fuelType}</div>
-                      </td>
-                      {/* <td className="py-4 px-6">
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {paginatedUsage.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="py-8 text-center text-gray-500">
+                      No cars found
+                    </td>
+                  </tr>
+                ) : (
+                  paginatedUsage.map((car) => {
+                    return (
+                      <tr key={car.id} className="hover:bg-gray-50">
+                        <td className="py-4 px-6">
+                          <div className="font-medium text-gray-900 text-sm">{car.carName}</div>
+                          <div className="text-xs text-gray-500">{car.carModel} • {car.licensePlate}</div>
+                          <div className="text-xs text-gray-400">{car.seats} seats • {car.transmission} • {car.fuelType}</div>
+                        </td>
+                        {/* <td className="py-4 px-6">
                         <div className="text-sm font-medium text-gray-900">{car.totalMileage.toLocaleString()} km</div>
                       </td> */}
-                      {/* <td className="py-4 px-6">
+                        {/* <td className="py-4 px-6">
                         <div className="space-y-1">
                           <div className="flex items-center space-x-2">
                             <div className="w-24 bg-gray-200 rounded-full h-2">
@@ -495,15 +361,15 @@ const UsageTracking = () => {
                           </div>
                         </div>
                       </td> */}
-                      <td className="py-4 px-6">
-                        <div className="text-sm text-gray-900">{car.totalRentals}</div>
-                        <div className="text-xs text-gray-500">Total bookings</div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="text-sm text-gray-900">{car.totalDaysRented}</div>
-                        <div className="text-xs text-gray-500">days</div>
-                      </td>
-                      {/* <td className="py-4 px-6">
+                        <td className="py-4 px-6">
+                          <div className="text-sm text-gray-900">{car.totalRentals}</div>
+                          <div className="text-xs text-gray-500">Total bookings</div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="text-sm text-gray-900">{car.totalDaysRented}</div>
+                          <div className="text-xs text-gray-500">days</div>
+                        </td>
+                        {/* <td className="py-4 px-6">
                         <div className="flex items-center space-x-2">
                           <div className="w-24 bg-gray-200 rounded-full h-2">
                             <div 
@@ -515,395 +381,69 @@ const UsageTracking = () => {
                         </div>
                         <div className="text-xs text-gray-500 mt-1">Availability: {car.availabilityRate}%</div>
                       </td> */}
-                      {/* <td className="py-4 px-6">
+                        {/* <td className="py-4 px-6">
                         <div className="text-sm text-gray-900">{car.averageDailyMileage} km</div>
                         <div className="text-xs text-gray-500">per day</div>
                       </td> */}
-                      <td className="py-4 px-6">
-                        {(() => {
-                          const badge = getStatusBadge(car.currentStatus);
-                          return <span className={badge.className}>{badge.label}</span>;
-                        })()}
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => openModal(car)}
-                            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                          >
-                            View Details
-                          </button>
-                          {car.currentStatus === 'pending' && (
-                            <>
-                              <span className="text-gray-300">|</span>
-                              <button
-                                onClick={() => openMaintenanceModal(car)}
-                                className="text-orange-600 hover:text-orange-700 text-sm font-medium"
-                              >
-                                Schedule
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="flex items-center justify-between py-4 px-6 border-t border-gray-200">
-          <div className="text-sm text-gray-600">
-            {filteredUsage.length > 0 ? (
-              <>Showing {startIndex + 1} to {Math.min(endIndex, filteredUsage.length)} of {filteredUsage.length} results</>
-            ) : (
-              <>No results</>
-            )}
+                        <td className="py-4 px-6">
+                          {(() => {
+                            const badge = getStatusBadge(car.currentStatus);
+                            return <span className={badge.className}>{badge.label}</span>;
+                          })()}
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => openModal(car)}
+                              className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                            >
+                              View Details
+                            </button>
+                            {(car.currentStatus === 'pending' || car.currentStatus === 'active') && (
+                              <>
+                                <span className="text-gray-300">|</span>
+                                <button
+                                  onClick={() => openMaintenanceModal(car)}
+                                  className="text-orange-600 hover:text-orange-700 text-sm font-medium"
+                                >
+                                  Schedule
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
-          {totalPages > 0 && (
-            <div className="flex items-center space-x-2">
-              <button 
-                onClick={handlePrevious}
-                disabled={currentPage === 1}
-                className={`px-3 py-1 text-sm rounded ${
-                  currentPage === 1 
-                    ? 'text-gray-400 cursor-not-allowed' 
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                Previous
-              </button>
-              <div className="flex space-x-1">
-                {getPageNumbers().map((page, index) => (
-                  page === '...' ? (
-                    <span key={`ellipsis-${index}`} className="w-8 h-8 flex items-center justify-center text-gray-500">
-                      ...
-                    </span>
-                  ) : (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`w-8 h-8 text-sm rounded ${
-                        currentPage === page
-                          ? 'bg-blue-600 text-white'
-                          : 'text-gray-600 hover:bg-gray-100'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  )
-                ))}
-              </div>
-              <button 
-                onClick={handleNext}
-                disabled={currentPage === totalPages}
-                className={`px-3 py-1 text-sm rounded ${
-                  currentPage === totalPages 
-                    ? 'text-gray-400 cursor-not-allowed' 
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                Next
-              </button>
-            </div>
-          )}
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredUsage.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         </div>
       </div>
-    </div>
 
-      {/* Modal for detailed usage view */}
-      {isModalOpen && selectedCar && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Usage & Mileage Details</h2>
-                <button
-                  onClick={closeModal}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div className="p-6 space-y-6">
-              {/* Car Info */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600">Car Name</p>
-                  <p className="font-medium text-gray-900 text-lg">{selectedCar.carName}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">License Plate</p>
-                  <p className="font-medium text-gray-900 text-lg">{selectedCar.licensePlate}</p>
-                </div>
-              </div>
-
-              {/* Mileage Stats */}
-              {/* <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                <h3 className="font-semibold text-gray-900">Mileage Statistics</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-600">Total Mileage</p>
-                    <p className="text-2xl font-bold text-gray-900">{selectedCar.totalMileage.toLocaleString()} km</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Rental Mileage</p>
-                    <p className="text-2xl font-bold text-blue-600">{selectedCar.rentalMileage.toLocaleString()} km</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Personal Mileage</p>
-                    <p className="text-2xl font-bold text-purple-600">{selectedCar.personalMileage.toLocaleString()} km</p>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <div className="flex justify-between text-sm text-gray-600 mb-2">
-                    <span>Rental Usage</span>
-                    <span>{((selectedCar.rentalMileage / selectedCar.totalMileage) * 100).toFixed(1)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-4">
-                    <div 
-                      className="bg-blue-600 h-4 rounded-full" 
-                      style={{ width: `${(selectedCar.rentalMileage / selectedCar.totalMileage) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </div> */}
-
-              {/* Rental Stats */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-blue-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-600">Total Rentals</p>
-                  <p className="text-2xl font-bold text-blue-600">{selectedCar.totalRentals}</p>
-                </div>
-                <div className="bg-green-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-600">Total Days Rented</p>
-                  <p className="text-2xl font-bold text-green-600">{selectedCar.totalDaysRented}</p>
-                </div>
-                {/* <div className="bg-orange-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-600">Avg. Daily Mileage</p>
-                  <p className="text-2xl font-bold text-orange-600">{selectedCar.averageDailyMileage} km</p>
-                </div> */}
-              </div>
-
-              {/* Utilization Stats */}
-              <div className="grid grid-cols-1 gap-4">
-                {/* <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-600 mb-2">Utilization Rate</p>
-                  <div className="flex items-center space-x-4">
-                    <div className="flex-1 bg-gray-200 rounded-full h-3">
-                      <div 
-                        className="bg-green-600 h-3 rounded-full" 
-                        style={{ width: `${selectedCar.utilizationRate}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-lg font-bold text-gray-900">{selectedCar.utilizationRate}%</span>
-                  </div>
-                </div> */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-600 mb-2">Availability Rate</p>
-                  <div className="flex items-center space-x-4">
-                    <div className="flex-1 bg-gray-200 rounded-full h-3">
-                      <div 
-                        className="bg-blue-600 h-3 rounded-full" 
-                        style={{ width: `${selectedCar.availabilityRate}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-lg font-bold text-gray-900">{selectedCar.availabilityRate}%</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Additional Info */}
-              <div className="pt-4 border-t border-gray-200">
-                <div className="grid grid-cols-1 gap-4 text-sm">
-                  {/* <div>
-                    <p className="text-gray-600">Last Rental Date</p>
-                    <p className="font-medium text-gray-900">{selectedCar.lastRentalDate}</p>
-                  </div> */}
-                  <div>
-                    <p className="text-gray-600">Current Status</p>
-                    {(() => {
-                      const badge = getStatusBadge(selectedCar.currentStatus);
-                      return <span className={badge.className}>{badge.label}</span>;
-                    })()}
-                  </div>
-                </div>
-              </div>
-
-              {/* Schedule Maintenance Button */}
-              {selectedCar.currentStatus === 'pending' && (
-                <div className="pt-4 border-t border-gray-200">
-                  <button
-                    onClick={() => {
-                      closeModal();
-                      openMaintenanceModal(selectedCar);
-                    }}
-                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
-                  >
-                    Schedule Maintenance
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Usage Details Modal */}
+      <UsageDetailsModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        selectedCar={selectedCar}
+        onScheduleMaintenance={openMaintenanceModal}
+      />
 
       {/* Maintenance Scheduling Modal */}
-      {isMaintenanceModalOpen && selectedCar && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Schedule Maintenance</h2>
-                <button
-                  onClick={closeMaintenanceModal}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <form onSubmit={handleScheduleMaintenance} className="p-6 space-y-6">
-              {/* Car Info */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600">Car</p>
-                <p className="font-medium text-gray-900 text-lg">{selectedCar.carName}</p>
-                <p className="text-sm text-gray-500">{selectedCar.licensePlate}</p>
-              </div>
-
-              {/* Success Message */}
-              {maintenanceSuccess && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <div className="flex items-center">
-                    <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <p className="text-green-800 font-medium">Maintenance scheduled successfully!</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Error Message */}
-              {maintenanceError && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="text-red-800 text-sm">{maintenanceError}</p>
-                </div>
-              )}
-
-              {/* Form Fields */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Title <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={maintenanceForm.title}
-                    onChange={handleMaintenanceFormChange}
-                    placeholder="e.g., Oil Change, Tire Replacement"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    required
-                    disabled={maintenanceLoading || maintenanceSuccess}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Location <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="location"
-                    value={maintenanceForm.location}
-                    onChange={handleMaintenanceFormChange}
-                    placeholder="e.g., ABC Auto Service Center"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    required
-                    disabled={maintenanceLoading || maintenanceSuccess}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Start Date <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="datetime-local"
-                      name="startDate"
-                      value={maintenanceForm.startDate}
-                      onChange={handleMaintenanceFormChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      required
-                      disabled={maintenanceLoading || maintenanceSuccess}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      End Date <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="datetime-local"
-                      name="endDate"
-                      value={maintenanceForm.endDate}
-                      onChange={handleMaintenanceFormChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      required
-                      disabled={maintenanceLoading || maintenanceSuccess}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Note
-                  </label>
-                  <textarea
-                    name="note"
-                    value={maintenanceForm.note}
-                    onChange={handleMaintenanceFormChange}
-                    placeholder="Additional notes or instructions..."
-                    rows="4"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
-                    disabled={maintenanceLoading || maintenanceSuccess}
-                  />
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={closeMaintenanceModal}
-                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                  disabled={maintenanceLoading}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                  disabled={maintenanceLoading || maintenanceSuccess}
-                >
-                  {maintenanceLoading ? 'Scheduling...' : 'Schedule Maintenance'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <MaintenanceSchedulingModal
+        isOpen={isMaintenanceModalOpen}
+        onClose={closeMaintenanceModal}
+        selectedCar={selectedCar}
+      />
     </>
   );
 };

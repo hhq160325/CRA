@@ -4,6 +4,9 @@ import { axiosInstance } from '../../../shared/utils/axiosInstance';
 import { CAR_ENDPOINTS, BOOKING_ENDPOINTS } from '../../../config/api';
 import { getUserIdFromToken } from '../../user/api';
 import { fetchRentalHistoryData } from '../ownerApi';
+import OwnerBookingOverview from './OwnerDashboardComponent/OwnerBookingOverview';
+import OwnerBookingStatus from './OwnerDashboardComponent/OwnerBookingStatus';
+import OwnerEarningsSummary from './OwnerDashboardComponent/OwnerEarningsSummary';
 
 const OwnerDashboard = () => {
   const { t } = useTranslation();
@@ -21,6 +24,7 @@ const OwnerDashboard = () => {
     bookingStatusData: {},
     monthlyEarnings: [],
     monthlyBookings: [],
+    weeklyBookingData: [],
   });
 
   useEffect(() => {
@@ -45,11 +49,11 @@ const OwnerDashboard = () => {
       const allCars = carsResponse.data || [];
       const ownerCars = allCars.filter(car => car.owner.id === currentUserId);
       console.log(ownerCars);
-      
+
       // Calculate car statistics
       const availableCars = ownerCars.filter(car => car.status?.toLowerCase() === 'active').length;
       console.log(availableCars);
-      
+
       const rentedCars = ownerCars.filter(car =>
         car.status?.toLowerCase() === 'reserved' || car.status?.toLowerCase() === 'pending'
       ).length;
@@ -78,7 +82,7 @@ const OwnerDashboard = () => {
       const bookingsResponse = await axiosInstance.get(BOOKING_ENDPOINTS.GET_ALL_BOOKINGS);
       const allBookings = bookingsResponse.data || [];
       console.log(allBookings);
-      
+
       // Filter bookings for owner's cars
       const ownerCarIds = ownerCars.map(car => car.id);
       const ownerBookings = allBookings.filter(booking => ownerCarIds.includes(booking.carId));
@@ -145,6 +149,50 @@ const OwnerDashboard = () => {
         }
       });
 
+      // Calculate weekly booking data (last 7 days)
+      const weeklyBookingData = [];
+      const today = new Date();
+
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        date.setHours(0, 0, 0, 0);
+
+        const nextDate = new Date(date);
+        nextDate.setDate(nextDate.getDate() + 1);
+
+        const dayBookings = ownerBookings.filter(booking => {
+          // Use updateDate if it differs from createDate, otherwise use createDate
+          let bookingDate;
+          if (booking.updateDate && booking.createDate && booking.updateDate !== booking.createDate) {
+            bookingDate = new Date(booking.updateDate);
+          } else {
+            bookingDate = new Date(booking.createDate || booking.pickupTime);
+          }
+          return bookingDate >= date && bookingDate < nextDate;
+        });
+
+        const statusCounts = {
+          pending: 0,
+          confirmed: 0,
+          completed: 0,
+          cancelled: 0,
+        };
+
+        dayBookings.forEach(booking => {
+          const status = booking.status?.toLowerCase() || 'unknown';
+          if (statusCounts.hasOwnProperty(status)) {
+            statusCounts[status]++;
+          }
+        });
+
+        weeklyBookingData.push({
+          day: date.toLocaleDateString('en-US', { weekday: 'short' }),
+          date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          ...statusCounts,
+        });
+      }
+
       // Calculate growth percentages (mock data for now)
       const revenueGrowth = 15.2;
       const bookingsGrowth = 5.2;
@@ -164,6 +212,7 @@ const OwnerDashboard = () => {
         bookingStatusData,
         monthlyEarnings,
         monthlyBookings,
+        weeklyBookingData,
       });
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -186,14 +235,6 @@ const OwnerDashboard = () => {
     }).format(amount);
   };
 
-  const getMaxEarning = () => {
-    return Math.max(...stats.monthlyEarnings, 1);
-  };
-
-  const getMaxBooking = () => {
-    return Math.max(...stats.monthlyBookings, 1);
-  };
-
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-full bg-gray-50">
@@ -205,10 +246,6 @@ const OwnerDashboard = () => {
     );
   }
 
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-  const maxEarning = getMaxEarning();
-  const maxBooking = getMaxBooking();
-
   // Calculate percentages for car types
   const totalCars = Object.values(stats.carTypes).reduce((sum, count) => sum + count, 0);
   const carTypePercentages = Object.entries(stats.carTypes).map(([type, count]) => ({
@@ -217,15 +254,13 @@ const OwnerDashboard = () => {
     percentage: totalCars > 0 ? Math.round((count / totalCars) * 100) : 0
   }));
 
-  // Calculate booking status percentages
-  const totalBookings = Object.values(stats.bookingStatusData).reduce((sum, count) => sum + count, 0);
-  const confirmedCount = stats.bookingStatusData.confirmed || 0;
-  const pendingCount = stats.bookingStatusData.pending || 0;
-  const completedCount = stats.bookingStatusData.completed || 0;
-
-  const confirmedPercentage = totalBookings > 0 ? Math.round((confirmedCount / totalBookings) * 100) : 0;
-  const pendingPercentage = totalBookings > 0 ? Math.round((pendingCount / totalBookings) * 100) : 0;
-  const completedPercentage = totalBookings > 0 ? Math.round((completedCount / totalBookings) * 100) : 0;
+  // Prepare booking status data for pie chart
+  const bookingStatusChartData = [
+    { name: 'Pending', value: stats.bookingStatusData.pending || 0, color: '#f59e0b' },
+    { name: 'Confirmed', value: stats.bookingStatusData.confirmed || 0, color: '#3b82f6' },
+    { name: 'Completed', value: stats.bookingStatusData.completed || 0, color: '#10b981' },
+    { name: 'Cancelled', value: stats.bookingStatusData.cancelled || 0, color: '#ef4444' },
+  ].filter(item => item.value > 0); // Only show statuses with bookings
 
   return (
     <div className="p-8 space-y-6 min-h-full bg-gray-50">
@@ -320,74 +355,7 @@ const OwnerDashboard = () => {
       {/* Second Row - Earnings Summary and Car Availability */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Earnings Summary */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">Earnings Summary</h2>
-            <select className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <option>Jan 2025 - Jun 2025</option>
-            </select>
-          </div>
-          <div className="relative h-64">
-            {/* Y-axis labels */}
-            <div className="absolute left-0 top-0 bottom-8 flex flex-col justify-between text-xs text-gray-400">
-              <span>$200k</span>
-              <span>$150k</span>
-              <span>$100k</span>
-              <span>$50k</span>
-              <span>$0</span>
-            </div>
-            {/* Chart area */}
-            <div className="ml-12 h-full relative">
-              <svg className="w-full h-full" viewBox="0 0 600 240" preserveAspectRatio="none">
-                {/* Area fill */}
-                <defs>
-                  <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#ef4444" stopOpacity="0.3" />
-                    <stop offset="100%" stopColor="#ef4444" stopOpacity="0.05" />
-                  </linearGradient>
-                </defs>
-                <path
-                  d={`M 0 ${240 - (stats.monthlyEarnings[0] / maxEarning) * 200} 
-                      L 120 ${240 - (stats.monthlyEarnings[1] / maxEarning) * 200}
-                      L 240 ${240 - (stats.monthlyEarnings[2] / maxEarning) * 200}
-                      L 360 ${240 - (stats.monthlyEarnings[3] / maxEarning) * 200}
-                      L 480 ${240 - (stats.monthlyEarnings[4] / maxEarning) * 200}
-                      L 600 ${240 - (stats.monthlyEarnings[5] / maxEarning) * 200}
-                      L 600 240 L 0 240 Z`}
-                  fill="url(#areaGradient)"
-                />
-                {/* Line */}
-                <polyline
-                  points={`0,${240 - (stats.monthlyEarnings[0] / maxEarning) * 200} 
-                          120,${240 - (stats.monthlyEarnings[1] / maxEarning) * 200}
-                          240,${240 - (stats.monthlyEarnings[2] / maxEarning) * 200}
-                          360,${240 - (stats.monthlyEarnings[3] / maxEarning) * 200}
-                          480,${240 - (stats.monthlyEarnings[4] / maxEarning) * 200}
-                          600,${240 - (stats.monthlyEarnings[5] / maxEarning) * 200}`}
-                  fill="none"
-                  stroke="#ef4444"
-                  strokeWidth="3"
-                />
-                {/* Dots */}
-                {stats.monthlyEarnings.map((earning, index) => (
-                  <circle
-                    key={index}
-                    cx={index * 120}
-                    cy={240 - (earning / maxEarning) * 200}
-                    r="5"
-                    fill="#ef4444"
-                  />
-                ))}
-              </svg>
-              {/* X-axis labels */}
-              <div className="flex justify-between text-xs text-gray-400 mt-2">
-                {months.map((month, index) => (
-                  <span key={index}>{month}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
+        <OwnerEarningsSummary monthlyEarnings={stats.monthlyEarnings} />
 
         {/* Car Availability - Placeholder */}
         <div className="bg-white rounded-xl shadow-sm p-6">
@@ -412,30 +380,7 @@ const OwnerDashboard = () => {
       {/* Third Row - Booking Overview, Car Type, Booking Status */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Booking Overview */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">Booking Overview</h2>
-            <select className="px-3 py-1 border border-gray-300 rounded-lg text-sm">
-              <option>Weekly</option>
-              <option>Monthly</option>
-            </select>
-          </div>
-          <div className="h-48 flex items-end justify-between space-x-2">
-            {stats.monthlyBookings.map((count, index) => {
-              const height = (count / maxBooking) * 100;
-              return (
-                <div key={index} className="flex-1 flex flex-col items-center">
-                  <div className="w-full bg-red-600 rounded-t-lg" style={{ height: `${height}%`, minHeight: '8px' }}></div>
-                  <span className="text-xs text-gray-400 mt-2">{count}</span>
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex justify-between text-xs text-gray-400 mt-2">
-            <span>0 Unit</span>
-            <span>40 Unit</span>
-          </div>
-        </div>
+        <OwnerBookingOverview weeklyBookingData={stats.weeklyBookingData} />
 
         {/* Car Type */}
         <div className="bg-white rounded-xl shadow-sm p-6">
@@ -458,74 +403,8 @@ const OwnerDashboard = () => {
           </div>
         </div>
 
-        {/* Booking Status */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Booking Status</h2>
-          <div className="flex items-center justify-center mb-6">
-            <div className="relative w-40 h-40">
-              <svg className="w-full h-full transform -rotate-90">
-                <circle
-                  cx="80"
-                  cy="80"
-                  r="70"
-                  fill="none"
-                  stroke="#e5e7eb"
-                  strokeWidth="20"
-                />
-                <circle
-                  cx="80"
-                  cy="80"
-                  r="70"
-                  fill="none"
-                  stroke="#ef4444"
-                  strokeWidth="20"
-                  strokeDasharray={`${confirmedPercentage * 4.4} 440`}
-                  strokeDashoffset="0"
-                />
-                <circle
-                  cx="80"
-                  cy="80"
-                  r="70"
-                  fill="none"
-                  stroke="#374151"
-                  strokeWidth="20"
-                  strokeDasharray={`${pendingPercentage * 4.4} 440`}
-                  strokeDashoffset={`-${confirmedPercentage * 4.4}`}
-                />
-                <circle
-                  cx="80"
-                  cy="80"
-                  r="70"
-                  fill="none"
-                  stroke="#9ca3af"
-                  strokeWidth="20"
-                  strokeDasharray={`${completedPercentage * 4.4} 440`}
-                  strokeDashoffset={`-${(confirmedPercentage + pendingPercentage) * 4.4}`}
-                />
-              </svg>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-red-600"></div>
-                <span className="text-sm text-gray-600">Confirmed ({confirmedPercentage}%)</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-gray-800"></div>
-                <span className="text-sm text-gray-600">Pending ({pendingPercentage}%)</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-gray-400"></div>
-                <span className="text-sm text-gray-600">Completed ({completedPercentage}%)</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Booking Status Pie Chart */}
+        <OwnerBookingStatus bookingStatusChartData={bookingStatusChartData} />
       </div>
     </div>
   );

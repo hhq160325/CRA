@@ -7,3 +7,4 @@ export { default as LogoutButton } from './LogoutButton';
 export { default as Calendar } from './Calendar';
 export { default as TimePicker } from './TimePicker';
 export { default as DropdownTemplate } from './DropdownTemplate';
+export { default as Pagination } from './Pagination';

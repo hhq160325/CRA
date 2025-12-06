@@ -1,4 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { getUserIdFromToken } from '../../user/api';
+import { filterPaymentData } from '../utils/filterUtils';
+import DropdownTemplate from '../../../shared/components/DropdownTemplate';
+import Pagination from '../../../shared/components/Pagination';
+import { paymentTypeOptions, getPaymentMethodOptions, paymentStatusOptions, dateFilterOptions } from '../owner-utils/dropdownOptions';
+import { fetchOwnerPaymentsData } from '../ownerApi';
 
 const Payments = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -7,136 +13,115 @@ const Payments = () => {
   const [dateFilter, setDateFilter] = useState('all');
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  // Mock data for payments and payouts
-  const payments = [
-    {
-      id: 1,
-      transactionId: 'TXN001',
-      type: 'payout',
-      bookingId: 'BK001',
-      carName: 'Tesla Model 3',
-      customer: 'Alice Cooper',
-      amount: 356.40, // After 10% platform fee
-      grossAmount: 396.00,
-      fee: 39.60,
-      feePercentage: 10,
-      date: '2024-10-06',
-      status: 'completed',
-      paymentMethod: 'Bank Transfer',
-      accountLast4: '1234',
-      description: 'Payout for booking BK001',
-      notes: 'Payment processed successfully'
-    },
-    {
-      id: 2,
-      transactionId: 'TXN002',
-      type: 'payout',
-      bookingId: 'BK002',
-      carName: 'BMW X5',
-      customer: 'Bob Johnson',
-      amount: 279.00,
-      grossAmount: 310.00,
-      fee: 31.00,
-      feePercentage: 10,
-      date: '2024-10-05',
-      status: 'completed',
-      paymentMethod: 'Bank Transfer',
-      accountLast4: '1234',
-      description: 'Payout for booking BK002',
-      notes: 'Payment processed successfully'
-    },
-    {
-      id: 3,
-      transactionId: 'TXN003',
-      type: 'payout',
-      bookingId: 'BK003',
-      carName: 'Honda Civic',
-      customer: 'Carol Smith',
-      amount: 64.80,
-      grossAmount: 72.00,
-      fee: 7.20,
-      feePercentage: 10,
-      date: '2024-10-04',
-      status: 'pending',
-      paymentMethod: 'Bank Transfer',
-      accountLast4: '1234',
-      description: 'Payout for booking BK003',
-      notes: 'Processing...'
-    },
-    {
-      id: 4,
-      transactionId: 'TXN004',
-      type: 'payout',
-      bookingId: 'BK004',
-      carName: 'Mercedes C-Class',
-      customer: 'David Wilson',
-      amount: 652.50,
-      grossAmount: 725.00,
-      fee: 72.50,
-      feePercentage: 10,
-      date: '2024-10-03',
-      status: 'completed',
-      paymentMethod: 'Bank Transfer',
-      accountLast4: '1234',
-      description: 'Payout for booking BK004',
-      notes: 'Payment processed successfully'
-    },
-    {
-      id: 5,
-      transactionId: 'TXN005',
-      type: 'payment',
-      bookingId: 'BK005',
-      carName: 'Toyota Camry',
-      customer: 'Eva Brown',
-      amount: 160.00,
-      grossAmount: 160.00,
-      fee: 0.00,
-      feePercentage: 0,
-      date: '2024-10-02',
-      status: 'completed',
-      paymentMethod: 'Credit Card',
-      accountLast4: '5678',
-      description: 'Customer payment for booking BK005',
-      notes: 'Payment received'
-    },
-    {
-      id: 6,
-      transactionId: 'TXN006',
-      type: 'payout',
-      bookingId: 'BK006',
-      carName: 'Tesla Model 3',
-      customer: 'Frank Miller',
-      amount: 445.50,
-      grossAmount: 495.00,
-      fee: 49.50,
-      feePercentage: 10,
-      date: '2024-10-01',
-      status: 'completed',
-      paymentMethod: 'Bank Transfer',
-      accountLast4: '1234',
-      description: 'Payout for booking BK006',
-      notes: 'Payment processed successfully'
-    },
-    {
-      id: 7,
-      transactionId: 'TXN007',
-      type: 'payout',
-      bookingId: 'BK007',
-      carName: 'BMW X5',
-      customer: 'Grace Lee',
-      amount: 558.00,
-      grossAmount: 620.00,
-      fee: 62.00,
-      feePercentage: 10,
-      date: '2024-09-30',
-      status: 'failed',
-      paymentMethod: 'Bank Transfer',
-      accountLast4: '1234',
-      description: 'Payout for booking BK007',
-      notes: 'Payment failed due to insufficient account details'
+  useEffect(() => {
+    fetchPayments();
+  }, []);
+
+  const fetchPayments = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const currentUserId = getUserIdFromToken();
+      
+      // Fetch all data using centralized API function
+      const { invoices: allInvoices, payments: allPayments, users: allUsers, cars: allCars } = await fetchOwnerPaymentsData();
+      
+      console.log('Current User ID:', currentUserId);
+      console.log('All Invoices:', allInvoices);
+      console.log('All Payments:', allPayments);
+      console.log('All Users:', allUsers);
+      console.log('All Cars:', allCars);
+      
+      // Create a map of user IDs to full names for quick lookup
+      const userMap = new Map(
+        allUsers.map(user => [user.id, user.fullname || user.userName || 'N/A'])
+      );
+      
+      // Create a map of car IDs to car details for quick lookup
+      const carMap = new Map(
+        allCars.map(car => [car.id, {
+          name: `${car.brand || ''} ${car.model || ''}`.trim() || 'N/A',
+          licensePlate: car.licensePlate || ''
+        }])
+      );
+      
+      // Helper function to extract car ID from invoice items
+      const extractCarIdFromInvoice = (invoice) => {
+        if (!invoice?.invoiceItems || invoice.invoiceItems.length === 0) return null;
+        
+        // Look for car rental item with Car ID in description
+        const rentalItem = invoice.invoiceItems.find(item => 
+          item.description?.includes('Car ID:')
+        );
+        
+        if (rentalItem) {
+          const match = rentalItem.description.match(/Car ID:\s*([a-f0-9-]+)/i);
+          if (match && match[1]) {
+            return match[1];
+          }
+        }
+        
+        return null;
+      };
+      
+      // Filter invoices for current vendor
+      const vendorInvoices = allInvoices.filter(invoice => invoice.vendorId === currentUserId);
+      console.log('Vendor Invoices:', vendorInvoices);
+      
+      // Create a map of invoice IDs for quick lookup
+      const vendorInvoiceMap = new Map(
+        vendorInvoices.map(invoice => [invoice.id, invoice])
+      );
+      
+      // Filter and transform payments that belong to vendor's invoices
+      const vendorPayments = allPayments
+        .filter(payment => vendorInvoiceMap.has(payment.invoiceId))
+        .map((payment) => {
+          const invoice = vendorInvoiceMap.get(payment.invoiceId);
+          const customerId = invoice?.customerId;
+          const customerName = customerId ? userMap.get(customerId) || 'N/A' : 'N/A';
+          
+          // Extract car ID from invoice items and get car details
+          const carId = extractCarIdFromInvoice(invoice);
+          const carDetails = carId ? carMap.get(carId) : null;
+          
+          return {
+            id: payment.id,
+            transactionId: payment.orderCode || payment.id.substring(0, 8).toUpperCase(),
+            type: payment.item?.toLowerCase().includes('booking') ? 'booking_fee' : 'rental_fee',
+            invoiceId: payment.invoiceId,
+            bookingId: invoice?.invoiceNo || payment.invoiceNo || 'N/A',
+            customerId: customerId,
+            customerName: customerName,
+            vendorId: invoice?.vendorId,
+            carId: carId,
+            carName: carDetails?.name || 'N/A',
+            licensePlate: carDetails?.licensePlate || '',
+            amount: payment.paidAmount || 0,
+            date: payment.createDate ? new Date(payment.createDate).toISOString().split('T')[0] : 'N/A',
+            status: payment.status?.toLowerCase() || 'pending',
+            paymentMethod: payment.paymentMethod || 'N/A',
+            description: payment.item || 'Payment',
+            notes: payment.note || ''
+          };
+        });
+
+      console.log('Filtered Vendor Payments:', vendorPayments);
+      setPayments(vendorPayments);
+    } catch (err) {
+      console.error('Error fetching payments:', err);
+      setError('Failed to load payments. Please try again later.');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";

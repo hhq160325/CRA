@@ -29,7 +29,7 @@ const MaintenanceSchedule = () => {
       const allCars = carsResponse.data || [];
 
       // Filter cars owned by current user and with Inactive status (in maintenance)
-      const inactiveCars = allCars.filter(car => 
+      const inactiveCars = allCars.filter(car =>
         car.owner.id === currentUserId && car.status?.toLowerCase() === 'inactive'
       );
 
@@ -86,8 +86,10 @@ const MaintenanceSchedule = () => {
               carName: car.model || 'Unknown Model',
               carModel: car.year?.toString() || 'N/A',
               licensePlate: car.licensePlate || 'N/A',
-              lastMaintenanceDate: schedule.startDate ? new Date(schedule.startDate).toISOString().split('T')[0] : 'N/A',
-              nextMaintenanceDate: schedule.endDate ? new Date(schedule.endDate).toISOString().split('T')[0] : 'N/A',
+              startDateMaintenanceDate: schedule.startDate ? new Date(schedule.startDate).toISOString().split('T')[0] : 'N/A',
+              endDateMaintenanceDate: schedule.endDate ? new Date(schedule.endDate).toISOString().split('T')[0] : 'N/A',
+              pickupTime: schedule.startDate ? new Date(schedule.startDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : 'N/A',
+              returnTime: schedule.endDate ? new Date(schedule.endDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : 'N/A',
               mileageAtLastService: car.mileage || 0,
               currentMileage: car.mileage || 0,
               maintenanceType: 'Scheduled Maintenance',
@@ -341,9 +343,9 @@ const MaintenanceSchedule = () => {
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50">
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Car Information</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Last Maintenance</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Next Maintenance</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mileage</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Date Maintenance</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Time Maintenance</th>
+                {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mileage</th> */}
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Maintenance Type</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Status</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Priority</th>
@@ -359,23 +361,23 @@ const MaintenanceSchedule = () => {
                     <div className="text-xs text-gray-400">{schedule.carId}</div>
                   </td>
                   <td className="py-4 px-6">
-                    <div className="text-sm text-gray-900">{schedule.lastMaintenanceDate}</div>
-                    <div className="text-xs text-gray-500">{schedule.mileageAtLastService.toLocaleString()} km</div>
+                    <div className="text-sm text-gray-900">From {schedule.startDateMaintenanceDate} to {schedule.endDateMaintenanceDate}</div>
+                    {/* <div className="text-xs text-gray-500">{schedule.mileageAtLastService.toLocaleString()} km</div> */}
                   </td>
                   <td className="py-4 px-6">
-                    <div className="text-sm font-medium text-gray-900">{schedule.nextMaintenanceDate}</div>
-                    {schedule.daysUntil >= 0 ? (
+                    <div className="text-sm font-medium text-gray-900">From {schedule.pickupTime}H to {schedule.returnTime}H</div>
+                    {/* {schedule.daysUntil >= 0 ? (
                       <div className="text-xs text-gray-500">In {schedule.daysUntil} days</div>
                     ) : (
                       <div className="text-xs text-red-600 font-medium">{Math.abs(schedule.daysUntil)} days overdue</div>
-                    )}
+                    )} */}
                   </td>
-                  <td className="py-4 px-6">
+                  {/* <td className="py-4 px-6">
                     <div className="text-sm text-gray-900">{schedule.currentMileage.toLocaleString()} km</div>
                     <div className="text-xs text-gray-500">
                       {schedule.currentMileage - schedule.mileageAtLastService} km since last service
                     </div>
-                  </td>
+                  </td> */}
                   <td className="py-4 px-6">
                     <div className="text-sm text-gray-900">{schedule.maintenanceType}</div>
                   </td>

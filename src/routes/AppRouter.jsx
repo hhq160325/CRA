@@ -4,7 +4,7 @@ import { RegisterCar, RegisterCarStep2, RegisterCarStep3, CarDetail, CarDetailRe
 import { ProfilePage } from '../features/user';
 import { PaymentPage, PaymentSuccess, PaymentCancel } from '../features/payment';
 import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring } from '../features/admin';
-import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter, ParklotCreate } from '../features/staff';
+import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter, ParklotCreate, RegDocsApproved } from '../features/staff';
 import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments, CarRegisDocs } from '../features/owner';
 import { AuthPage, GoogleCallback } from '../features/auth';
 // import ForgotPassword from '../features/auth/components/ForgotPassword';
@@ -16,6 +16,7 @@ import { ROLES, tokenUtils, getRedirectPathByRole } from '../features/auth/utils
 import CalendarPage from '../features/owner/components/CalendarPage';
 import RentalMonitoring from '../features/staff/components/RentalMonitoring'
 import MaintenanceCalendar from '../features/owner/components/MaintenanceScheduleCalendar/MaintenanceCalendar';
+import { FavouriteCarPage, RentalHistoryPage, PaymentHistoryPage, InboxPage, ReimbursePage, SettingsPage, HelpCenterPage, MyProfile } from '../features/user/components';
 // Component to redirect authenticated users based on their role
 const AuthRedirect = () => {
   const userRole = tokenUtils.getUserRole();
@@ -33,35 +34,37 @@ const AppRouter = () => {
       <Route path="/cars" element={<CarRental />} />
       <Route path="/cars/:id" element={<CarDetail />} />
       <Route path="/search" element={<SearchResult />} />
-      <Route path="/car-detail/:id" element={<CarDetailRev/>} />
+      <Route path="/car-detail/:id" element={<CarDetailRev />} />
       {/* Auth route - redirects based on user role if already authenticated */}
       <Route path="/auth" element={!isAuthenticated ? <AuthPage /> : <AuthRedirect />} />
       <Route path="/auth/google-callback" element={<GoogleCallback />} />
-      
+
       {/* Protected routes - authentication required */}
-      <Route path="/profile" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
-      <Route path="/profile/favourite-car" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
-      <Route path="/profile/rental-history" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
-      <Route path="/profile/payment-history" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
-      <Route path="/profile/inbox" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
-      {/* <Route path="/profile/calendar" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} /> */}
-      <Route path="/profile/reimburse" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
-      <Route path="/profile/security" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
-      <Route path="/profile/help-center" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />} />
+      <Route path="/profile" element={<RoleBasedRoute allowedRoles={[ROLES.CUSTOMER,ROLES.OWNER,ROLES.STAFF,ROLES.ADMIN]}><ProfilePage /></RoleBasedRoute>}>
+        <Route index element={<MyProfile />} />
+        <Route path="favourite-car" element={<FavouriteCarPage />} />
+        <Route path="favourite-car" element={<FavouriteCarPage />} />
+        <Route path="rental-history" element={<RentalHistoryPage />} />
+        <Route path="payment-history" element={<PaymentHistoryPage />} />
+        <Route path="inbox" element={<InboxPage />} />
+        <Route path="reimburse" element={<ReimbursePage />} />
+        <Route path="security" element={<SettingsPage />} />
+        <Route path="help-center" element={<HelpCenterPage />} />
+      </Route>
       <Route path="/register-car" element={isAuthenticated ? <RegisterCar /> : <Navigate to="/auth" replace />} />
       <Route path="/register-car/step-2" element={isAuthenticated ? <RegisterCarStep2 /> : <Navigate to="/auth" replace />} />
       <Route path="/register-car/step-3" element={isAuthenticated ? <RegisterCarStep3 /> : <Navigate to="/auth" replace />} />
       <Route path="/payment" element={isAuthenticated ? <PaymentPage /> : <Navigate to="/auth" replace />} />
-      <Route path="/payment-success" element={<PaymentSuccess/>}/>
-      <Route path="/payment-cancel" element={<PaymentCancel />}/>
-      
+      <Route path="/payment-success" element={<PaymentSuccess />} />
+      <Route path="/payment-cancel" element={<PaymentCancel />} />
+
       {/* Admin Routes - Only accessible by Admin role */}
       <Route path="/admin" element={<RoleBasedRoute allowedRoles={[ROLES.ADMIN]}><AdminLayout /></RoleBasedRoute>}>
         <Route index element={<AdminDashboard />} />
         <Route path="operations" element={<OperationsDashboard />} />
         <Route path="transactions" element={<TransactionMonitoring />} />
       </Route>
-      
+
       {/* Staff Routes - Only accessible by Staff role */}
       <Route path="/staff" element={<RoleBasedRoute allowedRoles={[ROLES.STAFF]}><StaffLayout /></RoleBasedRoute>}>
         <Route index element={<StaffDashboard />} />
@@ -71,13 +74,14 @@ const AppRouter = () => {
         <Route path="notifications" element={<NotificationCenter />} />
         <Route path="parklot-create" element={<ParklotCreate />} />
         <Route path="rental-monitoring" element={<RentalMonitoring />} />
+        <Route path="reg-docs" element={<RegDocsApproved />} />
       </Route>
 
       {/* Car Owner (Manager) Routes */}
-      <Route path="/owner" element={isAuthenticated ? <OwnerLayout /> : <Navigate to="/auth" replace />}>
+      <Route path="/owner" element={<RoleBasedRoute allowedRoles={[ROLES.OWNER]}> <OwnerLayout /> </RoleBasedRoute>}>
         <Route index element={<OwnerDashboard />} />
         <Route path="maintenance" element={<MaintenanceSchedule />} />
-        <Route path="maintenance-calendar" element={<MaintenanceCalendar/>}/>
+        <Route path="maintenance-calendar" element={<MaintenanceCalendar />} />
         <Route path="usage" element={<UsageTracking />} />
         <Route path="rentals" element={<RentalHistory />} />
         <Route path="feedback" element={<CustomerFeedback />} />
@@ -87,8 +91,6 @@ const AppRouter = () => {
         <Route path="car-regis-docs" element={<CarRegisDocs />} />
         <Route path="calendar" element={<CalendarPage />} />
       </Route>
-      
-      {/* Add your other routes here */}
     </Routes>
   );
 };

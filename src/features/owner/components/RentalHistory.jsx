@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
-import { axiosInstance } from '../../../shared/utils/axiosInstance';
-import { BOOKING_ENDPOINTS, CAR_ENDPOINTS, USER_ENDPOINTS, INVOICE_ENDPOINTS, PAYMENT_ENDPOINTS, FEEDBACK_ENDPOINTS } from '../../../config/api';
+import { useState, useEffect, useMemo } from 'react';
 import RentalDetailsModal from './modal/RentalDetailsModal';
 import { getUserIdFromToken } from '../../user/api';
 import DropdownTemplate from '../../../shared/components/DropdownTemplate';
+import Pagination from '../../../shared/components/Pagination';
+import { getStatusBadge, getPaymentBadge } from '../owner-utils/ownerStatusBadge';
+import { getCarOptions, statusOptions, bookingFeeStatusOptions, rentalFeeStatusOptions } from '../owner-utils/dropdownOptions';
+import { filterRentalData } from '../utils/filterUtils';
+import { fetchRentalHistoryData, getCustomerBookings } from '../ownerApi';
 
 const RentalHistory = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -30,18 +33,8 @@ const RentalHistory = () => {
       setLoading(true);
       setError(null);
 
-      // Fetch all invoices, cars, users, and payments
-      const [invoicesResponse, carsResponse, usersResponse, paymentsResponse] = await Promise.all([
-        axiosInstance.get(INVOICE_ENDPOINTS.GET_ALL_INVOICES),
-        axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS),
-        axiosInstance.get(USER_ENDPOINTS.GET_ALL_USERS),
-        axiosInstance.get(INVOICE_ENDPOINTS.GET_ALL)
-      ]);
-
-      const allInvoices = invoicesResponse.data || [];
-      const cars = carsResponse.data || [];
-      const users = usersResponse.data || [];
-      const payments = paymentsResponse.data || [];
+      // Fetch all data using centralized API function
+      const { invoices: allInvoices, cars, users, payments } = await fetchRentalHistoryData();
 
       // Get logged-in user's ID (vendorId)
       const currentUserId = getUserIdFromToken();
@@ -73,19 +66,12 @@ const RentalHistory = () => {
       // Fetch bookings for each unique customer to get booking status
       const uniqueCustomerIds = [...new Set(invoices.map(inv => inv.customerId))];
       const bookingsResponses = await Promise.all(
-        uniqueCustomerIds.map(customerId =>
-          axiosInstance.get(BOOKING_ENDPOINTS.GET_CUSTOMER_BOOKINGS(customerId))
-            .catch(err => {
-              console.error(`Error fetching bookings for customer ${customerId}:`, err);
-              return { data: [] };
-            })
-        )
+        uniqueCustomerIds.map(customerId => getCustomerBookings(customerId))
       );
 
       // Create booking lookup map by invoiceId
       const bookingMap = {};
-      bookingsResponses.forEach(response => {
-        const bookings = response.data || [];
+      bookingsResponses.forEach(bookings => {
         bookings.forEach(booking => {
           if (booking.invoiceId) {
             bookingMap[booking.invoiceId] = booking;
@@ -101,37 +87,6 @@ const RentalHistory = () => {
         const carIdMatch = carRentalItem?.description?.match(/Car ID: ([a-f0-9-]+)/i);
         return carIdMatch ? carIdMatch[1] : null;
       };
-
-      // Fetch feedback/ratings for each unique car
-      const uniqueCarIds = [...new Set(
-        invoices.map(extractCarIdFromInvoice).filter(Boolean)
-      )];
-
-      const feedbackResponses = await Promise.all(
-        uniqueCarIds.map(carId =>
-          axiosInstance.get(FEEDBACK_ENDPOINTS.GET_FEEDBACK_BY_CAR(carId))
-            .catch(err => {
-              console.error(`Error fetching feedback for car ${carId}:`, err);
-              return { data: [] };
-            })
-        )
-      );
-
-      // Create feedback lookup map by carId with average rating
-      const feedbackMap = {};
-      feedbackResponses.forEach((response, index) => {
-        const carId = uniqueCarIds[index];
-        const feedbacks = response.data || [];
-        if (feedbacks.length > 0) {
-          const totalRating = feedbacks.reduce((sum, fb) => sum + (fb.rating || 0), 0);
-          const avgRating = totalRating / feedbacks.length;
-          feedbackMap[carId] = {
-            averageRating: avgRating,
-            totalFeedbacks: feedbacks.length,
-            feedbacks: feedbacks
-          };
-        }
-      });
 
       // Process invoices to create rental history
       const enrichedBookings = invoices.map((invoice, index) => {
@@ -149,14 +104,6 @@ const RentalHistory = () => {
         // Get payment methods for each payment type
         const bookingFeePaymentMethod = bookingFeePayment?.paymentMethod || 'No Payment Method';
         const rentalFeePaymentMethod = rentalFeePayment?.paymentMethod || 'No Payment Method';
-
-        // Debug log to check payment status mapping
-        if (paymentsForInvoice.length > 0) {
-          console.log(`Invoice ${invoice.id}:`, {
-            bookingFee: { status: bookingFeePayment?.status, amount: bookingFeePayment?.paidAmount },
-            rentalFee: { status: rentalFeePayment?.status, amount: rentalFeePayment?.paidAmount }
-          });
-        }
 
         // Check booking status for invoice item selection
         const bookingStatusRaw = booking?.status?.toLowerCase();
@@ -183,12 +130,12 @@ const RentalHistory = () => {
         const remainingPayment = carRentalAfterReturnedItem?.total || 0;
 
         const car = carId ? (carMap[carId] || {}) : {};
-        const carFeedback = carId ? (feedbackMap[carId] || null) : null;
+        // const carFeedback = carId ? (feedbackMap[carId] || null) : null;
 
-        // Calculate dates from invoice
-        const issueDate = new Date(invoice.issueDate);
-        const dueDate = new Date(invoice.dueDate);
-        const calculatedDuration = Math.ceil((dueDate - issueDate) / (1000 * 60 * 60 * 24));
+        // Use booking dates if available, otherwise fall back to invoice dates
+        const pickupTime = booking?.pickupTime ? new Date(booking.pickupTime) : new Date(invoice.issueDate);
+        const dropoffTime = booking?.dropoffTime ? new Date(booking.dropoffTime) : new Date(invoice.dueDate);
+        const calculatedDuration = Math.ceil((dropoffTime - pickupTime) / (1000 * 60 * 60 * 24));
 
         // Get rental duration - prioritize "Car Rental After returned" quantity, then calculated duration
         const rentalDays = carRentalAfterReturnedItem?.quantity || calculatedDuration;
@@ -209,10 +156,10 @@ const RentalHistory = () => {
           customer: user.fullname || user.fullName || 'Unknown Customer',
           customerEmail: user.email || 'N/A',
           customerPhone: user.phoneNumber || 'N/A',
-          startDate: issueDate.toISOString().split('T')[0],
-          endDate: dueDate.toISOString().split('T')[0],
-          pickupDate: issueDate.toLocaleString(),
-          returnDate: dueDate.toLocaleString(),
+          startDate: pickupTime.toISOString().split('T')[0],
+          endDate: dropoffTime.toISOString().split('T')[0],
+          pickupDate: pickupTime.toLocaleString(),
+          returnDate: dropoffTime.toLocaleString(),
           duration: rentalDays,
           totalAmount: invoice.grandTotal || invoice.subTotal || 0,
           dailyRate: dailyRate,
@@ -229,15 +176,7 @@ const RentalHistory = () => {
           paymentMethod: bookingFeePaymentMethod || rentalFeePaymentMethod || 'No Payment Method',
           invoiceId: invoice.id,
           invoiceItems: invoice.invoiceItems || [],
-          mileageAtPickup: 0,
-          mileageAtReturn: 0,
-          mileageUsed: 0,
-          conditionAtPickup: 'N/A',
-          conditionAtReturn: 'N/A',
           notes: invoice.note || '',
-          rating: carFeedback?.averageRating || 0,
-          totalFeedbacks: carFeedback?.totalFeedbacks || 0,
-          feedback: carFeedback?.feedbacks || []
         };
       });
 
@@ -254,85 +193,7 @@ const RentalHistory = () => {
   const uniqueCars = [...new Set(rentalHistory.map(rental => rental.carName))].sort();
 
   // Prepare dropdown options
-  const carOptions = [
-    { id: 'all', value: 'all', label: 'All Cars' },
-    ...uniqueCars.map(car => ({ id: car, value: car, label: car }))
-  ];
-
-  const statusOptions = [
-    { id: 'all', value: 'all', label: 'All Status' },
-    { id: 'confirmed', value: 'confirmed', label: 'Confirmed' },
-    { id: 'completed', value: 'completed', label: 'Completed' },
-    { id: 'cancelled', value: 'cancelled', label: 'Cancelled' }
-  ];
-
-  const bookingFeeStatusOptions = [
-    { id: 'all', value: 'all', label: 'All Booking Fee Status' },
-    { id: 'paid', value: 'paid', label: 'Paid' },
-    { id: 'pending', value: 'pending', label: 'Pending' },
-    { id: 'refunded', value: 'refunded', label: 'Refunded' },
-    { id: 'cancelled', value: 'cancelled', label: 'Cancelled' }
-  ];
-
-  const rentalFeeStatusOptions = [
-    { id: 'all', value: 'all', label: 'All Rental Fee Status' },
-    { id: 'paid', value: 'paid', label: 'Paid' },
-    { id: 'pending', value: 'pending', label: 'Pending' },
-    { id: 'refunded', value: 'refunded', label: 'Refunded' },
-    { id: 'cancelled', value: 'cancelled', label: 'Cancelled' }
-  ];
-
-  const getStatusBadge = (status) => {
-    const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
-    switch (status) {
-      case 'confirmed':
-        return `${baseClasses} bg-blue-100 text-blue-800`;
-      case 'completed':
-        return `${baseClasses} bg-green-100 text-green-800`;
-      case 'cancelled':
-        return `${baseClasses} bg-red-100 text-red-800`;
-      case 'active':
-        return `${baseClasses} bg-blue-100 text-blue-800`;
-      case 'overdue':
-        return `${baseClasses} bg-red-100 text-red-800`;
-      default:
-        return `${baseClasses} bg-gray-100 text-gray-800`;
-    }
-  };
-
-  const getPaymentBadge = (status) => {
-    const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
-    const normalizedStatus = status?.toLowerCase();
-    switch (normalizedStatus) {
-      case 'paid':
-        return `${baseClasses} bg-green-100 text-green-800`;
-      case 'pending':
-        return `${baseClasses} bg-yellow-100 text-yellow-800`;
-      case 'refunded':
-        return `${baseClasses} bg-blue-100 text-blue-800`;
-      case 'failed':
-      case 'cancelled':
-        return `${baseClasses} bg-red-100 text-red-800`;
-      default:
-        return `${baseClasses} bg-gray-100 text-gray-800`;
-    }
-  };
-
-  // const getConditionBadge = (condition) => {
-  //   const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
-  //   switch (condition) {
-  //     case 'excellent':
-  //       return `${baseClasses} bg-green-100 text-green-800`;
-  //     case 'good':
-  //       return `${baseClasses} bg-blue-100 text-blue-800`;
-  //     case 'fair':
-  //       return `${baseClasses} bg-yellow-100 text-yellow-800`;
-  //     case 'poor':
-  //       return `${baseClasses} bg-red-100 text-red-800`;
-  //     default:
-  //       return `${baseClasses} bg-gray-100 text-gray-800`;
-  //   }
-  // };
+  const carOptions = getCarOptions(uniqueCars);
 
   const openModal = (rental) => {
     setSelectedRental(rental);
@@ -344,40 +205,19 @@ const RentalHistory = () => {
     setSelectedRental(null);
   };
 
-  const filteredRentals = rentalHistory.filter(rental => {
-    const matchesSearch = rental.bookingId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      rental.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      rental.carName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      rental.licensePlate.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || rental.status === statusFilter;
-    const matchesCar = carFilter === 'all' || rental.carName === carFilter;
-    const matchesBookingFeeStatus = bookingFeeStatusFilter === 'all' || 
-      rental.bookingFeeStatus === bookingFeeStatusFilter;
-    const matchesRentalFeeStatus = rentalFeeStatusFilter === 'all' || 
-      rental.rentalFeeStatus === rentalFeeStatusFilter;
-
-    // Custom date range filter (when startDate or endDate is set)
-    let matchesDateRange = true;
-    if (startDate || endDate) {
-      const rentalStartDate = new Date(rental.startDate);
-      const rentalEndDate = new Date(rental.endDate);
-      
-      if (startDate && endDate) {
-        const filterStart = new Date(startDate);
-        const filterEnd = new Date(endDate);
-        // Check if rental period overlaps with filter range
-        matchesDateRange = rentalStartDate <= filterEnd && rentalEndDate >= filterStart;
-      } else if (startDate) {
-        const filterStart = new Date(startDate);
-        matchesDateRange = rentalEndDate >= filterStart;
-      } else if (endDate) {
-        const filterEnd = new Date(endDate);
-        matchesDateRange = rentalStartDate <= filterEnd;
-      }
-    }
-
-    return matchesSearch && matchesStatus && matchesCar && matchesBookingFeeStatus && matchesRentalFeeStatus && matchesDateRange;
-  });
+  const filteredRentals = useMemo(() => {
+    return rentalHistory.filter(rental => 
+      filterRentalData(rental, {
+        searchTerm,
+        statusFilter,
+        carFilter,
+        bookingFeeStatusFilter,
+        rentalFeeStatusFilter,
+        startDate,
+        endDate,
+      })
+    );
+  }, [rentalHistory, searchTerm, statusFilter, carFilter, bookingFeeStatusFilter, rentalFeeStatusFilter, startDate, endDate]);
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredRentals.length / itemsPerPage);
@@ -392,54 +232,6 @@ const RentalHistory = () => {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-  };
-
-  const handlePrevious = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const handleNext = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  // Generate page numbers to display
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxPagesToShow = 5;
-
-    if (totalPages <= maxPagesToShow) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) {
-          pages.push(i);
-        }
-        pages.push('...');
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1);
-        pages.push('...');
-        for (let i = totalPages - 3; i <= totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        pages.push(1);
-        pages.push('...');
-        pages.push(currentPage - 1);
-        pages.push(currentPage);
-        pages.push(currentPage + 1);
-        pages.push('...');
-        pages.push(totalPages);
-      }
-    }
-
-    return pages;
   };
 
   // console.log("FilterRentals",filteredRentals);
@@ -505,65 +297,6 @@ const RentalHistory = () => {
           </div>
         </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Rentals</p>
-                <p className="text-2xl font-bold text-blue-600">{totalRentals}</p>
-              </div>
-              <div className="bg-blue-100 rounded-full p-3">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Revenue</p>
-                <p className="text-2xl font-bold text-green-600">{formatVND(totalRevenue)}</p>
-              </div>
-              <div className="bg-green-100 rounded-full p-3">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          {/* <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-yellow-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Average Rating</p>
-                <p className="text-2xl font-bold text-yellow-600">{averageRating} ⭐</p>
-              </div>
-              <div className="bg-yellow-100 rounded-full p-3">
-                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                </svg>
-              </div>
-            </div>
-          </div> */}
-
-          {/* <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-purple-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Mileage</p>
-                <p className="text-2xl font-bold text-purple-600">{(totalMileage / 1000).toFixed(1)}k km</p>
-              </div>
-              <div className="bg-purple-100 rounded-full p-3">
-                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-              </div>
-            </div>
-          </div> */}
-        </div>
-
         {/* Filters */}
         <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
           <div className="flex flex-col space-y-4">
@@ -575,7 +308,7 @@ const RentalHistory = () => {
                   </svg>
                   <input
                     type="text"
-                    placeholder="Search by booking ID, customer, or car"
+                    placeholder="Search by customer, or car"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
@@ -631,7 +364,7 @@ const RentalHistory = () => {
 
             {/* Date Range Filter */}
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center pt-2 border-t border-gray-100">
-              <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Custom Date Range:</label>
+              <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Date Range:</label>
               <div className="flex flex-col sm:flex-row gap-3 flex-1">
                 <div className="flex items-center gap-2">
                   <label className="text-sm text-gray-600 whitespace-nowrap">From:</label>
@@ -756,59 +489,12 @@ const RentalHistory = () => {
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between py-4 px-6 border-t border-gray-200">
-            <div className="text-sm text-gray-600">
-              {filteredRentals.length > 0 ? (
-                <>Showing {startIndex + 1} to {Math.min(endIndex, filteredRentals.length)} of {filteredRentals.length} results</>
-              ) : (
-                <>No results</>
-              )}
-            </div>
-            {totalPages > 0 && (
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={handlePrevious}
-                  disabled={currentPage === 1}
-                  className={`px-3 py-1 text-sm rounded ${currentPage === 1
-                    ? 'text-gray-400 cursor-not-allowed'
-                    : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                >
-                  Previous
-                </button>
-                <div className="flex space-x-1">
-                  {getPageNumbers().map((page, index) => (
-                    page === '...' ? (
-                      <span key={`ellipsis-${index}`} className="w-8 h-8 flex items-center justify-center text-gray-500">
-                        ...
-                      </span>
-                    ) : (
-                      <button
-                        key={page}
-                        onClick={() => handlePageChange(page)}
-                        className={`w-8 h-8 text-sm rounded ${currentPage === page
-                          ? 'bg-blue-600 text-white'
-                          : 'text-gray-600 hover:bg-gray-100'
-                          }`}
-                      >
-                        {page}
-                      </button>
-                    )
-                  ))}
-                </div>
-                <button
-                  onClick={handleNext}
-                  disabled={currentPage === totalPages}
-                  className={`px-3 py-1 text-sm rounded ${currentPage === totalPages
-                    ? 'text-gray-400 cursor-not-allowed'
-                    : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                >
-                  Next
-                </button>
-              </div>
-            )}
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredRentals.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+          />
         </div>
       </div>
 

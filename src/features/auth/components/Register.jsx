@@ -149,7 +149,7 @@ const Register = ({ onSwitchToLogin }) => {
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  }, [navigate, dispatch]);
 
 
   const handleInputChange = (e) => {

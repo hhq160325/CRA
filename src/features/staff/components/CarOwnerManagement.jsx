@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { updateCarOwnerStatus } from '../staffSlice';
 import { CarOwnerModal } from './modals/carOwnerModal';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
-import { USER_ENDPOINTS } from '../../../config/api';
+import { USER_ENDPOINTS, CAR_ENDPOINTS } from '../../../config/api';
 import { ROLES } from '../../auth/utils';
 
 const CarOwnerManagement = () => {
@@ -24,11 +24,27 @@ const CarOwnerManagement = () => {
     const fetchCarOwners = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstance.get(USER_ENDPOINTS.GET_ALL_USERS);
+        
+        // Fetch users and cars in parallel
+        const [usersResponse, carsResponse] = await Promise.all([
+          axiosInstance.get(USER_ENDPOINTS.GET_ALL_USERS),
+          axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS)
+        ]);
+        
+        // Count cars by owner ID
+        const carCountByOwner = {};
+        if (carsResponse.data && Array.isArray(carsResponse.data)) {
+          carsResponse.data.forEach(car => {
+            const ownerId = car.owner.id || car.userId || car.carOwnerId;
+            if (ownerId) {
+              carCountByOwner[ownerId] = (carCountByOwner[ownerId] || 0) + 1;
+            }
+          });
+        }
         
         // Filter out roleId 1 (Customer), 1001 (Admin), and 1002 (Staff)
         const excludedRoles = [ROLES.CUSTOMER, ROLES.ADMIN, ROLES.STAFF];
-        const owners = response.data
+        const owners = usersResponse.data
           .filter(user => !excludedRoles.includes(user.roleId))
           .map(user => {
             // Get name - prioritize full name over username over email
@@ -49,10 +65,10 @@ const CarOwnerManagement = () => {
               phone: user.phoneNumber || 'N/A',
               status: user.status || 'active',
               registrationDate: user.createdAt || user.registrationDate || 'N/A',
-              carsListed: user.carsListed || 0,
+              carsListed: carCountByOwner[user.id] || 0,
               totalEarnings: user.totalEarnings || 0,
-              verificationStatus: user.verificationStatus || 'pending',
-              lastActive: user.lastActive || 'N/A'
+              // verificationStatus: user.verificationStatus || 'pending',
+              // // lastActive: user.lastActive || 'N/A'
             };
           });
         
@@ -83,19 +99,19 @@ const CarOwnerManagement = () => {
     }
   };
 
-  const getVerificationBadge = (status) => {
-    const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
-    switch (status) {
-      case 'verified':
-        return `${baseClasses} bg-blue-100 text-blue-800`;
-      case 'pending':
-        return `${baseClasses} bg-orange-100 text-orange-800`;
-      case 'rejected':
-        return `${baseClasses} bg-red-100 text-red-800`;
-      default:
-        return `${baseClasses} bg-gray-100 text-gray-800`;
-    }
-  };
+  // const getVerificationBadge = (status) => {
+  //   const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
+  //   switch (status) {
+  //     case 'verified':
+  //       return `${baseClasses} bg-blue-100 text-blue-800`;
+  //     case 'pending':
+  //       return `${baseClasses} bg-orange-100 text-orange-800`;
+  //     case 'rejected':
+  //       return `${baseClasses} bg-red-100 text-red-800`;
+  //     default:
+  //       return `${baseClasses} bg-gray-100 text-gray-800`;
+  //   }
+  // };
 
   const handleStatusChange = (ownerId, newStatus) => {
     dispatch(updateCarOwnerStatus({ id: ownerId, status: newStatus }));
@@ -223,10 +239,10 @@ const CarOwnerManagement = () => {
               <tr className="border-b border-gray-200">
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('carOwner')}</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('status')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('verification')}</th>
+                {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('verification')}</th> */}
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('carsListed')}</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('totalEarnings')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('lastActive')}</th>
+                {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('lastActive')}</th> */}
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('actions')}</th>
               </tr>
             </thead>
@@ -245,14 +261,14 @@ const CarOwnerManagement = () => {
                       {owner.status}
                     </span>
                   </td>
-                  <td className="py-4 px-6">
+                  {/* <td className="py-4 px-6">
                     <span className={getVerificationBadge(owner.verificationStatus)}>
                       {owner.verificationStatus}
                     </span>
-                  </td>
+                  </td> */}
                   <td className="py-4 px-6 text-gray-600 text-sm">{owner.carsListed}</td>
                   <td className="py-4 px-6 text-gray-600 text-sm">${(owner.totalEarnings || 0).toLocaleString()}</td>
-                  <td className="py-4 px-6 text-gray-600 text-sm">{owner.lastActive}</td>
+                  {/* <td className="py-4 px-6 text-gray-600 text-sm">{owner.lastActive}</td> */}
                   <td className="py-4 px-6">
                     <div className="flex items-center space-x-2">
                       <button
@@ -261,12 +277,12 @@ const CarOwnerManagement = () => {
                       >
                         {t('view')}
                       </button>
-                      <button
+                      {/* <button
                         onClick={() => openModal(owner, 'edit')}
                         className="text-gray-600 hover:text-gray-700 text-sm font-medium"
                       >
                         {t('edit')}
-                      </button>
+                      </button> */}
                       {owner.status === 'active' ? (
                         <button
                           onClick={() => openModal(owner, 'suspend')}
@@ -275,12 +291,13 @@ const CarOwnerManagement = () => {
                           {t('suspend')}
                         </button>
                       ) : (
-                        <button
-                          onClick={() => handleStatusChange(owner.id, 'active')}
-                          className="text-green-600 hover:text-green-700 text-sm font-medium"
-                        >
-                          {t('activate')}
-                        </button>
+                        // <button
+                        //   onClick={() => handleStatusChange(owner.id, 'active')}
+                        //   className="text-green-600 hover:text-green-700 text-sm font-medium"
+                        // >
+                        //   {t('activate')}
+                        // </button>
+                        null
                       )}
                     </div>
                   </td>
@@ -314,7 +331,7 @@ const CarOwnerManagement = () => {
         onSuspend={handleSuspend}
         onChangeModalType={handleChangeModalType}
         getStatusBadge={getStatusBadge}
-        getVerificationBadge={getVerificationBadge}
+        // getVerificationBadge={getVerificationBadge}
       />
     </div>
   );

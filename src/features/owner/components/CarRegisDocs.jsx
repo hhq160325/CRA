@@ -41,16 +41,10 @@ const CarRegisDocs = () => {
     try {
       setUploadingCarId(carId);
       setUploadSuccessCarId(null);
-      
       await uploadCarRegistrationDocuments(carId, currentUserId, files);
-
-      // Show success state
       setUploadSuccessCarId(carId);
-      
       // Refresh the cars list after successful upload
       await fetchCars();
-      
-      // Hide success message after 3 seconds
       setTimeout(() => {
         setUploadSuccessCarId(null);
       }, 3000);

@@ -284,9 +284,9 @@ const OwnerDashboard = () => {
                 <p className="text-sm text-gray-500 mt-1">Total Revenue</p>
               </div>
             </div>
-            <span className="text-green-600 text-sm font-medium flex items-center">
+            {/* <span className="text-green-600 text-sm font-medium flex items-center">
               {stats.revenueGrowth}% ↑
-            </span>
+            </span> */}
           </div>
         </div>
 
@@ -304,9 +304,9 @@ const OwnerDashboard = () => {
                 <p className="text-sm text-gray-500 mt-1">New Booking</p>
               </div>
             </div>
-            <span className="text-green-600 text-sm font-medium flex items-center">
+            {/* <span className="text-green-600 text-sm font-medium flex items-center">
               {stats.bookingsGrowth}% ↑
-            </span>
+            </span> */}
           </div>
         </div>
 
@@ -324,9 +324,9 @@ const OwnerDashboard = () => {
                 <p className="text-sm text-gray-500 mt-1">Rented Cars</p>
               </div>
             </div>
-            <span className="text-green-600 text-sm font-medium flex items-center">
+            {/* <span className="text-green-600 text-sm font-medium flex items-center">
               {stats.rentedGrowth}% ↑
-            </span>
+            </span> */}
           </div>
         </div>
 
@@ -345,9 +345,9 @@ const OwnerDashboard = () => {
                 <p className="text-sm text-gray-500 mt-1">Available Cars</p>
               </div>
             </div>
-            <span className="text-green-600 text-sm font-medium flex items-center">
+            {/* <span className="text-green-600 text-sm font-medium flex items-center">
               {stats.availableGrowth}% ↑
-            </span>
+            </span> */}
           </div>
         </div>
       </div>

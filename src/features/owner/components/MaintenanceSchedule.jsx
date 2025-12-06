@@ -92,8 +92,8 @@ const MaintenanceSchedule = () => {
             formattedSchedules.push({
               id: idCounter++,
               carId: car.id,
-              carName: car.model || 'Unknown Model',
-              carModel: car.year?.toString() || 'N/A',
+              carName: `${car.manufacturer || ''} ${car.model || ''}`.trim() || 'Unknown Model',
+              carModel: car.yearofManufacture?.toString() || 'N/A',
               licensePlate: car.licensePlate || 'N/A',
               startDateMaintenanceDate: schedule.startDate ? new Date(schedule.startDate).toISOString().split('T')[0] : 'N/A',
               endDateMaintenanceDate: schedule.endDate ? new Date(schedule.endDate).toISOString().split('T')[0] : 'N/A',
@@ -304,9 +304,10 @@ const MaintenanceSchedule = () => {
   }
 
   return (
-    <div className="p-8 space-y-6 min-h-full bg-gray-50">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <>
+      <div className="p-8 space-y-6 min-h-full bg-gray-50">
+        {/* Header */}
+        <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Maintenance Schedule</h1>
           <p className="text-gray-600">Track maintenance schedule and view notifications for each car</p>
@@ -513,6 +514,7 @@ const MaintenanceSchedule = () => {
           </div>
         </div>
       </div>
+      </div>
 
       {/* Modal for creating/editing maintenance schedule */}
       {isScheduleModalOpen && selectedCar && (
@@ -710,7 +712,7 @@ const MaintenanceSchedule = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

@@ -2,11 +2,11 @@ import { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
 import { filterBookingData } from '../utils/filterUtils';
 import {
-  INVOICE_ENDPOINTS,
   CAR_ENDPOINTS,
   USER_ENDPOINTS,
   BOOKING_ENDPOINTS
 } from '../../../config/api';
+import Pagination from '../../../shared/components/Pagination';
 
 const BookingManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,6 +27,8 @@ const BookingManagement = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Fetch all data from APIs
   useEffect(() => {
@@ -36,14 +38,12 @@ const BookingManagement = () => {
         setError(null);
 
         // Fetch all required data in parallel
-        const [invoicesRes, carsRes, usersRes, bookingsRes] = await Promise.all([
-          axios.get(INVOICE_ENDPOINTS.GET_ALL_INVOICES),
+        const [carsRes, usersRes, bookingsRes] = await Promise.all([
           axios.get(CAR_ENDPOINTS.GET_ALL_CARS),
           axios.get(USER_ENDPOINTS.GET_ALL_USERS),
           axios.get(BOOKING_ENDPOINTS.GET_ALL_BOOKINGS)
         ]);
 
-        const invoices = invoicesRes.data;
         const cars = carsRes.data;
         const users = usersRes.data;
         const allBookings = bookingsRes.data;
@@ -51,19 +51,15 @@ const BookingManagement = () => {
         // Create lookup maps for efficient data access
         const carMap = new Map(cars.map(car => [car.id, car]));
         const userMap = new Map(users.map(user => [user.userId, user]));
-        const invoiceMap = new Map(invoices.map(inv => [inv.bookingId, inv]));
-        // console.log("Car Map:",carMap);
 
         // Transform and enrich booking data
         const enrichedBookings = allBookings.map(booking => {
           const car = carMap.get(booking.carId) || {};
           const customer = userMap.get(booking.customerId) || {};
-          const invoice = invoiceMap.get(booking.bookingId) || {};
-          // console.log('allBookings',car);
 
           return {
-            id: booking.bookingId,
-            bookingId: invoice.invoiceNo || invoice.id.substring(0, 8).toUpperCase(),
+            id: booking.id,
+            bookingId: booking.bookingNumber || 'N/A',
             carId: booking.carId || 'N/A',
             carName: car.manufacturer && car.model ? `${car.manufacturer} ${car.model}` : 'Unknown Car',
             licensePlate: car.licensePlate || 'N/A',
@@ -74,16 +70,7 @@ const BookingManagement = () => {
             endDate: booking.dropoffTime ? new Date(booking.dropoffTime).toISOString().split('T')[0] : 'N/A',
             pickupTime: booking.pickupTime ? new Date(booking.pickupTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : 'N/A',
             returnTime: booking.dropoffTime ? new Date(booking.dropoffTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : 'N/A',
-            totalAmount: invoice.totalAmount || booking.totalAmount || 0,
-            paymentStatus: invoice.paymentStatus || booking.paymentStatus || 'pending',
-            status: booking.status || 'confirmed',
-            mileageAtBooking: car.mileage || 0,
-            currentMileage: booking.currentMileage || null,
-            conditionAtCheckIn: booking.conditionAtCheckIn || null,
-            conditionAtCheckOut: booking.conditionAtCheckOut || null,
-            checkInDate: booking.checkInDate || null,
-            checkOutDate: booking.checkOutDate || null,
-            notes: booking.notes || ''
+            status: booking.status || 'N/A',
           };
         });
 
@@ -105,49 +92,16 @@ const BookingManagement = () => {
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
-    switch (status) {
+    const normalizedStatus = status?.toLowerCase();
+    switch (normalizedStatus) {
       case 'confirmed':
-        return `${baseClasses} bg-blue-100 text-blue-800`;
-      case 'checked_in':
-        return `${baseClasses} bg-green-100 text-green-800`;
-      case 'checked_out':
-        return `${baseClasses} bg-purple-100 text-purple-800`;
+        return { className: `${baseClasses} bg-green-100 text-green-800`, label: 'Confirmed' };
       case 'completed':
-        return `${baseClasses} bg-gray-100 text-gray-800`;
+        return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: 'Completed' };
       case 'cancelled':
-        return `${baseClasses} bg-red-100 text-red-800`;
+        return { className: `${baseClasses} bg-red-100 text-red-800`, label: 'Cancelled' };
       default:
-        return `${baseClasses} bg-gray-100 text-gray-800`;
-    }
-  };
-
-  const getPaymentBadge = (status) => {
-    const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
-    switch (status) {
-      case 'paid':
-        return `${baseClasses} bg-green-100 text-green-800`;
-      case 'pending':
-        return `${baseClasses} bg-yellow-100 text-yellow-800`;
-      case 'failed':
-        return `${baseClasses} bg-red-100 text-red-800`;
-      default:
-        return `${baseClasses} bg-gray-100 text-gray-800`;
-    }
-  };
-
-  const getConditionBadge = (condition) => {
-    const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
-    switch (condition) {
-      case 'excellent':
-        return `${baseClasses} bg-green-100 text-green-800`;
-      case 'good':
-        return `${baseClasses} bg-blue-100 text-blue-800`;
-      case 'fair':
-        return `${baseClasses} bg-yellow-100 text-yellow-800`;
-      case 'poor':
-        return `${baseClasses} bg-red-100 text-red-800`;
-      default:
-        return `${baseClasses} bg-gray-100 text-gray-800`;
+        return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: 'N/A' };
     }
   };
 
@@ -204,6 +158,18 @@ const BookingManagement = () => {
       })
     );
   }, [bookings, searchTerm, statusFilter]);
+
+  // Paginated bookings
+  const paginatedBookings = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredBookings.slice(startIndex, endIndex);
+  }, [filteredBookings, currentPage, itemsPerPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter]);
 
   // Calculate statistics
   const dataForStats = bookings.length > 0 ? bookings : mockBookings;
@@ -357,12 +323,12 @@ const BookingManagement = () => {
                     <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Pickup/Return Time</th>
                     {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mileage</th> */}
                     <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Status</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Payment</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th>
+                    {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Payment</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th> */}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {filteredBookings.map((booking) => (
+                  {paginatedBookings.map((booking) => (
                     <tr key={booking.id} className="hover:bg-gray-50">
                       <td className="py-4 px-6">
                         <div className="font-medium text-gray-900 text-sm">{booking.bookingId}</div>
@@ -403,17 +369,18 @@ const BookingManagement = () => {
                     )}
                   </td> */}
                       <td className="py-4 px-6">
-                        <span className={getStatusBadge(booking.status)}>
-                          {booking.status}
-                        </span>
+                          {(() => {
+                            const badge = getStatusBadge(booking.status);
+                            return <span className={badge.className}>{badge.label}</span>;
+                          })()}
                       </td>
-                      <td className="py-4 px-6">
+                      {/* <td className="py-4 px-6">
                         <div className="text-sm font-medium text-gray-900">${booking.paidAmount} </div>
                         <span className={getPaymentBadge(booking.paymentStatus)}>
                           {booking.paymentStatus}
                         </span>
-                      </td>
-                      <td className="py-4 px-6">
+                      </td> */}
+                      {/* <td className="py-4 px-6">
                         <div className="flex flex-col space-y-1">
                           <button
                             onClick={() => openModal(booking, 'view')}
@@ -438,7 +405,7 @@ const BookingManagement = () => {
                             </button>
                           )}
                         </div>
-                      </td>
+                      </td> */}
                     </tr>
                   ))}
                 </tbody>
@@ -446,17 +413,12 @@ const BookingManagement = () => {
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-center py-4 border-t border-gray-200">
-              <div className="flex items-center space-x-2">
-                <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Previous</button>
-                <div className="flex space-x-1">
-                  <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
-                  <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
-                  <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
-                </div>
-                <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Next</button>
-              </div>
-            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalItems={filteredBookings.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+            />
           </div>
 
           {/* Modal for Check In/Check Out/View */}
@@ -483,7 +445,7 @@ const BookingManagement = () => {
                 </div>
                 <div className="p-6 space-y-6">
                   {/* Booking Info */}
-                  <div className="bg-gray-50 rounded-lg p-4">
+                  {/* <div className="bg-gray-50 rounded-lg p-4">
                     <h3 className="font-semibold text-gray-900 mb-3">Booking Information</h3>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
@@ -503,10 +465,10 @@ const BookingManagement = () => {
                         <p className="font-medium text-gray-900">${selectedBooking.totalAmount}</p>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Check In Form */}
-                  {modalType === 'checkin' && (
+                  {/* {modalType === 'checkin' && (
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -564,10 +526,10 @@ const BookingManagement = () => {
                         </button>
                       </div>
                     </div>
-                  )}
+                  )} */}
 
                   {/* Check Out Form */}
-                  {modalType === 'checkout' && (
+                  {/* {modalType === 'checkout' && (
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -632,10 +594,10 @@ const BookingManagement = () => {
                         </button>
                       </div>
                     </div>
-                  )}
+                  )} */}
 
                   {/* View Details */}
-                  {modalType === 'view' && (
+                  {/* {modalType === 'view' && (
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -712,7 +674,7 @@ const BookingManagement = () => {
                         )}
                       </div>
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             </div>

@@ -36,9 +36,20 @@ export const USER_ENDPOINTS = {
   UPLOAD_DRIVER_LICENSE: (userId) => `${API_CONFIG.BASE_URL}/User/driverLicense/${userId}`,
   PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
   UPDATE_PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
+  GET_ALL_DRIVER_LICENSE: `${API_CONFIG.BASE_URL}/User/driverLicense/all`,
 };
 
 export const USER_API_CONFIG = {
+  timeout: API_CONFIG.TIMEOUT,
+  headers: API_CONFIG.HEADERS,
+};
+
+// User endpoints
+export const STAFF_ENDPOINTS = {
+  GET_ALL_DRIVER_LICENSE: `${API_CONFIG.BASE_URL}/User/driverLicense/all`,
+};
+
+export const STAFF_API_CONFIG = {
   timeout: API_CONFIG.TIMEOUT,
   headers: API_CONFIG.HEADERS,
 };

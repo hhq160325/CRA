@@ -1,93 +1,126 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import axios from 'axios';
 import { updateCustomerAccount } from '../staffSlice';
 import { CustomerModal } from './modals/customerModal';
+import { USER_ENDPOINTS, USER_API_CONFIG } from '../../../config/api';
+import { tokenUtils } from '../../auth/utils';
+
 const CustomerManagement = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [modalType, setModalType] = useState(null); // 'view', 'edit', 'suspend'
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock data for customers
-  const customers = [
-    {
-      id: 1,
-      name: 'Alice Cooper',
-      email: 'alice.cooper@email.com',
-      phone: '+1 (555) 111-2222',
-      status: 'active',
-      registrationDate: '2024-01-20',
-      totalBookings: 12,
-      totalSpent: 3450,
-      lastBooking: '2024-10-01',
-      verificationStatus: 'verified',
-      complianceIssues: 0
-    },
-    {
-      id: 2,
-      name: 'Bob Johnson',
-      email: 'bob.johnson@email.com',
-      phone: '+1 (555) 222-3333',
-      status: 'active',
-      registrationDate: '2024-02-15',
-      totalBookings: 8,
-      totalSpent: 2100,
-      lastBooking: '2024-09-28',
-      verificationStatus: 'verified',
-      complianceIssues: 0
-    },
-    {
-      id: 3,
-      name: 'Carol Smith',
-      email: 'carol.smith@email.com',
-      phone: '+1 (555) 333-4444',
-      status: 'suspended',
-      registrationDate: '2023-11-10',
-      totalBookings: 15,
-      totalSpent: 4200,
-      lastBooking: '2024-09-15',
-      verificationStatus: 'verified',
-      complianceIssues: 2
-    },
-    {
-      id: 4,
-      name: 'David Wilson',
-      email: 'david.wilson@email.com',
-      phone: '+1 (555) 444-5555',
-      status: 'pending',
-      registrationDate: '2024-10-05',
-      totalBookings: 0,
-      totalSpent: 0,
-      lastBooking: null,
-      verificationStatus: 'pending',
-      complianceIssues: 0
-    },
-    {
-      id: 5,
-      name: 'Eva Brown',
-      email: 'eva.brown@email.com',
-      phone: '+1 (555) 555-6666',
-      status: 'active',
-      registrationDate: '2024-03-12',
-      totalBookings: 25,
-      totalSpent: 7800,
-      lastBooking: '2024-10-03',
-      verificationStatus: 'verified',
-      complianceIssues: 0
-    }
-  ];
+  // Fetch customers from API
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        setLoading(true);
+        const token = tokenUtils.getAccessToken();
+        
+        if (!token) {
+          setError('Authentication required. Please log in.');
+          setLoading(false);
+          return;
+        }
+
+        // Fetch users and driver licenses in parallel
+        const [usersResponse, driverLicensesResponse] = await Promise.all([
+          axios.get(USER_ENDPOINTS.GET_ALL_USERS, {
+            headers: {
+              ...USER_API_CONFIG.headers,
+              'Authorization': `Bearer ${token}`,
+            },
+          }),
+          axios.get(USER_ENDPOINTS.GET_ALL_DRIVER_LICENSE, {
+            headers: {
+              ...USER_API_CONFIG.headers,
+              'Authorization': `Bearer ${token}`,
+            },
+          }).catch(err => {
+            console.warn('Failed to fetch driver licenses:', err);
+            return { data: [] }; // Return empty array if fails
+          })
+        ]);
+
+        // Create a map of userId to driver license verification status
+        const driverLicenseMap = new Map();
+        // The API returns data in format: { urls: [...], view: [{userId, status, ...}] }
+        if (driverLicensesResponse.data && driverLicensesResponse.data.view && Array.isArray(driverLicensesResponse.data.view)) {
+          driverLicensesResponse.data.view.forEach(license => {
+            // Map the license status to verification status
+            // Status can be: 'Approved', 'Denied', 'Pending', etc.
+            let verificationStatus = 'pending';
+            if (license.status) {
+              const status = license.status.toLowerCase();
+              if (status === 'approved') {
+                verificationStatus = 'verified';
+              } else if (status === 'denied' || status === 'rejected') {
+                verificationStatus = 'rejected';
+              } else {
+                verificationStatus = 'pending';
+              }
+            }
+            driverLicenseMap.set(license.userId, verificationStatus);
+          });
+        }
+
+        // Transform API data to match component structure
+        const transformedCustomers = usersResponse.data.map(user => {
+          // Get verification status from driver license map, fallback to user.isVerified
+          const licenseVerification = driverLicenseMap.get(user.id);
+          const verificationStatus = licenseVerification || (user.isVerified ? 'verified' : 'pending');
+          
+          return {
+            id: user.id,
+            name: user.fullname || user.username || 'N/A',
+            email: user.email || 'N/A',
+            phone: user.phoneNumber || 'N/A',
+            status: user.status,
+            registrationDate: user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A',
+            totalBookings: 0, // This would need to come from bookings data
+            totalSpent: 0, // This would need to come from bookings/payments data
+            lastBooking: null, // This would need to come from bookings data
+            verificationStatus: verificationStatus,
+            complianceIssues: 0,
+            role: user.role || 'Customer',
+            address: user.address || 'N/A',
+            avatarUrl: user.avatarUrl || null,
+          };
+        });
+
+        // Filter to show only customers (not staff/admin)
+        const customerUsers = transformedCustomers.filter(
+          user => user.role.toLowerCase() === 'customer'
+        );
+
+        setCustomers(customerUsers);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching customers:', err);
+        setError('Failed to load customers. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCustomers();
+  }, []);
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
     switch (status) {
       case 'active':
         return `${baseClasses} bg-green-100 text-green-800`;
-      case 'pending':
-        return `${baseClasses} bg-yellow-100 text-yellow-800`;
       case 'suspended':
         return `${baseClasses} bg-red-100 text-red-800`;
       default:
@@ -109,11 +142,6 @@ const CustomerManagement = () => {
     }
   };
 
-  const getCustomerTier = (totalSpent) => {
-    if (totalSpent >= 5000) return { tier: 'Gold', class: 'bg-yellow-100 text-yellow-800' };
-    if (totalSpent >= 2000) return { tier: 'Silver', class: 'bg-gray-100 text-gray-800' };
-    return { tier: 'Bronze', class: 'bg-orange-100 text-orange-800' };
-  };
 
   const handleAccountUpdate = (customerId, updates) => {
     dispatch(updateCustomerAccount({ id: customerId, updates }));
@@ -157,6 +185,45 @@ const CustomerManagement = () => {
     const matchesStatus = statusFilter === 'all' || customer.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="p-8 space-y-6 min-h-full bg-gray-50">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">{t('loadingCustomers') || 'Loading customers...'}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-8 space-y-6 min-h-full bg-gray-50">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <div className="flex items-center">
+            <svg className="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <h3 className="text-red-800 font-medium">{t('error') || 'Error'}</h3>
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            {t('retry') || 'Retry'}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 space-y-6 min-h-full bg-gray-50">
@@ -267,6 +334,21 @@ const CustomerManagement = () => {
 
       {/* Customers Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+        {filteredCustomers.length === 0 ? (
+          <div className="text-center py-12">
+            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              {t('noCustomersFound') || 'No customers found'}
+            </h3>
+            <p className="text-gray-600">
+              {searchTerm || statusFilter !== 'all' 
+                ? t('tryAdjustingFilters') || 'Try adjusting your search or filters'
+                : t('noCustomersYet') || 'No customers registered yet'}
+            </p>
+          </div>
+        ) : (
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -274,16 +356,14 @@ const CustomerManagement = () => {
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('customer')}</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('status')}</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('verification')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('tier')}</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookings')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('totalSpent')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('issues')}</th>
+                {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('totalSpent')}</th> */}
+                {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('issues')}</th> */}
                 <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filteredCustomers.map((customer) => {
-                const tier = getCustomerTier(customer.totalSpent);
                 return (
                   <tr key={customer.id} className="hover:bg-gray-50">
                     <td className="py-4 px-6">
@@ -303,14 +383,9 @@ const CustomerManagement = () => {
                         {customer.verificationStatus}
                       </span>
                     </td>
-                    <td className="py-4 px-6">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${tier.class}`}>
-                        {tier.tier}
-                      </span>
-                    </td>
                     <td className="py-4 px-6 text-gray-600 text-sm">{customer.totalBookings}</td>
-                    <td className="py-4 px-6 text-gray-600 text-sm">${(customer.totalSpent || 0).toLocaleString()}</td>
-                    <td className="py-4 px-6">
+                    {/* <td className="py-4 px-6 text-gray-600 text-sm">${(customer.totalSpent || 0).toLocaleString()}</td> */}
+                    {/* <td className="py-4 px-6">
                       {customer.complianceIssues > 0 ? (
                         <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                           {customer.complianceIssues}
@@ -318,7 +393,7 @@ const CustomerManagement = () => {
                       ) : (
                         <span className="text-gray-400 text-sm">{t('none')}</span>
                       )}
-                    </td>
+                    </td> */}
                     <td className="py-4 px-6">
                       <div className="flex items-center space-x-2">
                         <button
@@ -360,8 +435,10 @@ const CustomerManagement = () => {
             </tbody>
           </table>
         </div>
+        )}
 
         {/* Pagination */}
+        {filteredCustomers.length > 0 && (
         <div className="flex items-center justify-center py-4 border-t border-gray-200">
           <div className="flex items-center space-x-2">
             <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Previous</button>
@@ -373,6 +450,7 @@ const CustomerManagement = () => {
             <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Next</button>
           </div>
         </div>
+        )}
       </div>
 
       {/* Modal */}

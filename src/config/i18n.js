@@ -477,6 +477,8 @@ const resources = {
       noFavouriteCars: "No Favourite Cars",
       noFavouriteCarsMessage: "You haven't added any cars to your favorites yet.",
       browseCars: "Browse Cars",
+      addToFavorites: "Add to Favorites",
+      removeFromFavorites: "Remove from Favorites",
 
       // Profile - Help Center Page
       helpCenterDescription: "Find answers, get support, and learn how to use the app.",
@@ -1270,6 +1272,8 @@ const resources = {
       noFavouriteCars: "Không Có Xe Yêu Thích",
       noFavouriteCarsMessage: "Bạn chưa thêm xe nào vào danh sách yêu thích.",
       browseCars: "Duyệt Xe",
+      addToFavorites: "Thêm vào Yêu Thích",
+      removeFromFavorites: "Xóa khỏi Yêu Thích",
 
       // Profile - Help Center Page
       helpCenterDescription: "Tìm câu trả lời, nhận hỗ trợ và học cách sử dụng ứng dụng.",

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import axios from 'axios';
 import { tokenUtils } from '../../auth/utils';
 import { USER_ENDPOINTS } from '../../../config/api';
 
@@ -10,6 +11,90 @@ const UploadDriver = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [licenseStatus, setLicenseStatus] = useState(null);
+  const [loadingStatus, setLoadingStatus] = useState(true);
+
+  useEffect(() => {
+    fetchDriverLicenseStatus();
+  }, []);
+
+  const fetchDriverLicenseStatus = async () => {
+    try {
+      const userId = tokenUtils.getUserId();
+      const token = tokenUtils.getAccessToken();
+
+      if (!userId) {
+        setLoadingStatus(false);
+        return;
+      }
+
+      const response = await axios.get(USER_ENDPOINTS.GET_ALL_DRIVER_LICENSE, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // The API returns { urls: [...], view: [...] }
+      // We need to access the 'view' array
+      const licenses = response.data.view || [];
+      
+      // Find the current user's license status
+      const userLicense = licenses.find(license => license.userId === userId);
+      
+      if (userLicense) {
+        setLicenseStatus(userLicense.status);
+      }
+    } catch (err) {
+      console.error('Error fetching driver license status:', err);
+    } finally {
+      setLoadingStatus(false);
+    }
+  };
+
+  const getStatusBadge = () => {
+    if (loadingStatus) {
+      return (
+        <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600">
+          {t('loading')}...
+        </span>
+      );
+    }
+
+    if (!licenseStatus) {
+      return (
+        <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600">
+          {t('noLicenseUploaded')}
+        </span>
+      );
+    }
+
+    const statusConfig = {
+      'Pending': {
+        bg: 'bg-yellow-100',
+        text: 'text-yellow-800',
+        label: t('Pending')
+      },
+      'Approved': {
+        bg: 'bg-green-100',
+        text: 'text-green-800',
+        label: t('Approved')
+      },
+      'Denied': {
+        bg: 'bg-red-100',
+        text: 'text-red-800',
+        label: t('Denied')
+      }
+    };
+
+    const config = statusConfig[licenseStatus] || statusConfig['Pending'];
+
+    return (
+      <span className={`ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${config.bg} ${config.text}`}>
+        {config.label}
+      </span>
+    );
+  };
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -65,23 +150,20 @@ const UploadDriver = () => {
       formData.append('images', selectedFile);
       formData.append('userId', userId);
 
-      const response = await fetch(USER_ENDPOINTS.UPLOAD_DRIVER_LICENSE(userId), {
-        method: 'POST',
-        body: formData,
+      await axios.post(USER_ENDPOINTS.UPLOAD_DRIVER_LICENSE(userId), formData, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
         }
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Upload failed');
-      }
-
       setUploadSuccess(true);
       setTimeout(() => setUploadSuccess(false), 3000);
+      
+      // Refresh the license status after successful upload
+      fetchDriverLicenseStatus();
     } catch (err) {
-      setError(err.message || t('failedToUploadDriverLicense'));
+      setError(err.response?.data?.message || err.message || t('failedToUploadDriverLicense'));
     } finally {
       setUploading(false);
     }
@@ -96,8 +178,9 @@ const UploadDriver = () => {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2 flex items-center">
           {t('updateDriverLicense')}
+          {getStatusBadge()}
         </h2>
         <p className="text-gray-600 mb-6">
           {t('uploadDriverLicenseDescription')}

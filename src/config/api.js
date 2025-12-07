@@ -44,9 +44,10 @@ export const USER_API_CONFIG = {
   headers: API_CONFIG.HEADERS,
 };
 
-// User endpoints
+// Staff endpoints
 export const STAFF_ENDPOINTS = {
   GET_ALL_DRIVER_LICENSE: `${API_CONFIG.BASE_URL}/User/driverLicense/all`,
+  PATCH_DRIVER_LICENSE: `${API_CONFIG.BASE_URL}/User/driverLicense/approve`,
 };
 
 export const STAFF_API_CONFIG = {

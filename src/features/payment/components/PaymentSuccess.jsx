@@ -306,8 +306,8 @@ const PaymentSuccess = () => {
 
         {/* Action Buttons */}
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button
+          <div className="grid grid-cols-1 md:grid-cols- gap-4">
+            {/* <button
               onClick={() => window.print()}
               className="flex items-center justify-center bg-gray-100 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors font-medium"
             >
@@ -315,7 +315,7 @@ const PaymentSuccess = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
               </svg>
               {t('printReceipt')}
-            </button>
+            </button> */}
             
             <button
               onClick={() => handleNavigation('/profile/rental-history')}

@@ -6,8 +6,9 @@ import { getUserById, getUserIdFromToken } from '../../user/api';
 import { createBooking } from '../api';
 import DeliveryLocationModal from '../../cars/components/CarDetailRevModal/DeliveryLocationModal';
 import DateAndTimePicker from '../../cars/components/CarDetailRevModal/DateAndTimePicker';
-
+import { useTranslation } from 'react-i18next';
 const PaymentPage = () => {
+    const { t } = useTranslation();
     const location = useLocation();
     const user = useSelector(selectUser);
     const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -363,14 +364,14 @@ const PaymentPage = () => {
                         {/* Billing Info */}
                         <div className="bg-white rounded-lg p-6 shadow-sm">
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-gray-900">Billing Info</h2>
-                                <span className="text-sm text-gray-500">Please enter your billing info</span>
-                                <span className="text-sm text-gray-500">Step 1 of 4</span>
+                                <h2 className="text-xl font-bold text-gray-900">{t('billinginfo')}</h2>
+                                <span className="text-sm text-gray-500">{t('pleaseenteryourbillinginfo')}</span>
+                                <span className="text-sm text-gray-500">{t('step')} 1 </span>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('Name')}</label>
                                     <input
                                         type="text"
                                         placeholder="Your name"
@@ -380,7 +381,7 @@ const PaymentPage = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('phonenumber')}</label>
                                     <input
                                         type="tel"
                                         placeholder="Phone number"
@@ -390,7 +391,7 @@ const PaymentPage = () => {
                                     />
                                 </div>
                                 <div className="md:col-span-2">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('address')}</label>
                                     <input
                                         type="text"
                                         placeholder="Address"
@@ -415,9 +416,9 @@ const PaymentPage = () => {
                         {/* Rental Info */}
                         <div className="bg-white rounded-lg p-6 shadow-sm">
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-gray-900">Rental Info</h2>
-                                <span className="text-sm text-gray-500">Please select your rental date</span>
-                                <span className="text-sm text-gray-500">Step 2 of 4</span>
+                                <h2 className="text-xl font-bold text-gray-900">{t('rentalinfo')}</h2>
+                                <span className="text-sm text-gray-500">{t('pleaseselectyourrentaldate')}</span>
+                                <span className="text-sm text-gray-500">{t('step')} 2</span>
                             </div>
 
                             {/* Pick-up and Drop-off Section */}
@@ -514,9 +515,9 @@ const PaymentPage = () => {
                         {/* Payment Method */}
                         <div className="bg-white rounded-lg p-6 shadow-sm">
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-gray-900">Payment Method</h2>
-                                <span className="text-sm text-gray-500">Please enter your payment method</span>
-                                <span className="text-sm text-gray-500">Step 3 of 4</span>
+                                <h2 className="text-xl font-bold text-gray-900">{t('paymentmethod')}</h2>
+                                <span className="text-sm text-gray-500">{t('pleaseenteryourpaymentmethod')}</span>
+                                <span className="text-sm text-gray-500">{t('step')} 3</span>
                             </div>
                             {/* Cash */}
                             <div className="mb-6">
@@ -531,7 +532,7 @@ const PaymentPage = () => {
                                             onChange={(e) => setPaymentMethod(e.target.value)}
                                             className="mr-3"
                                         />
-                                        <label htmlFor="cash" className="font-medium text-gray-900">Cash</label>
+                                        <label htmlFor="cash" className="font-medium text-gray-900">{t('cash')}</label>
                                     </div>
                                     <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z" />
@@ -589,9 +590,9 @@ const PaymentPage = () => {
 
                                 {paymentMethod === 'qr-payment' && (
                                     <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
-                                        <h4 className="text-lg font-semibold text-gray-900 mb-4">Scan QR Code to Pay</h4>
+                                        <h4 className="text-lg font-semibold text-gray-900 mb-4">Quét mã QR để thanh toán</h4>
                                         <p className="text-sm text-gray-600 mb-4">
-                                            Use your mobile banking app or digital wallet to scan QR code
+                                            Dùng ứng dụng ngân hàng hoặc ví điện tử để quét mã
                                         </p>
                                     </div>
                                 )}
@@ -601,13 +602,13 @@ const PaymentPage = () => {
                         {/* Confirmation */}
                         <div className="bg-white rounded-lg p-6 shadow-sm">
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-gray-900">Confirmation</h2>
-                                <span className="text-sm text-gray-500">We are getting to the end. Just few clicks and your rental is ready!</span>
-                                <span className="text-sm text-gray-500">Step 4 of 4</span>
+                                <h2 className="text-xl font-bold text-gray-900">{t('confirmation')}</h2>
+                                {/* <span className="text-sm text-gray-500">{t('confirmmessage')}</span> */}
+                                <span className="text-sm text-gray-500">{t('step')} 4</span>
                             </div>
 
                             <div className="space-y-4 mb-6">
-                                <div className="flex items-start">
+                                {/* <div className="flex items-start">
                                     <input
                                         type="checkbox"
                                         id="marketing"
@@ -618,7 +619,7 @@ const PaymentPage = () => {
                                     <label htmlFor="marketing" className="text-sm text-gray-600">
                                         I agree with sending an Marketing and newsletter emails
                                     </label>
-                                </div>
+                                </div> */}
                                 <div className="flex items-start">
                                     <input
                                         type="checkbox"
@@ -628,7 +629,7 @@ const PaymentPage = () => {
                                         className="mt-1 mr-3"
                                     />
                                     <label htmlFor="terms" className="text-sm text-gray-600">
-                                        I agree with our terms and conditions and privacy policy.
+                                        {t('termandpolicy')}
                                     </label>
                                 </div>
                             </div>
@@ -644,9 +645,9 @@ const PaymentPage = () => {
                                 disabled={isSubmitting}
                                 className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors mb-4 disabled:bg-gray-400 disabled:cursor-not-allowed"
                             >
-                                {isSubmitting ? 'Processing...' : 'Rent Now'}
+                                {isSubmitting ? 'Processing...' : 'Thuê Ngay'}
                             </button>
-
+{/* 
                             <div className="flex items-center text-sm text-gray-500">
                                 <svg className="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
@@ -655,7 +656,7 @@ const PaymentPage = () => {
                             </div>
                             <p className="text-xs text-gray-400 mt-2">
                                 We are using the most advanced security to provide you the best experience ever.
-                            </p>
+                            </p> */}
                         </div>
                     </div>
                 </div>

@@ -1,18 +1,70 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-
+import { fetchAllAdminData, getAllUsers } from '../adminapi/adminAPI';
+import { ROLES } from '../../auth/utils';
 const OperationsDashboard = () => {
     const { t } = useTranslation();
     const [selectedTimeRange, setSelectedTimeRange] = useState('24h');
+    const [systemMetrics, setSystemMetrics] = useState({
+        activeCars: 0,
+        carsInUse: 0,
+        maintenanceCars: 0,
+        totalBookings: 0,
+        confirmedBookings: 0,
+        completedBookings: 0,
+        canceledBookings: 0,
+        activeUsers: 0,
+        RoleManagementUsers: 0,
+        RoleManagementCarOwners: 0,
+        RoleManagementStaff: 0
+    });
+    const [loading, setLoading] = useState(true);
 
-    // Mock data for self-driving car rental operations
-    const systemMetrics = {
-        activeCars: 156,
-        carsInUse: 89,
-        totalBookings: 1247,
-        activeUsers: 3456,
-        RoleManagementCarOwners: 45,
-        RoleManagementStaff: 23
+    useEffect(() => {
+        loadDashboardData();
+    }, []);
+
+    const loadDashboardData = async () => {
+        try {
+            setLoading(true);
+            const [adminData, usersData] = await Promise.all([
+                fetchAllAdminData(),
+                getAllUsers()
+            ]);
+
+            const { cars, bookings } = adminData;
+
+            // Calculate metrics from real data
+            const activeCars = cars.filter(car => car.status === 'Active').length;
+            const carsInUse = cars.filter(car => car.status === 'Reserved').length;
+            const maintenanceCars = cars.filter(car => car.status === 'Inactive').length;
+            const totalBookings = bookings.length;
+            const confirmedBookings = bookings.filter(booking => booking.status === 'Confirmed').length;
+            const completedBookings = bookings.filter(booking => booking.status === 'Completed').length;
+            const canceledBookings = bookings.filter(booking => booking.status === 'Cancelled').length;
+
+            // Count users by role using ROLES constants
+            const activeUsers = usersData.filter(user => user.roleId === ROLES.CUSTOMER).length;
+            const carOwners = usersData.filter(user => user.roleId === ROLES.OWNER).length;
+            const staff = usersData.filter(user => user.roleId === ROLES.STAFF).length;
+
+            setSystemMetrics({
+                activeCars,
+                carsInUse,
+                maintenanceCars,
+                totalBookings,
+                confirmedBookings,
+                completedBookings,
+                canceledBookings,
+                RoleManagementUsers: activeUsers,
+                RoleManagementCarOwners: carOwners,
+                RoleManagementStaff: staff
+            });
+        } catch (error) {
+            console.error('Error loading dashboard data:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const operationalAlerts = [
@@ -24,20 +76,22 @@ const OperationsDashboard = () => {
     ];
 
     const serviceStatus = [
-        { name: 'Vehicle Tracking System', status: 'operational', uptime: '99.9%', responseTime: '45ms' },
-        { name: 'Payment Gateway', status: 'operational', uptime: '99.8%', responseTime: '120ms' },
-        { name: 'Booking API', status: 'operational', uptime: '99.8%', responseTime: '67ms' },
-        { name: 'AI Navigation Service', status: 'operational', uptime: '99.5%', responseTime: '89ms' },
-        { name: 'Vehicle Control System', status: 'operational', uptime: '99.7%', responseTime: '34ms' },
-        { name: 'Customer Support Chat', status: 'degraded', uptime: '97.2%', responseTime: '340ms' }
+        { name: 'Active Cars', value: systemMetrics.activeCars, status: 'Active' },
+        { name: 'Cars In Use', value: systemMetrics.carsInUse, status: 'Reserved' },
+        { name: 'Inactive Cars', value: systemMetrics.maintenanceCars, status: 'Inactive' },
+        { name: 'Confirmed Bookings', value: systemMetrics.confirmedBookings, status: 'Confirmed' },
+        { name: 'Completed Bookings', value: systemMetrics.completedBookings, status: 'Completed' },
+        { name: 'Cancelled Bookings', value: systemMetrics.canceledBookings, status: 'Cancelled' }
     ];
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'operational': return 'text-green-600 bg-green-100';
-            case 'degraded': return 'text-yellow-600 bg-yellow-100';
-            case 'maintenance': return 'text-blue-600 bg-blue-100';
-            case 'outage': return 'text-red-600 bg-red-100';
+            case 'Active': return 'text-green-600 bg-green-100';
+            case 'Reserved': return 'text-blue-600 bg-blue-100';
+            case 'Inactive': return 'text-gray-600 bg-gray-100';
+            case 'Confirmed': return 'text-green-600 bg-green-100';
+            case 'Completed': return 'text-blue-600 bg-blue-100';
+            case 'Cancelled': return 'text-red-600 bg-red-100';
             default: return 'text-gray-600 bg-gray-100';
         }
     };
@@ -51,6 +105,21 @@ const OperationsDashboard = () => {
             default: return 'border-gray-200 bg-gray-50 text-gray-800';
         }
     };
+
+    const handleRefresh = () => {
+        loadDashboardData();
+    };
+
+    if (loading) {
+        return (
+            <div className="p-8 flex items-center justify-center min-h-full bg-gray-50">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">{t('loadingData')}</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="p-8 space-y-8 min-h-full bg-gray-50">
@@ -71,7 +140,10 @@ const OperationsDashboard = () => {
                         <option value="7d">{t('last7Days')}</option>
                         <option value="30d">{t('last30Days')}</option>
                     </select>
-                    <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <button
+                        onClick={handleRefresh}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
                         {t('refreshData')}
                     </button>
                 </div>
@@ -125,7 +197,7 @@ const OperationsDashboard = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-gray-600">{t('activeUsers')}</p>
-                            <p className="text-2xl font-bold text-indigo-600">{systemMetrics.activeUsers.toLocaleString()}</p>
+                            <p className="text-2xl font-bold text-indigo-600">{systemMetrics.RoleManagementUsers}</p>
                         </div>
                         <div className="p-3 bg-indigo-100 rounded-full">
                             <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,13 +252,11 @@ const OperationsDashboard = () => {
                                             {t(service.status)}
                                         </div>
                                         <div>
-                                            <p className="font-medium text-gray-900">{service.name}</p>
-                                            <p className="text-sm text-gray-600">{t('uptime')}: {service.uptime}</p>
+                                            <p className="text-sm font-medium text-gray-900">{service.name}</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-sm font-medium text-gray-900">{service.responseTime}</p>
-                                        <p className="text-xs text-gray-600">{t('avgResponse')}</p>
+                                        <p className="text-sm font-medium text-gray-900">{service.value}</p>
                                     </div>
                                 </div>
                             ))}
@@ -239,7 +309,8 @@ const OperationsDashboard = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                             </div>
-                            <h3 className="font-semibold text-gray-900 mb-2">{t('RoleManagementUsers')}: {systemMetrics.activeUsers.toLocaleString()}</h3>
+                
+                            <h3 className="font-semibold text-gray-900 mb-2">{t('RoleManagementUsers')}: {systemMetrics.RoleManagementUsers}</h3>
                             {/* <p className="text-2xl font-bold text-blue-600 mb-2">{systemMetrics.activeUsers.toLocaleString()}</p> */}
                             <p className="text-sm text-gray-600 mb-4">{t('customersRentingCars')}</p>
                             {/* <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">{t('manageUsers')}</button> */}
@@ -251,7 +322,7 @@ const OperationsDashboard = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                             </div>
-                            <h3 className="font-semibold text-gray-900 mb-2">{t('RoleManagementCarOwners')}: {systemMetrics.carOwners}</h3>
+                            <h3 className="font-semibold text-gray-900 mb-2">{t('RoleManagementCarOwners')}: {systemMetrics.RoleManagementCarOwners}</h3>
                             {/* <p className="text-2xl font-bold text-orange-600 mb-2">{systemMetrics.carOwners}</p> */}
                             <p className="text-sm text-gray-600 mb-4">{t('managersProvidingVehicles')}</p>
                             {/* <button className="text-orange-600 hover:text-orange-700 text-sm font-medium">{t('manageOwners')}</button> */}
@@ -263,7 +334,7 @@ const OperationsDashboard = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
                             </div>
-                            <h3 className="font-semibold text-gray-900 mb-2">{t('RoleManagementStaff')}: {systemMetrics.staffMembers}</h3>
+                            <h3 className="font-semibold text-gray-900 mb-2">{t('RoleManagementStaff')}: {systemMetrics.RoleManagementStaff}</h3>
                             {/* <p className="text-2xl font-bold text-teal-600 mb-2">{systemMetrics.staffMembers}</p> */}
                             <p className="text-sm text-gray-600 mb-4">{t('supportMaintenanceTeam')}</p>
                             {/* <button className="text-teal-600 hover:text-teal-700 text-sm font-medium">{t('manageStaff')}</button> */}

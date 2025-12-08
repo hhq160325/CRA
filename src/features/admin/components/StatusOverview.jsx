@@ -1,47 +1,162 @@
-import { useSelector } from 'react-redux';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { fetchAllAdminData } from '../adminapi/adminAPI';
+import Pagination from '../../../shared/components/Pagination';
 
 const StatusOverview = () => {
   const { t } = useTranslation();
-  const cars = useSelector(state => state.admin?.cars || []);
+  const [statusData, setStatusData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  const getStatusBadge = (status) => {
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const { cars, bookings, invoices } = await fetchAllAdminData();
+        
+        // Combine data from all three endpoints
+        const combinedData = bookings.map(booking => {
+          const car = cars.find(c => c.id === booking.carId);
+          
+          // Determine which invoice item to look for based on booking status
+          let targetItem = '';
+          if (booking.status === 'Confirmed') {
+            targetItem = 'Booking Fee';
+          } else if (booking.status === 'Completed') {
+            targetItem = 'Rental Fee';
+          } else if (booking.status === 'Cancelled') {
+            targetItem = 'Booking Fee';
+          }
+          
+          // Find invoice that matches both invoiceId from booking and the target item
+          // Comparing booking.invoiceId with invoice.invoiceId
+          const invoice = invoices.find(inv => 
+            inv.invoiceId === booking.invoiceId && inv.item === targetItem
+          );        
+          
+          return {
+            id: booking.id,
+            carId: booking.carId,
+            carName: car ? `${car.manufacturer} ${car.model}` : 'Unknown',
+            carStatus: car?.status || 'Unknown',
+            bookingStatus: booking.status,
+            invoiceStatus: invoice?.status || 'Unknown', 
+            invoiceItem: invoice?.item || 'N/A',
+            pickUp: booking.pickupTime ? new Date(booking.pickupTime).toLocaleString() : '-----',
+            dropOff: booking.dropoffTime ? new Date(booking.dropoffTime).toLocaleString() : '-----',
+          };
+        });
+        
+        setStatusData(combinedData);
+        setError(null);
+      } catch (err) {
+        console.error('Error loading status overview:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  const getStatusBadge = (bookingStatus, carStatus) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
-    switch (status) {
-      case 'Rented':
-        return `${baseClasses} bg-green-100 text-green-800`;
-      case 'Overdue':
-        return `${baseClasses} bg-yellow-100 text-yellow-800`;
-      case 'Available':
-        return `${baseClasses} bg-gray-100 text-gray-800`;
-      case 'Returned':
-        return `${baseClasses} bg-blue-100 text-blue-800`;
+    
+    // Determine display status based on booking and car status
+    if (bookingStatus === 'Confirmed' && carStatus === 'Reserved') {
+      return `${baseClasses} bg-green-100 text-green-800`;
+    } else if (bookingStatus === 'Completed') {
+      return `${baseClasses} bg-blue-100 text-blue-800`;
+    } else if (bookingStatus === 'Cancelled') {
+      return `${baseClasses} bg-red-100 text-red-800`;
+    } else if (carStatus === 'Active') {
+      return `${baseClasses} bg-gray-100 text-gray-800`;
+    } else if (carStatus === 'Inactive') {
+      return `${baseClasses} bg-yellow-100 text-yellow-800`;
+    }
+    return `${baseClasses} bg-gray-100 text-gray-800`;
+  };
+
+  const getPaidStatus = (invoiceStatus) => {
+    const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
+    
+    switch (invoiceStatus) {
+      case 'Paid':
+        return (
+          <span className={`${baseClasses} bg-green-100 text-green-800`}>
+            {t('paid')}
+          </span>
+        );
+      case 'Pending':
+        return (
+          <span className={`${baseClasses} bg-yellow-100 text-yellow-800`}>
+            {t('pending')}
+          </span>
+        );
+      case 'Expired':
+        return (
+          <span className={`${baseClasses} bg-orange-100 text-orange-800`}>
+            {t('expired')}
+          </span>
+        );
+      case 'Cancelled':
+        return (
+          <span className={`${baseClasses} bg-red-100 text-red-800`}>
+            {t('cancelled')}
+          </span>
+        );
       default:
-        return `${baseClasses} bg-gray-100 text-gray-800`;
+        return (
+          <span className={`${baseClasses} bg-gray-100 text-gray-800`}>
+            {invoiceStatus || t('unknown')}
+          </span>
+        );
     }
   };
 
-  const getPaidStatus = (paid) => {
-    return paid ? (
-      <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-        {t('paid')}
-      </span>
-    ) : (
-      <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-        {t('unpaid')}
-      </span>
-    );
+  const getTranslatedStatus = (bookingStatus, carStatus) => {
+    if (bookingStatus === 'Confirmed') return t('confirmed');
+    if (bookingStatus === 'Completed') return t('completed');
+    if (bookingStatus === 'Cancelled') return t('cancelled');
+    if (carStatus === 'Active') return t('active');
+    if (carStatus === 'Inactive') return t('inactive');
+    if (carStatus === 'Reserved') return t('reserved');
+    return bookingStatus || carStatus;
   };
 
-  const getTranslatedStatus = (status) => {
-    const statusMap = {
-      'Rented': t('rented'),
-      'Overdue': t('overdue'),
-      'Available': t('available'),
-      'Returned': t('returned')
-    };
-    return statusMap[status] || status;
+  // Calculate pagination
+  const totalItems = statusData.length;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedData = statusData.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-gray-500">{t('loading')}...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-red-500">{t('error')}: {error}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
@@ -66,44 +181,41 @@ const StatusOverview = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {cars.map((car) => (
-              <tr key={car.id} className="hover:bg-gray-50">
-                <td className="py-4 px-2">
-                  <div className="font-medium text-gray-900 text-sm">{car.name}</div>
-                </td>
-                <td className="py-4 px-2">
-                  <span className={getStatusBadge(car.status)}>
-                    {getTranslatedStatus(car.status)}
-                  </span>
-                </td>
-                <td className="py-4 px-2 text-gray-600 text-sm">{car.pickUp}</td>
-                <td className="py-4 px-2 text-gray-600 text-sm">{car.dropOff}</td>
-                <td className="py-4 px-2">
-                  {car.status === 'Available' || car.status === 'Returned' ? (
-                    <span className="text-gray-400 text-sm">-----</span>
-                  ) : (
-                    getPaidStatus(car.paid)
-                  )}
+            {paginatedData.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="py-8 text-center text-gray-500">
+                  {t('noData')}
                 </td>
               </tr>
-            ))}
+            ) : (
+              paginatedData.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50">
+                  <td className="py-4 px-2">
+                    <div className="font-medium text-gray-900 text-sm">{item.carName}</div>
+                  </td>
+                  <td className="py-4 px-2">
+                    <span className={getStatusBadge(item.bookingStatus, item.carStatus)}>
+                      {getTranslatedStatus(item.bookingStatus, item.carStatus)}
+                    </span>
+                  </td>
+                  <td className="py-4 px-2 text-gray-600 text-sm">{item.pickUp}</td>
+                  <td className="py-4 px-2 text-gray-600 text-sm">{item.dropOff}</td>
+                  <td className="py-4 px-2">
+                    {getPaidStatus(item.invoiceStatus)}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      <div className="flex items-center justify-center mt-6 pt-4 border-t border-gray-200">
-        <div className="flex items-center space-x-2">
-          <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('previous')}</button>
-          <div className="flex space-x-1">
-            <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
-            <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
-            <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
-            <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">4</button>
-            <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">5</button>
-          </div>
-          <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('next')}</button>
-        </div>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        onPageChange={handlePageChange}
+      />
     </div>
   );
 };

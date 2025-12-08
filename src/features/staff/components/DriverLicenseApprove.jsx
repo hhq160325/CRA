@@ -24,7 +24,7 @@ const DriverLicenseApprove = () => {
       dispatch(setLoading({ section: 'driverLicenses', loading: true }));
       try {
         const token = localStorage.getItem('token');
-        
+
         // Fetch both driver licenses and users in parallel
         const [licensesResponse, usersResponse] = await Promise.all([
           axios.get(USER_ENDPOINTS.GET_ALL_DRIVER_LICENSE, {
@@ -51,7 +51,7 @@ const DriverLicenseApprove = () => {
         const urlsData = licensesResponse.data?.urls || [];
         const usersData = usersResponse.data || [];
         // console.log(usersData);
-        
+
         // Create a map of userId to user data for quick lookup
         const userMap = {};
         usersData.forEach(user => {
@@ -82,7 +82,7 @@ const DriverLicenseApprove = () => {
           // Normalize status to lowercase for consistency
           const normalizedStatus = (license.status || 'pending').toLowerCase();
           console.log(normalizedStatus);
-          
+
           return {
             id: license.userId || index + 1,
             userId: license.userId,
@@ -115,7 +115,7 @@ const DriverLicenseApprove = () => {
     switch (status) {
       case 'approved':
         return `${baseClasses} bg-green-100 text-green-800`;
-      case 'pending':
+      case 'active':
         return `${baseClasses} bg-yellow-100 text-yellow-800`;
       case 'denieds':
         return `${baseClasses} bg-red-100 text-red-800`;
@@ -128,7 +128,7 @@ const DriverLicenseApprove = () => {
     switch (status) {
       case 'approved':
         return 'Chấp thuận';
-      case 'pending':
+      case 'active':
         return 'Chờ xác nhận';
       case 'denied':
         return 'Từ chối';
@@ -353,7 +353,7 @@ const DriverLicenseApprove = () => {
                           >
                             Xem chi tiết
                           </button>
-                          {license.status === 'pending' && (
+                          {license.status === 'active' && (
                             <>
                               <button
                                 onClick={() => handleApprove(license.id)}
@@ -394,7 +394,7 @@ const DriverLicenseApprove = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">{t('driverLicenseDetails')}</h2>
+              <h2 className="text-xl font-bold text-gray-900">Chi tiết Giấy phép lái xe</h2>
               <button
                 onClick={closeModal}
                 className="text-gray-400 hover:text-gray-600"
@@ -417,7 +417,7 @@ const DriverLicenseApprove = () => {
                   <p className="mt-1 text-gray-900">{selectedLicense.licenseNumber}</p>
                 </div> */}
                 <div>
-                  <label className="text-sm font-medium text-gray-700">{t('submittedDate')}</label>
+                  <label className="text-sm font-medium text-gray-700">	Ngày gửi</label>
                   <p className="mt-1 text-gray-900">{selectedLicense.submittedDate}</p>
                 </div>
                 <div>
@@ -431,19 +431,19 @@ const DriverLicenseApprove = () => {
                 <div>
                   <label className="text-sm font-medium text-gray-700 block mb-2">{t('actions')}</label>
                   <div className="flex items-center space-x-2">
-                    {selectedLicense.status === 'pending' ? (
+                    {selectedLicense.status === 'active' ? (
                       <>
                         <button
                           onClick={() => handleApprove(selectedLicense.id)}
                           className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
                         >
-                          {t('approve')}
+                           Chấp thuận
                         </button>
                         <button
                           onClick={() => handleReject(selectedLicense.id, 'Rejected by staff')}
                           className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
                         >
-                          {t('reject')}
+                          Từ chối
                         </button>
                       </>
                     ) : selectedLicense.status === 'approved' ? (
@@ -451,14 +451,14 @@ const DriverLicenseApprove = () => {
                         disabled
                         className="px-4 py-2 bg-green-100 text-green-800 rounded-lg cursor-not-allowed text-sm font-medium"
                       >
-                        ✓ {t('approved')}
+                        Chấp thuận
                       </button>
                     ) : selectedLicense.status === 'rejected' ? (
                       <button
                         disabled
                         className="px-4 py-2 bg-red-100 text-red-800 rounded-lg cursor-not-allowed text-sm font-medium"
                       >
-                        ✗ {t('rejected')}
+                        Từ chối
                       </button>
                     ) : null}
                   </div>
@@ -468,9 +468,9 @@ const DriverLicenseApprove = () => {
               {/* License Images */}
               {selectedLicense.urls && selectedLicense.urls.length > 0 && (
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-2">
+                  {/* <label className="text-sm font-medium text-gray-700 block mb-2">
                     {t('licenseImages')} ({selectedLicense.urls.length})
-                  </label>
+                  </label> */}
                   <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                     {selectedLicense.urls.map((imageUrl, index) => (
                       <div key={index} className="border border-gray-300 rounded-lg overflow-hidden">
@@ -492,7 +492,7 @@ const DriverLicenseApprove = () => {
               )}
 
               {/* Action Buttons */}
-              {selectedLicense.status === 'pending' && (
+              {/* {selectedLicense.status === 'active' && (
                 <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
                   <button
                     onClick={closeModal}
@@ -513,7 +513,7 @@ const DriverLicenseApprove = () => {
                     {t('approve')}
                   </button>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         </div>

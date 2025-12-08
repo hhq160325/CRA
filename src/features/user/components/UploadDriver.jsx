@@ -73,17 +73,17 @@ const UploadDriver = () => {
       'Pending': {
         bg: 'bg-yellow-100',
         text: 'text-yellow-800',
-        label: t('Pending')
+        label: t('uploadlicensepending')
       },
       'Approved': {
         bg: 'bg-green-100',
         text: 'text-green-800',
-        label: t('Approved')
+        label: t('uploadlicenseapproved')
       },
       'Denied': {
         bg: 'bg-red-100',
         text: 'text-red-800',
-        label: t('Denied')
+        label: t('uploadlicensedenied')
       }
     };
 
@@ -214,7 +214,7 @@ const UploadDriver = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
                 <p className="mb-2 text-sm text-gray-700">
-                  <span className="font-semibold">{t('clickToUpload')}</span> {t('orDragAndDrop')}
+                  <span className="font-semibold">{t('clickToUpload')}</span>
                 </p>
                 <p className="text-xs text-gray-500">{t('driverLicenseFormatsAccepted')}</p>
               </div>

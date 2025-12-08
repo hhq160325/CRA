@@ -123,7 +123,7 @@ const UsageTracking = () => {
       case 'reserved':
         return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: 'Reserved' };
       case 'pending':
-        return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: 'Active' };
+        return { className: `${baseClasses} bg-green-100 text-green-800`, label: 'Available' };
       // case 'active':
       //   return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: 'Active' };
       case 'inactive':
@@ -247,8 +247,8 @@ const UsageTracking = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Usage & Mileage</h1>
-            <p className="text-gray-600">Monitor car usage, mileage and utilization details</p>
+            <h1 className="text-2xl font-bold text-gray-900">Quản lý bảo dưỡng xe</h1>
+            <p className="text-gray-600">theo dõi tình trạng xe</p>
           </div>
         </div>
 

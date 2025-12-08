@@ -323,7 +323,7 @@ const MaintenanceSchedule = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-red-500">
           <div className="flex items-center justify-between">
             <div>
@@ -380,7 +380,7 @@ const MaintenanceSchedule = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Filters */}
       <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">

@@ -89,7 +89,7 @@ const RegisterCar = () => {
             <div className="max-w-2xl mx-auto px-4">
                 {/* Header */}
                 <div className="relative flex items-center mb-8">
-                    <button
+                    {/* <button
                         onClick={handleReturn}
                         className="flex items-center text-gray-600 hover:text-gray-800"
                     >
@@ -97,7 +97,7 @@ const RegisterCar = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                         {t('return')}
-                    </button>
+                    </button> */}
                     <h1 className="absolute left-1/2 transform -translate-x-1/2 text-xl font-semibold text-gray-900">{t('registerCar')}</h1>
                 </div>
 
@@ -252,7 +252,7 @@ const RegisterCar = () => {
                     </div>
 
                     {/* Fuel Consumption */}
-                    <div className="mb-8">
+                    {/* <div className="mb-8">
                         <label className="block text-sm font-medium text-gray-900 mb-2">
                             {t('fuelConsumption')}
                         </label>
@@ -268,7 +268,7 @@ const RegisterCar = () => {
                             placeholder={t('enterFuelConsumption')}
                             step="0.1"
                         />
-                    </div>
+                    </div> */}
 
                     {/* Description */}
                     <div className="mb-8">

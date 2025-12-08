@@ -54,7 +54,7 @@ const resources = {
       nextWeek: "Next week",
       time: "Time",
       selectTime: "Select your time",
-      rentalPeriod:"Rental Period",
+      rentalPeriod: "Rental Period",
       loadingCars: "Loading cars...",
       errorLoadingCars: "Error loading cars:",
       // HomePage - Car Sections
@@ -508,7 +508,6 @@ const resources = {
       page: "Page",
       deleteMessage: "Delete message",
       deleteMessageConfirm: "Delete",
-
       // Profile - My Profile Page
       accountInformation: "Account Information",
       save: "Save",
@@ -524,7 +523,10 @@ const resources = {
       connected: "Connected",
       addLink: "Add link",
       enterFullName: "Full Name",
-
+      noLicenseUploaded: "No License Uploaded",
+      uploadlicensepending: "Waiting for approved",
+      uploadlicenseapproved: "Approved",
+      uploadlicensedenied: "Denied",
       // Profile - Reimburse Page
       totalSubmitted: "Total Submitted",
       submitReimbursement: "Submit a reimbursement",
@@ -629,7 +631,7 @@ const resources = {
       payments: "Payments",
       registerNewCar: "Register New Car",
       registerNewCarSection: "Register New Car",
-      maintenanceCalendar:"Maintenance Calendar",
+      maintenanceCalendar: "Maintenance Calendar",
       // Register Car Step 3 - Photo Upload
       clickToUpload: "Click to upload",
       orDragAndDrop: "or drag and drop",
@@ -797,7 +799,23 @@ const resources = {
       bookingFeesPayNow: "Booking Fees (15%) - Pay Now",
       remainingAmountPayAfter: "Remaining Amount - Pay After",
       totalPricePayNow: "Total Price",
-      distance: "Distance"
+      distance: "Distance",
+
+      // Payment Page
+      billinginfo: "Billing Info",
+      pleaseenteryourbillinginfo: "Please enter your billing info",
+      step: "Step",
+      name: "Name",
+      phonenumber: "Phone Number",
+      address: "Address",
+      rentalinfo: "Rental Info",
+      pleaseselectyourrentaldate: "Please select your rental date",
+      paymentmethod: "Payment Method",
+      pleaseenteryourpaymentmethod: "Please enter your payment method",
+      confirmmessage: "We are getting to the end. Just few clicks and your rental is ready!",
+      confirmation: "Confirmation",
+      termandpolicy: "I agree with our terms and conditions and privacy policy.",
+      cash: "Cash",
     }
   },
   vi: {
@@ -852,7 +870,7 @@ const resources = {
       nextWeek: "Tuần sau",
       time: "Giờ",
       selectTime: "Chọn giờ",
-      rentalPeriod:"Thời gian thuê",
+      rentalPeriod: "Thời gian thuê",
       loadingCars: "Đang tải xe...",
       errorLoadingCars: "Lỗi khi tải xe:",
       // HomePage - Car Sections
@@ -1319,6 +1337,10 @@ const resources = {
       connected: "Đã kết nối",
       addLink: "Thêm liên kết",
       enterFullName: "Họ và Tên",
+      noLicenseUploaded: "Chưa cập nhập bằng lái xe",
+      uploadlicensepending: "Chờ xác thực",
+      uploadlicenseapproved: "Đã xác thực",
+      uploadlicensedenied: "Xác thực thất bại",
       // Profile - Reimburse Page
       totalSubmitted: "Tổng đã gửi",
       submitReimbursement: "Gửi yêu cầu hoàn tiền",
@@ -1413,7 +1435,7 @@ const resources = {
       rentalActivityDescription: "Xem các đặt chỗ gần đây và lịch sử.",
 
       // Owner Layout - Sidebar
-      ownerMenu: "MENU CHỦ XE",
+      ownerMenu: "Menu quản lý xe",
       maintenanceSchedule: "Lịch Bảo Trì",
       usageAndMileage: "Sử Dụng & Số Km",
       rentalHistory: "Lịch Sử Cho Thuê",
@@ -1591,7 +1613,22 @@ const resources = {
       bookingFeesPayNow: "Phí Đặt Cọc (15%) - Thanh Toán Ngay",
       remainingAmountPayAfter: "Số Tiền Còn Lại - Thanh Toán Sau",
       totalPricePayNow: "Thành Tiền",
-      distance: "Khoảng cách"
+      distance: "Khoảng cách",
+      // Payment Page
+      billinginfo: "Thông tin Thanh toán",
+      pleaseenteryourbillinginfo: "Vui lòng nhập thông tin thanh toán của bạn",
+      step: "Bước",
+      name: "Tên",
+      phonenumber: "Số điện thoại",
+      address: "Địa chỉ",
+      rentalinfo: "Thông tin Thuê",
+      pleaseselectyourrentaldate: "Vui lòng chọn ngày thuê",
+      paymentmethod: "Phương thức Thanh toán",
+      pleaseenteryourpaymentmethod: "Vui lòng nhập phương thức thanh toán của bạn",
+      confirmmessage: "Chúng tôi sắp hoàn tất. Chỉ cần vài cú nhấp chuột là bạn đã có thể thuê xe!",
+      confirmation: "Xác nhận",
+      termandpolicy: "Tôi đồng ý với các điều khoản và điều kiện cũng như chính sách bảo mật của chúng tôi.",
+      cash: "Tiền mặt",
     }
   }
 };

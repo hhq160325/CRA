@@ -3,30 +3,74 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { validateLicensePlate, formatLicensePlate } from '../../../shared/utils/LicensePlateFormat';
 import { DropdownTemplate } from '../../../shared';
+import { getAllManufacturers, getModelsByManufacturerId } from '../carApi';
 
 const RegisterCar = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         licensePlate: '',
-        brand: 'Test Register Car Brand - Honda',
-        model: 'Test Register Car - ',
-        numberOfSeats: '4',
-        yearOfManufacture: '2024',
-        transmission: 'Automatic',
-        fuelType: 'Gasoline',
-        fuelConsumption: '',
+        manufacturer: '',
+        manufacturerId: '',
+        model: '',
+        modelId: '',
+        numberOfSeats: '',
+        yearOfManufacture: '',
+        transmission: '',
+        fuelType: '',
+        fuelConsumption: 0.1,
         description: ''
     });
     const [licensePlateError, setLicensePlateError] = useState('');
+    const [manufacturers, setManufacturers] = useState([]);
+    const [models, setModels] = useState([]);
+    const [loadingManufacturers, setLoadingManufacturers] = useState(true);
+    const [loadingModels, setLoadingModels] = useState(false);
+
+    // Load manufacturers on mount
+    useEffect(() => {
+        const fetchManufacturers = async () => {
+            try {
+                setLoadingManufacturers(true);
+                const data = await getAllManufacturers();
+                setManufacturers(data);
+            } catch (error) {
+                console.error('Failed to fetch manufacturers:', error);
+            } finally {
+                setLoadingManufacturers(false);
+            }
+        };
+
+        fetchManufacturers();
+    }, []);
 
     // Load saved data from localStorage on mount
     useEffect(() => {
         const savedData = localStorage.getItem('carRegistrationStep1');
         if (savedData) {
-            setFormData(JSON.parse(savedData));
+            const parsed = JSON.parse(savedData);
+            setFormData(parsed);
+            
+            // If manufacturer was saved, fetch its models
+            if (parsed.manufacturerId) {
+                fetchModels(parsed.manufacturerId);
+            }
         }
     }, []);
+
+    // Fetch models when manufacturer changes
+    const fetchModels = async (manufacturerId) => {
+        try {
+            setLoadingModels(true);
+            const data = await getModelsByManufacturerId(manufacturerId);
+            setModels(data);
+        } catch (error) {
+            console.error('Failed to fetch models:', error);
+            setModels([]);
+        } finally {
+            setLoadingModels(false);
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -155,18 +199,30 @@ const RegisterCar = () => {
                         </p>
 
                         <div className="grid grid-cols-2 gap-6 mb-6">
-                            {/* Brand */}
+                            {/* Manufacturer */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    {t('brand')} <span className="text-red-500">*</span>
+                                    {t('manufacturer')} <span className="text-red-500">*</span>
                                 </label>
-                                <input
-                                    type="text"
-                                    name="brand"
-                                    value={formData.brand}
-                                    onChange={handleInputChange}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder={t('brand')}
+                                <DropdownTemplate
+                                    value={formData.manufacturer}
+                                    onChange={(option) => {
+                                        setFormData(prev => ({ 
+                                            ...prev, 
+                                            manufacturer: option.label,
+                                            manufacturerId: option.id,
+                                            model: '',
+                                            modelId: ''
+                                        }));
+                                        fetchModels(option.id);
+                                    }}
+                                    options={manufacturers.map(m => ({
+                                        id: m.id,
+                                        value: m.manufacturer,
+                                        label: m.manufacturer
+                                    }))}
+                                    placeholder={loadingManufacturers ? t('loading') || 'Loading...' : t('manufacturer')}
+                                    disabled={loadingManufacturers}
                                 />
                             </div>
 
@@ -175,13 +231,24 @@ const RegisterCar = () => {
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     {t('model')} <span className="text-red-500">*</span>
                                 </label>
-                                <input
-                                    type="text"
-                                    name="model"
+                                <DropdownTemplate
                                     value={formData.model}
-                                    onChange={handleInputChange}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder={t('model')}
+                                    onChange={(option) => {
+                                        const selectedModel = models.find(m => m.id === option.id);
+                                        setFormData(prev => ({ 
+                                            ...prev, 
+                                            model: option.label,
+                                            modelId: option.id,
+                                            yearOfManufacture: selectedModel?.yearOfManufacture?.toString() || prev.yearOfManufacture
+                                        }));
+                                    }}
+                                    options={models.map(m => ({
+                                        id: m.id,
+                                        value: m.model,
+                                        label: m.model
+                                    }))}
+                                    placeholder={loadingModels ? t('loading') || 'Loading...' : t('model')}
+                                    disabled={!formData.manufacturerId || loadingModels}
                                 />
                             </div>
                         </div>

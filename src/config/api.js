@@ -167,6 +167,7 @@ export const INQUIRY_ENDPOINTS = {
   CREATE_INQUIRY: `${API_CONFIG.BASE_URL}/Inquiry/initial`,
   GET_INQUIRY: (userId) => `${API_CONFIG.BASE_URL}/Inquiry/${userId}`,
   ANSWER_INQUIRY: `${API_CONFIG.BASE_URL}/Inquiry/answer`,
+  CHAT_LOG_HISTORY: (senderId, receiverId) => `${API_CONFIG.BASE_URL}/Inquiry/chatLog?senderId=${senderId}&receiverId=${receiverId}`
 };
 
 export const INQUIRY_API_CONFIG = {

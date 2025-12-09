@@ -1629,6 +1629,16 @@ const resources = {
       confirmation: "Xác nhận",
       termandpolicy: "Tôi đồng ý với các điều khoản và điều kiện cũng như chính sách bảo mật của chúng tôi.",
       cash: "Tiền mặt",
+
+      //InboxPage
+      messageDetails:"Thông báo",
+      messageInformation:"Thông tin người gửi",
+      dateInbox:"Ngày gửi",
+      fromInbox:"Gửi từ",
+      noConversationHistory:"Không có lịch sử chat",
+      conversationHistory:"Lịch sử chat",
+      // :"",
+      // :"",
     }
   }
 };

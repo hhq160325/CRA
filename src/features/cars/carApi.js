@@ -76,7 +76,7 @@ export const registerCar = async (carData) => {
         // Add all car information fields - ensure no empty strings for required fields
         if (carData.licensePlate) formData.append('LicensePlate', carData.licensePlate);
         if (carData.model) formData.append('Model', carData.model);
-        if (carData.brand) formData.append('Manufacturer', carData.brand);
+        if (carData.manufacturer) formData.append('Manufacturer', carData.manufacturer);
         if (carData.numberOfSeats) formData.append('Seats', parseInt(carData.numberOfSeats));
         if (carData.yearOfManufacture) formData.append('YearofManufacture', parseInt(carData.yearOfManufacture));
         if (carData.transmission) formData.append('Transmission', carData.transmission);
@@ -213,6 +213,50 @@ export const getDistanceBetweenAddresses = async (sourceAddress, destinationAddr
         return response.data;
     } catch (error) {
         console.error('Error calculating distance:', error);
+        throw error;
+    }
+};
+
+export const getAllManufacturers = async () => {
+    try {
+        const response = await axios.get(CAR_ENDPOINTS.GET_ALL_MANUFACTURER, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching manufacturers:', error);
+        throw error;
+    }
+};
+
+export const getModelsByManufacturerId = async (manufacturerId) => {
+    try {
+        const response = await axios.get(CAR_ENDPOINTS.GET_MODEL_BY_MANUFACTURERID(manufacturerId), {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+                
+        return response.data;
+        
+    } catch (error) {
+        console.error('Error fetching models:', error);
+        throw error;
+    }
+};
+
+// Fetch manufacturers and models in parallel for a specific manufacturer
+export const getManufacturersAndModels = async (manufacturerId) => {
+    try {
+        const [manufacturers, models] = await Promise.all([
+            getAllManufacturers(),
+            getModelsByManufacturerId(manufacturerId)
+        ]);
+        return { manufacturers, models };
+    } catch (error) {
+        console.error('Error fetching manufacturers and models:', error);
         throw error;
     }
 };

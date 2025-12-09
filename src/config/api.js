@@ -2,7 +2,7 @@
 //https://localhost:7269/api
 export const API_CONFIG = {
   BASE_URL: process.env.REACT_APP_API_URL || "https://localhost:7184/api",
-  ALTER_URL:process.env.REACT_APP_API_ALTER_URL || "https://localhost:7184", //For PayOSAllPayments
+  ALTER_URL: process.env.REACT_APP_API_ALTER_URL || "https://localhost:7184", //For PayOSAllPayments
   TIMEOUT: 10000,
   HEADERS: {
     "Content-Type": "application/json",
@@ -74,6 +74,8 @@ export const CAR_ENDPOINTS = {
   GET_CAR_BY_ID: (carId) => `${API_CONFIG.BASE_URL}/Car/${carId}`,
   GET_ALL_REG_DOCS: `${API_CONFIG.BASE_URL}/Car/regDoc/all`,
   APPROVE_REG_DOC: `${API_CONFIG.BASE_URL}/Car/regDoc/approve`,
+  GET_ALL_MANUFACTURER: `${API_CONFIG.BASE_URL}/Car/lookup/Manufacturer`,
+  GET_MODEL_BY_MANUFACTURERID: (manufacturerId) => `${API_CONFIG.BASE_URL}/Car/lookup/Model?manufacturerId=${manufacturerId}`,
 };
 
 export const CAR_API_CONFIG = {
@@ -101,8 +103,8 @@ export const BOOKING_API_CONFIG = {
 // Schedule endpoints
 export const SCHEDULE_ENDPOINTS = {
   GET_USER_SCHEDULES: (userId) => `${API_CONFIG.BASE_URL}/Schedule/user/${userId}`,
-  GET_CAR_SCHEDULES: (carId) =>`${API_CONFIG.BASE_URL}/Schedule/car/${carId}`,
-  CREATE_CAR_SCHEDULES:`${API_CONFIG.BASE_URL}/Schedule/maintenance`
+  GET_CAR_SCHEDULES: (carId) => `${API_CONFIG.BASE_URL}/Schedule/car/${carId}`,
+  CREATE_CAR_SCHEDULES: `${API_CONFIG.BASE_URL}/Schedule/maintenance`
 };
 
 export const SCHEDULE_API_CONFIG = {
@@ -153,6 +155,21 @@ export const FEEDBACK_ENDPOINTS = {
 };
 
 export const FEEDBACK_API_CONFIG = {
+  timeout: API_CONFIG.TIMEOUT,
+  headers: {
+    'Content-Type': 'multipart/form-data',
+  },
+
+
+};
+// Inquiry endpoints
+export const INQUIRY_ENDPOINTS = {
+  CREATE_INQUIRY: `${API_CONFIG.BASE_URL}/Inquiry/initial`,
+  GET_INQUIRY: (userId) => `${API_CONFIG.BASE_URL}/Inquiry/${userId}`,
+  ANSWER_INQUIRY: `${API_CONFIG.BASE_URL}/Inquiry/answer`,
+};
+
+export const INQUIRY_API_CONFIG = {
   timeout: API_CONFIG.TIMEOUT,
   headers: {
     'Content-Type': 'multipart/form-data',

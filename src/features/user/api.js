@@ -17,7 +17,7 @@ export const getUserIdFromToken = () => {
   return decoded.sub || decoded.userId || decoded.id || decoded.nameid;
 };
 
-// Fetch user by ID
+// Fetch user by ID (current logged-in user)
 export const getUserById = async () => {
   try {
     const userId = getUserIdFromToken();
@@ -30,6 +30,22 @@ export const getUserById = async () => {
     return response.data;
   } catch (error) {
     console.error("Error fetching user data:", error);
+    throw error;
+  }
+};
+
+// Fetch any user by their specific ID
+export const getUserBySpecificId = async (userId) => {
+  try {
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    const { USER_ENDPOINTS } = await import("../../config/api");
+    const response = await axiosInstance.get(USER_ENDPOINTS.GET_USER_BY_ID(userId));
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching user data for userId ${userId}:`, error);
     throw error;
   }
 };

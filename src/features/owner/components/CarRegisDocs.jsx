@@ -280,10 +280,10 @@ const CarRegisDocs = () => {
                           <p className="text-xs text-gray-500 mb-1">{t('carRegisDocs.yearOfManufacture')}</p>
                           <p className="text-sm font-medium text-gray-900">{car.yearofManufacture}</p>
                         </div>
-                        <div>
+                        {/* <div>
                           <p className="text-xs text-gray-500 mb-1">{t('carRegisDocs.fuelConsumption')}</p>
                           <p className="text-sm font-medium text-gray-900">{car.fuelConsumption} {t('carRegisDocs.fuelConsumptionUnit')}</p>
-                        </div>
+                        </div> */}
                         <div>
                           <p className="text-xs text-gray-500 mb-1">{t('carRegisDocs.transmission')}</p>
                           <p className="text-sm font-medium text-gray-900">{car.transmission}</p>

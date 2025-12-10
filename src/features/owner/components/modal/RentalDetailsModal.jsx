@@ -1,6 +1,6 @@
 import { exportReceiptToPDF, printReceipt } from '../../owner-utils/ExportReceiptToPDF';
 
-const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymentBadge }) => {
+const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymentBadge, onExtendBooking }) => {
   if (!isOpen || !rental) return null;
 
   return (
@@ -98,6 +98,16 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
                 <p className="text-gray-600">Thời lượng</p>
                 <p className="font-medium text-gray-900">{rental.duration} ngày</p>
               </div>
+              <div>
+                {(rental.status === 'confirmed' || rental.status === 'checkedIn') && onExtendBooking && (
+                  <button
+                    onClick={() => onExtendBooking(rental)}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                  >
+                    Gia hạn thời gian thuê
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -113,12 +123,12 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
                     {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.totalPaidAmount)}
                   </p>
                 </div>
-                <div>
+                {/* <div>
                   <p className="text-xs text-gray-600 mb-1">Tổng hóa đơn</p>
                   <p className="text-lg font-bold text-gray-900">
                     {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.totalAmount)}
                   </p>
-                </div>
+                </div> */}
                 <div>
                   <p className="text-xs text-gray-600 mb-1">Còn lại</p>
                   <p className="text-lg font-bold text-orange-600">
@@ -128,7 +138,7 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
               </div>
 
               {/* Payment Details */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className={`grid gap-4 ${rental.hasAdditionalFee ? 'grid-cols-3' : 'grid-cols-2'}`}>
                 {/* Booking Fee */}
                 <div className="bg-white rounded-lg p-4 border border-green-200">
                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
@@ -184,6 +194,36 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
                     </div>
                   </div>
                 </div>
+
+                {/* Additional Fee */}
+                {rental.hasAdditionalFee && (
+                  <div className="bg-white rounded-lg p-4 border border-green-200">
+                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
+                      <svg className="w-4 h-4 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Phí bổ sung
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Số tiền:</span>
+                        <span className="font-semibold text-gray-900">
+                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.additionalFeePaid)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Trạng thái:</span>
+                        <span className={getPaymentBadge(rental.additionalFeeStatus)}>
+                          {rental.additionalFeeStatus}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Phương thức:</span>
+                        <span className="font-medium text-gray-900">{rental.additionalFeePaymentMethod}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Daily Rate */}

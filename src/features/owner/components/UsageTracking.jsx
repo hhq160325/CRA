@@ -42,7 +42,7 @@ const UsageTracking = () => {
         const currentOwnerId = tokenUtils.getUserId();
 
         if (!currentOwnerId) {
-          setError('Unable to identify current user. Please log in again.');
+          setError('Không thể xác định người dùng hiện tại. Vui lòng đăng nhập lại.');
           setLoading(false);
           return;
         }
@@ -75,16 +75,16 @@ const UsageTracking = () => {
               .sort((a, b) => new Date(b.pickupTime) - new Date(a.pickupTime));
             const lastRentalDate = sortedBookings.length > 0
               ? new Date(sortedBookings[0].pickupTime).toLocaleDateString()
-              : 'N/A';
+              : 'Không có';
 
             return {
               id: car.id,
               carId: car.id,
               carName: `${car.manufacturer || ''} ${car.model || ''}`.trim(),
-              brand: car.manufacturer || 'Unknown',
-              model: car.model || 'Unknown',
-              carModel: car.yearofManufacture?.toString() || 'N/A',
-              licensePlate: car.licensePlate || 'N/A',
+              brand: car.manufacturer || 'Không rõ',
+              model: car.model || 'Không rõ',
+              carModel: car.yearofManufacture?.toString() || 'Không có',
+              licensePlate: car.licensePlate || 'Không có',
               totalRentals,
               totalDaysRented,
               lastRentalDate,
@@ -101,7 +101,7 @@ const UsageTracking = () => {
         setError(null);
       } catch (err) {
         console.error('Error fetching cars:', err);
-        setError('Failed to load car data');
+        setError('Không thể tải dữ liệu xe');
       } finally {
         setLoading(false);
       }
@@ -119,21 +119,21 @@ const UsageTracking = () => {
 
     switch (normalizedStatus) {
       case 'active':
-        return { className: `${baseClasses} bg-green-100 text-green-800`, label: 'Available' };
+        return { className: `${baseClasses} bg-green-100 text-green-800`, label: 'Có sẵn' };
       case 'reserved':
-        return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: 'Reserved' };
+        return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: 'Đã đặt' };
       case 'pending':
-        return { className: `${baseClasses} bg-green-100 text-green-800`, label: 'Available' };
+        return { className: `${baseClasses} bg-green-100 text-green-800`, label: 'Có sẵn' };
       // case 'active':
       //   return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: 'Active' };
       case 'inactive':
-        return { className: `${baseClasses} bg-yellow-100 text-yellow-800`, label: 'Maintenance' };
+        return { className: `${baseClasses} bg-yellow-100 text-yellow-800`, label: 'Bảo dưỡng' };
       // case 'inactive':
       //   return { className: `${baseClasses} bg-red-100 text-red-800`, label: 'Inactive' };
       case 'unavailable':
-        return { className: `${baseClasses} bg-red-100 text-red-800`, label: 'Unavailable' };
+        return { className: `${baseClasses} bg-red-100 text-red-800`, label: 'Không khả dụng' };
       default:
-        return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: 'unknown' };
+        return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: 'không rõ' };
     }
   };
 
@@ -191,17 +191,17 @@ const UsageTracking = () => {
 
   // Prepare dropdown options
   const brandOptions = [
-    { id: 'all', value: 'all', label: 'All Brands' },
+    { id: 'all', value: 'all', label: 'Tất cả thương hiệu' },
     ...uniqueBrands.map(brand => ({ id: brand, value: brand, label: brand }))
   ];
 
   const modelOptions = [
-    { id: 'all', value: 'all', label: brandFilter === 'all' ? 'Select Brand First' : 'All Models' },
+    { id: 'all', value: 'all', label: brandFilter === 'all' ? 'Chọn thương hiệu trước' : 'Tất cả mẫu xe' },
     ...availableModels.map(model => ({ id: model, value: model, label: model }))
   ];
 
   const statusOptions = [
-    { id: 'all', value: 'all', label: 'All Status' },
+    { id: 'all', value: 'all', label: 'Tất cả trạng thái' },
     ...uniqueStatuses.map(status => {
       const badge = getStatusBadge(status);
       return {
@@ -228,7 +228,7 @@ const UsageTracking = () => {
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-full">
-        <div className="text-gray-500">Loading car data...</div>
+        <div className="text-gray-500">Đang tải dữ liệu xe...</div>
       </div>
     );
   }
@@ -262,7 +262,7 @@ const UsageTracking = () => {
                 </svg>
                 <input
                   type="text"
-                  placeholder="Search by car name, license plate, or ID"
+                  placeholder="Tìm kiếm theo tên xe, biển số hoặc ID"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
@@ -274,9 +274,9 @@ const UsageTracking = () => {
                   value={brandFilter}
                   onChange={(option) => setBrandFilter(option.value)}
                   options={brandOptions}
-                  placeholder="All Brands"
+                  placeholder="Tất cả thương hiệu"
                   searchable={true}
-                  searchPlaceholder="Search brands..."
+                  searchPlaceholder="Tìm thương hiệu..."
                 />
               </div>
 
@@ -285,9 +285,9 @@ const UsageTracking = () => {
                   value={modelFilter}
                   onChange={(option) => setModelFilter(option.value)}
                   options={modelOptions}
-                  placeholder="All Models"
+                  placeholder="Tất cả mẫu xe"
                   searchable={true}
-                  searchPlaceholder="Search models..."
+                  searchPlaceholder="Tìm mẫu xe..."
                   disabled={brandFilter === 'all'}
                 />
               </div>
@@ -297,14 +297,14 @@ const UsageTracking = () => {
                   value={statusFilter}
                   onChange={(option) => setStatusFilter(option.value)}
                   options={statusOptions}
-                  placeholder="All Status"
+                  placeholder="Tất cả trạng thái"
                   searchable={false}
                 />
               </div>
             </div>
 
             <div className="text-sm text-gray-600 whitespace-nowrap">
-              Showing {filteredUsage.length} of {usageData.length} cars
+              Hiển thị {filteredUsage.length} trong tổng số {usageData.length} xe
             </div>
           </div>
         </div>
@@ -315,22 +315,22 @@ const UsageTracking = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Car Information</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thông tin xe</th>
                   {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Total Mileage</th> */}
                   {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rental vs Personal</th> */}
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rentals</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Days Rented</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Lượt thuê</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Số ngày thuê</th>
                   {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Utilization</th> */}
                   {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Avg. Daily Mileage</th> */}
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Status</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Trạng thái</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {paginatedUsage.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="py-8 text-center text-gray-500">
-                      No cars found
+                      Không tìm thấy xe nào
                     </td>
                   </tr>
                 ) : (
@@ -340,7 +340,7 @@ const UsageTracking = () => {
                         <td className="py-4 px-6">
                           <div className="font-medium text-gray-900 text-sm">{car.carName}</div>
                           <div className="text-xs text-gray-500">{car.carModel} • {car.licensePlate}</div>
-                          <div className="text-xs text-gray-400">{car.seats} seats • {car.transmission} • {car.fuelType}</div>
+                          <div className="text-xs text-gray-400">{car.seats} chỗ • {car.transmission} • {car.fuelType}</div>
                         </td>
                         {/* <td className="py-4 px-6">
                         <div className="text-sm font-medium text-gray-900">{car.totalMileage.toLocaleString()} km</div>
@@ -363,11 +363,11 @@ const UsageTracking = () => {
                       </td> */}
                         <td className="py-4 px-6">
                           <div className="text-sm text-gray-900">{car.totalRentals}</div>
-                          <div className="text-xs text-gray-500">Total bookings</div>
+                          <div className="text-xs text-gray-500">Tổng đặt xe</div>
                         </td>
                         <td className="py-4 px-6">
                           <div className="text-sm text-gray-900">{car.totalDaysRented}</div>
-                          <div className="text-xs text-gray-500">days</div>
+                          <div className="text-xs text-gray-500">ngày</div>
                         </td>
                         {/* <td className="py-4 px-6">
                         <div className="flex items-center space-x-2">
@@ -397,7 +397,7 @@ const UsageTracking = () => {
                               onClick={() => openModal(car)}
                               className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                             >
-                              View Details
+                              Xem chi tiết
                             </button>
                             {(car.currentStatus === 'pending' || car.currentStatus === 'active') && (
                               <>
@@ -406,7 +406,7 @@ const UsageTracking = () => {
                                   onClick={() => openMaintenanceModal(car)}
                                   className="text-orange-600 hover:text-orange-700 text-sm font-medium"
                                 >
-                                  Schedule
+                                  Lên lịch
                                 </button>
                               </>
                             )}

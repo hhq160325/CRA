@@ -8,28 +8,39 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">Rental Details - {rental.bookingId}</h2>
+            <h2 className="text-xl font-bold text-gray-900">Chi tiết thuê xe - {rental.bookingId}</h2>
             <div className="flex items-center space-x-3">
-              <button
-                onClick={() => printReceipt(rental)}
-                className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                title="Print Receipt"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                </svg>
-                <span>Print</span>
-              </button>
-              <button
-                onClick={() => exportReceiptToPDF(rental)}
-                className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-                title="Export to PDF"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span>PDF</span>
-              </button>
+              {rental.status?.toLowerCase() !== 'cancelled' ? (
+                <>
+                  <button
+                    onClick={() => printReceipt(rental)}
+                    className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    title="In hóa đơn"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    <span>In</span>
+                  </button>
+                  <button
+                    onClick={() => exportReceiptToPDF(rental)}
+                    className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                    title="Xuất PDF"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>PDF</span>
+                  </button>
+                </>
+              ) : (
+                <div className="flex items-center space-x-2 text-gray-500">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
+                  </svg>
+                  <span className="text-sm">Hóa đơn không khả dụng cho đặt xe đã hủy</span>
+                </div>
+              )}
               <button
                 onClick={onClose}
                 className="text-gray-400 hover:text-gray-600"
@@ -45,27 +56,27 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
           {/* Car & Customer Info */}
           <div className="grid grid-cols-2 gap-6">
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-3">Car Information</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">Thông tin xe</h3>
               <div className="space-y-2 text-sm">
                 <div>
-                  <p className="text-gray-600">Car Name</p>
+                  <p className="text-gray-600">Tên xe</p>
                   <p className="font-medium text-gray-900">{rental.carName}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600">License Plate</p>
+                  <p className="text-gray-600">Biển số xe</p>
                   <p className="font-medium text-gray-900">{rental.licensePlate}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600">Car ID</p>
+                  <p className="text-gray-600">Mã xe</p>
                   <p className="font-medium text-gray-900">{rental.carId}</p>
                 </div>
               </div>
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-3">Customer Information</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">Thông tin khách hàng</h3>
               <div className="space-y-2 text-sm">
                 <div>
-                  <p className="text-gray-600">Name</p>
+                  <p className="text-gray-600">Tên</p>
                   <p className="font-medium text-gray-900">{rental.customer}</p>
                 </div>
                 <div>
@@ -73,7 +84,7 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
                   <p className="font-medium text-gray-900">{rental.customerEmail}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600">Phone</p>
+                  <p className="text-gray-600">Số điện thoại</p>
                   <p className="font-medium text-gray-900">{rental.customerPhone}</p>
                 </div>
               </div>
@@ -82,45 +93,45 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
 
           {/* Rental Period */}
           <div className="bg-blue-50 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Rental Period</h3>
+            <h3 className="font-semibold text-gray-900 mb-3">Thời gian thuê xe</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-gray-600">Start Date</p>
+                <p className="text-gray-600">Ngày bắt đầu</p>
                 <p className="font-medium text-gray-900">{rental.startDate}</p>
-                <p className="text-xs text-gray-500">Pickup: {rental.pickupDate}</p>
+                <p className="text-xs text-gray-500">Nhận xe: {rental.pickupDate}</p>
               </div>
               <div>
-                <p className="text-gray-600">End Date</p>
+                <p className="text-gray-600">Ngày kết thúc</p>
                 <p className="font-medium text-gray-900">{rental.endDate}</p>
-                <p className="text-xs text-gray-500">Return: {rental.returnDate}</p>
+                <p className="text-xs text-gray-500">Trả xe: {rental.returnDate}</p>
               </div>
               <div>
-                <p className="text-gray-600">Duration</p>
-                <p className="font-medium text-gray-900">{rental.duration} days</p>
+                <p className="text-gray-600">Thời lượng</p>
+                <p className="font-medium text-gray-900">{rental.duration} ngày</p>
               </div>
             </div>
           </div>
 
           {/* Financial Info */}
           <div className="bg-green-50 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Financial Information</h3>
+            <h3 className="font-semibold text-gray-900 mb-3">Thông tin tài chính</h3>
             <div className="space-y-4">
               {/* Summary */}
               <div className="grid grid-cols-3 gap-4 pb-4 border-b border-green-200">
                 <div>
-                  <p className="text-xs text-gray-600 mb-1">Total Paid</p>
+                  <p className="text-xs text-gray-600 mb-1">Tổng đã thanh toán</p>
                   <p className="text-lg font-bold text-green-600">
                     {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.totalPaidAmount)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-600 mb-1">Invoice Total</p>
+                  <p className="text-xs text-gray-600 mb-1">Tổng hóa đơn</p>
                   <p className="text-lg font-bold text-gray-900">
                     {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.totalAmount)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-600 mb-1">Remaining</p>
+                  <p className="text-xs text-gray-600 mb-1">Còn lại</p>
                   <p className="text-lg font-bold text-orange-600">
                     {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.remainingPayment)}
                   </p>
@@ -135,23 +146,23 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
                     <svg className="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
-                    Booking Fee
+                    Phí đặt cọc
                   </h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Amount:</span>
+                      <span className="text-gray-600">Số tiền:</span>
                       <span className="font-semibold text-gray-900">
                         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.bookingFeePaid)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Status:</span>
+                      <span className="text-gray-600">Trạng thái:</span>
                       <span className={getPaymentBadge(rental.bookingFeeStatus)}>
                         {rental.bookingFeeStatus}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Method:</span>
+                      <span className="text-gray-600">Phương thức:</span>
                       <span className="font-medium text-gray-900">{rental.bookingFeePaymentMethod}</span>
                     </div>
                   </div>
@@ -163,23 +174,23 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
                     <svg className="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Rental Fee
+                    Phí thuê xe
                   </h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Amount:</span>
+                      <span className="text-gray-600">Số tiền:</span>
                       <span className="font-semibold text-gray-900">
                         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.rentalFeePaid)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Status:</span>
+                      <span className="text-gray-600">Trạng thái:</span>
                       <span className={getPaymentBadge(rental.rentalFeeStatus)}>
                         {rental.rentalFeeStatus}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Method:</span>
+                      <span className="text-gray-600">Phương thức:</span>
                       <span className="font-medium text-gray-900">{rental.rentalFeePaymentMethod}</span>
                     </div>
                   </div>
@@ -190,9 +201,9 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
               {rental.dailyRate > 0 && (
                 <div className="pt-3 border-t border-green-200">
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">Daily Rate: {rental.carName}</span>
+                    <span className="text-gray-600">Giá thuê hàng ngày: {rental.carName}</span>
                     <span className="font-semibold text-gray-900">
-                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.dailyRate)}/day
+                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.dailyRate)}/ngày
                     </span>
                   </div>
                 </div>
@@ -202,21 +213,21 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
 
           {/* Booking Status */}
           <div className="bg-blue-50 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Booking Status</h3>
+            <h3 className="font-semibold text-gray-900 mb-3">Trạng thái đặt xe</h3>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <p className="text-gray-600 text-sm mb-2">Current Status</p>
+                <p className="text-gray-600 text-sm mb-2">Trạng thái hiện tại</p>
                 <span className={getStatusBadge(rental.status)}>
                   {rental.status?.toUpperCase() || 'N/A'}
                 </span>
               </div>
               <div>
-                <p className="text-gray-600 text-sm mb-2">Booking Created</p>
+                <p className="text-gray-600 text-sm mb-2">Ngày tạo đặt xe</p>
                 <p className="font-medium text-gray-900">{new Date(rental.pickupDate).toLocaleDateString()}</p>
               </div>
               {rental.notes && (
                 <div>
-                  <p className="text-gray-600 text-sm mb-1">Notes</p>
+                  <p className="text-gray-600 text-sm mb-1">Ghi chú</p>
                   <p className="text-sm text-gray-700 italic">{rental.notes}</p>
                 </div>
               )}
@@ -279,10 +290,10 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
 
           {/* Additional Information */}
           <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Additional Information</h3>
+            <h3 className="font-semibold text-gray-900 mb-3">Thông tin bổ sung</h3>
             <div className="text-sm">
               <div>
-                <p className="text-gray-600">Invoice ID</p>
+                <p className="text-gray-600">Mã hóa đơn</p>
                 <p className="font-medium text-gray-900">{rental.invoiceId}</p>
               </div>
             </div>

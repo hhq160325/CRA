@@ -78,7 +78,7 @@ const CarRegisDocs = () => {
       'Inactive': {
         bg: 'bg-green-100',
         text: 'text-green-800',
-        label: 'Approved'
+        label: 'Đã phê duyệt'
       },
       'Reserved': {
         bg: 'bg-green-100',
@@ -179,7 +179,7 @@ const CarRegisDocs = () => {
             : 'text-gray-600 hover:text-gray-900'
             }`}
         >
-          All Cars ({cars.length})
+          Tất cả xe ({cars.length})
         </button>
         <button
           onClick={() => setFilter('pending')}
@@ -188,7 +188,7 @@ const CarRegisDocs = () => {
             : 'text-gray-600 hover:text-gray-900'
             }`}
         >
-          Pending ({cars.filter(c => c.status === 'Pending').length})
+          Chờ duyệt ({cars.filter(c => c.status === 'Pending').length})
         </button>
         <button
           onClick={() => setFilter('approved')}
@@ -197,7 +197,7 @@ const CarRegisDocs = () => {
             : 'text-gray-600 hover:text-gray-900'
             }`}
         >
-          Approved ({cars.filter(c => c.status === 'Active' || c.status === 'Inactive').length})
+          Đã duyệt ({cars.filter(c => c.status === 'Active' || c.status === 'Inactive').length})
         </button>
       </div>
 
@@ -207,11 +207,11 @@ const CarRegisDocs = () => {
           <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No cars found</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy xe nào</h3>
           <p className="text-gray-600">
             {filter === 'all'
-              ? 'You haven\'t registered any cars yet.'
-              : `No ${filter} cars found.`}
+              ? 'Bạn chưa đăng ký xe nào.'
+              : `Không tìm thấy xe ${filter === 'pending' ? 'chờ duyệt' : 'đã duyệt'} nào.`}
           </p>
         </div>
       ) : (
@@ -254,7 +254,7 @@ const CarRegisDocs = () => {
                                 <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span className="text-xs font-medium text-green-800">Upload Successful!</span>
+                                <span className="text-xs font-medium text-green-800">Tải lên thành công!</span>
                               </div>
                             )}
                           </>
@@ -265,32 +265,32 @@ const CarRegisDocs = () => {
                     <div className="flex gap-4 mt-4">
                       <div className="grid grid-cols-3 md:grid-cols-7 gap-4 flex-1">
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">License Plate</p>
+                          <p className="text-xs text-gray-500 mb-1">Biển số xe</p>
                           <p className="text-sm font-medium text-gray-900">{car.licensePlate}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Seats</p>
+                          <p className="text-xs text-gray-500 mb-1">Số ghế</p>
                           <p className="text-sm font-medium text-gray-900">{car.seats}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Year</p>
+                          <p className="text-xs text-gray-500 mb-1">Năm sản xuất</p>
                           <p className="text-sm font-medium text-gray-900">{car.yearofManufacture}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Fuel Consumption</p>
+                          <p className="text-xs text-gray-500 mb-1">Mức tiêu thụ nhiên liệu</p>
                           <p className="text-sm font-medium text-gray-900">{car.fuelConsumption} L/100km</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Transmission</p>
+                          <p className="text-xs text-gray-500 mb-1">Hộp số</p>
                           <p className="text-sm font-medium text-gray-900">{car.transmission}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Fuel Type</p>
+                          <p className="text-xs text-gray-500 mb-1">Loại nhiên liệu</p>
                           <p className="text-sm font-medium text-gray-900">{car.fuelType}</p>
                         </div>
                         {car.preferredLot && (
                           <div>
-                            <p className="text-xs text-gray-500 mb-1">Preferred Lot</p>
+                            <p className="text-xs text-gray-500 mb-1">Bãi xe ưu tiên</p>
                             <p className="text-sm font-medium text-gray-900">{car.preferredLot.name}</p>
                             <p className="text-xs text-gray-500">{car.preferredLot.address}</p>
                           </div>
@@ -311,7 +311,7 @@ const CarRegisDocs = () => {
                             onClick={() => triggerFileInput(car.id)}
                             disabled={uploadingCarId === car.id}
                             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium transition-colors"
-                            title="Upload registration documents"
+                            title="Tải lên giấy tờ đăng ký"
                           >
                             {uploadingCarId === car.id ? (
                               <>
@@ -319,14 +319,14 @@ const CarRegisDocs = () => {
                                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
-                                Uploading...
+                                Đang tải lên...
                               </>
                             ) : (
                               <>
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                 </svg>
-                                Upload Documents
+                                Tải lên tài liệu
                               </>
                             )}
                           </button>
@@ -353,7 +353,7 @@ const CarRegisDocs = () => {
                     : 'bg-white text-gray-700 hover:bg-gray-50'
                     }`}
                 >
-                  Previous
+                  Trước
                 </button>
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
@@ -363,15 +363,15 @@ const CarRegisDocs = () => {
                     : 'bg-white text-gray-700 hover:bg-gray-50'
                     }`}
                 >
-                  Next
+                  Tiếp
                 </button>
               </div>
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-gray-700">
-                    Showing <span className="font-medium">{indexOfFirstCar + 1}</span> to{' '}
-                    <span className="font-medium">{Math.min(indexOfLastCar, filteredCars.length)}</span> of{' '}
-                    <span className="font-medium">{filteredCars.length}</span> results
+                    Hiển thị <span className="font-medium">{indexOfFirstCar + 1}</span> đến{' '}
+                    <span className="font-medium">{Math.min(indexOfLastCar, filteredCars.length)}</span> trong tổng số{' '}
+                    <span className="font-medium">{filteredCars.length}</span> kết quả
                   </p>
                 </div>
                 <div>
@@ -384,7 +384,7 @@ const CarRegisDocs = () => {
                         : 'bg-white text-gray-500 hover:bg-gray-50'
                         }`}
                     >
-                      <span className="sr-only">Previous</span>
+                      <span className="sr-only">Trước</span>
                       <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
@@ -434,7 +434,7 @@ const CarRegisDocs = () => {
                         : 'bg-white text-gray-500 hover:bg-gray-50'
                         }`}
                     >
-                      <span className="sr-only">Next</span>
+                      <span className="sr-only">Tiếp</span>
                       <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                       </svg>

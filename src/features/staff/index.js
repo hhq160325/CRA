@@ -8,4 +8,5 @@ export { default as NotificationCenter } from './components/NotificationCenter';
 export { default as ParklotCreate } from './components/ParklotCreate';
 export { default as RegDocsApproved } from './components/RegDocsApproved';
 export { default as DriverLicenseApprove } from './components/DriverLicenseApprove';
+export { default as CustomerAccountOverview } from './components/StaffDashBoardSubsComponent/CustomerAccountOverview';
 export { staffSlice } from './staffSlice';

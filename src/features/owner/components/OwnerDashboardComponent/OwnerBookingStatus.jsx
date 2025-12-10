@@ -57,33 +57,14 @@ const OwnerBookingStatus = ({ bookingStatusChartData }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6">
+    <div className="bg-white rounded-xl shadow-sm p-6 lg:col-span-1">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Booking Status</h2>
       {bookingStatusChartData.length > 0 ? (
-        <>
-          <ResponsiveContainer width="100%" height={280}>
-            <PieChart>
-              <Pie
-                activeIndex={activeIndex}
-                activeShape={renderActiveShape}
-                data={bookingStatusChartData}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-                onMouseEnter={onPieEnter}
-              >
-                {bookingStatusChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="space-y-2 mt-4">
+        <div className="flex items-center">
+          {/* Legend on the left */}
+          <div className="space-y-2 mr-4 flex-shrink-0">
             {bookingStatusChartData.map((item, index) => (
-              <div key={index} className="flex items-center justify-between">
+              <div key={index} className="flex items-center justify-between min-w-[120px]">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
                   <span className="text-sm text-gray-600">{item.name}</span>
@@ -92,9 +73,33 @@ const OwnerBookingStatus = ({ bookingStatusChartData }) => {
               </div>
             ))}
           </div>
-        </>
+          
+          {/* Chart on the right */}
+          <div className="flex-1">
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  activeIndex={activeIndex}
+                  activeShape={renderActiveShape}
+                  data={bookingStatusChartData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  onMouseEnter={onPieEnter}
+                >
+                  {bookingStatusChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       ) : (
-        <div className="flex items-center justify-center h-64 text-gray-400">
+        <div className="flex items-center justify-center h-48 text-gray-400">
           <p>No booking data available</p>
         </div>
       )}

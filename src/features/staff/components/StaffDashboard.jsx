@@ -1,13 +1,15 @@
 
-import DashboardMetrics from './DashboardMetrics';
-import RecentActivities from './RecentActivities';
-import PendingVerifications from './PendingVerifications';
+import DashboardMetrics from './StaffDashBoardSubsComponent/DashboardMetrics';
+import RecentActivities from './StaffDashBoardSubsComponent/RecentActivities';
+import PendingVerifications from './StaffDashBoardSubsComponent/PendingVerifications';
+import CustomerAccountOverview from './StaffDashBoardSubsComponent/CustomerAccountOverview';
 
 const StaffDashboard = () => {
   return (
     <div className="p-8 space-y-8 min-h-full bg-gray-50">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Dashboard Metrics - Takes 2 columns */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        {/* Dashboard Metrics - Takes 1 column */}
         <div className="lg:col-span-2">
           <DashboardMetrics />
         </div>
@@ -16,11 +18,12 @@ const StaffDashboard = () => {
         <div className="lg:col-span-1">
           <PendingVerifications />
         </div>
-      </div>
 
-      {/* Recent Activities - Full width */}
-      <div className="w-full">
-        <RecentActivities />
+        {/* Customer Account Overview - Takes 1 column */}
+        <div className="lg:col-span-1">
+          <CustomerAccountOverview />
+        </div>
+
       </div>
     </div>
   );

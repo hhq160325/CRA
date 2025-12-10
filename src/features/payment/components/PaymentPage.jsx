@@ -270,9 +270,9 @@ const PaymentPage = () => {
             // If delivery option is selected (carParkLot exists)
             if (carParkLotData) {
                 try {
-                    const carParkLot = JSON.parse(carParkLotData);
-                    pickupPlace = carParkLot.fullAddress || carParkLot.address || rentalLocation;
-                    dropoffPlace = rentalLocation; // Delivery location as dropoff place
+                    // For delivery option: both pickup and dropoff are at customer's delivery location
+                    pickupPlace = rentalLocation; // Customer's delivery location
+                    dropoffPlace = rentalLocation; // Customer's delivery location
                 } catch (e) {
                     console.error('Failed to parse carParkLot from localStorage:', e);
                 }

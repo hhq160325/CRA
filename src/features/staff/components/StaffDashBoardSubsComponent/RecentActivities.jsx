@@ -1,8 +1,9 @@
 
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
-import { axiosInstance } from '../../../shared/utils/axiosInstance';
-import { BOOKING_ENDPOINTS, USER_ENDPOINTS } from '../../../config/api';
+import { axiosInstance } from '../../../../shared/utils/axiosInstance';
+import { BOOKING_ENDPOINTS, USER_ENDPOINTS } from '../../../../config/api';
+import { getAllRegDocs, getAllUsers, getAllCars } from '../../api/carRegDocsApi';
 
 const RecentActivities = () => {
   const { t } = useTranslation();
@@ -36,6 +37,16 @@ const RecentActivities = () => {
       return statusMap[statusLower] || 'confirmed';
     };
 
+    const mapRegDocStatus = (status) => {
+      const statusLower = status?.toLowerCase() || 'pending';
+      const statusMap = {
+        'pending': 'pending',
+        'approved': 'approved',
+        'rejected': 'rejected'
+      };
+      return statusMap[statusLower] || 'pending';
+    };
+
     const getRelativeTime = (dateString) => {
       if (!dateString) return t('justNow');
       
@@ -56,20 +67,50 @@ const RecentActivities = () => {
       try {
         setLoading(true);
         
-        // Fetch all bookings and users
-        const [bookingsResponse, usersResponse] = await Promise.all([
+        // Fetch all data in parallel
+        const [bookingsResponse, regDocsData, usersData, carsData] = await Promise.all([
           axiosInstance.get(BOOKING_ENDPOINTS.GET_ALL_BOOKINGS),
-          axiosInstance.get(USER_ENDPOINTS.GET_ALL_USERS)
+          getAllRegDocs(),
+          getAllUsers(),
+          getAllCars()
         ]);
 
         const bookings = bookingsResponse.data || [];
-        const users = usersResponse.data || [];
+        
+        // Handle reg docs response structure with view and urls
+        const regDocsViewData = regDocsData?.view || [];
+        
+        // Create lookup maps for users and cars
+        const usersMap = new Map();
+        const carsMap = new Map();
+        
+        // Populate users map (id -> user object)
+        if (Array.isArray(usersData)) {
+          usersData.forEach(user => {
+            if (user.id) {
+              usersMap.set(user.id, user);
+            }
+          });
+        }
+        
+        // Populate cars map (id -> car object)
+        if (Array.isArray(carsData)) {
+          carsData.forEach(car => {
+            if (car.id) {
+              carsMap.set(car.id, car);
+            }
+          });
+        }
 
         // Helper function to get user display name
         const getUserDisplayName = (user) => {
           if (!user) return 'Unknown User';
           
-          // Try full name first
+          // Try fullName or fullname first
+          if (user.fullName) return user.fullName;
+          if (user.fullname) return user.fullname;
+          
+          // Try first and last name
           const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
           if (fullName) return fullName;
           
@@ -87,9 +128,9 @@ const RecentActivities = () => {
           .sort((a, b) => new Date(b.createdAt || b.bookingDate) - new Date(a.createdAt || a.bookingDate))
           .slice(0, 3);
 
-        // Sort users by registration date (newest first) and take the latest 2
-        const sortedUsers = users
-          .sort((a, b) => new Date(b.createdAt || b.registrationDate) - new Date(a.createdAt || a.registrationDate))
+        // Sort registration documents by date (newest first) and take the latest 2
+        const sortedRegDocs = regDocsViewData
+          .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
           .slice(0, 2);
 
         // Combine activities
@@ -108,16 +149,19 @@ const RecentActivities = () => {
           });
         });
 
-        // Add user activities
-        sortedUsers.forEach((user, index) => {
+        // Add registration document activities
+        sortedRegDocs.forEach((regDoc, index) => {
+          const user = usersMap.get(regDoc.userId);
+          const car = carsMap.get(regDoc.carId);
+          
           activities.push({
-            id: `user-${user.id || index}`,
-            type: 'customer',
+            id: `regdoc-${regDoc.carId || index}`,
+            type: 'verification',
             user: getUserDisplayName(user),
-            action: t('customerAccountUpdated'),
-            car: null,
-            timestamp: getRelativeTime(user.createdAt || user.registrationDate),
-            status: 'updated'
+            action: t('documentSubmitted'),
+            car: car ? `${car.manufacturer || ''} ${car.model || ''}`.trim() : 'Unknown Car',
+            timestamp: getRelativeTime(regDoc.createDate),
+            status: mapRegDocStatus(regDoc.status)
           });
         });
 
@@ -203,6 +247,10 @@ const RecentActivities = () => {
         return `${baseClasses} bg-gray-100 text-gray-800`;
       case 'updated':
         return `${baseClasses} bg-yellow-100 text-yellow-800`;
+      case 'pending':
+        return `${baseClasses} bg-yellow-100 text-yellow-800`;
+      case 'rejected':
+        return `${baseClasses} bg-red-100 text-red-800`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800`;
     }

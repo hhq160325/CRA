@@ -6,6 +6,8 @@ import { CarOwnerModal } from './modals/carOwnerModal';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
 import { USER_ENDPOINTS, CAR_ENDPOINTS } from '../../../config/api';
 import { ROLES } from '../../auth/utils';
+import { formatPriceWithCurrency } from '../../../shared/utils/priceFormatter';
+import Pagination from '../../../shared/components/Pagination';
 
 const CarOwnerManagement = () => {
   const { t } = useTranslation();
@@ -18,6 +20,8 @@ const CarOwnerManagement = () => {
   const [carOwners, setCarOwners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Fetch all users and filter out customers, admins, and staff
   useEffect(() => {
@@ -157,6 +161,17 @@ const CarOwnerManagement = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredOwners.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = filteredOwners.slice(startIndex, endIndex);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (loading) {
     return (
       <div className="p-8 space-y-6 space-y-reverse-0 min-h-full bg-gray-50">
@@ -247,7 +262,7 @@ const CarOwnerManagement = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredOwners.map((owner) => (
+              {currentItems.map((owner) => (
                 <tr key={owner.id} className="hover:bg-gray-50">
                   <td className="py-4 px-6">
                     <div>
@@ -267,7 +282,7 @@ const CarOwnerManagement = () => {
                     </span>
                   </td> */}
                   <td className="py-4 px-6 text-gray-600 text-sm">{owner.carsListed}</td>
-                  <td className="py-4 px-6 text-gray-600 text-sm">${(owner.totalEarnings || 0).toLocaleString()}</td>
+                  <td className="py-4 px-6 text-gray-600 text-sm">{formatPriceWithCurrency(owner.totalEarnings || 0)}</td>
                   {/* <td className="py-4 px-6 text-gray-600 text-sm">{owner.lastActive}</td> */}
                   <td className="py-4 px-6">
                     <div className="flex items-center space-x-2">
@@ -308,17 +323,14 @@ const CarOwnerManagement = () => {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-center py-4 border-t border-gray-200">
-          <div className="flex items-center space-x-2">
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('previous')}</button>
-            <div className="flex space-x-1">
-              <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
-              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
-              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
-            </div>
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('next')}</button>
-          </div>
-        </div>
+        {filteredOwners.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredOwners.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+          />
+        )}
       </div>
 
       {/* Modal */}

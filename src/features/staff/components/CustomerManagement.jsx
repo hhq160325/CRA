@@ -6,6 +6,7 @@ import { updateCustomerAccount } from '../staffSlice';
 import { CustomerModal } from './modals/customerModal';
 import { USER_ENDPOINTS, USER_API_CONFIG } from '../../../config/api';
 import { tokenUtils } from '../../auth/utils';
+import Pagination from '../../../shared/components/Pagination';
 
 const CustomerManagement = () => {
   const { t } = useTranslation();
@@ -19,6 +20,8 @@ const CustomerManagement = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Fetch customers from API
   useEffect(() => {
@@ -185,6 +188,17 @@ const CustomerManagement = () => {
     const matchesStatus = statusFilter === 'all' || customer.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = filteredCustomers.slice(startIndex, endIndex);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Loading state
   if (loading) {
@@ -363,7 +377,7 @@ const CustomerManagement = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredCustomers.map((customer) => {
+              {currentItems.map((customer) => {
                 return (
                   <tr key={customer.id} className="hover:bg-gray-50">
                     <td className="py-4 px-6">
@@ -439,17 +453,12 @@ const CustomerManagement = () => {
 
         {/* Pagination */}
         {filteredCustomers.length > 0 && (
-        <div className="flex items-center justify-center py-4 border-t border-gray-200">
-          <div className="flex items-center space-x-2">
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Previous</button>
-            <div className="flex space-x-1">
-              <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
-              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
-              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
-            </div>
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Next</button>
-          </div>
-        </div>
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredCustomers.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+          />
         )}
       </div>
 

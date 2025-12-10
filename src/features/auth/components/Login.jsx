@@ -115,8 +115,19 @@ const Login = ({ onSwitchToRegister }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Login button clicked:', {
+      email: formData.email,
+      hasPassword: !!formData.password,
+      timestamp: new Date().toISOString()
+    });
+    
     try {
       const result = await dispatch(loginUser(formData)).unwrap();
+      console.log('Login successful:', {
+        hasAccessToken: !!result.accessToken,
+        timestamp: new Date().toISOString()
+      });
+      
       setFormData({ email: '', password: '' });
       
       // Get role from token and redirect accordingly
@@ -124,8 +135,10 @@ const Login = ({ onSwitchToRegister }) => {
       const roleId = getRoleFromToken(token);
       const redirectPath = getRedirectPathByRole(roleId);
       
+      console.log('Redirecting to:', redirectPath);
       navigate(redirectPath);
     } catch (error) {
+      console.error('Login failed:', error);
       // Error is handled by Redux
     }
   };

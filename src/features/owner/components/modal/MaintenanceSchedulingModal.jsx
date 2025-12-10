@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createCarSchedule } from '../../ownerApi';
 
 const MaintenanceSchedulingModal = ({ isOpen, onClose, selectedCar }) => {
+  const { t } = useTranslation();
   const [maintenanceForm, setMaintenanceForm] = useState({
     title: '',
     location: '',
@@ -28,12 +30,12 @@ const MaintenanceSchedulingModal = ({ isOpen, onClose, selectedCar }) => {
 
     // Validation
     if (!maintenanceForm.title || !maintenanceForm.location || !maintenanceForm.startDate || !maintenanceForm.endDate) {
-      setMaintenanceError('Please fill in all required fields');
+      setMaintenanceError(t('maintenanceModal.fillRequiredFields'));
       return;
     }
 
     if (new Date(maintenanceForm.startDate) >= new Date(maintenanceForm.endDate)) {
-      setMaintenanceError('End date must be after start date');
+      setMaintenanceError(t('maintenanceModal.endDateAfterStart'));
       return;
     }
 
@@ -59,7 +61,7 @@ const MaintenanceSchedulingModal = ({ isOpen, onClose, selectedCar }) => {
 
     } catch (err) {
       console.error('Error scheduling maintenance:', err);
-      setMaintenanceError(err.response?.data?.message || 'Failed to schedule maintenance. Please try again.');
+      setMaintenanceError(err.response?.data?.message || t('maintenanceModal.schedulingError'));
     } finally {
       setMaintenanceLoading(false);
     }
@@ -85,7 +87,7 @@ const MaintenanceSchedulingModal = ({ isOpen, onClose, selectedCar }) => {
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">Schedule Maintenance</h2>
+            <h2 className="text-xl font-bold text-gray-900">{t('maintenanceModal.title')}</h2>
             <button
               onClick={handleClose}
               className="text-gray-400 hover:text-gray-600"
@@ -100,7 +102,7 @@ const MaintenanceSchedulingModal = ({ isOpen, onClose, selectedCar }) => {
         <form onSubmit={handleScheduleMaintenance} className="p-6 space-y-6">
           {/* Car Info */}
           <div className="bg-gray-50 rounded-lg p-4">
-            <p className="text-sm text-gray-600">Car</p>
+            <p className="text-sm text-gray-600">{t('maintenanceModal.car')}</p>
             <p className="font-medium text-gray-900 text-lg">{selectedCar.carName}</p>
             <p className="text-sm text-gray-500">{selectedCar.licensePlate}</p>
           </div>
@@ -112,7 +114,7 @@ const MaintenanceSchedulingModal = ({ isOpen, onClose, selectedCar }) => {
                 <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <p className="text-green-800 font-medium">Maintenance scheduled successfully!</p>
+                <p className="text-green-800 font-medium">{t('maintenanceModal.successMessage')}</p>
               </div>
             </div>
           )}
@@ -128,14 +130,14 @@ const MaintenanceSchedulingModal = ({ isOpen, onClose, selectedCar }) => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Title <span className="text-red-500">*</span>
+                {t('maintenanceModal.titleLabel')} <span className="text-red-500">{t('maintenanceModal.required')}</span>
               </label>
               <input
                 type="text"
                 name="title"
                 value={maintenanceForm.title}
                 onChange={handleMaintenanceFormChange}
-                placeholder="e.g., Oil Change, Tire Replacement"
+                placeholder={t('maintenanceModal.titlePlaceholder')}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 required
                 disabled={maintenanceLoading || maintenanceSuccess}
@@ -144,14 +146,14 @@ const MaintenanceSchedulingModal = ({ isOpen, onClose, selectedCar }) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Location <span className="text-red-500">*</span>
+                {t('maintenanceModal.locationLabel')} <span className="text-red-500">{t('maintenanceModal.required')}</span>
               </label>
               <input
                 type="text"
                 name="location"
                 value={maintenanceForm.location}
                 onChange={handleMaintenanceFormChange}
-                placeholder="e.g., ABC Auto Service Center"
+                placeholder={t('maintenanceModal.locationPlaceholder')}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 required
                 disabled={maintenanceLoading || maintenanceSuccess}
@@ -161,7 +163,7 @@ const MaintenanceSchedulingModal = ({ isOpen, onClose, selectedCar }) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Start Date <span className="text-red-500">*</span>
+                  {t('maintenanceModal.startDateLabel')} <span className="text-red-500">{t('maintenanceModal.required')}</span>
                 </label>
                 <input
                   type="datetime-local"
@@ -176,7 +178,7 @@ const MaintenanceSchedulingModal = ({ isOpen, onClose, selectedCar }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  End Date <span className="text-red-500">*</span>
+                  {t('maintenanceModal.endDateLabel')} <span className="text-red-500">{t('maintenanceModal.required')}</span>
                 </label>
                 <input
                   type="datetime-local"
@@ -192,13 +194,13 @@ const MaintenanceSchedulingModal = ({ isOpen, onClose, selectedCar }) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Note
+                {t('maintenanceModal.noteLabel')}
               </label>
               <textarea
                 name="note"
                 value={maintenanceForm.note}
                 onChange={handleMaintenanceFormChange}
-                placeholder="Additional notes or instructions..."
+                placeholder={t('maintenanceModal.notePlaceholder')}
                 rows="4"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
                 disabled={maintenanceLoading || maintenanceSuccess}
@@ -214,14 +216,14 @@ const MaintenanceSchedulingModal = ({ isOpen, onClose, selectedCar }) => {
               className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               disabled={maintenanceLoading}
             >
-              Cancel
+              {t('maintenanceModal.cancel')}
             </button>
             <button
               type="submit"
               className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
               disabled={maintenanceLoading || maintenanceSuccess}
             >
-              {maintenanceLoading ? 'Scheduling...' : 'Schedule Maintenance'}
+              {maintenanceLoading ? t('maintenanceModal.scheduling') : t('maintenanceModal.scheduleButton')}
             </button>
           </div>
         </form>

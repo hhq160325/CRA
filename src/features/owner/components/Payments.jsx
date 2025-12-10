@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getUserIdFromToken } from '../../user/api';
 import { filterPaymentData } from '../utils/filterUtils';
 import DropdownTemplate from '../../../shared/components/DropdownTemplate';
@@ -7,6 +8,7 @@ import { paymentTypeOptions, getPaymentMethodOptions, paymentStatusOptions, date
 import { fetchOwnerPaymentsData } from '../ownerApi';
 
 const Payments = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all'); // all, booking_fee, rental_fee
@@ -118,7 +120,7 @@ const Payments = () => {
       setPayments(vendorPayments);
     } catch (err) {
       console.error('Error fetching payments:', err);
-      setError('Không thể tải danh sách thanh toán. Vui lòng thử lại sau.');
+      setError(t('payments.errorLoadingPayments'));
     } finally {
       setLoading(false);
     }
@@ -156,9 +158,9 @@ const Payments = () => {
   const formatTypeName = (type) => {
     switch (type) {
       case 'booking_fee':
-        return 'Phí đặt cọc';
+        return t('payments.bookingFeeType');
       case 'rental_fee':
-        return 'Phí thuê xe';
+        return t('payments.rentalFeeType');
       default:
         return type;
     }
@@ -191,18 +193,18 @@ const Payments = () => {
 
     // Create downloadable receipt (simple text format)
     const receiptText = `
-HÓA ĐƠN THANH TOÁN
-=====================================
-Mã giao dịch: ${receiptData.transactionId}
-Ngày: ${receiptData.date}
-Loại: ${receiptData.type}
-Khách hàng: ${receiptData.customerName}
-Xe: ${receiptData.carName}${receiptData.licensePlate ? ` (${receiptData.licensePlate})` : ''}
-Số tiền: ${formatVND(receiptData.amount)}
-Phương thức thanh toán: ${receiptData.paymentMethod}
-Trạng thái: ${receiptData.status.toUpperCase()}
-Mô tả: ${receiptData.description}
-=====================================
+${t('payments.receipt')}
+${t('payments.receiptSeparator')}
+${t('payments.receiptTransactionId', { transactionId: receiptData.transactionId })}
+${t('payments.receiptDate', { date: receiptData.date })}
+${t('payments.receiptType', { type: receiptData.type })}
+${t('payments.receiptCustomer', { customerName: receiptData.customerName })}
+${t('payments.receiptCar', { carName: receiptData.carName })}${receiptData.licensePlate ? ` (${receiptData.licensePlate})` : ''}
+${t('payments.receiptAmount', { amount: formatVND(receiptData.amount) })}
+${t('payments.receiptPaymentMethod', { paymentMethod: receiptData.paymentMethod })}
+${t('payments.receiptStatus', { status: receiptData.status.toUpperCase() })}
+${t('payments.receiptDescription', { description: receiptData.description })}
+${t('payments.receiptSeparator')}
     `.trim();
 
     const blob = new Blob([receiptText], { type: 'text/plain' });
@@ -218,7 +220,7 @@ Mô tả: ${receiptData.description}
 
   const handleExportAllReceipts = () => {
     const csvContent = [
-      ['Mã giao dịch', 'Ngày', 'Loại', 'Khách hàng', 'Xe', 'Biển số', 'Số tiền (VND)', 'Phương thức', 'Trạng thái', 'Mô tả'].join(','),
+      [t('payments.transactionId'), t('payments.date'), t('payments.type'), t('customer'), t('car'), 'Biển số', 'Số tiền (VND)', t('payments.paymentMethod'), t('payments.status'), t('payments.description')].join(','),
       ...filteredPayments.map(p => [
         p.transactionId,
         p.date,
@@ -300,7 +302,7 @@ Mô tả: ${receiptData.description}
       <div className="p-8 flex items-center justify-center min-h-full bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Đang tải thanh toán...</p>
+          <p className="mt-4 text-gray-600">{t('payments.loadingPayments')}</p>
         </div>
       </div>
     );
@@ -318,7 +320,7 @@ Mô tả: ${receiptData.description}
             onClick={fetchPayments}
             className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
           >
-            Thử lại
+            {t('payments.tryAgain')}
           </button>
         </div>
       </div>
@@ -330,8 +332,8 @@ Mô tả: ${receiptData.description}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Thanh toán</h1>
-          <p className="text-gray-600">Xem lịch sử thanh toán và xuất hóa đơn</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('payments.title')}</h1>
+          <p className="text-gray-600">{t('payments.subtitle')}</p>
         </div>
         <div className="flex space-x-3">
           <button 
@@ -339,7 +341,7 @@ Mô tả: ${receiptData.description}
             disabled={filteredPayments.length === 0}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Xuất tất cả hóa đơn
+            {t('payments.exportAllReceipts')}
           </button>
         </div>
       </div>
@@ -349,7 +351,7 @@ Mô tả: ${receiptData.description}
         <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Tổng đã nhận</p>
+              <p className="text-sm text-gray-600">{t('payments.totalReceived')}</p>
               <p className="text-2xl font-bold text-green-600">{formatVND(totalReceived)}</p>
             </div>
             <div className="bg-green-100 rounded-full p-3">
@@ -363,7 +365,7 @@ Mô tả: ${receiptData.description}
         <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-yellow-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Thanh toán chờ xử lý</p>
+              <p className="text-sm text-gray-600">{t('payments.paymentsPending')}</p>
               <p className="text-2xl font-bold text-yellow-600">{formatVND(pendingPayments)}</p>
             </div>
             <div className="bg-yellow-100 rounded-full p-3">
@@ -377,7 +379,7 @@ Mô tả: ${receiptData.description}
         <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Phí đặt cọc</p>
+              <p className="text-sm text-gray-600">{t('payments.bookingFee')}</p>
               <p className="text-2xl font-bold text-blue-600">{formatVND(bookingFeeTotal)}</p>
             </div>
             <div className="bg-blue-100 rounded-full p-3">
@@ -391,7 +393,7 @@ Mô tả: ${receiptData.description}
         <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-purple-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Phí thuê xe</p>
+              <p className="text-sm text-gray-600">{t('payments.rentalFee')}</p>
               <p className="text-2xl font-bold text-purple-600">{formatVND(rentalFeeTotal)}</p>
             </div>
             <div className="bg-purple-100 rounded-full p-3">
@@ -413,7 +415,7 @@ Mô tả: ${receiptData.description}
               </svg>
               <input
                 type="text"
-                placeholder="Tìm kiếm theo mã giao dịch, mã đặt xe hoặc khách hàng"
+                placeholder={t('payments.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
@@ -423,14 +425,14 @@ Mô tả: ${receiptData.description}
               value={typeFilter}
               onChange={(option) => setTypeFilter(option.value)}
               options={paymentTypeOptions}
-              placeholder="Tất cả loại"
+              placeholder={t('payments.allTypes')}
               className="min-w-[160px]"
             />
             <DropdownTemplate
               value={paymentMethodFilter}
               onChange={(option) => setPaymentMethodFilter(option.value)}
               options={paymentMethodOptions}
-              placeholder="Tất cả phương thức"
+              placeholder={t('payments.allPaymentMethods')}
               searchable={paymentMethodOptions.length > 5}
               searchPlaceholder="Tìm phương thức thanh toán..."
               className="min-w-[200px]"
@@ -439,7 +441,7 @@ Mô tả: ${receiptData.description}
               value={statusFilter}
               onChange={(option) => setStatusFilter(option.value)}
               options={paymentStatusOptions}
-              placeholder="Tất cả trạng thái"
+              placeholder={t('payments.allStatuses')}
               searchable
               searchPlaceholder="Tìm trạng thái..."
               className="min-w-[160px]"
@@ -448,12 +450,12 @@ Mô tả: ${receiptData.description}
               value={dateFilter}
               onChange={(option) => setDateFilter(option.value)}
               options={dateFilterOptions}
-              placeholder="Tất cả ngày"
+              placeholder={t('payments.allDates')}
               className="min-w-[160px]"
             />
           </div>
           <div className="text-sm text-gray-600">
-            Hiển thị {filteredPayments.length} trong tổng số {payments.length} giao dịch
+            {t('payments.showingResults', { filtered: filteredPayments.length, total: payments.length })}
           </div>
         </div>
       </div>
@@ -464,22 +466,22 @@ Mô tả: ${receiptData.description}
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mã giao dịch</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Loại</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mô tả</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Khách hàng & Xe</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Số tiền</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Phương thức</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Ngày</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Trạng thái</th>
-                <th className="text-center py-4 px-6 font-semibold text-gray-900 text-sm">Thao tác</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.transactionId')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.type')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.description')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.customerAndCar')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.amount')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.paymentMethod')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.date')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.status')}</th>
+                <th className="text-center py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {paginatedPayments.length === 0 ? (
                 <tr>
                   <td colSpan="9" className="py-8 text-center text-gray-500">
-                    Không tìm thấy thanh toán nào
+                    {t('payments.noPaymentsFound')}
                   </td>
                 </tr>
               ) : (
@@ -495,7 +497,7 @@ Mô tả: ${receiptData.description}
                     </td>
                     <td className="py-4 px-6">
                       <div className="text-sm text-gray-900">{payment.description}</div>
-                      <div className="text-xs text-gray-500">Hóa đơn: {payment.bookingId}</div>
+                      <div className="text-xs text-gray-500">{t('payments.invoice')}: {payment.bookingId}</div>
                     </td>
                     <td className="py-4 px-6">
                       <div className="text-sm text-gray-900 font-medium">{payment.customerName}</div>
@@ -524,13 +526,13 @@ Mô tả: ${receiptData.description}
                           onClick={() => openModal(payment)}
                           className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                         >
-                          Xem chi tiết
+                          {t('payments.viewDetails')}
                         </button>
                         <button
                           onClick={() => handleExportReceipt(payment)}
                           className="text-green-600 hover:text-green-700 text-sm font-medium"
                         >
-                          Xuất hóa đơn
+                          {t('payments.exportReceipt')}
                         </button>
                       </div>
                     </td>
@@ -556,7 +558,7 @@ Mô tả: ${receiptData.description}
           <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Chi tiết giao dịch - {selectedPayment.transactionId}</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t('payments.transactionDetails', { transactionId: selectedPayment.transactionId })}</h2>
                 <button
                   onClick={closeModal}
                   className="text-gray-400 hover:text-gray-600"
@@ -570,45 +572,45 @@ Mô tả: ${receiptData.description}
             <div className="p-6 space-y-6">
               {/* Payment Info */}
               <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Thông tin thanh toán</h3>
+                <h3 className="font-semibold text-gray-900 mb-3">{t('payments.paymentInfo')}</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-gray-600">Mã giao dịch</p>
+                    <p className="text-gray-600">{t('payments.transactionId')}</p>
                     <p className="font-medium text-gray-900">{selectedPayment.transactionId}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600">Mã hóa đơn</p>
+                    <p className="text-gray-600">{t('payments.invoiceCode')}</p>
                     <p className="font-medium text-gray-900">{selectedPayment.bookingId}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600">Tên khách hàng</p>
+                    <p className="text-gray-600">{t('payments.customerName')}</p>
                     <p className="font-medium text-gray-900">{selectedPayment.customerName}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600">Xe thuê</p>
+                    <p className="text-gray-600">{t('payments.rentalCar')}</p>
                     <p className="font-medium text-gray-900">
                       {selectedPayment.carName}
                       {selectedPayment.licensePlate && ` (${selectedPayment.licensePlate})`}
                     </p>
                   </div>
                   <div>
-                    <p className="text-gray-600">Loại</p>
+                    <p className="text-gray-600">{t('payments.type')}</p>
                     <span className={getTypeBadge(selectedPayment.type)}>
                       {formatTypeName(selectedPayment.type)}
                     </span>
                   </div>
                   <div>
-                    <p className="text-gray-600">Trạng thái</p>
+                    <p className="text-gray-600">{t('payments.status')}</p>
                     <span className={getStatusBadge(selectedPayment.status)}>
                       {selectedPayment.status}
                     </span>
                   </div>
                   <div>
-                    <p className="text-gray-600">Ngày</p>
+                    <p className="text-gray-600">{t('payments.date')}</p>
                     <p className="font-medium text-gray-900">{selectedPayment.date}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600">Phương thức thanh toán</p>
+                    <p className="text-gray-600">{t('payments.paymentMethod')}</p>
                     <p className="font-medium text-gray-900">{selectedPayment.paymentMethod}</p>
                   </div>
                 </div>
@@ -616,14 +618,14 @@ Mô tả: ${receiptData.description}
 
               {/* Amount Details */}
               <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
-                <h3 className="font-semibold text-gray-900 mb-3">Chi tiết số tiền</h3>
+                <h3 className="font-semibold text-gray-900 mb-3">{t('payments.amountDetails')}</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Mô tả</span>
+                    <span className="text-gray-600">{t('payments.description')}</span>
                     <span className="font-medium text-gray-900">{selectedPayment.description}</span>
                   </div>
                   <div className="border-t border-green-300 pt-3 flex justify-between items-center">
-                    <span className="font-semibold text-gray-900">Số tiền đã nhận</span>
+                    <span className="font-semibold text-gray-900">{t('payments.amountReceived')}</span>
                     <span className="text-xl font-bold text-green-600">
                       {formatVND(selectedPayment.amount)}
                     </span>
@@ -634,7 +636,7 @@ Mô tả: ${receiptData.description}
               {/* Notes */}
               {selectedPayment.notes && (
                 <div className="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500">
-                  <h3 className="font-semibold text-gray-900 mb-2">Ghi chú</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">{t('payments.notes')}</h3>
                   <p className="text-sm text-gray-700">{selectedPayment.notes}</p>
                 </div>
               )}
@@ -645,7 +647,7 @@ Mô tả: ${receiptData.description}
                   onClick={closeModal}
                   className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
                 >
-                  Đóng
+                  {t('payments.close')}
                 </button>
                 <button
                   onClick={() => {
@@ -654,7 +656,7 @@ Mô tả: ${receiptData.description}
                   }}
                   className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
                 >
-                  Xuất hóa đơn
+                  {t('payments.exportReceipt')}
                 </button>
               </div>
             </div>

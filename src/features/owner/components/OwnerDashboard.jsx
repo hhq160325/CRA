@@ -338,7 +338,7 @@ const OwnerDashboard = () => {
       <div className="p-8 flex items-center justify-center min-h-full bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Đang tải bảng điều khiển...</p>
+          <p className="mt-4 text-gray-600">{t('loadingDashboard')}</p>
         </div>
       </div>
     );
@@ -374,7 +374,7 @@ const OwnerDashboard = () => {
     <div className="p-8 space-y-6 min-h-full bg-gray-50">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">{t('ownerDashboardTitle')}</h1>
-        <p className="text-gray-600">Tổng quan về doanh nghiệp cho thuê xe của bạn</p>
+        <p className="text-gray-600">{t('ownerDashboardOverview')}</p>
       </div>
       {/* Top Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -389,7 +389,7 @@ const OwnerDashboard = () => {
               </div>
               <div>
                 <p className="text-3xl font-bold text-gray-900">{formatNumber(stats.totalRevenue / 1000)}</p>
-                <p className="text-sm text-gray-500 mt-1">Tổng doanh thu</p>
+                <p className="text-sm text-gray-500 mt-1">{t('totalRevenue')}</p>
               </div>
             </div>
             {/* <span className="text-green-600 text-sm font-medium flex items-center">
@@ -409,7 +409,7 @@ const OwnerDashboard = () => {
               </div>
               <div>
                 <p className="text-3xl font-bold text-gray-900">{formatNumber(stats.newBookings)}</p>
-                <p className="text-sm text-gray-500 mt-1">Yêu cầu đặt xe mới</p>
+                <p className="text-sm text-gray-500 mt-1">{t('newCarBookingRequest')}</p>
               </div>
             </div>
             {/* <span className="text-green-600 text-sm font-medium flex items-center">
@@ -429,7 +429,7 @@ const OwnerDashboard = () => {
               </div>
               <div>
                 <p className="text-3xl font-bold text-gray-900">{formatNumber(stats.rentedCars)}</p>
-                <p className="text-sm text-gray-500 mt-1">Xe đang cho thuê</p>
+                <p className="text-sm text-gray-500 mt-1">{t('vehiclesCurrentlyRented')}</p>
               </div>
             </div>
             {/* <span className="text-green-600 text-sm font-medium flex items-center">
@@ -450,7 +450,7 @@ const OwnerDashboard = () => {
               </div>
               <div>
                 <p className="text-3xl font-bold text-gray-900">{formatNumber(stats.availableCars)}</p>
-                <p className="text-sm text-gray-500 mt-1">Xe có sẵn</p>
+                <p className="text-sm text-gray-500 mt-1">{t('vehiclesAvailable')}</p>
               </div>
             </div>
             {/* <span className="text-green-600 text-sm font-medium flex items-center">
@@ -464,12 +464,12 @@ const OwnerDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Payment Summary */}
         <div className="bg-white rounded-xl shadow-sm p-6 lg:col-span-1">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Tóm tắt thanh toán</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">{t('paymentSummary')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-green-700">Tổng đã nhận</p>
+                  <p className="text-sm text-green-700">{t('totalReceived')}</p>
                   <p className="text-2xl font-bold text-green-600">{formatVND(stats.totalReceived)}</p>
                 </div>
                 <div className="bg-green-100 rounded-full p-3">
@@ -483,7 +483,7 @@ const OwnerDashboard = () => {
             <div className="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-yellow-700">Thanh toán chờ xử lý</p>
+                  <p className="text-sm text-yellow-700">{t('paymentPending')}</p>
                   <p className="text-2xl font-bold text-yellow-600">{formatVND(stats.pendingPayments)}</p>
                 </div>
                 <div className="bg-yellow-100 rounded-full p-3">
@@ -497,7 +497,7 @@ const OwnerDashboard = () => {
             <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-blue-700">Phí đặt xe</p>
+                  <p className="text-sm text-blue-700">{t('bookingFee')}</p>
                   <p className="text-2xl font-bold text-blue-600">{formatVND(stats.bookingFeeTotal)}</p>
                 </div>
                 <div className="bg-blue-100 rounded-full p-3">
@@ -511,7 +511,7 @@ const OwnerDashboard = () => {
             <div className="bg-purple-50 rounded-lg p-4 border-l-4 border-purple-500">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-purple-700">Phí thuê xe</p>
+                  <p className="text-sm text-purple-700">{t('rentalFee')}</p>
                   <p className="text-2xl font-bold text-purple-600">{formatVND(stats.rentalFeeTotal)}</p>
                 </div>
                 <div className="bg-purple-100 rounded-full p-3">
@@ -527,20 +527,20 @@ const OwnerDashboard = () => {
         {/* Recent Bookings Table */}
         <div className="bg-white rounded-xl shadow-sm p-6 lg:col-span-1">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">Đặt xe gần đây</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('recentBookings')}</h2>
             <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-              Xem tất cả
+              {t('viewAll')}
             </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm">Mã đặt xe</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm">Khách hàng</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm">Thời gian thuê</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm">Thời gian nhận xe</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm">Thời gian trả xe</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm">{t('bookingCode')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm">{t('customer')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm">{t('rentalDuration')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm">{t('pickUpTime')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm">{t('returnTime')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -564,7 +564,7 @@ const OwnerDashboard = () => {
                       </td>
                       <td className="py-3 px-4">
                         <div className="text-sm text-gray-600">
-                          {rentalDays > 0 ? `${rentalDays} ngày` : 'N/A'}
+                          {rentalDays > 0 ? `${rentalDays} ${t('days')}` : 'N/A'}
                         </div>
                       </td>
                       <td className="py-3 px-4">
@@ -593,7 +593,7 @@ const OwnerDashboard = () => {
                 {stats.recentBookings.length === 0 && (
                   <tr>
                     <td colSpan="6" className="py-8 text-center text-gray-500">
-                      Không tìm thấy đặt xe nào
+                      {t('noBookingsFound')}
                     </td>
                   </tr>
                 )}
@@ -669,12 +669,12 @@ const OwnerDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:col-span-2">
           {/* Car Availability*/}
           <div className="bg-white rounded-xl shadow-sm p-6 lg:col-span-1">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">Tóm tắt trạng thái xe</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">{t('carStatusSummary')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-green-700">Có sẵn</p>
+                    <p className="text-sm text-green-700">{t('available')}</p>
                     <p className="text-2xl font-bold text-green-600">{stats.carStatusData?.active || 0}</p>
                   </div>
                   <div className="bg-green-100 rounded-full p-3">
@@ -688,7 +688,7 @@ const OwnerDashboard = () => {
               <div className="bg-orange-50 rounded-lg p-4 border-l-4 border-orange-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-orange-700">Đang bảo trì</p>
+                    <p className="text-sm text-orange-700">{t('underMaintenance')}</p>
                     <p className="text-2xl font-bold text-orange-600">{stats.carStatusData?.maintenance || 0}</p>
                   </div>
                   <div className="bg-orange-100 rounded-full p-3">
@@ -703,7 +703,7 @@ const OwnerDashboard = () => {
               <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-blue-700">Đã đặt</p>
+                    <p className="text-sm text-blue-700">{t('booked')}</p>
                     <p className="text-2xl font-bold text-blue-600">{stats.carStatusData?.reserved || 0}</p>
                   </div>
                   <div className="bg-blue-100 rounded-full p-3">
@@ -717,7 +717,7 @@ const OwnerDashboard = () => {
               <div className="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-yellow-700">Chờ xử lý</p>
+                    <p className="text-sm text-yellow-700">{t('pending')}</p>
                     <p className="text-2xl font-bold text-yellow-600">{stats.carStatusData?.pending || 0}</p>
                   </div>
                   <div className="bg-yellow-100 rounded-full p-3">
@@ -733,12 +733,12 @@ const OwnerDashboard = () => {
 
           {/* Car RegDoc */}
           <div className="bg-white rounded-xl shadow-sm p-6 lg:col-span-1">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">Trạng thái giấy đăng ký</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">{t('registrationDocumentStatus')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-green-700">Đã duyệt</p>
+                    <p className="text-sm text-green-700">{t('approved')}</p>
                     <p className="text-2xl font-bold text-green-600">{stats.regDocStatusData?.approved || 0}</p>
                   </div>
                   <div className="bg-green-100 rounded-full p-3">
@@ -752,7 +752,7 @@ const OwnerDashboard = () => {
               <div className="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-yellow-700">Chờ duyệt</p>
+                    <p className="text-sm text-yellow-700">{t('pendingApproval')}</p>
                     <p className="text-2xl font-bold text-yellow-600">{stats.regDocStatusData?.pending || 0}</p>
                   </div>
                   <div className="bg-yellow-100 rounded-full p-3">
@@ -766,7 +766,7 @@ const OwnerDashboard = () => {
               <div className="bg-red-50 rounded-lg p-4 border-l-4 border-red-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-red-700">Bị từ chối</p>
+                    <p className="text-sm text-red-700">{t('rejected')}</p>
                     <p className="text-2xl font-bold text-red-600">{stats.regDocStatusData?.rejected || 0}</p>
                   </div>
                   <div className="bg-red-100 rounded-full p-3">
@@ -793,14 +793,14 @@ const OwnerDashboard = () => {
 
         {/* Top Manufacturers */}
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Hãng xe hàng đầu (Đặt xe đã xác nhận/hoàn thành)</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">{t('topManufacturersConfirmedCompleted')}</h2>
           <div className="space-y-4">
             {manufacturerPercentages.slice(0, 4).map((item, index) => (
               <div key={index}>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-600">{item.manufacturer}</span>
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-500">({item.count} đặt xe)</span>
+                    <span className="text-sm text-gray-500">({item.count} {t('bookingsText')})</span>
                     <span className="text-sm font-medium text-gray-900">{item.percentage}%</span>
                   </div>
                 </div>
@@ -814,7 +814,7 @@ const OwnerDashboard = () => {
             ))}
             {manufacturerPercentages.length === 0 && (
               <div className="text-center text-gray-500 py-4">
-                Chưa có đặt xe nào được xác nhận hoặc hoàn thành
+                {t('noConfirmedCompletedBookings')}
               </div>
             )}
           </div>

@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getUserIdFromToken } from '../../user/api';
 import { getAllCars, uploadCarRegistrationDocuments } from '../ownerApi';
 
 const CarRegisDocs = () => {
+  const { t } = useTranslation();
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,7 +27,7 @@ const CarRegisDocs = () => {
       setCars(userCars);
     } catch (err) {
       console.error('Error fetching cars:', err);
-      setError('Failed to load cars. Please try again.');
+      setError(t('carRegisDocs.loadingError'));
     } finally {
       setLoading(false);
     }
@@ -50,7 +52,7 @@ const CarRegisDocs = () => {
       }, 3000);
     } catch (err) {
       console.error('Error uploading documents:', err);
-      alert('Failed to upload documents. Please try again.');
+      alert(t('carRegisDocs.uploadError'));
     } finally {
       setUploadingCarId(null);
     }
@@ -68,22 +70,22 @@ const CarRegisDocs = () => {
       'Pending': {
         bg: 'bg-yellow-100',
         text: 'text-yellow-800',
-        label: 'Chờ phê duyệt'
+        label: t('carRegisDocs.statusPending')
       },
       'Active': {
         bg: 'bg-green-100',
         text: 'text-green-800',
-        label: 'Đã phê duyệt'
+        label: t('carRegisDocs.statusApproved')
       },
       'Inactive': {
         bg: 'bg-green-100',
         text: 'text-green-800',
-        label: 'Đã phê duyệt'
+        label: t('carRegisDocs.statusApproved')
       },
       'Reserved': {
         bg: 'bg-green-100',
         text: 'text-green-800',
-        label: 'Chờ phê duyệt'
+        label: t('carRegisDocs.statusPending')
       }
     };
 
@@ -103,7 +105,7 @@ const CarRegisDocs = () => {
   const filteredCars = cars.filter(car => {
     if (filter === 'all') return true;
     if (filter === 'pending') return car.status === 'Pending';
-    if (filter === 'approved') return car.status === 'Active' || car.status === 'Inactive';
+    if (filter === 'approved') return car.status === 'Active';
     return true;
   });
 
@@ -166,8 +168,8 @@ const CarRegisDocs = () => {
         }
       `}</style>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Giấy tờ đăng ký xe</h1>
-        <p className="text-gray-600">Quản lý và theo dõi việc phê duyệt tài liệu đăng ký xe </p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('carRegisDocs.title')}</h1>
+        <p className="text-gray-600">{t('carRegisDocs.subtitle')}</p>
       </div>
 
       {/* Filter Tabs */}
@@ -179,7 +181,7 @@ const CarRegisDocs = () => {
             : 'text-gray-600 hover:text-gray-900'
             }`}
         >
-          Tất cả xe ({cars.length})
+          {t('carRegisDocs.allCars', { count: cars.length })}
         </button>
         <button
           onClick={() => setFilter('pending')}
@@ -188,7 +190,7 @@ const CarRegisDocs = () => {
             : 'text-gray-600 hover:text-gray-900'
             }`}
         >
-          Chờ duyệt ({cars.filter(c => c.status === 'Pending').length})
+          {t('carRegisDocs.pendingApproval', { count: cars.filter(c => c.status === 'Pending').length })}
         </button>
         <button
           onClick={() => setFilter('approved')}
@@ -197,7 +199,7 @@ const CarRegisDocs = () => {
             : 'text-gray-600 hover:text-gray-900'
             }`}
         >
-          Đã duyệt ({cars.filter(c => c.status === 'Active' || c.status === 'Inactive').length})
+          {t('carRegisDocs.approved', { count: cars.filter(c => c.status === 'Active' || c.status === 'Inactive').length })}
         </button>
       </div>
 
@@ -207,11 +209,13 @@ const CarRegisDocs = () => {
           <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy xe nào</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('carRegisDocs.noCarsFound')}</h3>
           <p className="text-gray-600">
             {filter === 'all'
-              ? 'Bạn chưa đăng ký xe nào.'
-              : `Không tìm thấy xe ${filter === 'pending' ? 'chờ duyệt' : 'đã duyệt'} nào.`}
+              ? t('carRegisDocs.noRegisteredCars')
+              : filter === 'pending' 
+                ? t('carRegisDocs.noPendingCars', { status: t('carRegisDocs.pending') })
+                : t('carRegisDocs.noApprovedCars', { status: t('carRegisDocs.approved') })}
           </p>
         </div>
       ) : (
@@ -244,7 +248,7 @@ const CarRegisDocs = () => {
                               {showTooltip === car.id && (
                                 <div className="absolute left-0 top-full mt-2 w-64 bg-gray-900 text-white text-xs rounded-lg p-3 shadow-lg z-10 animate-fade-in">
                                   <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
-                                  Hồ sơ đang được phê duyệt
+                                  {t('carRegisDocs.documentsPendingApproval')}
                                 </div>
                               )}
                             </div>
@@ -254,7 +258,7 @@ const CarRegisDocs = () => {
                                 <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span className="text-xs font-medium text-green-800">Tải lên thành công!</span>
+                                <span className="text-xs font-medium text-green-800">{t('carRegisDocs.uploadSuccess')}</span>
                               </div>
                             )}
                           </>
@@ -265,32 +269,32 @@ const CarRegisDocs = () => {
                     <div className="flex gap-4 mt-4">
                       <div className="grid grid-cols-3 md:grid-cols-7 gap-4 flex-1">
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Biển số xe</p>
+                          <p className="text-xs text-gray-500 mb-1">{t('carRegisDocs.licensePlate')}</p>
                           <p className="text-sm font-medium text-gray-900">{car.licensePlate}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Số ghế</p>
+                          <p className="text-xs text-gray-500 mb-1">{t('carRegisDocs.seats')}</p>
                           <p className="text-sm font-medium text-gray-900">{car.seats}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Năm sản xuất</p>
+                          <p className="text-xs text-gray-500 mb-1">{t('carRegisDocs.yearOfManufacture')}</p>
                           <p className="text-sm font-medium text-gray-900">{car.yearofManufacture}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Mức tiêu thụ nhiên liệu</p>
-                          <p className="text-sm font-medium text-gray-900">{car.fuelConsumption} L/100km</p>
+                          <p className="text-xs text-gray-500 mb-1">{t('carRegisDocs.fuelConsumption')}</p>
+                          <p className="text-sm font-medium text-gray-900">{car.fuelConsumption} {t('carRegisDocs.fuelConsumptionUnit')}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Hộp số</p>
+                          <p className="text-xs text-gray-500 mb-1">{t('carRegisDocs.transmission')}</p>
                           <p className="text-sm font-medium text-gray-900">{car.transmission}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Loại nhiên liệu</p>
+                          <p className="text-xs text-gray-500 mb-1">{t('carRegisDocs.fuelType')}</p>
                           <p className="text-sm font-medium text-gray-900">{car.fuelType}</p>
                         </div>
                         {car.preferredLot && (
                           <div>
-                            <p className="text-xs text-gray-500 mb-1">Bãi xe ưu tiên</p>
+                            <p className="text-xs text-gray-500 mb-1">{t('carRegisDocs.preferredLot')}</p>
                             <p className="text-sm font-medium text-gray-900">{car.preferredLot.name}</p>
                             <p className="text-xs text-gray-500">{car.preferredLot.address}</p>
                           </div>
@@ -311,7 +315,7 @@ const CarRegisDocs = () => {
                             onClick={() => triggerFileInput(car.id)}
                             disabled={uploadingCarId === car.id}
                             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium transition-colors"
-                            title="Tải lên giấy tờ đăng ký"
+                            title={t('carRegisDocs.uploadDocuments')}
                           >
                             {uploadingCarId === car.id ? (
                               <>
@@ -319,14 +323,14 @@ const CarRegisDocs = () => {
                                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
-                                Đang tải lên...
+                                {t('carRegisDocs.uploading')}
                               </>
                             ) : (
                               <>
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                 </svg>
-                                Tải lên tài liệu
+                                {t('carRegisDocs.uploadDocuments')}
                               </>
                             )}
                           </button>
@@ -353,7 +357,7 @@ const CarRegisDocs = () => {
                     : 'bg-white text-gray-700 hover:bg-gray-50'
                     }`}
                 >
-                  Trước
+                  {t('carRegisDocs.previous')}
                 </button>
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
@@ -363,15 +367,15 @@ const CarRegisDocs = () => {
                     : 'bg-white text-gray-700 hover:bg-gray-50'
                     }`}
                 >
-                  Tiếp
+                  {t('carRegisDocs.next')}
                 </button>
               </div>
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-gray-700">
-                    Hiển thị <span className="font-medium">{indexOfFirstCar + 1}</span> đến{' '}
-                    <span className="font-medium">{Math.min(indexOfLastCar, filteredCars.length)}</span> trong tổng số{' '}
-                    <span className="font-medium">{filteredCars.length}</span> kết quả
+                    {t('carRegisDocs.showing')} <span className="font-medium">{indexOfFirstCar + 1}</span> {t('carRegisDocs.to')}{' '}
+                    <span className="font-medium">{Math.min(indexOfLastCar, filteredCars.length)}</span> {t('carRegisDocs.of')}{' '}
+                    <span className="font-medium">{filteredCars.length}</span> {t('carRegisDocs.results')}
                   </p>
                 </div>
                 <div>
@@ -384,7 +388,7 @@ const CarRegisDocs = () => {
                         : 'bg-white text-gray-500 hover:bg-gray-50'
                         }`}
                     >
-                      <span className="sr-only">Trước</span>
+                      <span className="sr-only">{t('carRegisDocs.previous')}</span>
                       <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
@@ -434,7 +438,7 @@ const CarRegisDocs = () => {
                         : 'bg-white text-gray-500 hover:bg-gray-50'
                         }`}
                     >
-                      <span className="sr-only">Tiếp</span>
+                      <span className="sr-only">{t('carRegisDocs.next')}</span>
                       <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                       </svg>

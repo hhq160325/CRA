@@ -196,8 +196,8 @@ const PaymentHistoryPage = () => {
     <div>
       <div className="bg-white rounded-lg shadow-sm">
         <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
-          <h1 className="hidden lg:block text-xl font-semibold text-gray-900">{t('Payment History')}</h1>
-          <h1 className="lg:hidden text-lg font-semibold text-gray-900">{t('Payment History')}</h1>
+          <h1 className="hidden lg:block text-xl font-semibold text-gray-900">{t('paymentHistory')}</h1>
+          <h1 className="lg:hidden text-lg font-semibold text-gray-900">{t('paymentHistory')}</h1>
         </div>
 
         {paymentHistory.length === 0 ? (

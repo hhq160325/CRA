@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import DropdownTemplate from '../../../shared/components/DropdownTemplate';
 import Pagination from '../../../shared/components/Pagination';
 import { tokenUtils } from '../../auth/utils';
@@ -7,6 +8,7 @@ import { getAllCars, getCarBookings } from '../ownerApi';
 import { MaintenanceSchedulingModal, UsageDetailsModal } from './modal';
 
 const UsageTracking = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('month');
   const [brandFilter, setBrandFilter] = useState('all');
@@ -42,7 +44,7 @@ const UsageTracking = () => {
         const currentOwnerId = tokenUtils.getUserId();
 
         if (!currentOwnerId) {
-          setError('Không thể xác định người dùng hiện tại. Vui lòng đăng nhập lại.');
+          setError(t('usageTracking.cannotIdentifyUser'));
           setLoading(false);
           return;
         }
@@ -101,7 +103,7 @@ const UsageTracking = () => {
         setError(null);
       } catch (err) {
         console.error('Error fetching cars:', err);
-        setError('Không thể tải dữ liệu xe');
+        setError(t('usageTracking.errorLoadingCars'));
       } finally {
         setLoading(false);
       }
@@ -119,21 +121,17 @@ const UsageTracking = () => {
 
     switch (normalizedStatus) {
       case 'active':
-        return { className: `${baseClasses} bg-green-100 text-green-800`, label: 'Có sẵn' };
+        return { className: `${baseClasses} bg-green-100 text-green-800`, label: t('usageTracking.available') };
       case 'reserved':
-        return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: 'Đã đặt' };
+        return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: t('usageTracking.reserved') };
       case 'pending':
-        return { className: `${baseClasses} bg-green-100 text-green-800`, label: 'Có sẵn' };
-      // case 'active':
-      //   return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: 'Active' };
+        return { className: `${baseClasses} bg-green-100 text-green-800`, label: t('usageTracking.available') };
       case 'inactive':
-        return { className: `${baseClasses} bg-yellow-100 text-yellow-800`, label: 'Bảo dưỡng' };
-      // case 'inactive':
-      //   return { className: `${baseClasses} bg-red-100 text-red-800`, label: 'Inactive' };
+        return { className: `${baseClasses} bg-yellow-100 text-yellow-800`, label: t('usageTracking.maintenance') };
       case 'unavailable':
-        return { className: `${baseClasses} bg-red-100 text-red-800`, label: 'Không khả dụng' };
+        return { className: `${baseClasses} bg-red-100 text-red-800`, label: t('usageTracking.unavailable') };
       default:
-        return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: 'không rõ' };
+        return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: t('usageTracking.unknown') };
     }
   };
 
@@ -191,17 +189,17 @@ const UsageTracking = () => {
 
   // Prepare dropdown options
   const brandOptions = [
-    { id: 'all', value: 'all', label: 'Tất cả thương hiệu' },
+    { id: 'all', value: 'all', label: t('usageTracking.allBrands') },
     ...uniqueBrands.map(brand => ({ id: brand, value: brand, label: brand }))
   ];
 
   const modelOptions = [
-    { id: 'all', value: 'all', label: brandFilter === 'all' ? 'Chọn thương hiệu trước' : 'Tất cả mẫu xe' },
+    { id: 'all', value: 'all', label: brandFilter === 'all' ? t('usageTracking.selectBrandFirst') : t('usageTracking.allModels') },
     ...availableModels.map(model => ({ id: model, value: model, label: model }))
   ];
 
   const statusOptions = [
-    { id: 'all', value: 'all', label: 'Tất cả trạng thái' },
+    { id: 'all', value: 'all', label: t('usageTracking.allStatuses') },
     ...uniqueStatuses.map(status => {
       const badge = getStatusBadge(status);
       return {
@@ -228,7 +226,7 @@ const UsageTracking = () => {
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-full">
-        <div className="text-gray-500">Đang tải dữ liệu xe...</div>
+        <div className="text-gray-500">{t('usageTracking.loadingCars')}</div>
       </div>
     );
   }
@@ -247,8 +245,8 @@ const UsageTracking = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Quản lý bảo dưỡng xe</h1>
-            <p className="text-gray-600">theo dõi tình trạng xe</p>
+            <h1 className="text-2xl font-bold text-gray-900">{t('usageTracking.title')}</h1>
+            <p className="text-gray-600">{t('usageTracking.subtitle')}</p>
           </div>
         </div>
 
@@ -262,7 +260,7 @@ const UsageTracking = () => {
                 </svg>
                 <input
                   type="text"
-                  placeholder="Tìm kiếm theo tên xe, biển số hoặc ID"
+                  placeholder={t('usageTracking.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
@@ -274,9 +272,9 @@ const UsageTracking = () => {
                   value={brandFilter}
                   onChange={(option) => setBrandFilter(option.value)}
                   options={brandOptions}
-                  placeholder="Tất cả thương hiệu"
+                  placeholder={t('usageTracking.allBrands')}
                   searchable={true}
-                  searchPlaceholder="Tìm thương hiệu..."
+                  searchPlaceholder={t('usageTracking.allBrands') + '...'}
                 />
               </div>
 
@@ -285,9 +283,9 @@ const UsageTracking = () => {
                   value={modelFilter}
                   onChange={(option) => setModelFilter(option.value)}
                   options={modelOptions}
-                  placeholder="Tất cả mẫu xe"
+                  placeholder={t('usageTracking.allModels')}
                   searchable={true}
-                  searchPlaceholder="Tìm mẫu xe..."
+                  searchPlaceholder={t('usageTracking.allModels') + '...'}
                   disabled={brandFilter === 'all'}
                 />
               </div>
@@ -297,14 +295,14 @@ const UsageTracking = () => {
                   value={statusFilter}
                   onChange={(option) => setStatusFilter(option.value)}
                   options={statusOptions}
-                  placeholder="Tất cả trạng thái"
+                  placeholder={t('usageTracking.allStatuses')}
                   searchable={false}
                 />
               </div>
             </div>
 
             <div className="text-sm text-gray-600 whitespace-nowrap">
-              Hiển thị {filteredUsage.length} trong tổng số {usageData.length} xe
+              {t('usageTracking.showingResults', { filtered: filteredUsage.length, total: usageData.length })}
             </div>
           </div>
         </div>
@@ -315,22 +313,18 @@ const UsageTracking = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thông tin xe</th>
-                  {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Total Mileage</th> */}
-                  {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rental vs Personal</th> */}
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Lượt thuê</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Số ngày thuê</th>
-                  {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Utilization</th> */}
-                  {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Avg. Daily Mileage</th> */}
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Trạng thái</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thao tác</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('usageTracking.carInfo')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('usageTracking.rentals')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('usageTracking.daysRented')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('usageTracking.status')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('usageTracking.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {paginatedUsage.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="py-8 text-center text-gray-500">
-                      Không tìm thấy xe nào
+                      {t('usageTracking.noCarsFound')}
                     </td>
                   </tr>
                 ) : (
@@ -340,7 +334,7 @@ const UsageTracking = () => {
                         <td className="py-4 px-6">
                           <div className="font-medium text-gray-900 text-sm">{car.carName}</div>
                           <div className="text-xs text-gray-500">{car.carModel} • {car.licensePlate}</div>
-                          <div className="text-xs text-gray-400">{car.seats} chỗ • {car.transmission} • {car.fuelType}</div>
+                          <div className="text-xs text-gray-400">{car.seats} {t('usageTracking.seats')} • {car.transmission} • {car.fuelType}</div>
                         </td>
                         {/* <td className="py-4 px-6">
                         <div className="text-sm font-medium text-gray-900">{car.totalMileage.toLocaleString()} km</div>
@@ -363,11 +357,11 @@ const UsageTracking = () => {
                       </td> */}
                         <td className="py-4 px-6">
                           <div className="text-sm text-gray-900">{car.totalRentals}</div>
-                          <div className="text-xs text-gray-500">Tổng đặt xe</div>
+                          <div className="text-xs text-gray-500">{t('usageTracking.totalBookings')}</div>
                         </td>
                         <td className="py-4 px-6">
                           <div className="text-sm text-gray-900">{car.totalDaysRented}</div>
-                          <div className="text-xs text-gray-500">ngày</div>
+                          <div className="text-xs text-gray-500">{t('usageTracking.days')}</div>
                         </td>
                         {/* <td className="py-4 px-6">
                         <div className="flex items-center space-x-2">
@@ -397,7 +391,7 @@ const UsageTracking = () => {
                               onClick={() => openModal(car)}
                               className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                             >
-                              Xem chi tiết
+                              {t('usageTracking.viewDetails')}
                             </button>
                             {(car.currentStatus === 'pending' || car.currentStatus === 'active') && (
                               <>
@@ -406,7 +400,7 @@ const UsageTracking = () => {
                                   onClick={() => openMaintenanceModal(car)}
                                   className="text-orange-600 hover:text-orange-700 text-sm font-medium"
                                 >
-                                  Lên lịch
+                                  {t('usageTracking.schedule')}
                                 </button>
                               </>
                             )}
@@ -431,12 +425,12 @@ const UsageTracking = () => {
       </div>
 
       {/* Usage Details Modal */}
-      <UsageDetailsModal
+      {/* <UsageDetailsModal
         isOpen={isModalOpen}
         onClose={closeModal}
         selectedCar={selectedCar}
         onScheduleMaintenance={openMaintenanceModal}
-      />
+      /> */}
 
       {/* Maintenance Scheduling Modal */}
       <MaintenanceSchedulingModal

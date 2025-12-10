@@ -156,11 +156,11 @@ export const register = async (userData) => {
         }
       }
       
-      // Return response with autoLogin flag
+      // Return response with autoLogin disabled for OTP verification flow
       return {
         ...data,
-        autoLogin: true,
-        message: 'Registration successful!',
+        autoLogin: false,
+        message: 'Registration successful! Please verify your email.',
         user
       };
     }
@@ -177,10 +177,11 @@ export const register = async (userData) => {
         
         console.log('Auto-login response:', loginResponse);
         
-        // Return combined response with autoLogin flag
+        // Return combined response with autoLogin disabled for OTP verification flow
         return {
           ...data,
-          autoLogin: true
+          autoLogin: false,
+          message: 'Registration successful! Please verify your email.'
         };
       } catch (loginError) {
         console.error('Auto-login failed:', loginError);

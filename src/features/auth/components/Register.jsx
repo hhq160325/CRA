@@ -178,7 +178,21 @@ const Register = ({ onSwitchToLogin }) => {
         gender: 2 // Always send "Other"
       };
       
-      await dispatch(registerUser(userData)).unwrap();
+      console.log('Registration Data:', userData);
+      
+      const result = await dispatch(registerUser(userData)).unwrap();
+      console.log('Registration Result:', result);
+      
+      // Log email being sent to OTP page
+      console.log('Navigating to OTP verification with email:', formData.email);
+      
+      // Navigate to OTP verification with email (without auto login)
+      navigate('/otp-verify', { 
+        state: { 
+          email: formData.email,
+          fromRegistration: true
+        } 
+      });
       
       // Reset form after successful registration
       setFormData({
@@ -188,9 +202,8 @@ const Register = ({ onSwitchToLogin }) => {
         phoneNumber: '',
         gender: 2,
       });
-      
-      // Redirect will happen via useEffect when isAuthenticated changes
     } catch (error) {
+      console.error('Registration Error:', error);
       // Error is handled by Redux, form stays filled for retry
     }
   };

@@ -75,8 +75,8 @@ const resources = {
       Diesel: "Diesel",
       Electric: "Electric",
       // Auth - Login
-      logIn: "Log in",
-      OrSignupwith: "Or Sign-up with",
+      logIn: "Sign in",
+      OrSignupwith: "Or Sign-in with",
       newToDesignSpace: "Create new account ?",
       signUpForFree: "Sign up",
       demoCredentials: "Demo Credentials:",

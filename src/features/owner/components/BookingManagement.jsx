@@ -50,13 +50,14 @@ const BookingManagement = () => {
 
         // Create lookup maps for efficient data access
         const carMap = new Map(cars.map(car => [car.id, car]));
-        const userMap = new Map(users.map(user => [user.userId, user]));
+        const userMap = new Map(users.map(user => [user.id, user]));
 
         // Transform and enrich booking data
         const enrichedBookings = allBookings.map(booking => {
           const car = carMap.get(booking.carId) || {};
-          const customer = userMap.get(booking.customerId) || {};
-
+          const customer = userMap.get(booking.userId) || {};
+          console.log("customerName",booking);
+          
           return {
             id: booking.id,
             bookingId: booking.bookingNumber || 'N/A',
@@ -73,7 +74,8 @@ const BookingManagement = () => {
             status: booking.status || 'N/A',
           };
         });
-
+        console.log(enrichedBookings);
+        
         setBookings(enrichedBookings);
       } catch (err) {
         console.error('Error fetching booking data:', err);

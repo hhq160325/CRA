@@ -80,7 +80,7 @@ const RegDocsApproved = () => {
           carManufacturer: car?.manufacturer || 'N/A',
         };
       });
-      
+      // console.log("transformedData",transformedData);
       setRegDocs(transformedData);
       setError(null);
     } catch (err) {
@@ -90,9 +90,7 @@ const RegDocsApproved = () => {
       setLoading(false);
     }
   };
-
-
-
+  
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);

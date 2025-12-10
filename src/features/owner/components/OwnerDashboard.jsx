@@ -3,10 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
 import { CAR_ENDPOINTS, BOOKING_ENDPOINTS } from '../../../config/api';
 import { getUserIdFromToken } from '../../user/api';
-import { fetchRentalHistoryData } from '../ownerApi';
+import { fetchRentalHistoryData, fetchOwnerPaymentsData } from '../ownerApi';
 import OwnerBookingOverview from './OwnerDashboardComponent/OwnerBookingOverview';
 import OwnerBookingStatus from './OwnerDashboardComponent/OwnerBookingStatus';
-import OwnerEarningsSummary from './OwnerDashboardComponent/OwnerEarningsSummary';
 
 const OwnerDashboard = () => {
   const { t } = useTranslation();
@@ -21,10 +20,21 @@ const OwnerDashboard = () => {
     rentedGrowth: 0,
     availableGrowth: 0,
     carTypes: {},
+    topManufacturers: {},
     bookingStatusData: {},
     monthlyEarnings: [],
     monthlyBookings: [],
     weeklyBookingData: [],
+    // Payment statistics
+    totalReceived: 0,
+    pendingPayments: 0,
+    bookingFeeTotal: 0,
+    rentalFeeTotal: 0,
+    // Car status statistics
+    carStatusData: {},
+    regDocStatusData: {},
+    // Recent bookings
+    recentBookings: [],
   });
 
   useEffect(() => {
@@ -50,6 +60,16 @@ const OwnerDashboard = () => {
       const ownerCars = allCars.filter(car => car.owner.id === currentUserId);
       console.log(ownerCars);
 
+      // Fetch manufacturers data
+      const manufacturersResponse = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_MANUFACTURER);
+      const manufacturers = manufacturersResponse.data || [];
+      
+      // Create manufacturer lookup map
+      const manufacturerMap = manufacturers.reduce((acc, manufacturer) => {
+        acc[manufacturer.id] = manufacturer.name;
+        return acc;
+      }, {});
+
       // Calculate car statistics
       const availableCars = ownerCars.filter(car => car.status?.toLowerCase() === 'active').length;
       console.log(availableCars);
@@ -58,6 +78,20 @@ const OwnerDashboard = () => {
         car.status?.toLowerCase() === 'reserved' || car.status?.toLowerCase() === 'pending'
       ).length;
 
+      // Calculate car status distribution
+      const carStatusData = ownerCars.reduce((acc, car) => {
+        const status = car.status?.toLowerCase() || 'unknown';
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {});
+
+      // Calculate registration document status
+      const regDocStatusData = ownerCars.reduce((acc, car) => {
+        const regDocStatus = car.registrationPaper?.toLowerCase() || 'pending';
+        acc[regDocStatus] = (acc[regDocStatus] || 0) + 1;
+        return acc;
+      }, {});
+
       // Calculate car types distribution
       const carTypes = ownerCars.reduce((acc, car) => {
         const type = car.type || 'Other';
@@ -65,10 +99,20 @@ const OwnerDashboard = () => {
         return acc;
       }, {});
 
+      // Calculate top manufacturers with cars in confirmed/completed bookings
+      const topManufacturers = {};
+
       // Fetch rental history data
-      const { invoices: allInvoices, payments } = await fetchRentalHistoryData();
+      const { invoices: allInvoices, payments, users } = await fetchRentalHistoryData();
       const invoices = allInvoices.filter(invoice => invoice.vendorId === currentUserId);
 
+      // Create user lookup map for customer names
+      const userMap = users.reduce((acc, user) => {
+        acc[user.id] = user.fullname || user.username || user.email || 'Unknown User';
+        return acc;
+      }, {});
+      console.log("User Map",userMap);
+      
       // Create payment lookup map
       const paymentMap = payments.reduce((acc, payment) => {
         if (!acc[payment.invoiceId]) {
@@ -77,6 +121,38 @@ const OwnerDashboard = () => {
         acc[payment.invoiceId].push(payment);
         return acc;
       }, {});
+
+      // Fetch payment data for payment statistics
+      const { payments: allPayments } = await fetchOwnerPaymentsData();
+
+      // Filter payments for current vendor's invoices
+      const vendorInvoiceIds = invoices.map(invoice => invoice.id);
+      const vendorPayments = allPayments.filter(payment => vendorInvoiceIds.includes(payment.invoiceId));
+
+      // Calculate payment statistics
+      const totalReceived = vendorPayments.filter(p =>
+        p.status?.toLowerCase() === 'paid' ||
+        p.status?.toLowerCase() === 'completed' ||
+        p.status?.toLowerCase() === 'success'
+      ).reduce((sum, p) => sum + (p.paidAmount || 0), 0);
+
+      const pendingPayments = vendorPayments.filter(p =>
+        p.status?.toLowerCase() === 'pending'
+      ).reduce((sum, p) => sum + (p.paidAmount || 0), 0);
+
+      const bookingFeeTotal = vendorPayments.filter(p =>
+        p.item?.toLowerCase().includes('booking') &&
+        (p.status?.toLowerCase() === 'paid' ||
+          p.status?.toLowerCase() === 'completed' ||
+          p.status?.toLowerCase() === 'success')
+      ).reduce((sum, p) => sum + (p.paidAmount || 0), 0);
+
+      const rentalFeeTotal = vendorPayments.filter(p =>
+        !p.item?.toLowerCase().includes('booking') &&
+        (p.status?.toLowerCase() === 'paid' ||
+          p.status?.toLowerCase() === 'completed' ||
+          p.status?.toLowerCase() === 'success')
+      ).reduce((sum, p) => sum + (p.paidAmount || 0), 0);
 
       // Fetch all bookings and filter by owner's cars
       const bookingsResponse = await axiosInstance.get(BOOKING_ENDPOINTS.GET_ALL_BOOKINGS);
@@ -95,12 +171,17 @@ const OwnerDashboard = () => {
         }
       });
 
-      // Sort bookings by createDate to get latest bookings
-      const sortedBookings = [...ownerBookings].sort((a, b) => {
-        const dateA = new Date(a.createDate || 0);
-        const dateB = new Date(b.createDate || 0);
-        return dateB - dateA; // Most recent first
-      });
+      // Sort bookings by createDate to get latest bookings and add customer names
+      const sortedBookings = [...ownerBookings]
+        .map(booking => ({
+          ...booking,
+          customerName: userMap[booking.userId] || 'Unknown Customer'
+        }))
+        .sort((a, b) => {
+          const dateA = new Date(a.createDate || 0);
+          const dateB = new Date(b.createDate || 0);
+          return dateB - dateA; // Most recent first
+        });
 
       // Calculate booking status distribution
       const bookingStatusData = ownerBookings.reduce((acc, booking) => {
@@ -139,6 +220,15 @@ const OwnerDashboard = () => {
                 monthlyEarnings[5 - monthDiff] += totalPaid;
                 monthlyBookings[5 - monthDiff]++;
               }
+            }
+          }
+
+          // Count manufacturers for confirmed/completed bookings
+          if (booking?.carId) {
+            const car = ownerCars.find(c => c.id === booking.carId);
+            if (car && car.manufacturerId) {
+              const manufacturerName = manufacturerMap[car.manufacturerId] || 'Unknown';
+              topManufacturers[manufacturerName] = (topManufacturers[manufacturerName] || 0) + 1;
             }
           }
         }
@@ -213,6 +303,14 @@ const OwnerDashboard = () => {
         monthlyEarnings,
         monthlyBookings,
         weeklyBookingData,
+        totalReceived,
+        pendingPayments,
+        bookingFeeTotal,
+        rentalFeeTotal,
+        carStatusData,
+        regDocStatusData,
+        topManufacturers,
+        recentBookings: sortedBookings,
       });
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -253,6 +351,16 @@ const OwnerDashboard = () => {
     count,
     percentage: totalCars > 0 ? Math.round((count / totalCars) * 100) : 0
   }));
+
+  // Calculate percentages for top manufacturers
+  const totalManufacturerBookings = Object.values(stats.topManufacturers).reduce((sum, count) => sum + count, 0);
+  const manufacturerPercentages = Object.entries(stats.topManufacturers)
+    .sort(([,a], [,b]) => b - a) // Sort by count descending
+    .map(([manufacturer, count]) => ({
+      manufacturer,
+      count,
+      percentage: totalManufacturerBookings > 0 ? Math.round((count / totalManufacturerBookings) * 100) : 0
+    }));
 
   // Prepare booking status data for pie chart
   const bookingStatusChartData = [
@@ -352,45 +460,349 @@ const OwnerDashboard = () => {
         </div>
       </div>
 
-      {/* Second Row - Earnings Summary and Car Availability */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Earnings Summary */}
-        <OwnerEarningsSummary monthlyEarnings={stats.monthlyEarnings} />
+      {/* Second Row - Payment Summary and Car Availability */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Payment Summary */}
+        <div className="bg-white rounded-xl shadow-sm p-6 lg:col-span-1">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">Payment Summary</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-green-700">Total Received</p>
+                  <p className="text-2xl font-bold text-green-600">{formatVND(stats.totalReceived)}</p>
+                </div>
+                <div className="bg-green-100 rounded-full p-3">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
 
-        {/* Car Availability - Placeholder */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Car Availability</h2>
-          <div className="space-y-4">
-            <select className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm">
-              <option>Car Number</option>
-            </select>
-            <select className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm">
-              <option>Jan 20, 2025</option>
-            </select>
-            <select className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm">
-              <option>10 AM</option>
-            </select>
-            <button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-lg transition-colors">
-              Check
+            <div className="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-yellow-700">Pending Payments</p>
+                  <p className="text-2xl font-bold text-yellow-600">{formatVND(stats.pendingPayments)}</p>
+                </div>
+                <div className="bg-yellow-100 rounded-full p-3">
+                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-blue-700">Booking Fees</p>
+                  <p className="text-2xl font-bold text-blue-600">{formatVND(stats.bookingFeeTotal)}</p>
+                </div>
+                <div className="bg-blue-100 rounded-full p-3">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-purple-50 rounded-lg p-4 border-l-4 border-purple-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-purple-700">Rental Fees</p>
+                  <p className="text-2xl font-bold text-purple-600">{formatVND(stats.rentalFeeTotal)}</p>
+                </div>
+                <div className="bg-purple-100 rounded-full p-3">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Bookings Table */}
+        <div className="bg-white rounded-xl shadow-sm p-6 lg:col-span-1">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold text-gray-900">Recent Bookings</h2>
+            <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+              View All
             </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm">Booking ID</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm">Customer</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm">Rental Period</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm">Pickup Time</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm">Return Time</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {stats.recentBookings.slice(0, 5).map((booking) => {
+                  const pickupDate = booking.pickupTime ? new Date(booking.pickupTime) : null;
+                  const dropoffDate = booking.dropoffTime ? new Date(booking.dropoffTime) : null;
+                  const rentalDays = pickupDate && dropoffDate ? 
+                    Math.ceil((dropoffDate - pickupDate) / (1000 * 60 * 60 * 24)) : 0;
+                  
+                  return (
+                    <tr key={booking.id} className="hover:bg-gray-50">
+                      <td className="py-3 px-4">
+                        <div className="font-medium text-gray-900 text-sm">
+                          BK{String(booking.id).padStart(3, '0')}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="font-medium text-gray-900 text-sm">
+                          {booking.customerName || 'N/A'}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-sm text-gray-600">
+                          {rentalDays > 0 ? `${rentalDays} day${rentalDays > 1 ? 's' : ''}` : 'N/A'}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-sm text-gray-600">
+                          {pickupDate ? pickupDate.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          }) : 'N/A'}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-sm text-gray-600">
+                          {dropoffDate ? dropoffDate.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          }) : 'N/A'}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {stats.recentBookings.length === 0 && (
+                  <tr>
+                    <td colSpan="6" className="py-8 text-center text-gray-500">
+                      No bookings found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      {/* Third Row - Booking Overview, Car Type, Booking Status */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Booking Status Summary */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* <div className="bg-white rounded-xl shadow-sm p-6 lg:col-span-1">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">Booking Status Summary</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-green-700">Completed Bookings</p>
+                  <p className="text-2xl font-bold text-green-600">{stats.bookingStatusData.completed || 0}</p>
+                </div>
+                <div className="bg-green-100 rounded-full p-3">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-blue-700">Confirmed Bookings</p>
+                  <p className="text-2xl font-bold text-blue-600">{stats.bookingStatusData.confirmed || 0}</p>
+                </div>
+                <div className="bg-blue-100 rounded-full p-3">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-yellow-700">Pending Bookings</p>
+                  <p className="text-2xl font-bold text-yellow-600">{stats.bookingStatusData.pending || 0}</p>
+                </div>
+                <div className="bg-yellow-100 rounded-full p-3">
+                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-red-50 rounded-lg p-4 border-l-4 border-red-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-red-700">Cancelled Bookings</p>
+                  <p className="text-2xl font-bold text-red-600">{stats.bookingStatusData.cancelled || 0}</p>
+                </div>
+                <div className="bg-red-100 rounded-full p-3">
+                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div> */}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:col-span-2">
+          {/* Car Availability*/}
+          <div className="bg-white rounded-xl shadow-sm p-6 lg:col-span-1">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">Car Status Summary</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-green-700">Available</p>
+                    <p className="text-2xl font-bold text-green-600">{stats.carStatusData?.active || 0}</p>
+                  </div>
+                  <div className="bg-green-100 rounded-full p-3">
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-orange-50 rounded-lg p-4 border-l-4 border-orange-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-orange-700">In Maintenance</p>
+                    <p className="text-2xl font-bold text-orange-600">{stats.carStatusData?.maintenance || 0}</p>
+                  </div>
+                  <div className="bg-orange-100 rounded-full p-3">
+                    <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-blue-700">Reserved</p>
+                    <p className="text-2xl font-bold text-blue-600">{stats.carStatusData?.reserved || 0}</p>
+                  </div>
+                  <div className="bg-blue-100 rounded-full p-3">
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-yellow-700">Pending</p>
+                    <p className="text-2xl font-bold text-yellow-600">{stats.carStatusData?.pending || 0}</p>
+                  </div>
+                  <div className="bg-yellow-100 rounded-full p-3">
+                    <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Car RegDoc */}
+          <div className="bg-white rounded-xl shadow-sm p-6 lg:col-span-1">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">Registration Document Status</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-green-700">Approved</p>
+                    <p className="text-2xl font-bold text-green-600">{stats.regDocStatusData?.approved || 0}</p>
+                  </div>
+                  <div className="bg-green-100 rounded-full p-3">
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-yellow-700">Pending Approval</p>
+                    <p className="text-2xl font-bold text-yellow-600">{stats.regDocStatusData?.pending || 0}</p>
+                  </div>
+                  <div className="bg-yellow-100 rounded-full p-3">
+                    <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-red-50 rounded-lg p-4 border-l-4 border-red-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-red-700">Rejected</p>
+                    <p className="text-2xl font-bold text-red-600">{stats.regDocStatusData?.rejected || 0}</p>
+                  </div>
+                  <div className="bg-red-100 rounded-full p-3">
+                    <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Booking Status Pie Chart */}
+          <OwnerBookingStatus bookingStatusChartData={bookingStatusChartData} />
+        </div>
+
+      </div>
+
+      {/* Fourth Row - Booking Overview and Top Manufacturers */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Booking Overview */}
         <OwnerBookingOverview weeklyBookingData={stats.weeklyBookingData} />
 
-        {/* Car Type */}
+        {/* Top Manufacturers */}
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Car Type</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">Top Manufacturers (Confirmed/Completed Bookings)</h2>
           <div className="space-y-4">
-            {carTypePercentages.slice(0, 4).map((item, index) => (
+            {manufacturerPercentages.slice(0, 4).map((item, index) => (
               <div key={index}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600">{item.type}</span>
-                  <span className="text-sm font-medium text-gray-900">{item.percentage}%</span>
+                  <span className="text-sm text-gray-600">{item.manufacturer}</span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-500">({item.count} bookings)</span>
+                    <span className="text-sm font-medium text-gray-900">{item.percentage}%</span>
+                  </div>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
@@ -400,11 +812,16 @@ const OwnerDashboard = () => {
                 </div>
               </div>
             ))}
+            {manufacturerPercentages.length === 0 && (
+              <div className="text-center text-gray-500 py-4">
+                No confirmed or completed bookings yet
+              </div>
+            )}
           </div>
         </div>
 
         {/* Booking Status Pie Chart */}
-        <OwnerBookingStatus bookingStatusChartData={bookingStatusChartData} />
+        {/* <OwnerBookingStatus bookingStatusChartData={bookingStatusChartData} /> */}
       </div>
     </div>
   );

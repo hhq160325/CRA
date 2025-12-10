@@ -15,6 +15,8 @@ export const AUTH_ENDPOINTS = {
   REGISTER: `${API_CONFIG.BASE_URL}/Authen/SignUp`,
   LOGIN_GOOGLE: `${API_CONFIG.BASE_URL}/Authen/login/google`,
   GOOGLE_CALLBACK: `${API_CONFIG.BASE_URL}/Authen/google-callback`,
+  OTP_VERIFY: `${API_CONFIG.BASE_URL}/Authen/otp/verify`,
+  OTP_RESEND: `${API_CONFIG.BASE_URL}/Authen/otp/resend`,
   FORGOT_PASSWORD: `${API_CONFIG.BASE_URL}/auth/forgot-password`,
   RESET_PASSWORD: `${API_CONFIG.BASE_URL}/auth/reset-password`,
   VERIFY_TOKEN: `${API_CONFIG.BASE_URL}/auth/verify-token`,

@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
 import { INQUIRY_ENDPOINTS } from '../../../config/api';
 import { tokenUtils } from '../../auth/utils';
 import { getAllUsers } from '../ownerApi';
 
 const Inquiries = () => {
+  const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedInquiry, setSelectedInquiry] = useState(null);
@@ -22,7 +24,7 @@ const Inquiries = () => {
   useEffect(() => {
     const fetchInquiriesAndUsers = async () => {
       if (!currentUserId) {
-        setError('Người dùng chưa đăng nhập');
+        setError(t('inquiries.userNotLoggedIn'));
         setLoading(false);
         return;
       }
@@ -41,9 +43,9 @@ const Inquiries = () => {
         const userMap = {};
         usersData.forEach(user => {
           userMap[user.id] = {
-            name: user.username || user.fullName || 'Unknown',
-            email: user.email || 'N/A',
-            phone: user.phoneNumber || 'N/A'
+            name: user.username || user.fullName || t('inquiries.unknown'),
+            email: user.email || t('inquiries.noData'),
+            phone: user.phoneNumber || t('inquiries.noData')
           };
         });
 
@@ -51,9 +53,9 @@ const Inquiries = () => {
         const transformedData = inquiriesResponse.data.map(inquiry => {
           // Get sender info from user map
           const senderInfo = userMap[inquiry.senderId] || {
-            name: 'Không xác định',
-            email: 'Không có',
-            phone: 'Không có'
+            name: t('inquiries.unknown'),
+            email: t('inquiries.noData'),
+            phone: t('inquiries.noData')
           };
 
           return {
@@ -65,9 +67,9 @@ const Inquiries = () => {
             customerPhone: senderInfo.phone,
             subject: inquiry.title,
             message: inquiry.content,
-            carName: inquiry.carName || 'Không có',
-            carId: inquiry.carId || 'Không có',
-            date: new Date(inquiry.createDate).toLocaleString('en-US', {
+            carName: inquiry.carName || t('inquiries.noData'),
+            carId: inquiry.carId || t('inquiries.noData'),
+            date: new Date(inquiry.createDate).toLocaleString(t('locale'), {
               year: 'numeric',
               month: '2-digit',
               day: '2-digit',
@@ -84,8 +86,8 @@ const Inquiries = () => {
 
         setInquiries(transformedData);
       } catch (err) {
-        console.error('Lỗi khi tải câu hỏi:', err);
-        setError(err.response?.data?.message || err.message || 'Không thể tải danh sách câu hỏi');
+        console.error(t('inquiries.responseError'), err);
+        setError(err.response?.data?.message || err.message || t('inquiries.cannotLoadInquiries'));
       } finally {
         setLoading(false);
       }
@@ -111,11 +113,11 @@ const Inquiries = () => {
   const getStatusText = (status) => {
     switch (status) {
       case 'pending':
-        return 'Chờ xử lý';
+        return t('inquiries.statusPending');
       case 'responded':
-        return 'Đã phản hồi';
+        return t('inquiries.statusResponded');
       case 'closed':
-        return 'Đã đóng';
+        return t('inquiries.statusClosed');
       default:
         return status;
     }
@@ -138,11 +140,11 @@ const Inquiries = () => {
   const getPriorityText = (priority) => {
     switch (priority) {
       case 'high':
-        return 'Cao';
+        return t('inquiries.priorityHigh');
       case 'medium':
-        return 'Trung bình';
+        return t('inquiries.priorityMedium');
       case 'low':
-        return 'Thấp';
+        return t('inquiries.priorityLow');
       default:
         return priority;
     }
@@ -165,10 +167,10 @@ const Inquiries = () => {
       return;
     }
 
-    console.log('📤 Đang gửi phản hồi...');
-    console.log('Câu hỏi được chọn:', selectedInquiry);
-    console.log('Nội dung phản hồi:', responseText);
-    console.log('ID người dùng hiện tại:', currentUserId);
+    console.log(t('inquiries.sendingResponse'));
+    console.log(t('inquiries.selectedInquiry'), selectedInquiry);
+    console.log(t('inquiries.responseContent'), responseText);
+    console.log(t('inquiries.currentUserId'), currentUserId);
 
     try {
       setLoading(true);
@@ -182,14 +184,14 @@ const Inquiries = () => {
       formData.append('ReceiverId', selectedInquiry.senderId);
       formData.append('ParentInquiryId', selectedInquiry.id);
 
-      console.log('Nội dung FormData:');
-      console.log('Tiêu đề:', selectedInquiry.subject);
-      console.log('Nội dung:', responseText);
-      console.log('isOpen:', 'false');
-      console.log('ID người gửi:', currentUserId);
-      console.log('ID người nhận:', selectedInquiry.senderId);
-      console.log('ID câu hỏi gốc:', selectedInquiry.id);
-      console.log('Endpoint:', INQUIRY_ENDPOINTS.ANSWER_INQUIRY);
+      console.log(t('inquiries.formDataContent'));
+      console.log(t('inquiries.title'), selectedInquiry.subject);
+      console.log(t('inquiries.content'), responseText);
+      console.log(t('inquiries.isOpen'), 'false');
+      console.log(t('inquiries.senderId'), currentUserId);
+      console.log(t('inquiries.receiverId'), selectedInquiry.senderId);
+      console.log(t('inquiries.parentInquiryId'), selectedInquiry.id);
+      console.log(t('inquiries.endpoint'), INQUIRY_ENDPOINTS.ANSWER_INQUIRY);
 
       const response = await axiosInstance.post(
         INQUIRY_ENDPOINTS.ANSWER_INQUIRY,
@@ -201,7 +203,7 @@ const Inquiries = () => {
         }
       );
 
-      console.log('Gửi phản hồi thành công:', response.data);
+      console.log(t('inquiries.responseSuccess'), response.data);
       
       // Update the inquiry in the local state
       setInquiries(prevInquiries =>
@@ -220,10 +222,10 @@ const Inquiries = () => {
       closeModal();
       
       // Show success message
-      toast.success('Gửi phản hồi thành công!');
+      toast.success(t('inquiries.responseSuccessMessage'));
     } catch (err) {
-      console.error('Lỗi khi gửi phản hồi:', err);
-      toast.error(err.response?.data?.message || 'Không thể gửi phản hồi. Vui lòng thử lại.');
+      console.error(t('inquiries.responseError'), err);
+      toast.error(err.response?.data?.message || t('inquiries.responseErrorMessage'));
     } finally {
       setLoading(false);
     }
@@ -231,9 +233,9 @@ const Inquiries = () => {
 
   const handleMarkAsClosed = (inquiryId) => {
     // Handle mark as closed logic
-    console.log('Đánh dấu câu hỏi đã đóng:', inquiryId);
+    console.log(t('inquiries.markClosedMessage'), inquiryId);
     // TODO: Implement actual API call to mark as closed
-    toast.info('Tính năng đánh dấu đã đóng sẽ được triển khai sau.');
+    toast.info(t('inquiries.markClosedFeature'));
   };
 
   const filteredInquiries = inquiries.filter(inquiry => {
@@ -257,7 +259,7 @@ const Inquiries = () => {
       <div className="p-8 space-y-6 min-h-full bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Đang tải câu hỏi...</p>
+          <p className="text-gray-600">{t('inquiries.loadingInquiries')}</p>
         </div>
       </div>
     );
@@ -271,13 +273,13 @@ const Inquiries = () => {
           <svg className="w-12 h-12 text-red-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h3 className="text-lg font-semibold text-red-900 mb-2">Lỗi Tải Câu Hỏi</h3>
+          <h3 className="text-lg font-semibold text-red-900 mb-2">{t('inquiries.errorLoadingInquiries')}</h3>
           <p className="text-red-700">{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
           >
-            Thử Lại
+            {t('inquiries.tryAgain')}
           </button>
         </div>
       </div>
@@ -290,12 +292,12 @@ const Inquiries = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Câu Hỏi</h1>
-            <p className="text-gray-600">Nhận câu hỏi và gửi phản hồi cho khách hàng</p>
+            <h1 className="text-2xl font-bold text-gray-900">{t('inquiries.title')}</h1>
+            <p className="text-gray-600">{t('inquiries.subtitle')}</p>
           </div>
           <div className="flex space-x-3">
             <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-              Xuất Báo Cáo
+              {t('inquiries.exportReport')}
             </button>
           </div>
         </div>
@@ -305,7 +307,7 @@ const Inquiries = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Tổng Câu Hỏi</p>
+                <p className="text-sm text-gray-600">{t('inquiries.totalInquiries')}</p>
                 <p className="text-2xl font-bold text-blue-600">{totalInquiries}</p>
               </div>
               <div className="bg-blue-100 rounded-full p-3">
@@ -319,7 +321,7 @@ const Inquiries = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-yellow-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Chờ Xử Lý</p>
+                <p className="text-sm text-gray-600">{t('inquiries.pending')}</p>
                 <p className="text-2xl font-bold text-yellow-600">{pendingCount}</p>
               </div>
               <div className="bg-yellow-100 rounded-full p-3">
@@ -333,7 +335,7 @@ const Inquiries = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Đã Phản Hồi</p>
+                <p className="text-sm text-gray-600">{t('inquiries.responded')}</p>
                 <p className="text-2xl font-bold text-green-600">{respondedCount}</p>
               </div>
               <div className="bg-green-100 rounded-full p-3">
@@ -347,7 +349,7 @@ const Inquiries = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-red-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Ưu Tiên Cao</p>
+                <p className="text-sm text-gray-600">{t('inquiries.highPriority')}</p>
                 <p className="text-2xl font-bold text-red-600">{highPriorityCount}</p>
               </div>
               <div className="bg-red-100 rounded-full p-3">
@@ -369,7 +371,7 @@ const Inquiries = () => {
                 </svg>
                 <input
                   type="text"
-                  placeholder="Tìm kiếm theo khách hàng, chủ đề hoặc mã câu hỏi"
+                  placeholder={t('inquiries.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
@@ -380,14 +382,14 @@ const Inquiries = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="all">Tất Cả Trạng Thái</option>
-                <option value="pending">Chờ Xử Lý</option>
-                <option value="responded">Đã Phản Hồi</option>
-                <option value="closed">Đã Đóng</option>
+                <option value="all">{t('inquiries.allStatuses')}</option>
+                <option value="pending">{t('inquiries.pending')}</option>
+                <option value="responded">{t('inquiries.responded')}</option>
+                <option value="closed">{t('inquiries.closed')}</option>
               </select>
             </div>
             <div className="text-sm text-gray-600">
-              Hiển thị {filteredInquiries.length} trong tổng số {inquiries.length} câu hỏi
+              {t('inquiries.showingResults', { filtered: filteredInquiries.length, total: inquiries.length })}
             </div>
           </div>
         </div>
@@ -398,14 +400,14 @@ const Inquiries = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mã Câu Hỏi</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Khách Hàng</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Chủ Đề</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Xe</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Ngày</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Ưu Tiên</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Trạng Thái</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Hành Động</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.inquiryCode')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.customer')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.subject')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.car')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.date')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.priority')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.status')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -447,14 +449,14 @@ const Inquiries = () => {
                           onClick={() => openModal(inquiry)}
                           className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                         >
-                          {inquiry.status === 'pending' ? 'Phản Hồi' : 'Xem'}
+                          {inquiry.status === 'pending' ? t('inquiries.respond') : t('inquiries.view')}
                         </button>
                         {inquiry.status === 'responded' && (
                           <button
                             onClick={() => handleMarkAsClosed(inquiry.id)}
                             className="text-gray-600 hover:text-gray-700 text-sm font-medium"
                           >
-                            Đóng
+                            {t('inquiries.close')}
                           </button>
                         )}
                       </div>
@@ -468,13 +470,13 @@ const Inquiries = () => {
           {/* Pagination */}
           <div className="flex items-center justify-center py-4 border-t border-gray-200">
             <div className="flex items-center space-x-2">
-              <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Trước</button>
+              <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('inquiries.previous')}</button>
               <div className="flex space-x-1">
                 <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
                 <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
                 <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
               </div>
-              <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Sau</button>
+              <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('inquiries.next')}</button>
             </div>
           </div>
         </div>
@@ -485,7 +487,7 @@ const Inquiries = () => {
           <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Chi Tiết Câu Hỏi - {selectedInquiry.inquiryId}</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t('inquiries.inquiryDetails')} - {selectedInquiry.inquiryId}</h2>
                 <button
                   onClick={closeModal}
                   className="text-gray-400 hover:text-gray-600"
@@ -499,22 +501,22 @@ const Inquiries = () => {
             <div className="p-6 space-y-6">
               {/* Customer Info */}
               <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Thông Tin Khách Hàng</h3>
+                <h3 className="font-semibold text-gray-900 mb-3">{t('inquiries.customerInformation')}</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-gray-600">Tên</p>
+                    <p className="text-gray-600">{t('inquiries.name')}</p>
                     <p className="font-medium text-gray-900">{selectedInquiry.customer}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600">Email</p>
+                    <p className="text-gray-600">{t('inquiries.email')}</p>
                     <p className="font-medium text-gray-900">{selectedInquiry.customerEmail}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600">Điện Thoại</p>
+                    <p className="text-gray-600">{t('inquiries.phone')}</p>
                     <p className="font-medium text-gray-900">{selectedInquiry.customerPhone}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600">Ngày</p>
+                    <p className="text-gray-600">{t('inquiries.date')}</p>
                     <p className="font-medium text-gray-900">{selectedInquiry.date}</p>
                   </div>
                 </div>
@@ -523,7 +525,7 @@ const Inquiries = () => {
               {/* Inquiry Details */}
               <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-gray-900">Chủ Đề</h3>
+                  <h3 className="font-semibold text-gray-900">{t('inquiries.subject')}</h3>
                   <div className="flex items-center space-x-2">
                     <span className={getPriorityBadge(selectedInquiry.priority)}>{getPriorityText(selectedInquiry.priority)}</span>
                     <span className={getStatusBadge(selectedInquiry.status)}>{getStatusText(selectedInquiry.status)}</span>
@@ -534,7 +536,7 @@ const Inquiries = () => {
                   <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">{selectedInquiry.message}</p>
                 </div>
                 <div className="mt-3 text-sm text-gray-600 break-words">
-                  <span className="font-medium">Xe:</span> {selectedInquiry.carName} ({selectedInquiry.carId})
+                  <span className="font-medium">{t('inquiries.car')}:</span> {selectedInquiry.carName} ({selectedInquiry.carId})
                 </div>
               </div>
 
@@ -542,7 +544,7 @@ const Inquiries = () => {
               {selectedInquiry.response && (
                 <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-gray-900">Phản Hồi Trước Đó Của Bạn</h3>
+                    <h3 className="font-semibold text-gray-900">{t('inquiries.previousResponse')}</h3>
                     <span className="text-xs text-gray-500">{selectedInquiry.responseDate}</span>
                   </div>
                   <p className="text-sm text-gray-700 whitespace-pre-wrap">{selectedInquiry.response}</p>
@@ -552,14 +554,14 @@ const Inquiries = () => {
               {/* Response Form */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {selectedInquiry.response ? 'Cập Nhật Phản Hồi' : 'Phản Hồi Của Bạn'}
+                  {selectedInquiry.response ? t('inquiries.updateResponse') : t('inquiries.yourResponse')}
                 </label>
                 <textarea
                   rows="6"
                   value={responseText}
                   onChange={(e) => setResponseText(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Viết phản hồi của bạn tại đây..."
+                  placeholder={t('inquiries.responsePlaceholder')}
                 />
               </div>
 
@@ -570,7 +572,7 @@ const Inquiries = () => {
                   disabled={loading}
                   className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Hủy
+                  {t('inquiries.cancel')}
                 </button>
                 <button
                   onClick={handleSendResponse}
@@ -583,10 +585,10 @@ const Inquiries = () => {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Đang gửi...
+                      {t('inquiries.sending')}
                     </>
                   ) : (
-                    selectedInquiry.response ? 'Cập Nhật Phản Hồi' : 'Gửi Phản Hồi'
+                    selectedInquiry.response ? t('inquiries.updateResponse') : t('inquiries.sendResponse')
                   )}
                 </button>
                 {selectedInquiry.status === 'responded' && (
@@ -595,7 +597,7 @@ const Inquiries = () => {
                     disabled={loading}
                     className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Đánh Dấu Đã Đóng
+                    {t('inquiries.markAsClosed')}
                   </button>
                 )}
               </div>

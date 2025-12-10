@@ -1,0 +1,1 @@
+export { ownerTranslations } from './owneri18.js';

@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import { filterBookingData } from '../utils/filterUtils';
 import {
   CAR_ENDPOINTS,
@@ -9,6 +10,7 @@ import {
 import Pagination from '../../../shared/components/Pagination';
 
 const BookingManagement = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedBooking, setSelectedBooking] = useState(null);
@@ -50,30 +52,32 @@ const BookingManagement = () => {
 
         // Create lookup maps for efficient data access
         const carMap = new Map(cars.map(car => [car.id, car]));
-        const userMap = new Map(users.map(user => [user.userId, user]));
+        const userMap = new Map(users.map(user => [user.id, user]));
 
         // Transform and enrich booking data
         const enrichedBookings = allBookings.map(booking => {
           const car = carMap.get(booking.carId) || {};
-          const customer = userMap.get(booking.customerId) || {};
-
+          const customer = userMap.get(booking.userId) || {};
+          console.log("customerName",booking);
+          
           return {
             id: booking.id,
             bookingId: booking.bookingNumber || 'N/A',
             carId: booking.carId || 'N/A',
-            carName: car.manufacturer && car.model ? `${car.manufacturer} ${car.model}` : 'Unknown Car',
-            licensePlate: car.licensePlate || 'N/A',
-            customer: customer.fullname || customer.username || 'Unknown Customer',
-            customerEmail: customer.email || 'N/A',
-            customerPhone: customer.phoneNumber || 'N/A',
-            startDate: booking.pickupTime ? new Date(booking.pickupTime).toISOString().split('T')[0] : 'N/A',
-            endDate: booking.dropoffTime ? new Date(booking.dropoffTime).toISOString().split('T')[0] : 'N/A',
-            pickupTime: booking.pickupTime ? new Date(booking.pickupTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : 'N/A',
-            returnTime: booking.dropoffTime ? new Date(booking.dropoffTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : 'N/A',
-            status: booking.status || 'N/A',
+            carName: car.manufacturer && car.model ? `${car.manufacturer} ${car.model}` : t('bookingManagement.unknownCar'),
+            licensePlate: car.licensePlate || t('bookingManagement.notAvailable'),
+            customer: customer.fullname || customer.username || t('bookingManagement.unknownCustomer'),
+            customerEmail: customer.email || t('bookingManagement.notAvailable'),
+            customerPhone: customer.phoneNumber || t('bookingManagement.notAvailable'),
+            startDate: booking.pickupTime ? new Date(booking.pickupTime).toISOString().split('T')[0] : t('bookingManagement.notAvailable'),
+            endDate: booking.dropoffTime ? new Date(booking.dropoffTime).toISOString().split('T')[0] : t('bookingManagement.notAvailable'),
+            pickupTime: booking.pickupTime ? new Date(booking.pickupTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : t('bookingManagement.notAvailable'),
+            returnTime: booking.dropoffTime ? new Date(booking.dropoffTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : t('bookingManagement.notAvailable'),
+            status: booking.status || t('bookingManagement.notAvailable'),
           };
         });
-
+        console.log(enrichedBookings);
+        
         setBookings(enrichedBookings);
       } catch (err) {
         console.error('Error fetching booking data:', err);
@@ -95,13 +99,13 @@ const BookingManagement = () => {
     const normalizedStatus = status?.toLowerCase();
     switch (normalizedStatus) {
       case 'confirmed':
-        return { className: `${baseClasses} bg-green-100 text-green-800`, label: 'Đã xác nhận' };
+        return { className: `${baseClasses} bg-green-100 text-green-800`, label: t('bookingManagement.confirmedStatus') };
       case 'completed':
-        return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: 'Hoàn thành' };
+        return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: t('bookingManagement.completedStatus') };
       case 'cancelled':
-        return { className: `${baseClasses} bg-red-100 text-red-800`, label: 'Đã hủy' };
+        return { className: `${baseClasses} bg-red-100 text-red-800`, label: t('bookingManagement.cancelledStatus') };
       default:
-        return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: 'N/A' };
+        return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: t('bookingManagement.notAvailable') };
     }
   };
 
@@ -185,7 +189,7 @@ const BookingManagement = () => {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Đang tải dữ liệu đặt xe...</p>
+            <p className="mt-4 text-gray-600">{t('bookingManagement.loadingBookings')}</p>
           </div>
         </div>
       )}
@@ -207,12 +211,12 @@ const BookingManagement = () => {
         <>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Quản lý đặt xe (Nhận/Trả xe)</h1>
-              <p className="text-gray-600">Xử lý việc nhận xe và trả xe cho các đặt xe đang hoạt động</p>
+              <h1 className="text-2xl font-bold text-gray-900">{t('bookingManagement.title')}</h1>
+              <p className="text-gray-600">{t('bookingManagement.subtitle')}</p>
             </div>
             <div className="flex space-x-3">
               <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                Xuất báo cáo
+                {t('bookingManagement.exportReport')}
               </button>
             </div>
           </div>
@@ -286,7 +290,7 @@ const BookingManagement = () => {
                   </svg>
                   <input
                     type="text"
-                    placeholder="Tìm kiếm theo mã đặt xe, khách hàng hoặc xe"
+                    placeholder={t('bookingManagement.searchPlaceholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
@@ -297,15 +301,15 @@ const BookingManagement = () => {
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="all">Tất cả trạng thái</option>
-                  <option value="confirmed">Đã xác nhận</option>
-                  <option value="checked_in">Đã nhận xe</option>
-                  <option value="checked_out">Đã trả xe</option>
-                  <option value="completed">Hoàn thành</option>
+                  <option value="all">{t('bookingManagement.allStatuses')}</option>
+                  <option value="confirmed">{t('bookingManagement.confirmed')}</option>
+                  <option value="checked_in">{t('bookingManagement.checkedIn')}</option>
+                  <option value="checked_out">{t('bookingManagement.checkedOut')}</option>
+                  <option value="completed">{t('bookingManagement.completed')}</option>
                 </select>
               </div>
               <div className="text-sm text-gray-600">
-                Hiển thị {filteredBookings.length} trong tổng số {dataForStats.length} đặt xe
+                {t('bookingManagement.showingResults', { filtered: filteredBookings.length, total: dataForStats.length })}
               </div>
             </div>
           </div>
@@ -316,13 +320,13 @@ const BookingManagement = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200 bg-gray-50">
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mã đặt xe</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thông tin xe</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Khách hàng</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thời gian thuê</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thời gian nhận/trả xe</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingManagement.bookingId')}</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingManagement.vehicleInfo')}</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingManagement.customer')}</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingManagement.rentalPeriod')}</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingManagement.pickupReturnTime')}</th>
                     {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mileage</th> */}
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Trạng thái</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingManagement.status')}</th>
                     {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Payment</th>
                     <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th> */}
                   </tr>
@@ -345,17 +349,17 @@ const BookingManagement = () => {
                       </td>
                       <td className="py-4 px-6">
                         <div className="text-sm text-gray-900">{booking.startDate}</div>
-                        <div className="text-xs text-gray-500">đến {booking.endDate}</div>
-                        <div className="text-xs text-gray-400">{booking.endDate === new Date().toISOString().split('T')[0] ? 'Hôm nay' : ''}</div>
+                        <div className="text-xs text-gray-500">{t('bookingManagement.to')} {booking.endDate}</div>
+                        <div className="text-xs text-gray-400">{booking.endDate === new Date().toISOString().split('T')[0] ? t('bookingManagement.today') : ''}</div>
                       </td>
                       <td className="py-4 px-6">
-                        <div className="text-sm text-gray-900">Nhận xe: {booking.pickupTime}</div>
-                        <div className="text-sm text-gray-900">Trả xe: {booking.returnTime}</div>
+                        <div className="text-sm text-gray-900">{t('bookingManagement.pickup')}: {booking.pickupTime}</div>
+                        <div className="text-sm text-gray-900">{t('bookingManagement.return')}: {booking.returnTime}</div>
                         {booking.checkInDate && (
-                          <div className="text-xs text-green-600">Đã nhận xe: {booking.checkInDate.split(' ')[1]}</div>
+                          <div className="text-xs text-green-600">{t('bookingManagement.pickedUp')}: {booking.checkInDate.split(' ')[1]}</div>
                         )}
                         {booking.checkOutDate && (
-                          <div className="text-xs text-purple-600">Đã trả xe: {booking.checkOutDate.split(' ')[1]}</div>
+                          <div className="text-xs text-purple-600">{t('bookingManagement.returned')}: {booking.checkOutDate.split(' ')[1]}</div>
                         )}
                       </td>
                       {/* <td className="py-4 px-6">

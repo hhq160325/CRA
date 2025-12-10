@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
 import { CAR_ENDPOINTS, SCHEDULE_ENDPOINTS } from '../../../config/api';
 import { getUserIdFromToken } from '../../user/api';
 
 const MaintenanceSchedule = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedCar, setSelectedCar] = useState(null);
@@ -92,7 +94,7 @@ const MaintenanceSchedule = () => {
             formattedSchedules.push({
               id: idCounter++,
               carId: car.id,
-              carName: `${car.manufacturer || ''} ${car.model || ''}`.trim() || 'Mẫu Xe Không Xác Định',
+              carName: `${car.manufacturer || ''} ${car.model || ''}`.trim() || t('maintenanceSchedule.unknownCarModel'),
               carModel: car.yearofManufacture?.toString() || 'N/A',
               licensePlate: car.licensePlate || 'N/A',
               startDateMaintenanceDate: schedule.startDate ? new Date(schedule.startDate).toISOString().split('T')[0] : 'N/A',
@@ -101,7 +103,7 @@ const MaintenanceSchedule = () => {
               returnTime: schedule.endDate ? new Date(schedule.endDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : 'N/A',
               mileageAtLastService: car.mileage || 0,
               currentMileage: car.mileage || 0,
-              maintenanceType: 'Bảo Dưỡng Định Kỳ',
+              maintenanceType: t('maintenanceSchedule.periodicMaintenance'),
               status: status,
               daysUntil: daysUntil,
               priority: priority,
@@ -113,14 +115,14 @@ const MaintenanceSchedule = () => {
           formattedSchedules.push({
             id: idCounter++,
             carId: car.id,
-            carName: car.model || 'Mẫu Xe Không Xác Định',
+            carName: car.model || t('maintenanceSchedule.unknownCarModel'),
             carModel: car.year?.toString() || 'N/A',
             licensePlate: car.licensePlate || 'N/A',
             lastMaintenanceDate: 'N/A',
             nextMaintenanceDate: 'N/A',
             mileageAtLastService: car.mileage || 0,
             currentMileage: car.mileage || 0,
-            maintenanceType: 'Cần Bảo Dưỡng',
+            maintenanceType: t('maintenanceSchedule.needsMaintenance'),
             status: 'due',
             daysUntil: 0,
             priority: 'high',
@@ -132,7 +134,7 @@ const MaintenanceSchedule = () => {
       setMaintenanceSchedules(formattedSchedules);
     } catch (err) {
       console.error('Error fetching maintenance schedules:', err);
-      setError('Không thể tải lịch bảo dưỡng. Vui lòng thử lại sau.');
+      setError(t('maintenanceSchedule.errorLoadingSchedules'));
     } finally {
       setLoading(false);
     }
@@ -246,7 +248,7 @@ const MaintenanceSchedule = () => {
       await axiosInstance.post(SCHEDULE_ENDPOINTS.CREATE_CAR_SCHEDULES, scheduleData);
       
       // Show success message
-      alert('Tạo lịch bảo dưỡng thành công!');
+      alert(t('maintenanceSchedule.scheduleCreatedSuccessfully'));
       
       // Close modal and refresh data
       closeScheduleModal();
@@ -254,7 +256,7 @@ const MaintenanceSchedule = () => {
       
     } catch (err) {
       console.error('Error creating maintenance schedule:', err);
-      alert('Không thể tạo lịch bảo dưỡng. Vui lòng thử lại.');
+      alert(t('maintenanceSchedule.errorCreatingSchedule'));
     } finally {
       setSubmitting(false);
     }
@@ -278,7 +280,7 @@ const MaintenanceSchedule = () => {
       <div className="p-8 flex items-center justify-center min-h-full bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Đang tải lịch bảo dưỡng...</p>
+          <p className="mt-4 text-gray-600">{t('maintenanceSchedule.loadingSchedules')}</p>
         </div>
       </div>
     );
@@ -296,7 +298,7 @@ const MaintenanceSchedule = () => {
             onClick={fetchMaintenanceSchedules}
             className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
           >
-            Thử Lại
+{t('maintenanceSchedule.tryAgain')}
           </button>
         </div>
       </div>
@@ -309,15 +311,15 @@ const MaintenanceSchedule = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Lịch Bảo Dưỡng</h1>
-          <p className="text-gray-600">Theo dõi lịch bảo dưỡng và xem thông báo cho từng xe</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('maintenanceSchedule.title')}</h1>
+          <p className="text-gray-600">{t('maintenanceSchedule.subtitle')}</p>
         </div>
         <div className="flex space-x-3">
           <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-            Xuất Báo Cáo
+{t('maintenanceSchedule.exportReport')}
           </button>
           <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-            Thêm Bản Ghi Bảo Dưỡng
+{t('maintenanceSchedule.addMaintenanceRecord')}
           </button>
         </div>
       </div>
@@ -392,7 +394,7 @@ const MaintenanceSchedule = () => {
               </svg>
               <input
                 type="text"
-                placeholder="Tìm kiếm theo tên xe, biển số hoặc ID"
+                placeholder={t('maintenanceSchedule.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -403,15 +405,18 @@ const MaintenanceSchedule = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">Tất Cả Trạng Thái</option>
-              <option value="overdue">Quá Hạn</option>
-              <option value="due">Đến Hạn</option>
-              <option value="upcoming">Sắp Tới</option>
-              <option value="completed">Hoàn Thành</option>
+              <option value="all">{t('maintenanceSchedule.allStatuses')}</option>
+              <option value="overdue">{t('maintenanceSchedule.overdue')}</option>
+              <option value="due">{t('maintenanceSchedule.due')}</option>
+              <option value="upcoming">{t('maintenanceSchedule.upcoming')}</option>
+              <option value="completed">{t('maintenanceSchedule.completed')}</option>
             </select>
           </div>
           <div className="text-sm text-gray-600">
-            Hiển thị {filteredSchedules.length} trong tổng số {maintenanceSchedules.length} xe
+{t('maintenanceSchedule.showingResults', { 
+              filtered: filteredSchedules.length, 
+              total: maintenanceSchedules.length 
+            })}
           </div>
         </div>
       </div>
@@ -422,14 +427,14 @@ const MaintenanceSchedule = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thông Tin Xe</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Ngày Bảo Dưỡng</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thời Gian Bảo Dưỡng</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.carInfo')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.maintenanceDate')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.maintenanceTime')}</th>
                 {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mileage</th> */}
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Loại Bảo Dưỡng</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Trạng Thái</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Độ Ưu Tiên</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thao Tác</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.maintenanceType')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.status')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.priority')}</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -441,11 +446,17 @@ const MaintenanceSchedule = () => {
                     <div className="text-xs text-gray-400">{schedule.carId}</div>
                   </td>
                   <td className="py-4 px-6">
-                    <div className="text-sm text-gray-900">Từ {schedule.startDateMaintenanceDate} đến {schedule.endDateMaintenanceDate}</div>
+                    <div className="text-sm text-gray-900">{t('maintenanceSchedule.fromTo', { 
+                      start: schedule.startDateMaintenanceDate, 
+                      end: schedule.endDateMaintenanceDate 
+                    })}</div>
                     {/* <div className="text-xs text-gray-500">{schedule.mileageAtLastService.toLocaleString()} km</div> */}
                   </td>
                   <td className="py-4 px-6">
-                    <div className="text-sm font-medium text-gray-900">Từ {schedule.pickupTime}H đến {schedule.returnTime}H</div>
+                    <div className="text-sm font-medium text-gray-900">{t('maintenanceSchedule.timeFromTo', { 
+                      start: schedule.pickupTime, 
+                      end: schedule.returnTime 
+                    })}</div>
                     {/* {schedule.daysUntil >= 0 ? (
                       <div className="text-xs text-gray-500">In {schedule.daysUntil} days</div>
                     ) : (
@@ -463,12 +474,12 @@ const MaintenanceSchedule = () => {
                   </td>
                   <td className="py-4 px-6">
                     <span className={getStatusBadge(schedule.status)}>
-                      {schedule.status}
+                      {t(`maintenanceSchedule.${schedule.status}`)}
                     </span>
                   </td>
                   <td className="py-4 px-6">
                     <span className={getPriorityBadge(schedule.priority)}>
-                      {schedule.priority}
+                      {t(`maintenanceSchedule.${schedule.priority}`)}
                     </span>
                   </td>
                   <td className="py-4 px-6">
@@ -477,20 +488,20 @@ const MaintenanceSchedule = () => {
                         onClick={() => openModal(schedule)}
                         className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                       >
-                        Xem
+{t('maintenanceSchedule.view')}
                       </button>
                       <button
                         onClick={() => handleScheduleMaintenance(schedule)}
                         className="text-green-600 hover:text-green-700 text-sm font-medium"
                       >
-                        Lên Lịch
+{t('maintenanceSchedule.schedule')}
                       </button>
                       {schedule.status === 'due' || schedule.status === 'overdue' ? (
                         <button
                           onClick={() => handleMarkCompleted(schedule.id)}
                           className="text-orange-600 hover:text-orange-700 text-sm font-medium"
                         >
-                          Hoàn Thành
+{t('maintenanceSchedule.complete')}
                         </button>
                       ) : null}
                     </div>
@@ -504,13 +515,13 @@ const MaintenanceSchedule = () => {
         {/* Pagination */}
         <div className="flex items-center justify-center py-4 border-t border-gray-200">
           <div className="flex items-center space-x-2">
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Trước</button>
+            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('maintenanceSchedule.previous')}</button>
             <div className="flex space-x-1">
               <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
               <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
               <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
             </div>
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Sau</button>
+            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('maintenanceSchedule.next')}</button>
           </div>
         </div>
       </div>
@@ -522,7 +533,7 @@ const MaintenanceSchedule = () => {
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Lên Lịch Bảo Dưỡng</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t('maintenanceSchedule.scheduleMaintenanceTitle')}</h2>
                 <button
                   onClick={closeScheduleModal}
                   className="text-gray-400 hover:text-gray-600"
@@ -536,7 +547,7 @@ const MaintenanceSchedule = () => {
             <form onSubmit={handleSubmitSchedule} className="p-6 space-y-4">
               {/* Car Information */}
               <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-600 mb-2">Thông Tin Xe</p>
+                <p className="text-sm text-gray-600 mb-2">{t('maintenanceSchedule.carInfo')}</p>
                 <p className="font-medium text-gray-900">{selectedCar.carName}</p>
                 <p className="text-sm text-gray-600">{selectedCar.licensePlate} • {selectedCar.carId}</p>
               </div>
@@ -544,7 +555,7 @@ const MaintenanceSchedule = () => {
               {/* Title */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tiêu Đề <span className="text-red-500">*</span>
+{t('maintenanceSchedule.title')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -552,7 +563,7 @@ const MaintenanceSchedule = () => {
                   value={scheduleFormData.title}
                   onChange={handleScheduleFormChange}
                   required
-                  placeholder="VD: Thay dầu, Xoay lốp"
+                  placeholder={t('maintenanceSchedule.titlePlaceholder')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -560,7 +571,7 @@ const MaintenanceSchedule = () => {
               {/* Location */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Địa Điểm <span className="text-red-500">*</span>
+{t('maintenanceSchedule.location')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -568,7 +579,7 @@ const MaintenanceSchedule = () => {
                   value={scheduleFormData.location}
                   onChange={handleScheduleFormChange}
                   required
-                  placeholder="VD: Trung tâm bảo dưỡng chính"
+                  placeholder={t('maintenanceSchedule.locationPlaceholder')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -577,7 +588,7 @@ const MaintenanceSchedule = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ngày Bắt Đầu <span className="text-red-500">*</span>
+{t('maintenanceSchedule.startDate')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
@@ -590,7 +601,7 @@ const MaintenanceSchedule = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ngày Kết Thúc <span className="text-red-500">*</span>
+{t('maintenanceSchedule.endDate')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
@@ -607,14 +618,14 @@ const MaintenanceSchedule = () => {
               {/* Note */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Ghi Chú
+{t('maintenanceSchedule.notes')}
                 </label>
                 <textarea
                   name="note"
                   value={scheduleFormData.note}
                   onChange={handleScheduleFormChange}
                   rows="3"
-                  placeholder="Ghi chú bổ sung về việc bảo dưỡng..."
+                  placeholder={t('maintenanceSchedule.notesPlaceholder')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -627,14 +638,14 @@ const MaintenanceSchedule = () => {
                   className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
                   disabled={submitting}
                 >
-                  Hủy
+{t('maintenanceSchedule.cancel')}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400"
                   disabled={submitting}
                 >
-                  {submitting ? 'Đang Tạo...' : 'Tạo Lịch'}
+{submitting ? t('maintenanceSchedule.creating') : t('maintenanceSchedule.createSchedule')}
                 </button>
               </div>
             </form>
@@ -648,7 +659,7 @@ const MaintenanceSchedule = () => {
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Chi Tiết Bảo Dưỡng</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t('maintenanceSchedule.maintenanceDetails')}</h2>
                 <button
                   onClick={closeModal}
                   className="text-gray-400 hover:text-gray-600"
@@ -662,34 +673,34 @@ const MaintenanceSchedule = () => {
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600">Tên Xe</p>
+                  <p className="text-sm text-gray-600">{t('maintenanceSchedule.carName')}</p>
                   <p className="font-medium text-gray-900">{selectedCar.carName}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Biển Số</p>
+                  <p className="text-sm text-gray-600">{t('maintenanceSchedule.licensePlate')}</p>
                   <p className="font-medium text-gray-900">{selectedCar.licensePlate}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Số Km Hiện Tại</p>
+                  <p className="text-sm text-gray-600">{t('maintenanceSchedule.currentMileage')}</p>
                   <p className="font-medium text-gray-900">{selectedCar.currentMileage.toLocaleString()} km</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Loại Bảo Dưỡng</p>
+                  <p className="text-sm text-gray-600">{t('maintenanceSchedule.maintenanceType')}</p>
                   <p className="font-medium text-gray-900">{selectedCar.maintenanceType}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Ngày Bảo Dưỡng Cuối</p>
+                  <p className="text-sm text-gray-600">{t('maintenanceSchedule.lastMaintenanceDate')}</p>
                   <p className="font-medium text-gray-900">{selectedCar.lastMaintenanceDate}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Ngày Bảo Dưỡng Tiếp Theo</p>
+                  <p className="text-sm text-gray-600">{t('maintenanceSchedule.nextMaintenanceDate')}</p>
                   <p className="font-medium text-gray-900">{selectedCar.nextMaintenanceDate}</p>
                 </div>
               </div>
               <div className="pt-4 border-t border-gray-200">
                 <div className="flex items-center space-x-4">
-                  <span className={getStatusBadge(selectedCar.status)}>{selectedCar.status}</span>
-                  <span className={getPriorityBadge(selectedCar.priority)}>Độ ưu tiên {selectedCar.priority}</span>
+                  <span className={getStatusBadge(selectedCar.status)}>{t(`maintenanceSchedule.${selectedCar.status}`)}</span>
+                  <span className={getPriorityBadge(selectedCar.priority)}>{t('maintenanceSchedule.priorityLevel')} {t(`maintenanceSchedule.${selectedCar.priority}`)}</span>
                 </div>
               </div>
               <div className="pt-4 flex space-x-3">
@@ -697,14 +708,14 @@ const MaintenanceSchedule = () => {
                   onClick={() => handleScheduleMaintenance(selectedCar)}
                   className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  Lên Lịch Bảo Dưỡng
+{t('maintenanceSchedule.scheduleMaintenance')}
                 </button>
                 {(selectedCar.status === 'due' || selectedCar.status === 'overdue') && (
                   <button
                     onClick={() => handleMarkCompleted(selectedCar.id)}
                     className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
                   >
-                    Đánh Dấu Hoàn Thành
+{t('maintenanceSchedule.markAsCompleted')}
                   </button>
                 )}
               </div>

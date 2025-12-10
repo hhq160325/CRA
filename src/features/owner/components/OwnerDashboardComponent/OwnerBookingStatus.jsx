@@ -43,7 +43,7 @@ const OwnerBookingStatus = ({ bookingStatusChartData }) => {
         <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
         <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
         <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333" className="font-medium">
-          {`${value} bookings`}
+          {`${value} đặt phòng`}
         </text>
         <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
           {`(${(percent * 100).toFixed(1)}%)`}
@@ -58,7 +58,7 @@ const OwnerBookingStatus = ({ bookingStatusChartData }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 lg:col-span-1">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Booking Status</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Trạng thái đặt phòng</h2>
       {bookingStatusChartData.length > 0 ? (
         <div className="flex items-center">
           {/* Legend on the left */}
@@ -100,7 +100,7 @@ const OwnerBookingStatus = ({ bookingStatusChartData }) => {
         </div>
       ) : (
         <div className="flex items-center justify-center h-48 text-gray-400">
-          <p>No booking data available</p>
+          <p>Không có dữ liệu đặt phòng</p>
         </div>
       )}
     </div>

@@ -4,8 +4,8 @@ const OwnerBookingOverview = ({ weeklyBookingData }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Booking Overview</h2>
-        <span className="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded-lg">Last 7 Days</span>
+        <h2 className="text-lg font-semibold text-gray-900">Tổng quan Booking</h2>
+        <span className="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded-lg">7 ngày qua</span>
       </div>
       <ResponsiveContainer width="100%" height={240}>
         <BarChart data={weeklyBookingData}>
@@ -34,10 +34,10 @@ const OwnerBookingOverview = ({ weeklyBookingData }) => {
             wrapperStyle={{ fontSize: '12px' }}
             iconType="circle"
           />
-          <Bar dataKey="pending" stackId="a" fill="#f59e0b" name="Pending" radius={[0, 0, 0, 0]} />
-          <Bar dataKey="confirmed" stackId="a" fill="#3b82f6" name="Confirmed" radius={[0, 0, 0, 0]} />
-          <Bar dataKey="completed" stackId="a" fill="#10b981" name="Completed" radius={[0, 0, 0, 0]} />
-          <Bar dataKey="cancelled" stackId="a" fill="#ef4444" name="Cancelled" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="pending" stackId="a" fill="#f59e0b" name="Chờ xử lý" radius={[0, 0, 0, 0]} />
+          <Bar dataKey="confirmed" stackId="a" fill="#3b82f6" name="Đã xác nhận" radius={[0, 0, 0, 0]} />
+          <Bar dataKey="completed" stackId="a" fill="#10b981" name="Hoàn thành" radius={[0, 0, 0, 0]} />
+          <Bar dataKey="cancelled" stackId="a" fill="#ef4444" name="Đã hủy" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
 import { INQUIRY_ENDPOINTS } from '../../../config/api';
 import { tokenUtils } from '../../auth/utils';
@@ -218,11 +219,11 @@ const Inquiries = () => {
 
       closeModal();
       
-      // Show success message (you can add a toast notification here)
-      alert('Gửi phản hồi thành công!');
+      // Show success message
+      toast.success('Gửi phản hồi thành công!');
     } catch (err) {
       console.error('Lỗi khi gửi phản hồi:', err);
-      alert(err.response?.data?.message || 'Không thể gửi phản hồi. Vui lòng thử lại.');
+      toast.error(err.response?.data?.message || 'Không thể gửi phản hồi. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -231,6 +232,8 @@ const Inquiries = () => {
   const handleMarkAsClosed = (inquiryId) => {
     // Handle mark as closed logic
     console.log('Đánh dấu câu hỏi đã đóng:', inquiryId);
+    // TODO: Implement actual API call to mark as closed
+    toast.info('Tính năng đánh dấu đã đóng sẽ được triển khai sau.');
   };
 
   const filteredInquiries = inquiries.filter(inquiry => {

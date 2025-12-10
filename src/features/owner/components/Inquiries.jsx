@@ -21,7 +21,7 @@ const Inquiries = () => {
   useEffect(() => {
     const fetchInquiriesAndUsers = async () => {
       if (!currentUserId) {
-        setError('User not logged in');
+        setError('Người dùng chưa đăng nhập');
         setLoading(false);
         return;
       }
@@ -50,9 +50,9 @@ const Inquiries = () => {
         const transformedData = inquiriesResponse.data.map(inquiry => {
           // Get sender info from user map
           const senderInfo = userMap[inquiry.senderId] || {
-            name: 'Unknown',
-            email: 'N/A',
-            phone: 'N/A'
+            name: 'Không xác định',
+            email: 'Không có',
+            phone: 'Không có'
           };
 
           return {
@@ -64,8 +64,8 @@ const Inquiries = () => {
             customerPhone: senderInfo.phone,
             subject: inquiry.title,
             message: inquiry.content,
-            carName: inquiry.carName || 'N/A',
-            carId: inquiry.carId || 'N/A',
+            carName: inquiry.carName || 'Không có',
+            carId: inquiry.carId || 'Không có',
             date: new Date(inquiry.createDate).toLocaleString('en-US', {
               year: 'numeric',
               month: '2-digit',
@@ -83,8 +83,8 @@ const Inquiries = () => {
 
         setInquiries(transformedData);
       } catch (err) {
-        console.error('Error fetching inquiries:', err);
-        setError(err.response?.data?.message || err.message || 'Failed to fetch inquiries');
+        console.error('Lỗi khi tải câu hỏi:', err);
+        setError(err.response?.data?.message || err.message || 'Không thể tải danh sách câu hỏi');
       } finally {
         setLoading(false);
       }
@@ -107,6 +107,19 @@ const Inquiries = () => {
     }
   };
 
+  const getStatusText = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'Chờ xử lý';
+      case 'responded':
+        return 'Đã phản hồi';
+      case 'closed':
+        return 'Đã đóng';
+      default:
+        return status;
+    }
+  };
+
   const getPriorityBadge = (priority) => {
     const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
     switch (priority) {
@@ -118,6 +131,19 @@ const Inquiries = () => {
         return `${baseClasses} bg-green-100 text-green-800`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800`;
+    }
+  };
+
+  const getPriorityText = (priority) => {
+    switch (priority) {
+      case 'high':
+        return 'Cao';
+      case 'medium':
+        return 'Trung bình';
+      case 'low':
+        return 'Thấp';
+      default:
+        return priority;
     }
   };
 
@@ -138,10 +164,10 @@ const Inquiries = () => {
       return;
     }
 
-    console.log('📤 Sending response...');
-    console.log('Selected Inquiry:', selectedInquiry);
-    console.log('Response Text:', responseText);
-    console.log('Current User ID:', currentUserId);
+    console.log('📤 Đang gửi phản hồi...');
+    console.log('Câu hỏi được chọn:', selectedInquiry);
+    console.log('Nội dung phản hồi:', responseText);
+    console.log('ID người dùng hiện tại:', currentUserId);
 
     try {
       setLoading(true);
@@ -155,14 +181,14 @@ const Inquiries = () => {
       formData.append('ReceiverId', selectedInquiry.senderId);
       formData.append('ParentInquiryId', selectedInquiry.id);
 
-      console.log('FormData contents:');
-      console.log('Title:', selectedInquiry.subject);
-      console.log('Content:', responseText);
+      console.log('Nội dung FormData:');
+      console.log('Tiêu đề:', selectedInquiry.subject);
+      console.log('Nội dung:', responseText);
       console.log('isOpen:', 'false');
-      console.log('SenderId:', currentUserId);
-      console.log('ReceiverId:', selectedInquiry.senderId);
-      console.log('ParentInquiryId:', selectedInquiry.id);
-      console.log(' Endpoint:', INQUIRY_ENDPOINTS.ANSWER_INQUIRY);
+      console.log('ID người gửi:', currentUserId);
+      console.log('ID người nhận:', selectedInquiry.senderId);
+      console.log('ID câu hỏi gốc:', selectedInquiry.id);
+      console.log('Endpoint:', INQUIRY_ENDPOINTS.ANSWER_INQUIRY);
 
       const response = await axiosInstance.post(
         INQUIRY_ENDPOINTS.ANSWER_INQUIRY,
@@ -174,7 +200,7 @@ const Inquiries = () => {
         }
       );
 
-      console.log('Response sent successfully:', response.data);
+      console.log('Gửi phản hồi thành công:', response.data);
       
       // Update the inquiry in the local state
       setInquiries(prevInquiries =>
@@ -193,10 +219,10 @@ const Inquiries = () => {
       closeModal();
       
       // Show success message (you can add a toast notification here)
-      alert('Response sent successfully!');
+      alert('Gửi phản hồi thành công!');
     } catch (err) {
-      console.error('Error sending response:', err);
-      alert(err.response?.data?.message || 'Failed to send response. Please try again.');
+      console.error('Lỗi khi gửi phản hồi:', err);
+      alert(err.response?.data?.message || 'Không thể gửi phản hồi. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -204,7 +230,7 @@ const Inquiries = () => {
 
   const handleMarkAsClosed = (inquiryId) => {
     // Handle mark as closed logic
-    console.log('Marking inquiry as closed:', inquiryId);
+    console.log('Đánh dấu câu hỏi đã đóng:', inquiryId);
   };
 
   const filteredInquiries = inquiries.filter(inquiry => {
@@ -228,7 +254,7 @@ const Inquiries = () => {
       <div className="p-8 space-y-6 min-h-full bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading inquiries...</p>
+          <p className="text-gray-600">Đang tải câu hỏi...</p>
         </div>
       </div>
     );
@@ -242,13 +268,13 @@ const Inquiries = () => {
           <svg className="w-12 h-12 text-red-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h3 className="text-lg font-semibold text-red-900 mb-2">Error Loading Inquiries</h3>
+          <h3 className="text-lg font-semibold text-red-900 mb-2">Lỗi Tải Câu Hỏi</h3>
           <p className="text-red-700">{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
           >
-            Retry
+            Thử Lại
           </button>
         </div>
       </div>
@@ -261,12 +287,12 @@ const Inquiries = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Inquiries</h1>
-            <p className="text-gray-600">Receive inquiries and send responses to customers</p>
+            <h1 className="text-2xl font-bold text-gray-900">Câu Hỏi</h1>
+            <p className="text-gray-600">Nhận câu hỏi và gửi phản hồi cho khách hàng</p>
           </div>
           <div className="flex space-x-3">
             <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-              Export Report
+              Xuất Báo Cáo
             </button>
           </div>
         </div>
@@ -276,7 +302,7 @@ const Inquiries = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Inquiries</p>
+                <p className="text-sm text-gray-600">Tổng Câu Hỏi</p>
                 <p className="text-2xl font-bold text-blue-600">{totalInquiries}</p>
               </div>
               <div className="bg-blue-100 rounded-full p-3">
@@ -290,7 +316,7 @@ const Inquiries = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-yellow-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Pending</p>
+                <p className="text-sm text-gray-600">Chờ Xử Lý</p>
                 <p className="text-2xl font-bold text-yellow-600">{pendingCount}</p>
               </div>
               <div className="bg-yellow-100 rounded-full p-3">
@@ -304,7 +330,7 @@ const Inquiries = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Responded</p>
+                <p className="text-sm text-gray-600">Đã Phản Hồi</p>
                 <p className="text-2xl font-bold text-green-600">{respondedCount}</p>
               </div>
               <div className="bg-green-100 rounded-full p-3">
@@ -318,7 +344,7 @@ const Inquiries = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-red-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">High Priority</p>
+                <p className="text-sm text-gray-600">Ưu Tiên Cao</p>
                 <p className="text-2xl font-bold text-red-600">{highPriorityCount}</p>
               </div>
               <div className="bg-red-100 rounded-full p-3">
@@ -340,7 +366,7 @@ const Inquiries = () => {
                 </svg>
                 <input
                   type="text"
-                  placeholder="Search by customer, subject, or inquiry ID"
+                  placeholder="Tìm kiếm theo khách hàng, chủ đề hoặc mã câu hỏi"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
@@ -351,14 +377,14 @@ const Inquiries = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="responded">Responded</option>
-                <option value="closed">Closed</option>
+                <option value="all">Tất Cả Trạng Thái</option>
+                <option value="pending">Chờ Xử Lý</option>
+                <option value="responded">Đã Phản Hồi</option>
+                <option value="closed">Đã Đóng</option>
               </select>
             </div>
             <div className="text-sm text-gray-600">
-              Showing {filteredInquiries.length} of {inquiries.length} inquiries
+              Hiển thị {filteredInquiries.length} trong tổng số {inquiries.length} câu hỏi
             </div>
           </div>
         </div>
@@ -369,14 +395,14 @@ const Inquiries = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Inquiry ID</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Customer</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Subject</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Car</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Date</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Priority</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Status</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mã Câu Hỏi</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Khách Hàng</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Chủ Đề</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Xe</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Ngày</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Ưu Tiên</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Trạng Thái</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Hành Động</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -404,12 +430,12 @@ const Inquiries = () => {
                     </td>
                     <td className="py-4 px-6">
                       <span className={getPriorityBadge(inquiry.priority)}>
-                        {inquiry.priority}
+                        {getPriorityText(inquiry.priority)}
                       </span>
                     </td>
                     <td className="py-4 px-6">
                       <span className={getStatusBadge(inquiry.status)}>
-                        {inquiry.status}
+                        {getStatusText(inquiry.status)}
                       </span>
                     </td>
                     <td className="py-4 px-6">
@@ -418,14 +444,14 @@ const Inquiries = () => {
                           onClick={() => openModal(inquiry)}
                           className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                         >
-                          {inquiry.status === 'pending' ? 'Respond' : 'View'}
+                          {inquiry.status === 'pending' ? 'Phản Hồi' : 'Xem'}
                         </button>
                         {inquiry.status === 'responded' && (
                           <button
                             onClick={() => handleMarkAsClosed(inquiry.id)}
                             className="text-gray-600 hover:text-gray-700 text-sm font-medium"
                           >
-                            Close
+                            Đóng
                           </button>
                         )}
                       </div>
@@ -439,13 +465,13 @@ const Inquiries = () => {
           {/* Pagination */}
           <div className="flex items-center justify-center py-4 border-t border-gray-200">
             <div className="flex items-center space-x-2">
-              <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Previous</button>
+              <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Trước</button>
               <div className="flex space-x-1">
                 <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
                 <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
                 <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
               </div>
-              <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Next</button>
+              <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Sau</button>
             </div>
           </div>
         </div>
@@ -456,7 +482,7 @@ const Inquiries = () => {
           <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Inquiry Details - {selectedInquiry.inquiryId}</h2>
+                <h2 className="text-xl font-bold text-gray-900">Chi Tiết Câu Hỏi - {selectedInquiry.inquiryId}</h2>
                 <button
                   onClick={closeModal}
                   className="text-gray-400 hover:text-gray-600"
@@ -470,10 +496,10 @@ const Inquiries = () => {
             <div className="p-6 space-y-6">
               {/* Customer Info */}
               <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Customer Information</h3>
+                <h3 className="font-semibold text-gray-900 mb-3">Thông Tin Khách Hàng</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-gray-600">Name</p>
+                    <p className="text-gray-600">Tên</p>
                     <p className="font-medium text-gray-900">{selectedInquiry.customer}</p>
                   </div>
                   <div>
@@ -481,11 +507,11 @@ const Inquiries = () => {
                     <p className="font-medium text-gray-900">{selectedInquiry.customerEmail}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600">Phone</p>
+                    <p className="text-gray-600">Điện Thoại</p>
                     <p className="font-medium text-gray-900">{selectedInquiry.customerPhone}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600">Date</p>
+                    <p className="text-gray-600">Ngày</p>
                     <p className="font-medium text-gray-900">{selectedInquiry.date}</p>
                   </div>
                 </div>
@@ -494,10 +520,10 @@ const Inquiries = () => {
               {/* Inquiry Details */}
               <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-gray-900">Subject</h3>
+                  <h3 className="font-semibold text-gray-900">Chủ Đề</h3>
                   <div className="flex items-center space-x-2">
-                    <span className={getPriorityBadge(selectedInquiry.priority)}>{selectedInquiry.priority}</span>
-                    <span className={getStatusBadge(selectedInquiry.status)}>{selectedInquiry.status}</span>
+                    <span className={getPriorityBadge(selectedInquiry.priority)}>{getPriorityText(selectedInquiry.priority)}</span>
+                    <span className={getStatusBadge(selectedInquiry.status)}>{getStatusText(selectedInquiry.status)}</span>
                   </div>
                 </div>
                 <p className="text-gray-700 mb-3 break-words">{selectedInquiry.subject}</p>
@@ -505,7 +531,7 @@ const Inquiries = () => {
                   <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">{selectedInquiry.message}</p>
                 </div>
                 <div className="mt-3 text-sm text-gray-600 break-words">
-                  <span className="font-medium">Car:</span> {selectedInquiry.carName} ({selectedInquiry.carId})
+                  <span className="font-medium">Xe:</span> {selectedInquiry.carName} ({selectedInquiry.carId})
                 </div>
               </div>
 
@@ -513,7 +539,7 @@ const Inquiries = () => {
               {selectedInquiry.response && (
                 <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-gray-900">Your Previous Response</h3>
+                    <h3 className="font-semibold text-gray-900">Phản Hồi Trước Đó Của Bạn</h3>
                     <span className="text-xs text-gray-500">{selectedInquiry.responseDate}</span>
                   </div>
                   <p className="text-sm text-gray-700 whitespace-pre-wrap">{selectedInquiry.response}</p>
@@ -523,14 +549,14 @@ const Inquiries = () => {
               {/* Response Form */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {selectedInquiry.response ? 'Update Response' : 'Your Response'}
+                  {selectedInquiry.response ? 'Cập Nhật Phản Hồi' : 'Phản Hồi Của Bạn'}
                 </label>
                 <textarea
                   rows="6"
                   value={responseText}
                   onChange={(e) => setResponseText(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Write your response here..."
+                  placeholder="Viết phản hồi của bạn tại đây..."
                 />
               </div>
 
@@ -541,7 +567,7 @@ const Inquiries = () => {
                   disabled={loading}
                   className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   onClick={handleSendResponse}
@@ -554,10 +580,10 @@ const Inquiries = () => {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Sending...
+                      Đang gửi...
                     </>
                   ) : (
-                    selectedInquiry.response ? 'Update Response' : 'Send Response'
+                    selectedInquiry.response ? 'Cập Nhật Phản Hồi' : 'Gửi Phản Hồi'
                   )}
                 </button>
                 {selectedInquiry.status === 'responded' && (
@@ -566,7 +592,7 @@ const Inquiries = () => {
                     disabled={loading}
                     className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Mark as Closed
+                    Đánh Dấu Đã Đóng
                   </button>
                 )}
               </div>

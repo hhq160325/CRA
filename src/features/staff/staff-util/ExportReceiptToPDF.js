@@ -121,50 +121,47 @@ export const exportReceiptToPDF = (rental, options = {}) => {
     yPosition += 5; // Reduced from 6
   });
 
-  // Rental Period
-  yPosition += 3; // Reduced spacing
-  doc.setFontSize(10); // Reduced from 11
-  doc.setFont('helvetica', 'bold');
-  doc.text('Rental Period', 15, yPosition);
+  // Rental Period - TEMPORARILY COMMENTED OUT
+  // yPosition += 3; // Reduced spacing
+  // doc.setFontSize(10); // Reduced from 11
+  // doc.setFont('helvetica', 'bold');
+  // doc.text('Rental Period', 15, yPosition);
 
-  yPosition += 5; // Reduced spacing
-  doc.setFontSize(9); // Reduced from 10
-  doc.setFont('helvetica', 'normal');
+  // yPosition += 5; // Reduced spacing
+  // doc.setFontSize(9); // Reduced from 10
+  // doc.setFont('helvetica', 'normal');
 
-  const rentalPeriod = [
-    ['Pickup Date:', rental.pickupDate],
-    ['Return Date:', rental.returnDate],
-    ['Duration:', `${rental.duration} days`],
-  ];
+  // const rentalPeriod = [
+  //   ['Pickup Date:', rental.pickupDate],
+  //   ['Return Date:', rental.returnDate],
+  //   ['Duration:', `${rental.duration} days`],
+  // ];
 
-  rentalPeriod.forEach(([label, value]) => {
-    doc.setFont('helvetica', 'bold');
-    doc.text(label, 15, yPosition);
-    doc.setFont('helvetica', 'normal');
-    doc.text(value, 60, yPosition);
-    yPosition += 5; // Reduced from 6
-  });
+  // rentalPeriod.forEach(([label, value]) => {
+  //   doc.setFont('helvetica', 'bold');
+  //   doc.text(label, 15, yPosition);
+  //   doc.setFont('helvetica', 'normal');
+  //   doc.text(value, 60, yPosition);
+  //   yPosition += 5; // Reduced from 6
+  // });
 
   // Payment Details Table
   yPosition += 5; // Reduced spacing
   
   if (isCompleted) {
-    // Final Payment Receipt
-    const bookingFeePaid = rental.bookingFeePaid || 0;
+    // Final Payment Receipt - Show Rental Fee (85%)
     const rentalFeePaid = rental.rentalFeePaid || 0;
-    const remainingAmount = rental.remainingPayment || 0;
     
     autoTable(doc, {
       startY: yPosition,
       head: [['Description', 'Amount']],
       body: [
-        ['Total Rental Amount', `${(rental.totalAmount || 0).toLocaleString()} VND`],
-        ['Booking Fee Paid', `${bookingFeePaid.toLocaleString()} VND`],
-        ['Rental Fee Paid', `${rentalFeePaid.toLocaleString()} VND`],
-        ['Remaining Payment', `${remainingAmount.toLocaleString()} VND`],
+        ['Rental Fee Payment (85%)', `${rentalFeePaid.toLocaleString()} VND`],
+        ['Payment Status', (rental.rentalFeeStatus || 'N/A').toUpperCase()],
+        ['Payment Method', rental.rentalFeePaymentMethod || 'N/A'],
       ],
       foot: [
-        ['Total Paid:', `${(rental.totalPaidAmount || 0).toLocaleString()} VND`],
+        ['Total Paid:', `${rentalFeePaid.toLocaleString()} VND`],
       ],
       theme: 'striped',
       headStyles: { fillColor: [66, 139, 202], textColor: 255, fontStyle: 'bold', fontSize: 9 },
@@ -174,17 +171,16 @@ export const exportReceiptToPDF = (rental, options = {}) => {
       styles: { cellPadding: 3 }, // Reduced padding
     });
   } else if (isConfirmed) {
-    // Booking Fee Receipt
+    // Booking Fee Receipt - Show Booking Fee (15%)
     const bookingFeePaid = rental.bookingFeePaid || 0;
-    const remainingAmount = rental.remainingPayment || 0;
     
     autoTable(doc, {
       startY: yPosition,
       head: [['Description', 'Amount']],
       body: [
-        ['Estimated Total Amount', `${(rental.totalAmount || 0).toLocaleString()} VND`],
-        ['Booking Fee Paid', `${bookingFeePaid.toLocaleString()} VND`],
-        ['Remaining Balance (Due at checkout)', `${remainingAmount.toLocaleString()} VND`],
+        ['Booking Fee Payment (15%)', `${bookingFeePaid.toLocaleString()} VND`],
+        ['Payment Status', (rental.bookingFeeStatus || 'N/A').toUpperCase()],
+        ['Payment Method', rental.bookingFeePaymentMethod || 'N/A'],
       ],
       foot: [
         ['Paid Now:', `${bookingFeePaid.toLocaleString()} VND`],
@@ -197,19 +193,20 @@ export const exportReceiptToPDF = (rental, options = {}) => {
       styles: { cellPadding: 3 }, // Reduced padding
     });
   } else {
-    // Default Receipt
-    const dailyRate = rental.dailyRate || 0;
-    const duration = rental.duration || 0;
+    // Default Receipt - TEMPORARILY COMMENTED OUT RATE CALCULATION
+    // const dailyRate = rental.dailyRate || 0;
+    // const duration = rental.duration || 0;
     const totalPaid = rental.totalPaidAmount || 0;
     
     autoTable(doc, {
       startY: yPosition,
-      head: [['Description', 'Rate', 'Days', 'Amount']],
+      head: [['Description', 'Amount']],
       body: [
-        ['Daily Rental Rate', `${dailyRate.toLocaleString()} VND`, duration, `${(dailyRate * duration).toLocaleString()} VND`],
+        ['Payment Amount', `${totalPaid.toLocaleString()} VND`],
+        ['Payment Status', (rental.bookingFeeStatus || rental.rentalFeeStatus || 'N/A').toUpperCase()],
       ],
       foot: [
-        ['', '', 'Total Amount:', `${totalPaid.toLocaleString()} VND`],
+        ['Total Amount:', `${totalPaid.toLocaleString()} VND`],
       ],
       theme: 'striped',
       headStyles: { fillColor: [66, 139, 202], textColor: 255, fontStyle: 'bold', fontSize: 9 },
@@ -467,6 +464,8 @@ export const printReceipt = (rental, options = {}) => {
         </div>
       </div>
       
+      <!-- Rental Period - TEMPORARILY COMMENTED OUT -->
+      <!--
       <div class="section">
         <div class="section-title">Rental Period</div>
         <div class="info-row">
@@ -482,6 +481,7 @@ export const printReceipt = (rental, options = {}) => {
           <div class="info-value">${rental.duration} days</div>
         </div>
       </div>
+      -->
       
       ${isCompleted ? `
       <table>
@@ -493,26 +493,22 @@ export const printReceipt = (rental, options = {}) => {
         </thead>
         <tbody>
           <tr>
-            <td>Total Rental Amount</td>
-            <td>${(rental.totalAmount || 0).toLocaleString()} VND</td>
-          </tr>
-          <tr>
-            <td>Booking Fee Paid</td>
-            <td>${(rental.bookingFeePaid || 0).toLocaleString()} VND</td>
-          </tr>
-          <tr>
-            <td>Rental Fee Paid</td>
+            <td>Rental Fee Payment (85%)</td>
             <td>${(rental.rentalFeePaid || 0).toLocaleString()} VND</td>
           </tr>
           <tr>
-            <td>Remaining Payment</td>
-            <td>${(rental.remainingPayment || 0).toLocaleString()} VND</td>
+            <td>Payment Status</td>
+            <td>${(rental.rentalFeeStatus || 'N/A').toUpperCase()}</td>
+          </tr>
+          <tr>
+            <td>Payment Method</td>
+            <td>${rental.rentalFeePaymentMethod || 'N/A'}</td>
           </tr>
         </tbody>
         <tfoot>
           <tr>
             <td style="text-align: right; background-color: #228b22; color: white;">Total Paid:</td>
-            <td style="background-color: #228b22; color: white;">${(rental.totalPaidAmount || 0).toLocaleString()} VND</td>
+            <td style="background-color: #228b22; color: white;">${(rental.rentalFeePaid || 0).toLocaleString()} VND</td>
           </tr>
         </tfoot>
       </table>
@@ -526,16 +522,16 @@ export const printReceipt = (rental, options = {}) => {
         </thead>
         <tbody>
           <tr>
-            <td>Estimated Total Amount</td>
-            <td>${(rental.totalAmount || 0).toLocaleString()} VND</td>
-          </tr>
-          <tr>
-            <td>Booking Fee Paid</td>
+            <td>Booking Fee Payment (15%)</td>
             <td>${(rental.bookingFeePaid || 0).toLocaleString()} VND</td>
           </tr>
           <tr>
-            <td>Remaining Balance (Due at checkout)</td>
-            <td>${(rental.remainingPayment || 0).toLocaleString()} VND</td>
+            <td>Payment Status</td>
+            <td>${(rental.bookingFeeStatus || 'N/A').toUpperCase()}</td>
+          </tr>
+          <tr>
+            <td>Payment Method</td>
+            <td>${rental.bookingFeePaymentMethod || 'N/A'}</td>
           </tr>
         </tbody>
         <tfoot>
@@ -550,22 +546,22 @@ export const printReceipt = (rental, options = {}) => {
         <thead>
           <tr>
             <th>Description</th>
-            <th>Rate</th>
-            <th>Days</th>
             <th>Amount</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Daily Rental Rate</td>
-            <td>${(rental.dailyRate || 0).toLocaleString()} VND</td>
-            <td>${rental.duration || 0}</td>
-            <td>${((rental.dailyRate || 0) * (rental.duration || 0)).toLocaleString()} VND</td>
+            <td>Payment Amount</td>
+            <td>${(rental.totalPaidAmount || 0).toLocaleString()} VND</td>
+          </tr>
+          <tr>
+            <td>Payment Status</td>
+            <td>${(rental.bookingFeeStatus || rental.rentalFeeStatus || 'N/A').toUpperCase()}</td>
           </tr>
         </tbody>
         <tfoot>
           <tr>
-            <td colspan="3" style="text-align: right;">Total Amount:</td>
+            <td style="text-align: right;">Total Amount:</td>
             <td>${(rental.totalPaidAmount || 0).toLocaleString()} VND</td>
           </tr>
         </tfoot>

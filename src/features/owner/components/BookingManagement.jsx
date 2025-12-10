@@ -95,11 +95,11 @@ const BookingManagement = () => {
     const normalizedStatus = status?.toLowerCase();
     switch (normalizedStatus) {
       case 'confirmed':
-        return { className: `${baseClasses} bg-green-100 text-green-800`, label: 'Confirmed' };
+        return { className: `${baseClasses} bg-green-100 text-green-800`, label: 'Đã xác nhận' };
       case 'completed':
-        return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: 'Completed' };
+        return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: 'Hoàn thành' };
       case 'cancelled':
-        return { className: `${baseClasses} bg-red-100 text-red-800`, label: 'Cancelled' };
+        return { className: `${baseClasses} bg-red-100 text-red-800`, label: 'Đã hủy' };
       default:
         return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: 'N/A' };
     }
@@ -185,7 +185,7 @@ const BookingManagement = () => {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading booking data...</p>
+            <p className="mt-4 text-gray-600">Đang tải dữ liệu đặt xe...</p>
           </div>
         </div>
       )}
@@ -207,12 +207,12 @@ const BookingManagement = () => {
         <>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Booking Management (Check In/Out)</h1>
-              <p className="text-gray-600">Handle check-in and check-out for active bookings</p>
+              <h1 className="text-2xl font-bold text-gray-900">Quản lý đặt xe (Nhận/Trả xe)</h1>
+              <p className="text-gray-600">Xử lý việc nhận xe và trả xe cho các đặt xe đang hoạt động</p>
             </div>
             <div className="flex space-x-3">
               <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                Export Report
+                Xuất báo cáo
               </button>
             </div>
           </div>
@@ -286,7 +286,7 @@ const BookingManagement = () => {
                   </svg>
                   <input
                     type="text"
-                    placeholder="Search by booking ID, customer, or car"
+                    placeholder="Tìm kiếm theo mã đặt xe, khách hàng hoặc xe"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
@@ -297,15 +297,15 @@ const BookingManagement = () => {
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="all">All Status</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="checked_in">Checked In</option>
-                  <option value="checked_out">Checked Out</option>
-                  <option value="completed">Completed</option>
+                  <option value="all">Tất cả trạng thái</option>
+                  <option value="confirmed">Đã xác nhận</option>
+                  <option value="checked_in">Đã nhận xe</option>
+                  <option value="checked_out">Đã trả xe</option>
+                  <option value="completed">Hoàn thành</option>
                 </select>
               </div>
               <div className="text-sm text-gray-600">
-                Showing {filteredBookings.length} of {dataForStats.length} bookings
+                Hiển thị {filteredBookings.length} trong tổng số {dataForStats.length} đặt xe
               </div>
             </div>
           </div>
@@ -316,13 +316,13 @@ const BookingManagement = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200 bg-gray-50">
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Booking ID</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Car Information</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Customer</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rental Period</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Pickup/Return Time</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mã đặt xe</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thông tin xe</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Khách hàng</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thời gian thuê</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thời gian nhận/trả xe</th>
                     {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mileage</th> */}
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Status</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Trạng thái</th>
                     {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Payment</th>
                     <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th> */}
                   </tr>
@@ -345,17 +345,17 @@ const BookingManagement = () => {
                       </td>
                       <td className="py-4 px-6">
                         <div className="text-sm text-gray-900">{booking.startDate}</div>
-                        <div className="text-xs text-gray-500">to {booking.endDate}</div>
-                        <div className="text-xs text-gray-400">{booking.endDate === new Date().toISOString().split('T')[0] ? 'Today' : ''}</div>
+                        <div className="text-xs text-gray-500">đến {booking.endDate}</div>
+                        <div className="text-xs text-gray-400">{booking.endDate === new Date().toISOString().split('T')[0] ? 'Hôm nay' : ''}</div>
                       </td>
                       <td className="py-4 px-6">
-                        <div className="text-sm text-gray-900">Pickup: {booking.pickupTime}</div>
-                        <div className="text-sm text-gray-900">Return: {booking.returnTime}</div>
+                        <div className="text-sm text-gray-900">Nhận xe: {booking.pickupTime}</div>
+                        <div className="text-sm text-gray-900">Trả xe: {booking.returnTime}</div>
                         {booking.checkInDate && (
-                          <div className="text-xs text-green-600">Checked in: {booking.checkInDate.split(' ')[1]}</div>
+                          <div className="text-xs text-green-600">Đã nhận xe: {booking.checkInDate.split(' ')[1]}</div>
                         )}
                         {booking.checkOutDate && (
-                          <div className="text-xs text-purple-600">Checked out: {booking.checkOutDate.split(' ')[1]}</div>
+                          <div className="text-xs text-purple-600">Đã trả xe: {booking.checkOutDate.split(' ')[1]}</div>
                         )}
                       </td>
                       {/* <td className="py-4 px-6">

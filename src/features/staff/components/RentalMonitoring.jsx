@@ -79,7 +79,7 @@ const RentalMonitoring = () => {
         uniqueCustomerIds.map(customerId =>
           axiosInstance.get(BOOKING_ENDPOINTS.GET_CUSTOMER_BOOKINGS(customerId))
             .catch(err => {
-              console.error(`Error fetching bookings for customer ${customerId}:`, err);
+              console.error(`Lỗi khi tải đặt xe cho khách hàng ${customerId}:`, err);
               return { data: [] };
             })
         )
@@ -114,7 +114,7 @@ const RentalMonitoring = () => {
         uniqueCarIds.map(carId =>
           axiosInstance.get(FEEDBACK_ENDPOINTS.GET_FEEDBACK_BY_CAR(carId))
             .catch(err => {
-              console.error(`Error fetching feedback for car ${carId}:`, err);
+              console.error(`Lỗi khi tải đánh giá cho xe ${carId}:`, err);
               return { data: [] };
             })
         )
@@ -147,19 +147,19 @@ const RentalMonitoring = () => {
         const bookingFeePayment = paymentsForInvoice.find(p => p.item?.toLowerCase().includes('booking fee'));
 
         // Calculate total paid amount from all payments
-        const totalPaidAmount = paymentsForInvoice.reduce((sum, p) => sum + (p.paidAmount || 0), 0);
+        const totalPaidAmount = paymentsForInvoice.reduce((sum, p) => sum + (p.paidAmount || 0), 0); //Uncomment
         
         // Get payment methods for each payment type
-        const bookingFeePaymentMethod = bookingFeePayment?.paymentMethod || 'No Payment Method';
-        const rentalFeePaymentMethod = rentalFeePayment?.paymentMethod || 'No Payment Method';
+        const bookingFeePaymentMethod = bookingFeePayment?.paymentMethod || 'Chưa có phương thức thanh toán';
+        const rentalFeePaymentMethod = rentalFeePayment?.paymentMethod || 'Chưa có phương thức thanh toán';
 
         // Debug log to check payment status mapping
-        if (paymentsForInvoice.length > 0) {
-          console.log(`Invoice ${invoice.id}:`, {
-            bookingFee: { status: bookingFeePayment?.status, amount: bookingFeePayment?.paidAmount },
-            rentalFee: { status: rentalFeePayment?.status, amount: rentalFeePayment?.paidAmount }
-          });
-        }
+        // if (paymentsForInvoice.length > 0) {
+        //   console.log(`Invoice ${invoice.id}:`, {
+        //     bookingFee: { status: bookingFeePayment?.status, amount: bookingFeePayment?.paidAmount },
+        //     rentalFee: { status: rentalFeePayment?.status, amount: rentalFeePayment?.paidAmount }
+        //   });
+        // }
 
         // Check booking status for invoice item selection
         const bookingStatusRaw = booking?.status?.toLowerCase();
@@ -206,12 +206,12 @@ const RentalMonitoring = () => {
         return {
           id: index + 1,
           bookingId: invoice.invoiceNo || invoice.id.substring(0, 8).toUpperCase(),
-          carName: car.model || 'Unknown Car',
-          carId: carId || 'N/A',
-          licensePlate: car.licensePlate || 'N/A',
-          customer: user.fullname || user.fullName || 'Unknown Customer',
-          customerEmail: user.email || 'N/A',
-          customerPhone: user.phoneNumber || 'N/A',
+          carName: car.model || 'Xe không xác định',
+          carId: carId || 'Không có',
+          licensePlate: car.licensePlate || 'Không có',
+          customer: user.fullname || user.fullName || 'Khách hàng không xác định',
+          customerEmail: user.email || 'Không có',
+          customerPhone: user.phoneNumber || 'Không có',
           startDate: issueDate.toISOString().split('T')[0],
           endDate: dueDate.toISOString().split('T')[0],
           pickupDate: issueDate.toLocaleString(),
@@ -226,17 +226,18 @@ const RentalMonitoring = () => {
           // Payment details from PayOS
           bookingFeePaid: bookingFeePayment?.paidAmount || 0,
           rentalFeePaid: rentalFeePayment?.paidAmount || 0,
-          totalPaidAmount: totalPaidAmount,
+          totalPaidAmount: bookingStatus === 'cancelled' ? (bookingFeePayment?.paidAmount || 0) : totalPaidAmount,
+          totalPaidAmountShow:totalPaidAmount,
           bookingFeePaymentMethod: bookingFeePaymentMethod,
           rentalFeePaymentMethod: rentalFeePaymentMethod,
-          paymentMethod: bookingFeePaymentMethod || rentalFeePaymentMethod || 'No Payment Method',
+          paymentMethod: bookingFeePaymentMethod || rentalFeePaymentMethod || 'Chưa có phương thức thanh toán',
           invoiceId: invoice.id,
           invoiceItems: invoice.invoiceItems || [],
           mileageAtPickup: 0,
           mileageAtReturn: 0,
           mileageUsed: 0,
-          conditionAtPickup: 'N/A',
-          conditionAtReturn: 'N/A',
+          conditionAtPickup: 'Không có',
+          conditionAtReturn: 'Không có',
           notes: invoice.note || '',
           rating: carFeedback?.averageRating || 0,
           totalFeedbacks: carFeedback?.totalFeedbacks || 0,
@@ -246,8 +247,8 @@ const RentalMonitoring = () => {
 
       setRentalHistory(enrichedBookings);
     } catch (err) {
-      console.error('Error fetching rental history:', err);
-      setError('Failed to load rental history. Please try again later.');
+      console.error('Lỗi khi tải lịch sử thuê xe:', err);
+      setError('Không thể tải dữ liệu theo dõi thuê xe. Vui lòng thử lại sau.');
     } finally {
       setLoading(false);
     }
@@ -258,31 +259,31 @@ const RentalMonitoring = () => {
 
   // Prepare dropdown options
   const carOptions = [
-    { id: 'all', value: 'all', label: 'All Cars' },
+    { id: 'all', value: 'all', label: 'Tất cả xe' },
     ...uniqueCars.map(car => ({ id: car, value: car, label: car }))
   ];
 
   const statusOptions = [
-    { id: 'all', value: 'all', label: 'All Status' },
-    { id: 'confirmed', value: 'confirmed', label: 'Confirmed' },
-    { id: 'completed', value: 'completed', label: 'Completed' },
-    { id: 'cancelled', value: 'cancelled', label: 'Cancelled' }
+    { id: 'all', value: 'all', label: 'Tất cả trạng thái' },
+    { id: 'confirmed', value: 'confirmed', label: 'Đã xác nhận' },
+    { id: 'completed', value: 'completed', label: 'Hoàn thành' },
+    { id: 'cancelled', value: 'cancelled', label: 'Đã hủy' }
   ];
 
   const bookingFeeStatusOptions = [
-    { id: 'all', value: 'all', label: 'All Booking Fee Status' },
-    { id: 'paid', value: 'paid', label: 'Paid' },
-    { id: 'pending', value: 'pending', label: 'Pending' },
-    { id: 'refunded', value: 'refunded', label: 'Refunded' },
-    { id: 'cancelled', value: 'cancelled', label: 'Cancelled' }
+    { id: 'all', value: 'all', label: 'Tất cả trạng thái phí đặt cọc' },
+    { id: 'paid', value: 'paid', label: 'Đã thanh toán' },
+    { id: 'pending', value: 'pending', label: 'Chờ thanh toán' },
+    { id: 'refunded', value: 'refunded', label: 'Đã hoàn tiền' },
+    { id: 'cancelled', value: 'cancelled', label: 'Đã hủy' }
   ];
 
   const rentalFeeStatusOptions = [
-    { id: 'all', value: 'all', label: 'All Rental Fee Status' },
-    { id: 'paid', value: 'paid', label: 'Paid' },
-    { id: 'pending', value: 'pending', label: 'Pending' },
-    { id: 'refunded', value: 'refunded', label: 'Refunded' },
-    { id: 'cancelled', value: 'cancelled', label: 'Cancelled' }
+    { id: 'all', value: 'all', label: 'Tất cả trạng thái phí thuê xe' },
+    { id: 'paid', value: 'paid', label: 'Đã thanh toán' },
+    { id: 'pending', value: 'pending', label: 'Chờ thanh toán' },
+    { id: 'refunded', value: 'refunded', label: 'Đã hoàn tiền' },
+    { id: 'cancelled', value: 'cancelled', label: 'Đã hủy' }
   ];
 
   const getStatusBadge = (status) => {
@@ -319,6 +320,22 @@ const RentalMonitoring = () => {
       default:
         return `${baseClasses} bg-gray-100 text-gray-800`;
     }
+  };
+
+  // Function to translate status values to Vietnamese
+  const translateStatus = (status) => {
+    const statusTranslations = {
+      'confirmed': 'Đã xác nhận',
+      'completed': 'Hoàn thành',
+      'cancelled': 'Đã hủy',
+      'active': 'Đang hoạt động',
+      'overdue': 'Quá hạn',
+      'paid': 'Đã thanh toán',
+      'pending': 'Chờ thanh toán',
+      'refunded': 'Đã hoàn tiền',
+      'failed': 'Thất bại'
+    };
+    return statusTranslations[status?.toLowerCase()] || status || 'Không có';
   };
 
   // const getConditionBadge = (condition) => {
@@ -418,7 +435,7 @@ const RentalMonitoring = () => {
       <div className="p-8 flex items-center justify-center min-h-full bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading rental history...</p>
+          <p className="mt-4 text-gray-600">Đang tải dữ liệu theo dõi thuê xe...</p>
         </div>
       </div>
     );
@@ -436,7 +453,7 @@ const RentalMonitoring = () => {
             onClick={fetchRentalHistory}
             className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
           >
-            Retry
+            Thử lại
           </button>
         </div>
       </div>
@@ -449,12 +466,12 @@ const RentalMonitoring = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Rental History</h1>
-            <p className="text-gray-600">Browse historical rentals, filter by car and date</p>
+            <h1 className="text-2xl font-bold text-gray-900">Theo dõi thuê xe</h1>
+            <p className="text-gray-600">Theo dõi và quản lý lịch sử thuê xe, lọc theo xe và ngày tháng</p>
           </div>
           <div className="flex space-x-3">
             <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-              Export Report
+              Xuất báo cáo
             </button>
           </div>
         </div>
@@ -464,7 +481,7 @@ const RentalMonitoring = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Rentals</p>
+                <p className="text-sm text-gray-600">Tổng số lượt thuê</p>
                 <p className="text-2xl font-bold text-blue-600">{totalRentals}</p>
               </div>
               <div className="bg-blue-100 rounded-full p-3">
@@ -478,7 +495,7 @@ const RentalMonitoring = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Revenue</p>
+                <p className="text-sm text-gray-600">Tổng doanh thu</p>
                 <p className="text-2xl font-bold text-green-600">{formatVND(totalRevenue)}</p>
               </div>
               <div className="bg-green-100 rounded-full p-3">
@@ -492,7 +509,7 @@ const RentalMonitoring = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-yellow-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Average Rating</p>
+                <p className="text-sm text-gray-600">Đánh giá trung bình</p>
                 <p className="text-2xl font-bold text-yellow-600">{averageRating} ⭐</p>
               </div>
               <div className="bg-yellow-100 rounded-full p-3">
@@ -506,7 +523,7 @@ const RentalMonitoring = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-purple-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Mileage</p>
+                <p className="text-sm text-gray-600">Tổng số km</p>
                 <p className="text-2xl font-bold text-purple-600">{(totalMileage / 1000).toFixed(1)}k km</p>
               </div>
               <div className="bg-purple-100 rounded-full p-3">
@@ -529,7 +546,7 @@ const RentalMonitoring = () => {
                   </svg>
                   <input
                     type="text"
-                    placeholder="Search by booking ID, customer, or car"
+                    placeholder="Tìm kiếm theo mã hóa đơn, khách hàng hoặc xe"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
@@ -541,9 +558,9 @@ const RentalMonitoring = () => {
                     value={carFilter}
                     onChange={(option) => setCarFilter(option.value)}
                     options={carOptions}
-                    placeholder="All Cars"
+                    placeholder="Tất cả xe"
                     searchable={true}
-                    searchPlaceholder="Search cars..."
+                    searchPlaceholder="Tìm kiếm xe..."
                   />
                 </div>
                 
@@ -552,7 +569,7 @@ const RentalMonitoring = () => {
                     value={statusFilter}
                     onChange={(option) => setStatusFilter(option.value)}
                     options={statusOptions}
-                    placeholder="All Status"
+                    placeholder="Tất cả trạng thái"
                     searchable={false}
                   />
                 </div>
@@ -562,7 +579,7 @@ const RentalMonitoring = () => {
                     value={bookingFeeStatusFilter}
                     onChange={(option) => setBookingFeeStatusFilter(option.value)}
                     options={bookingFeeStatusOptions}
-                    placeholder="Booking Fee Status"
+                    placeholder="Trạng thái phí đặt cọc"
                     searchable={false}
                   />
                 </div>
@@ -572,7 +589,7 @@ const RentalMonitoring = () => {
                     value={rentalFeeStatusFilter}
                     onChange={(option) => setRentalFeeStatusFilter(option.value)}
                     options={rentalFeeStatusOptions}
-                    placeholder="Rental Fee Status"
+                    placeholder="Trạng thái phí thuê xe"
                     searchable={false}
                   />
                 </div>
@@ -585,10 +602,10 @@ const RentalMonitoring = () => {
 
             {/* Date Range Filter */}
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center pt-2 border-t border-gray-100">
-              <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Custom Date Range:</label>
+              <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Khoảng thời gian tùy chỉnh:</label>
               <div className="flex flex-col sm:flex-row gap-3 flex-1">
                 <div className="flex items-center gap-2">
-                  <label className="text-sm text-gray-600 whitespace-nowrap">From:</label>
+                  <label className="text-sm text-gray-600 whitespace-nowrap">Từ:</label>
                   <input
                     type="date"
                     value={startDate}
@@ -597,7 +614,7 @@ const RentalMonitoring = () => {
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <label className="text-sm text-gray-600 whitespace-nowrap">To:</label>
+                  <label className="text-sm text-gray-600 whitespace-nowrap">Đến:</label>
                   <input
                     type="date"
                     value={endDate}
@@ -613,7 +630,7 @@ const RentalMonitoring = () => {
                     }}
                     className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors whitespace-nowrap"
                   >
-                    Clear Dates
+                    Xóa ngày
                   </button>
                 )}
               </div>
@@ -627,23 +644,23 @@ const RentalMonitoring = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Invoice ID</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Car Information</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Customer</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rental Period</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Duration</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Amount</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Booking Fee Status</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Rental Fee Status</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Booking Status</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mã hóa đơn</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thông tin xe</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Khách hàng</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thời gian thuê</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thời lượng</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Số tiền</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Trạng thái phí đặt cọc</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Trạng thái phí thuê xe</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Trạng thái đặt xe</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {paginatedRentals.length === 0 ? (
                   <tr>
                     <td colSpan="10" className="py-8 text-center text-gray-500">
-                      No rental history found
+                      Không tìm thấy dữ liệu thuê xe
                     </td>
                   </tr>
                 ) : (
@@ -664,34 +681,34 @@ const RentalMonitoring = () => {
                       </td>
                       <td className="py-4 px-6">
                         <div className="text-sm text-gray-900">{rental.startDate}</div>
-                        <div className="text-xs text-gray-500">to {rental.endDate}</div>
+                        <div className="text-xs text-gray-500">đến {rental.endDate}</div>
                         <div className="text-xs text-gray-400">{rental.pickupDate.split(' ')[1]}</div>
                       </td>
                       <td className="py-4 px-6">
-                        <div className="text-sm text-gray-900">{rental.duration} days</div>
+                        <div className="text-sm text-gray-900">{rental.duration} ngày</div>
                       </td>
                       <td className="py-4 px-6">
-                        <div className="font-medium text-gray-900 text-sm">{formatVND(rental.totalPaidAmount)}</div>
-                        <div className="text-xs text-gray-500">Booking: {formatVND(rental.bookingFeePaid)}</div>
-                        <div className="text-xs text-gray-500">Rental: {formatVND(rental.rentalFeePaid)}</div>
+                        <div className="font-medium text-gray-900 text-sm">{formatVND(rental.totalPaidAmountShow)}</div>
+                        <div className="text-xs text-gray-500">Đặt cọc: {formatVND(rental.bookingFeePaid)}</div>
+                        <div className="text-xs text-gray-500">Thuê xe: {formatVND(rental.rentalFeePaid)}</div>
                       </td>
                       <td className="py-4 px-6">
                         <span className={getPaymentBadge(rental.bookingFeeStatus)}>
-                          {rental.bookingFeeStatus}
+                          {translateStatus(rental.bookingFeeStatus)}
                         </span>
                         <div className="text-xs text-gray-500 mt-1">{formatVND(rental.bookingFeePaid)}</div>
                         <div className="text-xs text-gray-400 mt-0.5">{rental.bookingFeePaymentMethod}</div>
                       </td>
                       <td className="py-4 px-6">
                         <span className={getPaymentBadge(rental.rentalFeeStatus)}>
-                          {rental.rentalFeeStatus}
+                          {translateStatus(rental.rentalFeeStatus)}
                         </span>
                         <div className="text-xs text-gray-500 mt-1">{formatVND(rental.rentalFeePaid)}</div>
                         <div className="text-xs text-gray-400 mt-0.5">{rental.rentalFeePaymentMethod}</div>
                       </td>
                       <td className="py-4 px-6">
                         <span className={getStatusBadge(rental.status)}>
-                          {rental.status}
+                          {translateStatus(rental.status)}
                         </span>
                       </td>
                       <td className="py-4 px-6">
@@ -699,7 +716,7 @@ const RentalMonitoring = () => {
                           onClick={() => openModal(rental)}
                           className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                         >
-                          View Details
+                          Xem chi tiết
                         </button>
                       </td>
                     </tr>

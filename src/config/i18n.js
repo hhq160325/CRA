@@ -1031,6 +1031,7 @@ const resources = {
       "rentalHistory.allStatuses": "All Statuses",
       "rentalHistory.allBookingFeeStatuses": "All Booking Fee Statuses",
       "rentalHistory.allRentalFeeStatuses": "All Rental Fee Statuses",
+      "rentalHistory.allAdditionalFeeStatuses": "All Additional Fee Statuses",
       "rentalHistory.confirmed": "Confirmed",
       "rentalHistory.completed": "Completed",
       "rentalHistory.cancelled": "Cancelled",
@@ -1050,6 +1051,7 @@ const resources = {
       "rentalHistory.amount": "Amount",
       "rentalHistory.bookingFeeStatus": "Booking Fee Status",
       "rentalHistory.rentalFeeStatus": "Rental Fee Status",
+      "rentalHistory.additionalFeeStatus": "Additional Fee Status",
       "rentalHistory.bookingStatus": "Booking Status",
       "rentalHistory.actions": "Actions",
       "rentalHistory.viewDetails": "View Details",
@@ -1060,6 +1062,7 @@ const resources = {
       "rentalHistory.days": "days",
       "rentalHistory.bookingFee": "Booking Fee",
       "rentalHistory.rentalFee": "Rental Fee",
+      "rentalHistory.additionalFee": "Additional Fee",
       "rentalHistory.noPaymentMethod": "No payment method",
 
       // Inquiries Component
@@ -2302,6 +2305,7 @@ const resources = {
       "rentalHistory.allStatuses": "Tất cả trạng thái",
       "rentalHistory.allBookingFeeStatuses": "Tất cả trạng thái phí đặt cọc",
       "rentalHistory.allRentalFeeStatuses": "Tất cả trạng thái phí thuê xe",
+      "rentalHistory.allAdditionalFeeStatuses": "Tất cả trạng thái phí bổ sung",
       "rentalHistory.confirmed": "Đã xác nhận",
       "rentalHistory.completed": "Hoàn thành",
       "rentalHistory.cancelled": "Đã hủy",
@@ -2321,6 +2325,7 @@ const resources = {
       "rentalHistory.amount": "Số tiền",
       "rentalHistory.bookingFeeStatus": "Trạng thái phí đặt cọc",
       "rentalHistory.rentalFeeStatus": "Trạng thái phí thuê xe",
+      "rentalHistory.additionalFeeStatus": "Trạng thái phí bổ sung",
       "rentalHistory.bookingStatus": "Trạng thái đặt xe",
       "rentalHistory.actions": "Thao tác",
       "rentalHistory.viewDetails": "Xem chi tiết",
@@ -2331,6 +2336,7 @@ const resources = {
       "rentalHistory.days": "ngày",
       "rentalHistory.bookingFee": "Đặt cọc",
       "rentalHistory.rentalFee": "Thuê xe",
+      "rentalHistory.additionalFee": "Phí bổ sung",
       "rentalHistory.noPaymentMethod": "Chưa có phương thức thanh toán",
 
       // Inquiries Component

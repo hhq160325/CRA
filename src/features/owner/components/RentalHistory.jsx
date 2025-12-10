@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
 import { BOOKING_ENDPOINTS, CAR_ENDPOINTS, USER_ENDPOINTS, INVOICE_ENDPOINTS, PAYMENT_ENDPOINTS, FEEDBACK_ENDPOINTS } from '../../../config/api';
 import RentalDetailsModal from './modal/RentalDetailsModal';
+import ExtendedBooking from './modal/ExtendedBooking';
 import { getUserIdFromToken } from '../../user/api';
 import DropdownTemplate from '../../../shared/components/DropdownTemplate';
 import Pagination from '../../../shared/components/Pagination';
@@ -14,10 +15,12 @@ const RentalHistory = () => {
   const [carFilter, setCarFilter] = useState('all');
   const [bookingFeeStatusFilter, setBookingFeeStatusFilter] = useState('all');
   const [rentalFeeStatusFilter, setRentalFeeStatusFilter] = useState('all');
+  const [additionalFeeStatusFilter, setAdditionalFeeStatusFilter] = useState('all');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [selectedRental, setSelectedRental] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isExtendModalOpen, setIsExtendModalOpen] = useState(false);
   const [rentalHistory, setRentalHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -47,12 +50,10 @@ const RentalHistory = () => {
       const payments = paymentsResponse.data || [];
 
       // Get logged-in user's ID (vendorId)
-      // const currentUserId = getUserIdFromToken();
+      const currentUserId = getUserIdFromToken();
 
       // Filter invoices to show only those where the current user is the vendor
-      // TEMPORARILY DISABLED: Show all invoices regardless of vendor
-      const invoices = allInvoices;
-      // const invoices = allInvoices.filter(invoice => invoice.vendorId === currentUserId);
+      const invoices = allInvoices.filter(invoice => invoice.vendorId === currentUserId);
 
       // Create lookup maps
       const carMap = cars.reduce((acc, car) => {
@@ -147,13 +148,36 @@ const RentalHistory = () => {
         // Separate booking fee and rental fee payments
         const rentalFeePayment = paymentsForInvoice.find(p => p.item?.toLowerCase().includes('rental fee'));
         const bookingFeePayment = paymentsForInvoice.find(p => p.item?.toLowerCase().includes('booking fee'));
-
+        const additionalPayment = paymentsForInvoice.find(p => p.item?.toLowerCase().includes('additional payment'));
+        const additionalFeePayment = paymentsForInvoice.find(p => p.item?.toLowerCase().includes('additional fee')); 
         // Calculate total paid amount from all payments
-        const totalPaidAmount = paymentsForInvoice.reduce((sum, p) => sum + (p.paidAmount || 0), 0);
-        const totalPaidAmountShow = paymentsForInvoice.reduce((sum, p) => sum + (p.paidAmount || 0), 0); //Uncomment
+        const allPaymentsTotal = paymentsForInvoice.reduce((sum, p) => sum + (p.paidAmount || 0), 0);
+        console.log(paymentsForInvoice);
+
+        // Determine separate payment statuses for booking fee and rental fee
+        const bookingFeeStatus = bookingFeePayment?.status ? bookingFeePayment.status.toLowerCase() : 'pending';
+        const rentalFeeStatus = rentalFeePayment?.status ? rentalFeePayment.status.toLowerCase() : 'pending';
+        const additionalFeeStatus = additionalFeePayment?.status ? additionalFeePayment.status.toLowerCase() : 'pending';
+
+        // Calculate total paid amount based on payment statuses
+        let totalPaidAmount = 0;
+        
+        // If booking fee is paid and rental fee is pending, only count booking fee
+        if (bookingFeeStatus === 'paid' && rentalFeeStatus === 'pending') {
+          totalPaidAmount = (bookingFeePayment?.paidAmount || 0) + (additionalFeePayment?.paidAmount || 0);
+        } else {
+          // Otherwise, count all payments
+          totalPaidAmount = allPaymentsTotal;
+        }
+
+        const totalPaidAmountShow = (bookingFeePayment?.paidAmount || 0) + (rentalFeePayment?.paidAmount || 0);
+        console.log(totalPaidAmountShow);
+        
         // Get payment methods for each payment type
         const bookingFeePaymentMethod = bookingFeePayment?.paymentMethod || t('rentalHistory.noPaymentMethod');
         const rentalFeePaymentMethod = rentalFeePayment?.paymentMethod || t('rentalHistory.noPaymentMethod');
+        const additionalPaymentMethod = additionalPayment?.paymentMethod || t('rentalHistory.noPaymentMethod');
+        const additionalFeePaymentMethod = additionalFeePayment?.paymentMethod || t('rentalHistory.noPaymentMethod');
 
         // Debug log to check payment status mapping
         // if (paymentsForInvoice.length > 0) {
@@ -198,12 +222,13 @@ const RentalHistory = () => {
         // Get rental duration - prioritize "Car Rental After returned" quantity, then calculated duration
         const rentalDays = carRentalAfterReturnedItem?.quantity || calculatedDuration;
 
-        // Determine separate payment statuses for booking fee and rental fee
-        const bookingFeeStatus = bookingFeePayment?.status ? bookingFeePayment.status.toLowerCase() : 'pending';
-        const rentalFeeStatus = rentalFeePayment?.status ? rentalFeePayment.status.toLowerCase() : 'pending';
-
         // Determine booking status
         const bookingStatus = booking?.status ? booking.status.toLowerCase() : 'pending';
+
+        // Check if Additional Fee exists in invoice items
+        const hasAdditionalFee = invoice.invoiceItems?.some(item => 
+          item.item?.toLowerCase().includes('additional fee')
+        ) || additionalFeePayment;
 
         return {
           id: index + 1,
@@ -224,26 +249,22 @@ const RentalHistory = () => {
           remainingPayment: remainingPayment,
           bookingFeeStatus: bookingFeeStatus,
           rentalFeeStatus: rentalFeeStatus,
+          additionalFeeStatus: additionalFeeStatus,
+          hasAdditionalFee: hasAdditionalFee,
           status: bookingStatus,
           // Payment details from PayOS
           bookingFeePaid: bookingFeePayment?.paidAmount || 0,
           rentalFeePaid: rentalFeePayment?.paidAmount || 0,
+          additionalFeePaid: additionalFeePayment?.paidAmount || 0,
           totalPaidAmount: bookingStatus === 'cancelled' ? (bookingFeePayment?.paidAmount || 0) : totalPaidAmount,
-          totalPaidAmountShow:totalPaidAmount,
+          totalPaidAmountShow: totalPaidAmountShow,
           bookingFeePaymentMethod: bookingFeePaymentMethod,
           rentalFeePaymentMethod: rentalFeePaymentMethod,
-          paymentMethod: bookingFeePaymentMethod || rentalFeePaymentMethod || t('rentalHistory.noPaymentMethod'),
+          additionalFeePaymentMethod: additionalFeePaymentMethod,
+          paymentMethod: bookingFeePaymentMethod || rentalFeePaymentMethod || additionalFeePaymentMethod || t('rentalHistory.noPaymentMethod'),
           invoiceId: invoice.id,
           invoiceItems: invoice.invoiceItems || [],
-          mileageAtPickup: 0,
-          mileageAtReturn: 0,
-          mileageUsed: 0,
-          conditionAtPickup: t('none'),
-          conditionAtReturn: t('none'),
           notes: invoice.note || '',
-          rating: carFeedback?.averageRating || 0,
-          totalFeedbacks: carFeedback?.totalFeedbacks || 0,
-          feedback: carFeedback?.feedbacks || []
         };
       });
 
@@ -282,6 +303,14 @@ const RentalHistory = () => {
 
   const rentalFeeStatusOptions = [
     { id: 'all', value: 'all', label: t('rentalHistory.allRentalFeeStatuses') },
+    { id: 'paid', value: 'paid', label: t('rentalHistory.paid') },
+    { id: 'pending', value: 'pending', label: t('rentalHistory.pending') },
+    { id: 'refunded', value: 'refunded', label: t('rentalHistory.refunded') },
+    { id: 'cancelled', value: 'cancelled', label: t('rentalHistory.cancelled') }
+  ];
+
+  const additionalFeeStatusOptions = [
+    { id: 'all', value: 'all', label: t('rentalHistory.allAdditionalFeeStatuses') },
     { id: 'paid', value: 'paid', label: t('rentalHistory.paid') },
     { id: 'pending', value: 'pending', label: t('rentalHistory.pending') },
     { id: 'refunded', value: 'refunded', label: t('rentalHistory.refunded') },
@@ -340,22 +369,6 @@ const RentalHistory = () => {
     return statusTranslations[status?.toLowerCase()] || status || t('none');
   };
 
-  // const getConditionBadge = (condition) => {
-  //   const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
-  //   switch (condition) {
-  //     case 'excellent':
-  //       return `${baseClasses} bg-green-100 text-green-800`;
-  //     case 'good':
-  //       return `${baseClasses} bg-blue-100 text-blue-800`;
-  //     case 'fair':
-  //       return `${baseClasses} bg-yellow-100 text-yellow-800`;
-  //     case 'poor':
-  //       return `${baseClasses} bg-red-100 text-red-800`;
-  //     default:
-  //       return `${baseClasses} bg-gray-100 text-gray-800`;
-  //   }
-  // };
-
   const openModal = (rental) => {
     setSelectedRental(rental);
     setIsModalOpen(true);
@@ -364,6 +377,21 @@ const RentalHistory = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedRental(null);
+  };
+
+  const openExtendModal = (rental) => {
+    setSelectedRental(rental);
+    setIsExtendModalOpen(true);
+  };
+
+  const closeExtendModal = () => {
+    setIsExtendModalOpen(false);
+    setSelectedRental(null);
+  };
+
+  const handleExtendSuccess = () => {
+    // Refresh rental history after successful extension
+    fetchRentalHistory();
   };
 
   const filteredRentals = rentalHistory.filter(rental => {
@@ -377,6 +405,8 @@ const RentalHistory = () => {
       rental.bookingFeeStatus === bookingFeeStatusFilter;
     const matchesRentalFeeStatus = rentalFeeStatusFilter === 'all' ||
       rental.rentalFeeStatus === rentalFeeStatusFilter;
+    const matchesAdditionalFeeStatus = additionalFeeStatusFilter === 'all' ||
+      rental.additionalFeeStatus === additionalFeeStatusFilter;
 
     // Custom date range filter (when startDate or endDate is set)
     let matchesDateRange = true;
@@ -398,7 +428,7 @@ const RentalHistory = () => {
       }
     }
 
-    return matchesSearch && matchesStatus && matchesCar && matchesBookingFeeStatus && matchesRentalFeeStatus && matchesDateRange;
+    return matchesSearch && matchesStatus && matchesCar && matchesBookingFeeStatus && matchesRentalFeeStatus && matchesAdditionalFeeStatus && matchesDateRange;
   });
 
   // Pagination calculations
@@ -409,7 +439,7 @@ const RentalHistory = () => {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, statusFilter, carFilter, bookingFeeStatusFilter, rentalFeeStatusFilter, startDate, endDate]);
+  }, [searchTerm, statusFilter, carFilter, bookingFeeStatusFilter, rentalFeeStatusFilter, additionalFeeStatusFilter, startDate, endDate]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -478,65 +508,6 @@ const RentalHistory = () => {
           </div>
         </div>
 
-        {/* Statistics Cards */}
-        {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Tổng số lượt thuê</p>
-                <p className="text-2xl font-bold text-blue-600">{totalRentals}</p>
-              </div>
-              <div className="bg-blue-100 rounded-full p-3">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Tổng doanh thu</p>
-                <p className="text-2xl font-bold text-green-600">{formatVND(totalRevenue)}</p>
-              </div>
-              <div className="bg-green-100 rounded-full p-3">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-yellow-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Đánh giá trung bình</p>
-                <p className="text-2xl font-bold text-yellow-600">{averageRating} ⭐</p>
-              </div>
-              <div className="bg-yellow-100 rounded-full p-3">
-                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-purple-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Tổng số km</p>
-                <p className="text-2xl font-bold text-purple-600">{(totalMileage / 1000).toFixed(1)}k km</p>
-              </div>
-              <div className="bg-purple-100 rounded-full p-3">
-                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div> */}
-
         {/* Filters */}
         <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
           <div className="flex flex-col space-y-4">
@@ -592,6 +563,16 @@ const RentalHistory = () => {
                     onChange={(option) => setRentalFeeStatusFilter(option.value)}
                     options={rentalFeeStatusOptions}
                     placeholder={t('rentalHistory.allRentalFeeStatuses')}
+                    searchable={false}
+                  />
+                </div>
+
+                <div className="w-full sm:w-auto sm:min-w-[180px]">
+                  <DropdownTemplate
+                    value={additionalFeeStatusFilter}
+                    onChange={(option) => setAdditionalFeeStatusFilter(option.value)}
+                    options={additionalFeeStatusOptions}
+                    placeholder={t('rentalHistory.allAdditionalFeeStatuses')}
                     searchable={false}
                   />
                 </div>
@@ -654,6 +635,7 @@ const RentalHistory = () => {
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('rentalHistory.amount')}</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('rentalHistory.bookingFeeStatus')}</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('rentalHistory.rentalFeeStatus')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('rentalHistory.additionalFeeStatus')}</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('rentalHistory.bookingStatus')}</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('rentalHistory.actions')}</th>
                 </tr>
@@ -661,7 +643,7 @@ const RentalHistory = () => {
               <tbody className="divide-y divide-gray-100">
                 {paginatedRentals.length === 0 ? (
                   <tr>
-                    <td colSpan="10" className="py-8 text-center text-gray-500">
+                    <td colSpan="11" className="py-8 text-center text-gray-500">
                       {t('rentalHistory.noRentalHistory')}
                     </td>
                   </tr>
@@ -693,6 +675,9 @@ const RentalHistory = () => {
                         <div className="font-medium text-gray-900 text-sm">{formatVND(rental.totalPaidAmountShow)}</div>
                         <div className="text-xs text-gray-500">{t('rentalHistory.bookingFee')}: {formatVND(rental.bookingFeePaid)}</div>
                         <div className="text-xs text-gray-500">{t('rentalHistory.rentalFee')}: {formatVND(rental.rentalFeePaid)}</div>
+                        {rental.hasAdditionalFee && (
+                          <div className="text-xs text-gray-500">{t('rentalHistory.additionalFee')}: {formatVND(rental.additionalFeePaid)}</div>
+                        )}
                       </td>
                       <td className="py-4 px-6">
                         <span className={getPaymentBadge(rental.bookingFeeStatus)}>
@@ -709,17 +694,40 @@ const RentalHistory = () => {
                         <div className="text-xs text-gray-400 mt-0.5">{rental.rentalFeePaymentMethod}</div>
                       </td>
                       <td className="py-4 px-6">
+                        {rental.hasAdditionalFee ? (
+                          <>
+                            <span className={getPaymentBadge(rental.additionalFeeStatus)}>
+                              {translateStatus(rental.additionalFeeStatus)}
+                            </span>
+                            <div className="text-xs text-gray-500 mt-1">{formatVND(rental.additionalFeePaid)}</div>
+                            <div className="text-xs text-gray-400 mt-0.5">{rental.additionalFeePaymentMethod}</div>
+                          </>
+                        ) : (
+                          <span className="text-xs text-gray-400">N/A</span>
+                        )}
+                      </td>
+                      <td className="py-4 px-6">
                         <span className={getStatusBadge(rental.status)}>
                           {translateStatus(rental.status)}
                         </span>
                       </td>
                       <td className="py-4 px-6">
-                        <button
-                          onClick={() => openModal(rental)}
-                          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                        >
-                          {t('rentalHistory.viewDetails')}
-                        </button>
+                        <div className="flex flex-col space-y-2">
+                          <button
+                            onClick={() => openModal(rental)}
+                            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                          >
+                            {t('rentalHistory.viewDetails')}
+                          </button>
+                          {(rental.status === 'confirmed' || rental.status === 'checkedIn') && (
+                            <button
+                              onClick={() => openExtendModal(rental)}
+                              className="text-green-600 hover:text-green-700 text-sm font-medium"
+                            >
+                              Gia hạn
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -745,6 +753,15 @@ const RentalHistory = () => {
         onClose={closeModal}
         getStatusBadge={getStatusBadge}
         getPaymentBadge={getPaymentBadge}
+        onExtendBooking={openExtendModal}
+      />
+
+      {/* Modal for extending booking */}
+      <ExtendedBooking
+        isOpen={isExtendModalOpen}
+        rental={selectedRental}
+        onClose={closeExtendModal}
+        onSuccess={handleExtendSuccess}
       />
     </>
   );

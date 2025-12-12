@@ -7,6 +7,6 @@ export { default as AuthPage } from './components/AuthPage';
 export { default as GoogleCallback } from './components/GoogleCallback';
 
 export { authSlice, selectIsAuthenticated } from './authSlice';
-export * from './authService';
-export { AUTH_ENDPOINTS } from './api';
+export * from './services';
+export { AUTH_ENDPOINTS } from './api/authApi';
 export { tokenUtils, passwordValidation, emailValidation } from './utils';

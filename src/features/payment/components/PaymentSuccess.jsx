@@ -49,9 +49,9 @@ const PaymentSuccess = () => {
         const bookingData = JSON.parse(pendingBookingStr);
         console.log('PaymentSuccess - Retrieved booking data:', bookingData);
         
-        // Update booking status to "Completed" if bookingId exists
+        // Update booking status to "Confirmed" if bookingId exists
         if (bookingData.bookingId) {
-          updateBooking(bookingData.bookingId, 'Completed')
+          updateBooking(bookingData.bookingId, 'Confirmed')
             .then(() => {
               console.log('PaymentSuccess - Booking status updated to Completed');
             })

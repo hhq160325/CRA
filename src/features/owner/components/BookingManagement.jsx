@@ -58,8 +58,8 @@ const BookingManagement = () => {
         const enrichedBookings = allBookings.map(booking => {
           const car = carMap.get(booking.carId) || {};
           const customer = userMap.get(booking.userId) || {};
-          console.log("customerName",booking);
-          
+          console.log("customerName", booking);
+
           return {
             id: booking.id,
             bookingId: booking.bookingNumber || 'N/A',
@@ -77,7 +77,7 @@ const BookingManagement = () => {
           };
         });
         console.log(enrichedBookings);
-        
+
         setBookings(enrichedBookings);
       } catch (err) {
         console.error('Error fetching booking data:', err);
@@ -104,6 +104,8 @@ const BookingManagement = () => {
         return { className: `${baseClasses} bg-blue-100 text-blue-800`, label: t('bookingManagement.completedStatus') };
       case 'cancelled':
         return { className: `${baseClasses} bg-red-100 text-red-800`, label: t('bookingManagement.cancelledStatus') };
+      case 'pending':
+        return { className: `${baseClasses} bg-yellow-100 text-yellow-800`, label: t('bookingManagement.pending') };
       default:
         return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: t('bookingManagement.notAvailable') };
     }
@@ -220,66 +222,6 @@ const BookingManagement = () => {
               </button>
             </div>
           </div>
-
-          {/* Statistics Cards */}
-          {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Confirmed</p>
-              <p className="text-2xl font-bold text-blue-600">{confirmedCount}</p>
-            </div>
-            <div className="bg-blue-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Checked In</p>
-              <p className="text-2xl font-bold text-green-600">{checkedInCount}</p>
-            </div>
-            <div className="bg-green-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-purple-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Checked Out</p>
-              <p className="text-2xl font-bold text-purple-600">{checkedOutCount}</p>
-            </div>
-            <div className="bg-purple-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-orange-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Today's Check-ins</p>
-              <p className="text-2xl font-bold text-orange-600">{todayCheckIns}</p>
-            </div>
-            <div className="bg-orange-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
           {/* Filters */}
           <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
@@ -325,10 +267,7 @@ const BookingManagement = () => {
                     <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingManagement.customer')}</th>
                     <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingManagement.rentalPeriod')}</th>
                     <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingManagement.pickupReturnTime')}</th>
-                    {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mileage</th> */}
                     <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingManagement.status')}</th>
-                    {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Payment</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th> */}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -362,54 +301,12 @@ const BookingManagement = () => {
                           <div className="text-xs text-purple-600">{t('bookingManagement.returned')}: {booking.checkOutDate.split(' ')[1]}</div>
                         )}
                       </td>
-                      {/* <td className="py-4 px-6">
-                    <div className="text-sm text-gray-900">
-                      {booking.currentMileage ? booking.currentMileage.toLocaleString() : booking.mileageAtBooking.toLocaleString()} km
-                    </div>
-                    {booking.currentMileage && booking.mileageAtBooking && (
-                      <div className="text-xs text-gray-500">
-                        Used: {(booking.currentMileage - booking.mileageAtBooking)} km
-                      </div>
-                    )}
-                  </td> */}
                       <td className="py-4 px-6">
-                          {(() => {
-                            const badge = getStatusBadge(booking.status);
-                            return <span className={badge.className}>{badge.label}</span>;
-                          })()}
+                        {(() => {
+                          const badge = getStatusBadge(booking.status);
+                          return <span className={badge.className}>{badge.label}</span>;
+                        })()}
                       </td>
-                      {/* <td className="py-4 px-6">
-                        <div className="text-sm font-medium text-gray-900">${booking.paidAmount} </div>
-                        <span className={getPaymentBadge(booking.paymentStatus)}>
-                          {booking.paymentStatus}
-                        </span>
-                      </td> */}
-                      {/* <td className="py-4 px-6">
-                        <div className="flex flex-col space-y-1">
-                          <button
-                            onClick={() => openModal(booking, 'view')}
-                            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                          >
-                            View
-                          </button>
-                          {booking.status === 'confirmed' && (
-                            <button
-                              onClick={() => openModal(booking, 'checkin')}
-                              className="text-green-600 hover:text-green-700 text-sm font-medium"
-                            >
-                              Check In
-                            </button>
-                          )}
-                          {booking.status === 'checked_in' && (
-                            <button
-                              onClick={() => openModal(booking, 'checkout')}
-                              className="text-purple-600 hover:text-purple-700 text-sm font-medium"
-                            >
-                              Check Out
-                            </button>
-                          )}
-                        </div>
-                      </td> */}
                     </tr>
                   ))}
                 </tbody>
@@ -448,237 +345,6 @@ const BookingManagement = () => {
                   </div>
                 </div>
                 <div className="p-6 space-y-6">
-                  {/* Booking Info */}
-                  {/* <div className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="font-semibold text-gray-900 mb-3">Booking Information</h3>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-gray-600">Car</p>
-                        <p className="font-medium text-gray-900">{selectedBooking.carName} ({selectedBooking.licensePlate})</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Customer</p>
-                        <p className="font-medium text-gray-900">{selectedBooking.customer}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Rental Period</p>
-                        <p className="font-medium text-gray-900">{selectedBooking.startDate} to {selectedBooking.endDate}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Amount</p>
-                        <p className="font-medium text-gray-900">${selectedBooking.totalAmount}</p>
-                      </div>
-                    </div>
-                  </div> */}
-
-                  {/* Check In Form */}
-                  {/* {modalType === 'checkin' && (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Current Mileage (km) *
-                        </label>
-                        <input
-                          type="number"
-                          value={checkInData.mileage}
-                          onChange={(e) => setCheckInData({ ...checkInData, mileage: e.target.value })}
-                          placeholder={selectedBooking.mileageAtBooking.toString()}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">Previous mileage: {selectedBooking.mileageAtBooking.toLocaleString()} km</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Car Condition *
-                        </label>
-                        <select
-                          value={checkInData.condition}
-                          onChange={(e) => setCheckInData({ ...checkInData, condition: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="excellent">Excellent</option>
-                          <option value="good">Good</option>
-                          <option value="fair">Fair</option>
-                          <option value="poor">Poor</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Notes
-                        </label>
-                        <textarea
-                          rows="3"
-                          value={checkInData.notes}
-                          onChange={(e) => setCheckInData({ ...checkInData, notes: e.target.value })}
-                          placeholder="Add any notes about the check-in..."
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                      </div>
-                      <div className="flex space-x-3 pt-4">
-                        <button
-                          onClick={closeModal}
-                          className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={handleCheckIn}
-                          disabled={!checkInData.mileage}
-                          className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-                        >
-                          Confirm Check In
-                        </button>
-                      </div>
-                    </div>
-                  )} */}
-
-                  {/* Check Out Form */}
-                  {/* {modalType === 'checkout' && (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Return Mileage (km) *
-                        </label>
-                        <input
-                          type="number"
-                          value={checkOutData.mileage}
-                          onChange={(e) => setCheckOutData({ ...checkOutData, mileage: e.target.value })}
-                          placeholder={selectedBooking.currentMileage?.toString() || ''}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Check-in mileage: {selectedBooking.currentMileage?.toLocaleString()} km
-                          {checkOutData.mileage && selectedBooking.currentMileage && (
-                            <span className="ml-2 text-blue-600">
-                              Used: {(parseInt(checkOutData.mileage) - selectedBooking.currentMileage).toLocaleString()} km
-                            </span>
-                          )}
-                        </p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Car Condition *
-                        </label>
-                        <select
-                          value={checkOutData.condition}
-                          onChange={(e) => setCheckOutData({ ...checkOutData, condition: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="excellent">Excellent</option>
-                          <option value="good">Good</option>
-                          <option value="fair">Fair</option>
-                          <option value="poor">Poor</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Notes
-                        </label>
-                        <textarea
-                          rows="3"
-                          value={checkOutData.notes}
-                          onChange={(e) => setCheckOutData({ ...checkOutData, notes: e.target.value })}
-                          placeholder="Add any notes about damages, issues, or other observations..."
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                      </div>
-                      <div className="flex space-x-3 pt-4">
-                        <button
-                          onClick={closeModal}
-                          className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={handleCheckOut}
-                          disabled={!checkOutData.mileage}
-                          className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-                        >
-                          Confirm Check Out
-                        </button>
-                      </div>
-                    </div>
-                  )} */}
-
-                  {/* View Details */}
-                  {/* {modalType === 'view' && (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-600">Status</p>
-                          <span className={getStatusBadge(selectedBooking.status)}>{selectedBooking.status}</span>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Payment Status</p>
-                          <span className={getPaymentBadge(selectedBooking.paymentStatus)}>{selectedBooking.paymentStatus}</span>
-                        </div>
-                        {selectedBooking.conditionAtCheckIn && (
-                          <div>
-                            <p className="text-sm text-gray-600">Condition at Check-in</p>
-                            <span className={getConditionBadge(selectedBooking.conditionAtCheckIn)}>
-                              {selectedBooking.conditionAtCheckIn}
-                            </span>
-                          </div>
-                        )}
-                        {selectedBooking.conditionAtCheckOut && (
-                          <div>
-                            <p className="text-sm text-gray-600">Condition at Check-out</p>
-                            <span className={getConditionBadge(selectedBooking.conditionAtCheckOut)}>
-                              {selectedBooking.conditionAtCheckOut}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      {selectedBooking.checkInDate && (
-                        <div>
-                          <p className="text-sm text-gray-600">Check-in Date</p>
-                          <p className="font-medium text-gray-900">{selectedBooking.checkInDate}</p>
-                        </div>
-                      )}
-                      {selectedBooking.checkOutDate && (
-                        <div>
-                          <p className="text-sm text-gray-600">Check-out Date</p>
-                          <p className="font-medium text-gray-900">{selectedBooking.checkOutDate}</p>
-                        </div>
-                      )}
-                      {selectedBooking.notes && (
-                        <div>
-                          <p className="text-sm text-gray-600">Notes</p>
-                          <p className="text-gray-900">{selectedBooking.notes}</p>
-                        </div>
-                      )}
-                      <div className="flex space-x-3 pt-4">
-                        <button
-                          onClick={closeModal}
-                          className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
-                        >
-                          Close
-                        </button>
-                        {selectedBooking.status === 'confirmed' && (
-                          <button
-                            onClick={() => {
-                              closeModal();
-                              openModal(selectedBooking, 'checkin');
-                            }}
-                            className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-                          >
-                            Check In
-                          </button>
-                        )}
-                        {selectedBooking.status === 'checked_in' && (
-                          <button
-                            onClick={() => {
-                              closeModal();
-                              openModal(selectedBooking, 'checkout');
-                            }}
-                            className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
-                          >
-                            Check Out
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )} */}
                 </div>
               </div>
             </div>

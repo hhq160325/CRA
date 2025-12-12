@@ -1,4 +1,4 @@
-import { exportReceiptToPDF, printReceipt } from '../../owner-utils/ExportReceiptToPDF';
+import { exportReceiptToPDF, printReceipt } from '../../../owner-utils/ExportReceiptToPDF';
 
 const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymentBadge, onExtendBooking }) => {
   if (!isOpen || !rental) return null;
@@ -123,12 +123,6 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
                     {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.totalPaidAmount)}
                   </p>
                 </div>
-                {/* <div>
-                  <p className="text-xs text-gray-600 mb-1">Tổng hóa đơn</p>
-                  <p className="text-lg font-bold text-gray-900">
-                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.totalAmount)}
-                  </p>
-                </div> */}
                 <div>
                   <p className="text-xs text-gray-600 mb-1">Còn lại</p>
                   <p className="text-lg font-bold text-orange-600">

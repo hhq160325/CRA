@@ -1,0 +1,1 @@
+export { rentalHistoryService } from './rentalHistoryService';

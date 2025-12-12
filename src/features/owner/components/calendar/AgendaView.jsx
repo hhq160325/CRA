@@ -91,9 +91,6 @@ const AgendaView = ({ events, currentDate }) => {
                   className="cursor-pointer"
                 >
                   <div className="flex items-start gap-2">
-                    <span className="text-lg mt-1">
-                      {event.eventType === 'pickup' ? '📤' : event.eventType === 'dropoff' ? '📥' : '🚗'}
-                    </span>
                     <div className="flex-1">
                       <EventCard event={event} />
                       {event.eventType && (

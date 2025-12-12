@@ -1,5 +1,5 @@
 import React from 'react';
-import CalendarView from './MaintenaceScheduleCalendarSubcomponents/CalendarView';
+import CalendarView from './CalendarView';
 
 const CalendarPage = () => {
   return <CalendarView />;

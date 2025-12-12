@@ -36,7 +36,6 @@ export const useRentalFilters = (rentalHistory) => {
     { id: 'all', value: 'all', label: t('rentalHistory.allBookingFeeStatuses') },
     { id: 'paid', value: 'paid', label: t('rentalHistory.paid') },
     { id: 'pending', value: 'pending', label: t('rentalHistory.pending') },
-    { id: 'refunded', value: 'refunded', label: t('rentalHistory.refunded') },
     { id: 'cancelled', value: 'cancelled', label: t('rentalHistory.cancelled') }
   ], [t]);
 
@@ -44,7 +43,6 @@ export const useRentalFilters = (rentalHistory) => {
     { id: 'all', value: 'all', label: t('rentalHistory.allRentalFeeStatuses') },
     { id: 'paid', value: 'paid', label: t('rentalHistory.paid') },
     { id: 'pending', value: 'pending', label: t('rentalHistory.pending') },
-    { id: 'refunded', value: 'refunded', label: t('rentalHistory.refunded') },
     { id: 'cancelled', value: 'cancelled', label: t('rentalHistory.cancelled') }
   ], [t]);
 
@@ -52,7 +50,6 @@ export const useRentalFilters = (rentalHistory) => {
     { id: 'all', value: 'all', label: t('rentalHistory.allAdditionalFeeStatuses') },
     { id: 'paid', value: 'paid', label: t('rentalHistory.paid') },
     { id: 'pending', value: 'pending', label: t('rentalHistory.pending') },
-    { id: 'refunded', value: 'refunded', label: t('rentalHistory.refunded') },
     { id: 'cancelled', value: 'cancelled', label: t('rentalHistory.cancelled') }
   ], [t]);
 

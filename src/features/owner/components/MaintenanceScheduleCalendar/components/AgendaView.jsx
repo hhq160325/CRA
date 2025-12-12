@@ -91,13 +91,10 @@ const AgendaView = ({ events, currentDate }) => {
                   className="cursor-pointer"
                 >
                   <div className="flex items-start gap-2">
-                    <span className="text-lg mt-1">
-                      {event.eventType === 'pickup' ? '📤' : event.eventType === 'dropoff' ? '📥' : '🚗'}
-                    </span>
                     <div className="flex-1">
                       <EventCard event={event} />
                       {event.eventType && (
-                        <p className="text-xs text-gray-500 mt-1 ml-2">
+                        <p className="text-xs text-gray-500 mt-1">
                           {event.eventType === 'pickup' ? t('pickupDate') || 'Pickup' : t('dropoffDate') || 'Dropoff'}
                         </p>
                       )}

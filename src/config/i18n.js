@@ -1,6 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-
+import {ownerTranslations} from '../features/owner/components/CarRegisDocs/translate/carRegisDocsTranslate'
 const resources = {
   en: {
     translation: {
@@ -1162,6 +1162,7 @@ const resources = {
       "bookingManagement.confirmedStatus": "Confirmed",
       "bookingManagement.completedStatus": "Completed",
       "bookingManagement.cancelledStatus": "Cancelled",
+      "bookingManagement.pendingStatus": "Pending",
       "bookingManagement.pending": "Pending",
       "bookingManagement.pickedUp": "Picked up",
       "bookingManagement.returned": "Returned",
@@ -1223,40 +1224,7 @@ const resources = {
       "payments.receiptDescription": "Description: {{description}}",
 
       // Car Registration Documents
-      "carRegisDocs.title": "Car Registration Documents",
-      "carRegisDocs.subtitle": "Manage and track vehicle registration document approvals",
-      "carRegisDocs.allCars": "All Cars ({{count}})",
-      "carRegisDocs.pendingApproval": "Pending Approval ({{count}})",
-      "carRegisDocs.approved": "Approved ({{count}})",
-      "carRegisDocs.noCarsFound": "No cars found",
-      "carRegisDocs.noRegisteredCars": "You haven't registered any cars yet.",
-      "carRegisDocs.noPendingCars": "No cars found {{status}}.",
-      "carRegisDocs.noApprovedCars": "No {{status}} cars found.",
-      "carRegisDocs.pending": "pending approval",
-      "carRegisDocs.approved": "approved",
-      "carRegisDocs.licensePlate": "License Plate",
-      "carRegisDocs.seats": "Seats",
-      "carRegisDocs.yearOfManufacture": "Year of Manufacture",
-      "carRegisDocs.fuelConsumption": "Fuel Consumption",
-      "carRegisDocs.transmission": "Transmission",
-      "carRegisDocs.fuelType": "Fuel Type",
-      "carRegisDocs.preferredLot": "Preferred Lot",
-      "carRegisDocs.uploadDocuments": "Upload Documents",
-      "carRegisDocs.uploading": "Uploading...",
-      "carRegisDocs.uploadSuccess": "Upload successful!",
-      "carRegisDocs.statusPending": "Pending Approval",
-      "carRegisDocs.statusApproved": "Approved",
-      "carRegisDocs.documentsPendingApproval": "Documents are being reviewed",
-      "carRegisDocs.showing": "Showing",
-      "carRegisDocs.to": "to",
-      "carRegisDocs.of": "of",
-      "carRegisDocs.results": "results",
-      "carRegisDocs.previous": "Previous",
-      "carRegisDocs.next": "Next",
-      "carRegisDocs.page": "Page",
-      "carRegisDocs.loadingError": "Failed to load cars. Please try again.",
-      "carRegisDocs.uploadError": "Failed to upload documents. Please try again.",
-      "carRegisDocs.fuelConsumptionUnit": "L/100km"
+      ...ownerTranslations.en.translation
     }
   },
   vi: {
@@ -2417,6 +2385,7 @@ const resources = {
       "bookingManagement.searchPlaceholder": "Tìm kiếm theo mã đặt xe, khách hàng hoặc xe",
       "bookingManagement.allStatuses": "Tất cả trạng thái",
       "bookingManagement.confirmed": "Đã xác nhận",
+      "bookingManagement.pending": "Đang chờ",
       "bookingManagement.checkedIn": "Đã nhận xe",
       "bookingManagement.checkedOut": "Đã trả xe",
       "bookingManagement.completed": "Hoàn thành",
@@ -2437,7 +2406,7 @@ const resources = {
       "bookingManagement.confirmedStatus": "Đã xác nhận",
       "bookingManagement.completedStatus": "Hoàn thành",
       "bookingManagement.cancelledStatus": "Đã hủy",
-      "bookingManagement.pending": "Đang chờ xác nhận",
+      "bookingManagement.pendingStatus": "Đang chờ xác nhận",
       "bookingManagement.pickedUp": "Đã nhận xe",
       "bookingManagement.returned": "Đã trả xe",
       "bookingManagement.unknownCar": "Xe không xác định",
@@ -2496,42 +2465,7 @@ const resources = {
       "payments.receiptPaymentMethod": "Phương thức thanh toán: {{paymentMethod}}",
       "payments.receiptStatus": "Trạng thái: {{status}}",
       "payments.receiptDescription": "Mô tả: {{description}}",
-
-      // Car Registration Documents
-      "carRegisDocs.title": "Giấy tờ đăng ký xe",
-      "carRegisDocs.subtitle": "Quản lý và theo dõi việc phê duyệt tài liệu đăng ký xe",
-      "carRegisDocs.allCars": "Tất cả xe ({{count}})",
-      "carRegisDocs.pendingApproval": "Chờ duyệt ({{count}})",
-      "carRegisDocs.approved": "Đã duyệt ({{count}})",
-      "carRegisDocs.noCarsFound": "Không tìm thấy xe nào",
-      "carRegisDocs.noRegisteredCars": "Bạn chưa đăng ký xe nào.",
-      "carRegisDocs.noPendingCars": "Không tìm thấy xe {{status}} nào.",
-      "carRegisDocs.noApprovedCars": "Không tìm thấy xe {{status}} nào.",
-      "carRegisDocs.pending": "chờ duyệt",
-      "carRegisDocs.approved": "đã duyệt",
-      "carRegisDocs.licensePlate": "Biển số xe",
-      "carRegisDocs.seats": "Số ghế",
-      "carRegisDocs.yearOfManufacture": "Năm sản xuất",
-      "carRegisDocs.fuelConsumption": "Mức tiêu thụ nhiên liệu",
-      "carRegisDocs.transmission": "Hộp số",
-      "carRegisDocs.fuelType": "Loại nhiên liệu",
-      "carRegisDocs.preferredLot": "Bãi xe ưu tiên",
-      "carRegisDocs.uploadDocuments": "Tải lên tài liệu",
-      "carRegisDocs.uploading": "Đang tải lên...",
-      "carRegisDocs.uploadSuccess": "Tải lên thành công!",
-      "carRegisDocs.statusPending": "Chờ phê duyệt",
-      "carRegisDocs.statusApproved": "Đã phê duyệt",
-      "carRegisDocs.documentsPendingApproval": "Hồ sơ đang được phê duyệt",
-      "carRegisDocs.showing": "Hiển thị",
-      "carRegisDocs.to": "đến",
-      "carRegisDocs.of": "trong tổng số",
-      "carRegisDocs.results": "kết quả",
-      "carRegisDocs.previous": "Trước",
-      "carRegisDocs.next": "Tiếp",
-      "carRegisDocs.page": "Trang",
-      "carRegisDocs.loadingError": "Không thể tải danh sách xe. Vui lòng thử lại.",
-      "carRegisDocs.uploadError": "Không thể tải tài liệu lên. Vui lòng thử lại.",
-      "carRegisDocs.fuelConsumptionUnit": "L/100km"
+      ...ownerTranslations.vi.translation
     }
   }
 };
@@ -2557,5 +2491,4 @@ i18n
       escapeValue: false
     }
   });
-
 export default i18n;

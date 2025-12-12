@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { loginUser, googleLoginUser, clearError, selectIsLoading, selectError } from '../authSlice';
 import { getRoleFromToken, getRedirectPathByRole } from '../utils';
+import { useOAuthMessageHandler } from '../hooks/useOAuthMessageHandler';
 
 const Login = ({ onSwitchToRegister }) => {
   const { t } = useTranslation();
@@ -19,88 +20,8 @@ const Login = ({ onSwitchToRegister }) => {
   
   const [showPassword, setShowPassword] = useState(false);
 
-  // Listen for Google auth data from popup/tab
-  useEffect(() => {
-    const handleMessage = async (event) => {
-      const data = event.data;
-      
-      // Ignore webpack and other dev messages
-      if (!data || typeof data !== 'object' || data.type === 'webpackWarnings' || data.type === 'webpackOk' || data.source === 'react-devtools-bridge' || data.source === 'react-devtools-content-script') {
-        return;
-      }
-      
-      console.log('Login: Received postMessage:', {
-        origin: event.origin,
-        data: data,
-        hasToken: !!(data.token || data.JwtToken),
-        dataKeys: Object.keys(data)
-      });
-      
-      // Check if this is Google auth data (has token - check both lowercase and capitalized)
-      const token = data.token || data.JwtToken;
-      if (token) {
-        try {
-          const email = data.email || data.Email;
-          const username = data.username || data.Username;
-          const refreshToken = data.refreshToken || data.RefreshToken;
-          
-          // Decode token to get role and user ID
-          const { decodeJWT, tokenUtils } = await import('../utils');
-          const decoded = decodeJWT(token);
-          const roleId = getRoleFromToken(token);
-          const userId = decoded ? (decoded.sub || decoded.userId || decoded.id || decoded.nameid) : null;
-
-          // Prepare user object
-          const user = {
-            email: email || decoded?.email,
-            username: username || decoded?.name,
-            roleId: roleId
-          };
-
-          // Store tokens and user data
-          tokenUtils.storeTokens(token, refreshToken || token, user);
-
-          // Update Redux state immediately with basic user data
-          dispatch(loginUser.fulfilled({
-            user: user,
-            accessToken: token
-          }));
-
-          // Fetch full user data if we have userId
-          if (userId) {
-            try {
-              const { getUserById } = await import('../../user/api');
-              const userData = await getUserById();
-              
-              // Update localStorage with full user data
-              tokenUtils.updateUserData({
-                username: userData.username,
-                imageAvatar: userData.imageAvatar
-              });
-
-              // Update Redux state with full user data
-              const { updateUserData } = await import('../authSlice');
-              dispatch(updateUserData({
-                username: userData.username,
-                imageAvatar: userData.imageAvatar
-              }));
-            } catch (userError) {
-              console.error('Failed to fetch user data:', userError);
-            }
-          }
-
-          // Redirect to appropriate page based on role
-          const redirectPath = getRedirectPathByRole(roleId);
-          navigate(redirectPath);
-        } catch (error) {
-          console.error('Error processing Google auth:', error);
-        }
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [navigate, dispatch]);
+  // Use custom hook to handle OAuth messages
+  useOAuthMessageHandler();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -143,14 +64,16 @@ const Login = ({ onSwitchToRegister }) => {
     }
   };
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     try {
-      // Open Google OAuth in a new tab
+      // Use the service to get the Google OAuth URL
       const localURL = 'https://localhost:7184/api/Authen/google-callback';
-      const googleAuthUrl = `https://localhost:7184/api/Authen/login/google?localURL=${encodeURIComponent(localURL)}`;
+      const result = await dispatch(googleLoginUser(localURL)).unwrap();
       
-      // Open in new tab
-      window.open(googleAuthUrl, '_blank');
+      // Open the URL in a new tab if provided
+      if (result.url) {
+        window.open(result.url, '_blank');
+      }
     } catch (error) {
       console.error('Google login error:', error);
     }
@@ -166,24 +89,6 @@ const Login = ({ onSwitchToRegister }) => {
       <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4">
         {/* Title */}
         <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">{t('logIn')}</h1>
-
-        {/* Mock credentials helper */}
-        {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-800 text-sm font-medium mb-1">{t('demoCredentials')}</p>
-              <p className="text-blue-700 text-xs">Email: khangTEST02@gmail.com</p>
-              <p className="text-blue-700 text-xs">{t('password')}: 123456</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setFormData({ email: 'khangTEST02@gmail.com', password: '123456' })}
-              className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition-colors"
-            >
-              {t('useDemo')}
-            </button>
-          </div>
-        </div> */}
 
         {/* Login form */}
         <form onSubmit={handleSubmit} className="space-y-6" aria-label="login form">
@@ -295,17 +200,6 @@ const Login = ({ onSwitchToRegister }) => {
           <p className="text-gray-600 text-center">
             {t('newToDesignSpace')} <button onClick={onSwitchToRegister} className="text-blue-600 hover:text-blue-700 font-medium">{t('signUpForFree')}</button>
           </p>
-
-          {/* SSO button */}
-          {/* <button
-            type="button"
-            className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <svg className="w-5 h-5 mr-3 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-            <span className="text-gray-900 font-medium">Log in with SSO</span>
-          </button> */}
         </form>
       </div>
     </div>

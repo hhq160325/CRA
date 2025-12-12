@@ -1,21 +1,18 @@
 // Service functions for auth
-import { AUTH_ENDPOINTS } from "./api";
-import { authApiCall, tokenUtils, decodeJWT } from "./utils";
-import { logout } from "../../shared/authGlobal";
+import { AUTH_ENDPOINTS } from "../api/authApi";
+import { authApiCall, tokenUtils, decodeJWT } from "../utils";
+import { logout } from "../../../shared/authGlobal";
 
 // Google Login function
 export const loginWithGoogle = async (localURL) => {
   try {
-    // Do a full-page navigation to avoid CORS issues
-    // The backend will redirect to Google OAuth
+    // Return the URL for popup handling instead of doing full-page redirect
     const url = `${AUTH_ENDPOINTS.LOGIN_GOOGLE}?localURL=${encodeURIComponent(localURL)}`;
-    
-    // Direct browser navigation (no CORS)
-    window.location.href = url;
     
     return {
       success: true,
-      message: "Redirecting to Google login..."
+      url: url,
+      message: "Opening Google login popup..."
     };
   } catch (error) {
     console.error('Google login error:', error);
@@ -52,7 +49,7 @@ export const login = async (credentials) => {
       // Fetch full user data to get avatar and username
       if (userId) {
         try {
-          const { getUserById } = await import('../user/api');
+          const { getUserById } = await import('../../user/api');
           const userData = await getUserById();
           
           // Update localStorage with avatar and username
@@ -104,7 +101,6 @@ export const login = async (credentials) => {
 // Register function
 export const register = async (userData) => {
   try {
-    // Format the request body according to API specification
     const requestBody = {
       username: userData.username,
       password: userData.password,
@@ -140,10 +136,9 @@ export const register = async (userData) => {
       // Fetch full user data to get avatar
       if (userId) {
         try {
-          const { getUserById } = await import('../user/api');
+          const { getUserById } = await import('../../user/api');
           const fullUserData = await getUserById();
           
-          // Update localStorage with avatar and username
           tokenUtils.updateUserData({
             username: fullUserData.username,
             imageAvatar: fullUserData.imageAvatar

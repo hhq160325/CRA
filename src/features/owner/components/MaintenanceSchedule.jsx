@@ -191,7 +191,7 @@ const MaintenanceSchedule = () => {
     setSelectedCar(schedule);
     setIsScheduleModalOpen(true);
     setIsModalOpen(false);
-    
+
     // Pre-fill form with existing data if available
     if (schedule.startDateMaintenanceDate !== 'N/A') {
       setScheduleFormData({
@@ -226,16 +226,16 @@ const MaintenanceSchedule = () => {
 
   const handleSubmitSchedule = async (e) => {
     e.preventDefault();
-    
+
     if (!selectedCar) return;
-    
+
     try {
       setSubmitting(true);
-      
+
       // Format dates to ISO 8601 format with time
       const startDateTime = `${scheduleFormData.startDate}T00:00:00.000Z`;
       const endDateTime = `${scheduleFormData.endDate}T23:59:59.000Z`;
-      
+
       const scheduleData = {
         title: scheduleFormData.title,
         location: scheduleFormData.location,
@@ -246,14 +246,14 @@ const MaintenanceSchedule = () => {
       };
 
       await axiosInstance.post(SCHEDULE_ENDPOINTS.CREATE_CAR_SCHEDULES, scheduleData);
-      
+
       // Show success message
       alert(t('maintenanceSchedule.scheduleCreatedSuccessfully'));
-      
+
       // Close modal and refresh data
       closeScheduleModal();
       fetchMaintenanceSchedules();
-      
+
     } catch (err) {
       console.error('Error creating maintenance schedule:', err);
       alert(t('maintenanceSchedule.errorCreatingSchedule'));
@@ -298,7 +298,7 @@ const MaintenanceSchedule = () => {
             onClick={fetchMaintenanceSchedules}
             className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
           >
-{t('maintenanceSchedule.tryAgain')}
+            {t('maintenanceSchedule.tryAgain')}
           </button>
         </div>
       </div>
@@ -310,221 +310,161 @@ const MaintenanceSchedule = () => {
       <div className="p-8 space-y-6 min-h-full bg-gray-50">
         {/* Header */}
         <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('maintenanceSchedule.title')}</h1>
-          <p className="text-gray-600">{t('maintenanceSchedule.subtitle')}</p>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{t('maintenanceSchedule.title')}</h1>
+            <p className="text-gray-600">{t('maintenanceSchedule.subtitle')}</p>
+          </div>
+          <div className="flex space-x-3">
+            <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+              {t('maintenanceSchedule.exportReport')}
+            </button>
+            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              {t('maintenanceSchedule.addMaintenanceRecord')}
+            </button>
+          </div>
         </div>
-        <div className="flex space-x-3">
-          <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-{t('maintenanceSchedule.exportReport')}
-          </button>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-{t('maintenanceSchedule.addMaintenanceRecord')}
-          </button>
-        </div>
-      </div>
 
-      {/* Statistics Cards */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-red-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Overdue</p>
-              <p className="text-2xl font-bold text-red-600">{overdueCount}</p>
+        {/* Filters */}
+        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+            <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
+              <div className="relative">
+                <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder={t('maintenanceSchedule.searchPlaceholder')}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">{t('maintenanceSchedule.allStatuses')}</option>
+                <option value="overdue">{t('maintenanceSchedule.overdue')}</option>
+                <option value="due">{t('maintenanceSchedule.due')}</option>
+                <option value="upcoming">{t('maintenanceSchedule.upcoming')}</option>
+                <option value="completed">{t('maintenanceSchedule.completed')}</option>
+              </select>
             </div>
-            <div className="bg-red-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
+            <div className="text-sm text-gray-600">
+              {t('maintenanceSchedule.showingResults', {
+                filtered: filteredSchedules.length,
+                total: maintenanceSchedules.length
+              })}
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-yellow-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Due Now</p>
-              <p className="text-2xl font-bold text-yellow-600">{dueCount}</p>
-            </div>
-            <div className="bg-yellow-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Upcoming</p>
-              <p className="text-2xl font-bold text-blue-600">{upcomingCount}</p>
-            </div>
-            <div className="bg-blue-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Cars</p>
-              <p className="text-2xl font-bold text-green-600">{maintenanceSchedules.length}</p>
-            </div>
-            <div className="bg-green-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
-      {/* Filters */}
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-          <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
-            <div className="relative">
-              <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder={t('maintenanceSchedule.searchPlaceholder')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">{t('maintenanceSchedule.allStatuses')}</option>
-              <option value="overdue">{t('maintenanceSchedule.overdue')}</option>
-              <option value="due">{t('maintenanceSchedule.due')}</option>
-              <option value="upcoming">{t('maintenanceSchedule.upcoming')}</option>
-              <option value="completed">{t('maintenanceSchedule.completed')}</option>
-            </select>
-          </div>
-          <div className="text-sm text-gray-600">
-{t('maintenanceSchedule.showingResults', { 
-              filtered: filteredSchedules.length, 
-              total: maintenanceSchedules.length 
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Maintenance Schedule Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.carInfo')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.maintenanceDate')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.maintenanceTime')}</th>
-                {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mileage</th> */}
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.maintenanceType')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.status')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.priority')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.actions')}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredSchedules.map((schedule) => (
-                <tr key={schedule.id} className="hover:bg-gray-50">
-                  <td className="py-4 px-6">
-                    <div className="font-medium text-gray-900 text-sm">{schedule.carName}</div>
-                    <div className="text-xs text-gray-500">{schedule.carModel} • {schedule.licensePlate}</div>
-                    <div className="text-xs text-gray-400">{schedule.carId}</div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="text-sm text-gray-900">{t('maintenanceSchedule.fromTo', { 
-                      start: schedule.startDateMaintenanceDate, 
-                      end: schedule.endDateMaintenanceDate 
-                    })}</div>
-                    {/* <div className="text-xs text-gray-500">{schedule.mileageAtLastService.toLocaleString()} km</div> */}
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="text-sm font-medium text-gray-900">{t('maintenanceSchedule.timeFromTo', { 
-                      start: schedule.pickupTime, 
-                      end: schedule.returnTime 
-                    })}</div>
-                    {/* {schedule.daysUntil >= 0 ? (
+        {/* Maintenance Schedule Table */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200 bg-gray-50">
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.carInfo')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.maintenanceDate')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.maintenanceTime')}</th>
+                  {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Mileage</th> */}
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.maintenanceType')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.status')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.priority')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('maintenanceSchedule.actions')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {filteredSchedules.map((schedule) => (
+                  <tr key={schedule.id} className="hover:bg-gray-50">
+                    <td className="py-4 px-6">
+                      <div className="font-medium text-gray-900 text-sm">{schedule.carName}</div>
+                      <div className="text-xs text-gray-500">{schedule.carModel} • {schedule.licensePlate}</div>
+                      <div className="text-xs text-gray-400">{schedule.carId}</div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="text-sm text-gray-900">{t('maintenanceSchedule.fromTo', {
+                        start: schedule.startDateMaintenanceDate,
+                        end: schedule.endDateMaintenanceDate
+                      })}</div>
+                      {/* <div className="text-xs text-gray-500">{schedule.mileageAtLastService.toLocaleString()} km</div> */}
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="text-sm font-medium text-gray-900">{t('maintenanceSchedule.timeFromTo', {
+                        start: schedule.pickupTime,
+                        end: schedule.returnTime
+                      })}</div>
+                      {/* {schedule.daysUntil >= 0 ? (
                       <div className="text-xs text-gray-500">In {schedule.daysUntil} days</div>
                     ) : (
                       <div className="text-xs text-red-600 font-medium">{Math.abs(schedule.daysUntil)} days overdue</div>
                     )} */}
-                  </td>
-                  {/* <td className="py-4 px-6">
+                    </td>
+                    {/* <td className="py-4 px-6">
                     <div className="text-sm text-gray-900">{schedule.currentMileage.toLocaleString()} km</div>
                     <div className="text-xs text-gray-500">
                       {schedule.currentMileage - schedule.mileageAtLastService} km since last service
                     </div>
                   </td> */}
-                  <td className="py-4 px-6">
-                    <div className="text-sm text-gray-900">{schedule.maintenanceType}</div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className={getStatusBadge(schedule.status)}>
-                      {t(`maintenanceSchedule.${schedule.status}`)}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className={getPriorityBadge(schedule.priority)}>
-                      {t(`maintenanceSchedule.${schedule.priority}`)}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => openModal(schedule)}
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                      >
-{t('maintenanceSchedule.view')}
-                      </button>
-                      <button
-                        onClick={() => handleScheduleMaintenance(schedule)}
-                        className="text-green-600 hover:text-green-700 text-sm font-medium"
-                      >
-{t('maintenanceSchedule.schedule')}
-                      </button>
-                      {schedule.status === 'due' || schedule.status === 'overdue' ? (
+                    <td className="py-4 px-6">
+                      <div className="text-sm text-gray-900">{schedule.maintenanceType}</div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className={getStatusBadge(schedule.status)}>
+                        {t(`maintenanceSchedule.${schedule.status}`)}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className={getPriorityBadge(schedule.priority)}>
+                        {t(`maintenanceSchedule.${schedule.priority}`)}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center space-x-2">
                         <button
-                          onClick={() => handleMarkCompleted(schedule.id)}
-                          className="text-orange-600 hover:text-orange-700 text-sm font-medium"
+                          onClick={() => openModal(schedule)}
+                          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                         >
-{t('maintenanceSchedule.complete')}
+                          {t('maintenanceSchedule.view')}
                         </button>
-                      ) : null}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                        <button
+                          onClick={() => handleScheduleMaintenance(schedule)}
+                          className="text-green-600 hover:text-green-700 text-sm font-medium"
+                        >
+                          {t('maintenanceSchedule.schedule')}
+                        </button>
+                        {schedule.status === 'due' || schedule.status === 'overdue' ? (
+                          <button
+                            onClick={() => handleMarkCompleted(schedule.id)}
+                            className="text-orange-600 hover:text-orange-700 text-sm font-medium"
+                          >
+                            {t('maintenanceSchedule.complete')}
+                          </button>
+                        ) : null}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-center py-4 border-t border-gray-200">
-          <div className="flex items-center space-x-2">
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('maintenanceSchedule.previous')}</button>
-            <div className="flex space-x-1">
-              <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
-              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
-              <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
+          {/* Pagination */}
+          <div className="flex items-center justify-center py-4 border-t border-gray-200">
+            <div className="flex items-center space-x-2">
+              <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('maintenanceSchedule.previous')}</button>
+              <div className="flex space-x-1">
+                <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
+                <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
+                <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
+              </div>
+              <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('maintenanceSchedule.next')}</button>
             </div>
-            <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">{t('maintenanceSchedule.next')}</button>
           </div>
         </div>
-      </div>
       </div>
 
       {/* Modal for creating/editing maintenance schedule */}
@@ -555,7 +495,7 @@ const MaintenanceSchedule = () => {
               {/* Title */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-{t('maintenanceSchedule.title')} <span className="text-red-500">*</span>
+                  {t('maintenanceSchedule.title')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -571,7 +511,7 @@ const MaintenanceSchedule = () => {
               {/* Location */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-{t('maintenanceSchedule.location')} <span className="text-red-500">*</span>
+                  {t('maintenanceSchedule.location')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -588,7 +528,7 @@ const MaintenanceSchedule = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-{t('maintenanceSchedule.startDate')} <span className="text-red-500">*</span>
+                    {t('maintenanceSchedule.startDate')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
@@ -601,7 +541,7 @@ const MaintenanceSchedule = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-{t('maintenanceSchedule.endDate')} <span className="text-red-500">*</span>
+                    {t('maintenanceSchedule.endDate')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
@@ -618,7 +558,7 @@ const MaintenanceSchedule = () => {
               {/* Note */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-{t('maintenanceSchedule.notes')}
+                  {t('maintenanceSchedule.notes')}
                 </label>
                 <textarea
                   name="note"
@@ -638,14 +578,14 @@ const MaintenanceSchedule = () => {
                   className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
                   disabled={submitting}
                 >
-{t('maintenanceSchedule.cancel')}
+                  {t('maintenanceSchedule.cancel')}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400"
                   disabled={submitting}
                 >
-{submitting ? t('maintenanceSchedule.creating') : t('maintenanceSchedule.createSchedule')}
+                  {submitting ? t('maintenanceSchedule.creating') : t('maintenanceSchedule.createSchedule')}
                 </button>
               </div>
             </form>
@@ -708,14 +648,14 @@ const MaintenanceSchedule = () => {
                   onClick={() => handleScheduleMaintenance(selectedCar)}
                   className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                 >
-{t('maintenanceSchedule.scheduleMaintenance')}
+                  {t('maintenanceSchedule.scheduleMaintenance')}
                 </button>
                 {(selectedCar.status === 'due' || selectedCar.status === 'overdue') && (
                   <button
                     onClick={() => handleMarkCompleted(selectedCar.id)}
                     className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
                   >
-{t('maintenanceSchedule.markAsCompleted')}
+                    {t('maintenanceSchedule.markAsCompleted')}
                   </button>
                 )}
               </div>

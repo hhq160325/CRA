@@ -303,7 +303,7 @@ const Inquiries = () => {
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
             <div className="flex items-center justify-between">
               <div>
@@ -359,7 +359,7 @@ const Inquiries = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Filters */}
         <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
@@ -403,9 +403,9 @@ const Inquiries = () => {
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.inquiryCode')}</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.customer')}</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.subject')}</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.car')}</th>
+                  {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.car')}</th> */}
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.date')}</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.priority')}</th>
+                  {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.priority')}</th> */}
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.status')}</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('inquiries.actions')}</th>
                 </tr>
@@ -425,19 +425,19 @@ const Inquiries = () => {
                       <div className="font-medium text-gray-900 text-sm max-w-xs truncate">{inquiry.subject}</div>
                       <div className="text-xs text-gray-500 mt-1 max-w-xs truncate">{inquiry.message}</div>
                     </td>
-                    <td className="py-4 px-6">
+                    {/* <td className="py-4 px-6">
                       <div className="text-sm text-gray-900">{inquiry.carName}</div>
                       <div className="text-xs text-gray-500">{inquiry.carId}</div>
-                    </td>
+                    </td> */}
                     <td className="py-4 px-6">
                       <div className="text-sm text-gray-900">{inquiry.date.split(' ')[0]}</div>
                       <div className="text-xs text-gray-500">{inquiry.date.split(' ')[1]}</div>
                     </td>
-                    <td className="py-4 px-6">
+                    {/* <td className="py-4 px-6">
                       <span className={getPriorityBadge(inquiry.priority)}>
                         {getPriorityText(inquiry.priority)}
                       </span>
-                    </td>
+                    </td> */}
                     <td className="py-4 px-6">
                       <span className={getStatusBadge(inquiry.status)}>
                         {getStatusText(inquiry.status)}

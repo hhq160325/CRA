@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { BOOKING_ENDPOINTS, PAYMENT_ENDPOINTS, BOOKING_API_CONFIG, PAYMENT_API_CONFIG } from '../../../../config/api';
+import { BOOKING_ENDPOINTS, PAYMENT_ENDPOINTS, BOOKING_API_CONFIG, PAYMENT_API_CONFIG } from '../../../../../config/api';
 
 const ExtendedBooking = ({ isOpen, rental, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);

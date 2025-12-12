@@ -32,21 +32,21 @@ const Payments = () => {
       setError(null);
 
       const currentUserId = getUserIdFromToken();
-      
+
       // Fetch all data using centralized API function
       const { invoices: allInvoices, payments: allPayments, users: allUsers, cars: allCars } = await fetchOwnerPaymentsData();
-      
-      console.log('Current User ID:', currentUserId);
-      console.log('All Invoices:', allInvoices);
-      console.log('All Payments:', allPayments);
-      console.log('All Users:', allUsers);
-      console.log('All Cars:', allCars);
-      
+
+      // console.log('Current User ID:', currentUserId);
+      // console.log('All Invoices:', allInvoices);
+      // console.log('All Payments:', allPayments);
+      // console.log('All Users:', allUsers);
+      // console.log('All Cars:', allCars);
+
       // Create a map of user IDs to full names for quick lookup
       const userMap = new Map(
         allUsers.map(user => [user.id, user.fullname || user.userName || 'N/A'])
       );
-      
+
       // Create a map of car IDs to car details for quick lookup
       const carMap = new Map(
         allCars.map(car => [car.id, {
@@ -54,35 +54,35 @@ const Payments = () => {
           licensePlate: car.licensePlate || ''
         }])
       );
-      
+
       // Helper function to extract car ID from invoice items
       const extractCarIdFromInvoice = (invoice) => {
         if (!invoice?.invoiceItems || invoice.invoiceItems.length === 0) return null;
-        
+
         // Look for car rental item with Car ID in description
-        const rentalItem = invoice.invoiceItems.find(item => 
+        const rentalItem = invoice.invoiceItems.find(item =>
           item.description?.includes('Car ID:')
         );
-        
+
         if (rentalItem) {
           const match = rentalItem.description.match(/Car ID:\s*([a-f0-9-]+)/i);
           if (match && match[1]) {
             return match[1];
           }
         }
-        
+
         return null;
       };
-      
+
       // Filter invoices for current vendor
       const vendorInvoices = allInvoices.filter(invoice => invoice.vendorId === currentUserId);
       console.log('Vendor Invoices:', vendorInvoices);
-      
+
       // Create a map of invoice IDs for quick lookup
       const vendorInvoiceMap = new Map(
         vendorInvoices.map(invoice => [invoice.id, invoice])
       );
-      
+
       // Filter and transform payments that belong to vendor's invoices
       const vendorPayments = allPayments
         .filter(payment => vendorInvoiceMap.has(payment.invoiceId))
@@ -90,11 +90,11 @@ const Payments = () => {
           const invoice = vendorInvoiceMap.get(payment.invoiceId);
           const customerId = invoice?.customerId;
           const customerName = customerId ? userMap.get(customerId) || 'N/A' : 'N/A';
-          
+
           // Extract car ID from invoice items and get car details
           const carId = extractCarIdFromInvoice(invoice);
           const carDetails = carId ? carMap.get(carId) : null;
-          
+
           return {
             id: payment.id,
             transactionId: payment.orderCode || payment.id.substring(0, 8).toUpperCase(),
@@ -260,14 +260,14 @@ ${t('payments.receiptSeparator')}
   }, [payments]);
 
   // Generate payment method options from unique methods
-  const paymentMethodOptions = useMemo(() => 
-    getPaymentMethodOptions(uniquePaymentMethods), 
+  const paymentMethodOptions = useMemo(() =>
+    getPaymentMethodOptions(uniquePaymentMethods),
     [uniquePaymentMethods]
   );
 
   // Apply filters using utility function
   const filteredPayments = useMemo(() => {
-    return payments.filter(payment => 
+    return payments.filter(payment =>
       filterPaymentData(payment, {
         searchTerm,
         searchFields: ['transactionId', 'bookingId', 'description'],
@@ -336,7 +336,7 @@ ${t('payments.receiptSeparator')}
           <p className="text-gray-600">{t('payments.subtitle')}</p>
         </div>
         <div className="flex space-x-3">
-          <button 
+          <button
             onClick={handleExportAllReceipts}
             disabled={filteredPayments.length === 0}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"

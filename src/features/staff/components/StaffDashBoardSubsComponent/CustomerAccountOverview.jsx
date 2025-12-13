@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { getAllUsers } from '../../../admin/adminapi/adminAPI';
 
 const CustomerAccountOverview = () => {
@@ -73,7 +73,7 @@ const CustomerAccountOverview = () => {
 
   const COLORS = ['#10B981', '#F59E0B'];
 
-  const CustomTooltip = ({ active, payload, label }) => {
+  const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
@@ -155,25 +155,40 @@ const CustomerAccountOverview = () => {
               <h3 className="text-lg font-medium text-gray-900 mb-4">
                 {t('userVerificationStatus') || 'User Verification Status'}
               </h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<CustomTooltip />} />
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="flex flex-col items-center">
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={70}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+                {/* Custom Legend */}
+                <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-2 sm:gap-4 mt-2">
+                  {pieData.map((entry, index) => (
+                    <div key={`legend-${index}`} className="flex items-center gap-2">
+                      <div 
+                        className="w-3 h-3 rounded-full flex-shrink-0" 
+                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                      ></div>
+                      <span className="text-xs sm:text-sm text-gray-600">
+                        {entry.name}: {entry.value} ({userStats.totalUsers > 0 ? ((entry.value / userStats.totalUsers) * 100).toFixed(0) : 0}%)
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Bar Chart */}
@@ -189,7 +204,7 @@ const CustomerAccountOverview = () => {
                     tick={{ fontSize: 12 }}
                     angle={-45}
                     textAnchor="end"
-                    height={60}
+                    height={120}
                   />
                   <YAxis />
                   <Tooltip content={<CustomTooltip />} />

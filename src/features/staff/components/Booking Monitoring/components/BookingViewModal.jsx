@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { formatPriceWithCurrency } from '../../../../../shared/utils/priceFormatter';
 
 const BookingViewModal = ({ 
   selectedBooking, 
@@ -14,7 +15,7 @@ const BookingViewModal = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('bookingId')}</label>
-            <p className="text-gray-900">{selectedBooking.bookingId}</p>
+            <p className="text-gray-900">{selectedBooking.bookingNumber}</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('status')}</label>
@@ -36,7 +37,7 @@ const BookingViewModal = ({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('totalAmount')}</label>
-            <p className="text-gray-900">${selectedBooking.totalAmount}</p>
+            <p className="text-gray-900">{formatPriceWithCurrency(selectedBooking.paidAmount)}</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('startDate')}</label>
@@ -54,7 +55,7 @@ const BookingViewModal = ({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('createdAt')}</label>
-            <p className="text-gray-900">{selectedBooking.createdAt}</p>
+            <p className="text-gray-900">{selectedBooking.createDate}</p>
           </div>
         </div>
         {selectedBooking.notes && (

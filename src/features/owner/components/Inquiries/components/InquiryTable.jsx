@@ -1,8 +1,20 @@
 import { useTranslation } from 'react-i18next';
 import { getStatusBadge, getStatusText } from '../utils';
+import Pagination from '../../../../../shared/components/Pagination';
 
-const InquiryTable = ({ inquiries, onViewInquiry, onMarkAsClosed }) => {
+const InquiryTable = ({ 
+  inquiries, 
+  onViewInquiry, 
+  onMarkAsClosed,
+  currentPage = 1,
+  totalItems,
+  itemsPerPage = 10,
+  onPageChange
+}) => {
   const { t } = useTranslation();
+  
+  // Use inquiries length as fallback if totalItems is not provided
+  const actualTotalItems = totalItems !== undefined ? totalItems : inquiries.length;
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100">
@@ -83,21 +95,12 @@ const InquiryTable = ({ inquiries, onViewInquiry, onMarkAsClosed }) => {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-center py-4 border-t border-gray-200">
-        <div className="flex items-center space-x-2">
-          <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">
-            {t('inquiries.previous')}
-          </button>
-          <div className="flex space-x-1">
-            <button className="w-8 h-8 text-sm bg-blue-600 text-white rounded">1</button>
-            <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
-            <button className="w-8 h-8 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
-          </div>
-          <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">
-            {t('inquiries.next')}
-          </button>
-        </div>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalItems={actualTotalItems}
+        itemsPerPage={itemsPerPage}
+        onPageChange={onPageChange || (() => {})}
+      />
     </div>
   );
 };

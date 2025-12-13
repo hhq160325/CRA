@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import BookingViewModal from './BookingViewModal';
+import BookingViewModal from '../../Booking Monitoring/components/BookingViewModal';
 import BookingEditModal from './BookingEditModal';
 import BookingCancelModal from './BookingCancelModal';
 import BookingResolveModal from './BookingResolveModal';

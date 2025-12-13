@@ -220,25 +220,46 @@ const PendingVerifications = () => {
             {t('carStatusDistribution') || 'Car Status Distribution'}
           </h3>
           {carStats.totalCars > 0 ? (
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={70}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className="flex items-center gap-6">
+              {/* Legend on the left */}
+              <div className="flex-shrink-0 space-y-3">
+                {pieData.map((entry, index) => (
+                  <div key={`legend-${index}`} className="flex items-center gap-2">
+                    <div 
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                    ></div>
+                    <div className="text-sm">
+                      <div className="font-medium text-gray-900">{entry.name}</div>
+                      <div className="text-gray-600">
+                        {entry.value} ({((entry.value / carStats.totalCars) * 100).toFixed(1)}%)
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Pie chart on the right */}
+              <div className="flex-1">
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={70}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           ) : (
             <div className="flex items-center justify-center h-48 text-gray-500">
               <p>{t('noDataAvailable') || 'No data available'}</p>

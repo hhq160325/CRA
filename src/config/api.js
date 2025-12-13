@@ -129,7 +129,8 @@ export const INVOICE_API_CONFIG = {
 
 // Payment endpoints
 export const PAYMENT_ENDPOINTS = {
-  GET_ALL_PAYMENTS: `${API_CONFIG.ALTER_URL}/PayOS/AllPayments`,
+  // GET_ALL_PAYMENTS: `${API_CONFIG.ALTER_URL}/PayOS/AllPayments`,
+  GET_ALL_PAYMENTS: `${API_CONFIG.ALTER_URL}/Invoice/All`,
   GET_PAYMENT_BY_ID: (paymentId) => `${API_CONFIG.ALTER_URL}/Payment/GetPaymentById/${paymentId}`,
   CREATE_PAYMENT: `${API_CONFIG.ALTER_URL}/Payment/CreatePayment`,
   CREATE_ADDITIONAL_PAYMENT: `${API_CONFIG.ALTER_URL}/CreateAdditionalPayment`

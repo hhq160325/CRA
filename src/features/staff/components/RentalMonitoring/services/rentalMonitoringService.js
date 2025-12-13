@@ -114,7 +114,7 @@ export const rentalMonitoringService = {
       // Calculate total paid amount based on payment statuses
       let totalPaidAmount = 0;
 
-      // If booking fee is paid and rental fee is pending, only count booking fee
+      // If booking fee is success and rental fee is pending, only count booking fee
       if (bookingFeeStatus === 'success' && rentalFeeStatus === 'pending') {
         totalPaidAmount = (bookingFeePayment?.paidAmount || 0) + (additionalFeePayment?.paidAmount || 0) + (bookingExtensionFeePayment?.paidAmount || 0);
       } else {

@@ -1,23 +1,17 @@
-import { axiosInstance } from "../../shared/utils/axiosInstance";
+import { axiosInstance } from "../../../shared/utils/axiosInstance";
 import { 
   CAR_ENDPOINTS, 
   BOOKING_ENDPOINTS, 
   INVOICE_ENDPOINTS, 
   USER_ENDPOINTS,
   SCHEDULE_ENDPOINTS 
-} from "../../config/api";
+} from "../../../config/api";
 
 // ============================================
 // CAR REGISTRATION DOCUMENTS API
 // ============================================
 
-/**
- * Upload car registration documents
- * @param {string} carId - Car ID
- * @param {string} userId - User ID
- * @param {FileList} files - Files to upload
- * @returns {Promise} Upload response
- */
+/* Upload car registration documents */
 export const uploadCarRegistrationDocuments = async (carId, userId, files) => {
   const formData = new FormData();
   formData.append('CarId', carId);
@@ -36,10 +30,7 @@ export const uploadCarRegistrationDocuments = async (carId, userId, files) => {
   return response.data;
 };
 
-/**
- * Get all cars
- * @returns {Promise<Array>} List of all cars
- */
+/* Get all cars */
 export const getAllCars = async () => {
   const response = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS);
   return response.data;
@@ -49,28 +40,19 @@ export const getAllCars = async () => {
 // PAYMENTS API
 // ============================================
 
-/**
- * Get all invoices
- * @returns {Promise<Array>} List of all invoices
- */
+/* Get all invoices */
 export const getAllInvoices = async () => {
   const response = await axiosInstance.get(INVOICE_ENDPOINTS.GET_ALL_INVOICES);
   return response.data;
 };
 
-/**
- * Get all payments
- * @returns {Promise<Array>} List of all payments
- */
+/* Get all payments */
 export const getAllPayments = async () => {
   const response = await axiosInstance.get(INVOICE_ENDPOINTS.GET_ALL);
   return response.data;
 };
 
-/**
- * Get all users
- * @returns {Promise<Array>} List of all users
- */
+/* Get all users */
 export const getAllUsers = async () => {
   const response = await axiosInstance.get(USER_ENDPOINTS.GET_ALL_USERS);
   return response.data;
@@ -80,11 +62,7 @@ export const getAllUsers = async () => {
 // RENTAL HISTORY API
 // ============================================
 
-/**
- * Get customer bookings
- * @param {string} customerId - Customer ID
- * @returns {Promise<Array>} List of customer bookings
- */
+/* Get customer bookings */
 export const getCustomerBookings = async (customerId) => {
   try {
     const response = await axiosInstance.get(BOOKING_ENDPOINTS.GET_CUSTOMER_BOOKINGS(customerId));
@@ -95,11 +73,7 @@ export const getCustomerBookings = async (customerId) => {
   }
 };
 
-/**
- * Get car bookings
- * @param {string} carId - Car ID
- * @returns {Promise<Array>} List of car bookings
- */
+/* Get car bookings */
 export const getCarBookings = async (carId) => {
   try {
     const response = await axiosInstance.get(BOOKING_ENDPOINTS.GET_CAR_BOOKINGS(carId));
@@ -114,17 +88,7 @@ export const getCarBookings = async (carId) => {
 // USAGE TRACKING API
 // ============================================
 
-/**
- * Create car maintenance schedule
- * @param {Object} scheduleData - Schedule data
- * @param {string} scheduleData.title - Schedule title
- * @param {string} scheduleData.location - Maintenance location
- * @param {string} scheduleData.startDate - Start date 
- * @param {string} scheduleData.endDate - End date 
- * @param {string} scheduleData.note - Additional notes
- * @param {string} scheduleData.carId - Car ID
- * @returns {Promise} Schedule creation response
- */
+/* Create car maintenance schedule */
 export const createCarSchedule = async (scheduleData) => {
   const response = await axiosInstance.post(SCHEDULE_ENDPOINTS.CREATE_CAR_SCHEDULES, scheduleData);
   return response.data;
@@ -134,10 +98,7 @@ export const createCarSchedule = async (scheduleData) => {
 // COMBINED DATA FETCHING 
 // ============================================
 
-/**
- * Fetch all data needed for payments page
- * @returns {Promise<Object>} Object containing invoices, payments, users, and cars
- */
+/* Fetch all data needed for payments page */
 export const fetchOwnerPaymentsData = async () => {
   const [invoicesResponse, paymentsResponse, usersResponse, carsResponse] = await Promise.all([
     axiosInstance.get(INVOICE_ENDPOINTS.GET_ALL_INVOICES),
@@ -154,10 +115,7 @@ export const fetchOwnerPaymentsData = async () => {
   };
 };
 
-/**
- * Fetch all data needed for rental history page
- * @returns {Promise<Object>} Object containing invoices, cars, users, and payments
- */
+/* Fetch all data needed for rental history page */
 export const fetchRentalHistoryData = async () => {
   const [invoicesResponse, carsResponse, usersResponse, paymentsResponse] = await Promise.all([
     axiosInstance.get(INVOICE_ENDPOINTS.GET_ALL_INVOICES),

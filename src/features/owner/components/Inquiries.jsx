@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { axiosInstance } from '../../../shared/utils/axiosInstance';
 import { INQUIRY_ENDPOINTS } from '../../../config/api';
 import { tokenUtils } from '../../auth/utils';
-import { getAllUsers } from '../ownerApi';
+import { getAllUsers } from '../api/ownerApi';
 
 const Inquiries = () => {
   const { t, i18n } = useTranslation();

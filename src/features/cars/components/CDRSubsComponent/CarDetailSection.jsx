@@ -38,17 +38,10 @@ const CarDetailSection = ({
   
   // Get current user ID from token
   const currentUserId = tokenUtils.getUserId();
-  console.log("Nguoi gui",currentUserId);
+  // console.log("Nguoi gui",currentUserId);
   // Get owner ID from Redux store or fallback to prop
   const carOwnerId = carFromStore?.owner.id;
-  console.log("Nguoi nhan",carOwnerId);
-  
-  // Fetch car details if we have a carId
-  // useEffect(() => {
-  //   if (carId && !carFromStore) {
-  //     dispatch(fetchCarById(carId));
-  //   }
-  // }, [carId, carFromStore, dispatch]);
+  // console.log("Nguoi nhan",carOwnerId);
 
   const handleToggleFavorite = () => {
     if (!currentCar) return;

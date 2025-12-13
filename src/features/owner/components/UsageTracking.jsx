@@ -4,7 +4,7 @@ import DropdownTemplate from '../../../shared/components/DropdownTemplate';
 import Pagination from '../../../shared/components/Pagination';
 import { tokenUtils } from '../../auth/utils';
 import { filterCarUsageData } from '../utils/filterUtils';
-import { getAllCars, getCarBookings } from '../ownerApi';
+import { getAllCars, getCarBookings } from '../../owner/api/ownerApi';
 import { MaintenanceSchedulingModal, UsageDetailsModal } from './modal';
 
 const UsageTracking = () => {

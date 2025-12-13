@@ -24,6 +24,8 @@ export const authApiCall = async (endpoint, options = {}) => {
     if (error.response) {
       // Server responded with error status
       const customError = new Error(error.response.data?.message || "Something went wrong");
+      console.log(error.response.data?.message);
+      
       customError.statusCode = error.response.status;
       customError.response = error.response.data;
       throw customError;

@@ -29,8 +29,8 @@ const CarDetailRev = () => {
     return {
       pickupDate: `${day}/${month}`,
       dropoffDate: `${day}/${month}`,
-      pickupTime: '06:00',
-      dropoffTime: '23:00',
+      pickupTime: '',
+      dropoffTime: '',
       duration: 0
     };
   };
@@ -188,9 +188,9 @@ const CarDetailRev = () => {
   useEffect(() => {
     const calculateDistance = async () => {
       if (!deliveryLocation || !currentCar?.preferredLot) {
-        console.log('Distance calculation skipped:', { 
-          hasDeliveryLocation: !!deliveryLocation, 
-          hasPreferredLot: !!currentCar?.preferredLot 
+        console.log('Distance calculation skipped:', {
+          hasDeliveryLocation: !!deliveryLocation,
+          hasPreferredLot: !!currentCar?.preferredLot
         });
         return;
       }
@@ -199,13 +199,13 @@ const CarDetailRev = () => {
       try {
         const sourceAddress = `${currentCar.preferredLot.address}, ${currentCar.preferredLot.city}`;
         console.log('Calculating distance from:', sourceAddress, 'to:', deliveryLocation);
-        
+
         const distanceData = await getDistanceBetweenAddresses(sourceAddress, deliveryLocation);
         console.log('Distance API response:', distanceData);
-        
+
         // API returns distance in meters, convert to kilometers
         const distanceInMeters = distanceData?.distanceInMeters;
-        
+
         if (distanceInMeters) {
           const distanceInKm = distanceInMeters / 1000;
           setDeliveryDistance(distanceInKm);
@@ -314,7 +314,7 @@ const CarDetailRev = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto p-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
+
           {/* Left Column - Car Details*/}
           <CarDetailSection
             carImages={carImages}
@@ -380,6 +380,8 @@ const CarDetailRev = () => {
               city: currentCar.preferredLot.city,
               fullAddress: `${currentCar.preferredLot.address}, ${currentCar.preferredLot.city}`
             };
+            console.log('Removing selfpickupparklot from localStorage');
+            localStorage.removeItem('selfpickupparklot');
             localStorage.setItem('carParkLot', JSON.stringify(carParkLot));
           }
         }}

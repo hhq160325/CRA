@@ -1,16 +1,17 @@
 import { getUserIdFromToken } from '../../../../user/api';
-import { rentalHistoryApi } from '../api/rentalHistoryApi';
+import { rentalMonitoringApi } from '../api/rentalMonitoringApi';
 
-export const rentalHistoryService = {
+export const rentalMonitoringService = {
   /* Fetch all required data for rental history */
   async fetchAllData() {
-    return await rentalHistoryApi.fetchAllData();
+    return await rentalMonitoringApi.fetchAllData();
   },
 
-  /* Filter invoices by current user (vendor) */
+  /* Filter invoices by current user (vendor) - DISABLED */
   filterUserInvoices(allInvoices) {
-    const currentUserId = getUserIdFromToken();
-    return allInvoices.filter(invoice => invoice.vendorId === currentUserId);
+    // const currentUserId = getUserIdFromToken();
+    // return allInvoices.filter(invoice => invoice.vendorId === currentUserId);
+    return allInvoices; // Return all invoices without filtering
   },
 
   /* Create lookup maps for efficient data access */
@@ -39,7 +40,7 @@ export const rentalHistoryService = {
   /* Fetch bookings for customers */
   async fetchBookings(invoices) {
     const uniqueCustomerIds = [...new Set(invoices.map(inv => inv.customerId))];
-    const bookingsResponses = await rentalHistoryApi.fetchMultipleCustomerBookings(uniqueCustomerIds);
+    const bookingsResponses = await rentalMonitoringApi.fetchMultipleCustomerBookings(uniqueCustomerIds);
 
     const bookingMap = {};
     bookingsResponses.forEach(bookings => {
@@ -59,7 +60,7 @@ export const rentalHistoryService = {
       invoices.map(this.extractCarIdFromInvoice).filter(Boolean)
     )];
 
-    const feedbackResponses = await rentalHistoryApi.fetchMultipleCarFeedback(uniqueCarIds);
+    const feedbackResponses = await rentalMonitoringApi.fetchMultipleCarFeedback(uniqueCarIds);
 
     const feedbackMap = {};
     feedbackResponses.forEach((feedbacks, index) => {

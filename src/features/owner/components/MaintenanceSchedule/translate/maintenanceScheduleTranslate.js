@@ -59,6 +59,11 @@ export const maintenanceScheduleTranslate = {
       "maintenanceSchedule.errorCreatingSchedule": "Unable to create maintenance schedule. Please try again.",
       "maintenanceSchedule.loadingSchedules": "Loading maintenance schedules...",
       "maintenanceSchedule.tryAgain": "Try Again",
+      "maintenanceSchedule.noMaintenanceCars": "No Maintenance Cars Found",
+      "maintenanceSchedule.noMaintenanceCarsMessage": "There are currently no cars scheduled for maintenance. All your vehicles are up to date!",
+      "maintenanceSchedule.noResultsFound": "No Results Found",
+      "maintenanceSchedule.noResultsFoundMessage": "No maintenance schedules match your current search criteria. Try adjusting your filters.",
+      "maintenanceSchedule.clearFilters": "Clear Filters",
     }
   },
   vi: {
@@ -120,6 +125,11 @@ export const maintenanceScheduleTranslate = {
       "maintenanceSchedule.errorCreatingSchedule": "Không thể tạo lịch bảo dưỡng. Vui lòng thử lại.",
       "maintenanceSchedule.loadingSchedules": "Đang tải lịch bảo dưỡng...",
       "maintenanceSchedule.tryAgain": "Thử Lại",
+      "maintenanceSchedule.noMaintenanceCars": "Không Có Xe Bảo Dưỡng",
+      "maintenanceSchedule.noMaintenanceCarsMessage": "Hiện tại không có xe nào được lên lịch bảo dưỡng. Tất cả xe của bạn đều đã được cập nhật!",
+      "maintenanceSchedule.noResultsFound": "Không Tìm Thấy Kết Quả",
+      "maintenanceSchedule.noResultsFoundMessage": "Không có lịch bảo dưỡng nào phù hợp với tiêu chí tìm kiếm hiện tại. Hãy thử điều chỉnh bộ lọc.",
+      "maintenanceSchedule.clearFilters": "Xóa Bộ Lọc",
     }
   }
 };

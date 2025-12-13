@@ -7,6 +7,8 @@ import MaintenanceScheduleTable from './MaintenanceScheduleTable';
 import MaintenanceDetailsModal from './MaintenanceDetailsModal';
 import LoadingState from './LoadingState';
 import ErrorState from './ErrorState';
+import NoMaintenanceCars from './NoMaintenanceCars';
+import NoResultsFound from './NoResultsFound';
 
 const MaintenanceSchedule = () => {
   const { maintenanceSchedules, loading, error, refetch } = useMaintenanceSchedule();
@@ -88,6 +90,12 @@ const MaintenanceSchedule = () => {
     setCurrentPage(page);
   };
 
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setStatusFilter('all');
+    setCurrentPage(1);
+  };
+
   // Loading and error states
   if (loading) {
     return <LoadingState />;
@@ -95,6 +103,11 @@ const MaintenanceSchedule = () => {
 
   if (error) {
     return <ErrorState error={error} onRetry={refetch} />;
+  }
+
+  // No maintenance cars state
+  if (maintenanceSchedules.length === 0) {
+    return <NoMaintenanceCars />;
   }
 
   return (
@@ -111,17 +124,21 @@ const MaintenanceSchedule = () => {
           totalCount={maintenanceSchedules.length}
         />
 
-        <MaintenanceScheduleTable
-          paginatedSchedules={paginatedSchedules}
-          currentPage={currentPage}
-          totalItems={totalItems}
-          itemsPerPage={itemsPerPage}
-          onPageChange={handlePageChange}
-          onViewDetails={handleViewDetails}
-          onMarkCompleted={handleMarkCompleted}
-          getStatusBadge={getStatusBadge}
-          getPriorityBadge={getPriorityBadge}
-        />
+        {filteredSchedules.length === 0 ? (
+          <NoResultsFound onClearFilters={handleClearFilters} />
+        ) : (
+          <MaintenanceScheduleTable
+            paginatedSchedules={paginatedSchedules}
+            currentPage={currentPage}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            onViewDetails={handleViewDetails}
+            onMarkCompleted={handleMarkCompleted}
+            getStatusBadge={getStatusBadge}
+            getPriorityBadge={getPriorityBadge}
+          />
+        )}
       </div>
 
       <MaintenanceDetailsModal

@@ -2,7 +2,7 @@ import { axiosInstance } from '../../../../../shared/utils/axiosInstance';
 import { BOOKING_ENDPOINTS, CAR_ENDPOINTS, USER_ENDPOINTS, INVOICE_ENDPOINTS, FEEDBACK_ENDPOINTS } from '../../../../../config/api';
 
 /* API functions for rental history data fetching */
-export const rentalHistoryApi = {
+export const rentalMonitoringApi = {
   /* Fetch all invoices */
   async getAllInvoices() {
     const response = await axiosInstance.get(INVOICE_ENDPOINTS.GET_ALL_INVOICES);

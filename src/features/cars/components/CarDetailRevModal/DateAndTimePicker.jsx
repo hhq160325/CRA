@@ -121,15 +121,61 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
   const [pickupTime, setPickupTime] = useState('06:00');
   const [dropoffTime, setDropoffTime] = useState('23:00');
 
+  // Get next available pickup time for today
+  const getNextAvailablePickupTime = (selectedDate) => {
+    const now = new Date();
+    const isToday = selectedDate.day === now.getDate() && 
+                    selectedDate.month === now.getMonth() && 
+                    selectedDate.year === now.getFullYear();
+    
+    if (!isToday) return '06:00'; // Default time for future dates
+    
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    
+    // If current time is past the hour, use next hour
+    const nextHour = currentMinute > 0 ? currentHour + 1 : currentHour;
+    
+    // Ensure we don't go past 23:00
+    const validHour = Math.min(nextHour, 23);
+    
+    return `${validHour.toString().padStart(2, '0')}:00`;
+  };
+
   // Load saved rental dates from localStorage on mount
   useEffect(() => {
     const savedData = localStorage.getItem(RENTAL_DATES_KEY);
     if (savedData) {
       try {
         const parsed = JSON.parse(savedData);
-        if (parsed.selectedPickupDate) setSelectedPickupDate(parsed.selectedPickupDate);
+        if (parsed.selectedPickupDate) {
+          setSelectedPickupDate(parsed.selectedPickupDate);
+          
+          // Validate and update pickup time if it's today and time has passed
+          const now = new Date();
+          const isToday = parsed.selectedPickupDate.day === now.getDate() && 
+                          parsed.selectedPickupDate.month === now.getMonth() && 
+                          parsed.selectedPickupDate.year === now.getFullYear();
+          
+          if (isToday && parsed.pickupTime) {
+            const savedHour = parseInt(parsed.pickupTime.split(':')[0]);
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            const cutoffHour = currentMinute > 0 ? currentHour + 1 : currentHour;
+            
+            if (savedHour < cutoffHour) {
+              // Saved time is no longer valid, update to next available time
+              const nextAvailableTime = getNextAvailablePickupTime(parsed.selectedPickupDate);
+              setPickupTime(nextAvailableTime);
+            } else {
+              setPickupTime(parsed.pickupTime);
+            }
+          } else {
+            setPickupTime(parsed.pickupTime || '06:00');
+          }
+        }
+        
         if (parsed.selectedDropoffDate) setSelectedDropoffDate(parsed.selectedDropoffDate);
-        if (parsed.pickupTime) setPickupTime(parsed.pickupTime);
         if (parsed.dropoffTime) setDropoffTime(parsed.dropoffTime);
       } catch (error) {
         console.error('Failed to load rental dates from localStorage:', error);
@@ -142,8 +188,11 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
         month: today.getMonth(),
         year: today.getFullYear()
       };
+      const defaultPickupTime = getNextAvailablePickupTime(defaultPickupDate);
+      
       setSelectedPickupDate(defaultPickupDate);
-      saveToLocalStorage({ selectedPickupDate: defaultPickupDate });
+      setPickupTime(defaultPickupTime);
+      saveToLocalStorage({ selectedPickupDate: defaultPickupDate, pickupTime: defaultPickupTime });
     }
   }, []);
 
@@ -211,27 +260,52 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
   const handleDateClick = (day, month, year) => {
     if (!day) return;
     
-    const clickedDate = { day, month, year };
-    const clickedTimestamp = new Date(year, month, day).getTime();
+    // Check if date is within 10 days from current date
+    const clickedDate = new Date(year, month, day);
+    const currentDate = new Date();
+    const maxDate = new Date(currentDate);
+    maxDate.setDate(currentDate.getDate() + 10);
+    
+    // Reset time to compare only dates
+    clickedDate.setHours(0, 0, 0, 0);
+    currentDate.setHours(0, 0, 0, 0);
+    maxDate.setHours(0, 0, 0, 0);
+    
+    // Prevent selection if date is in the past or more than 10 days from now
+    if (clickedDate < currentDate || clickedDate > maxDate) {
+      return;
+    }
+    
+    const clickedDateObj = { day, month, year };
+    const clickedTimestamp = clickedDate.getTime();
     
     if (!selectedPickupDate) {
-      setSelectedPickupDate(clickedDate);
-      saveToLocalStorage({ selectedPickupDate: clickedDate });
+      setSelectedPickupDate(clickedDateObj);
+      // Update pickup time if selecting today
+      const nextAvailableTime = getNextAvailablePickupTime(clickedDateObj);
+      setPickupTime(nextAvailableTime);
+      saveToLocalStorage({ selectedPickupDate: clickedDateObj, pickupTime: nextAvailableTime });
     } else if (!selectedDropoffDate) {
       const pickupTimestamp = new Date(selectedPickupDate.year, selectedPickupDate.month, selectedPickupDate.day).getTime();
       
       if (clickedTimestamp > pickupTimestamp) {
-        setSelectedDropoffDate(clickedDate);
-        saveToLocalStorage({ selectedDropoffDate: clickedDate });
+        setSelectedDropoffDate(clickedDateObj);
+        saveToLocalStorage({ selectedDropoffDate: clickedDateObj });
       } else {
-        setSelectedPickupDate(clickedDate);
+        setSelectedPickupDate(clickedDateObj);
         setSelectedDropoffDate(null);
-        saveToLocalStorage({ selectedPickupDate: clickedDate, selectedDropoffDate: null });
+        // Update pickup time if selecting today
+        const nextAvailableTime = getNextAvailablePickupTime(clickedDateObj);
+        setPickupTime(nextAvailableTime);
+        saveToLocalStorage({ selectedPickupDate: clickedDateObj, selectedDropoffDate: null, pickupTime: nextAvailableTime });
       }
     } else {
-      setSelectedPickupDate(clickedDate);
+      setSelectedPickupDate(clickedDateObj);
       setSelectedDropoffDate(null);
-      saveToLocalStorage({ selectedPickupDate: clickedDate, selectedDropoffDate: null });
+      // Update pickup time if selecting today
+      const nextAvailableTime = getNextAvailablePickupTime(clickedDateObj);
+      setPickupTime(nextAvailableTime);
+      saveToLocalStorage({ selectedPickupDate: clickedDateObj, selectedDropoffDate: null, pickupTime: nextAvailableTime });
     }
   };
 
@@ -276,6 +350,23 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
     return false;
   };
 
+  const isDateDisabled = (day, month, year) => {
+    if (!day) return false;
+    
+    const dateToCheck = new Date(year, month, day);
+    const currentDate = new Date();
+    const maxDate = new Date(currentDate);
+    maxDate.setDate(currentDate.getDate() + 10);
+    
+    // Reset time to compare only dates
+    dateToCheck.setHours(0, 0, 0, 0);
+    currentDate.setHours(0, 0, 0, 0);
+    maxDate.setHours(0, 0, 0, 0);
+    
+    // Disable if date is in the past or more than 10 days from now
+    return dateToCheck < currentDate || dateToCheck > maxDate;
+  };
+
   const calculateDuration = () => {
     if (selectedPickupDate && selectedDropoffDate) {
       const pickupTimestamp = new Date(selectedPickupDate.year, selectedPickupDate.month, selectedPickupDate.day).getTime();
@@ -299,9 +390,14 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
     if (!isToday) return [];
     
     const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
     const disabledTimes = [];
     
-    for (let i = 0; i <= currentHour; i++) {
+    // Disable all times before current time
+    // If current time is past the hour (e.g., 14:30), disable that hour too
+    const cutoffHour = currentMinute > 0 ? currentHour + 1 : currentHour;
+    
+    for (let i = 0; i < cutoffHour; i++) {
       disabledTimes.push(`${i.toString().padStart(2, '0')}:00`);
     }
     
@@ -413,13 +509,13 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
                     {day ? (
                       <button
                         onClick={() => handleDateClick(day, selectedMonth, selectedYear)}
-                        disabled={day < currentDate.getDate() && selectedMonth === currentDate.getMonth()}
+                        disabled={isDateDisabled(day, selectedMonth, selectedYear)}
                         className={`w-full h-full flex flex-col items-center justify-center text-sm transition-colors rounded ${
                           isDateSelected(day, selectedMonth, selectedYear)
                             ? 'bg-blue-500 text-white font-semibold'
                             : isDateInRange(day, selectedMonth, selectedYear)
                             ? 'bg-blue-100 text-gray-900'
-                            : day < currentDate.getDate() && selectedMonth === currentDate.getMonth()
+                            : isDateDisabled(day, selectedMonth, selectedYear)
                             ? 'text-gray-300 cursor-not-allowed'
                             : 'hover:bg-gray-100 text-gray-700'
                         }`}
@@ -466,11 +562,14 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
                     {day ? (
                       <button
                         onClick={() => handleDateClick(day, nextMonth, nextMonthYear)}
+                        disabled={isDateDisabled(day, nextMonth, nextMonthYear)}
                         className={`w-full h-full flex flex-col items-center justify-center text-sm transition-colors rounded ${
                           isDateSelected(day, nextMonth, nextMonthYear)
                             ? 'bg-blue-500 text-white font-semibold'
                             : isDateInRange(day, nextMonth, nextMonthYear)
                             ? 'bg-blue-100 text-gray-900'
+                            : isDateDisabled(day, nextMonth, nextMonthYear)
+                            ? 'text-gray-300 cursor-not-allowed'
                             : 'hover:bg-gray-100 text-gray-700'
                         }`}
                       >

@@ -1,235 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { fetchCarById } from '../carsSlice';
-import { getCarRentalRate, getCarFeedback, getBookingById, getUserById, getDistanceBetweenAddresses } from '../carApi';
 import { DeliveryLocationModal, DateAndTimePicker, CarGallery } from './CarDetailRevModal';
 import CarBookingCardSection from './CDRSubsComponent/CarBookingCardSection';
 import CarDetailSection from './CDRSubsComponent/CarDetailSection';
+import { useCarDetail, useRentalDates, useDeliveryLocation } from '../hooks';
 
 const CarDetailRev = () => {
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  
+  // Local component state
   const [selectedImage, setSelectedImage] = useState(0);
-  const [rentalRate, setRentalRate] = useState(null);
-  const [loadingRate, setLoadingRate] = useState(false);
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [selectedAirport, setSelectedAirport] = useState(null);
   const [showDateTimePicker, setShowDateTimePicker] = useState(false);
-  const [deliveryLocation, setDeliveryLocation] = useState(null);
   const [showGallery, setShowGallery] = useState(false);
-  // Initialize rental dates with current date as default
-  const getCurrentDateDefaults = () => {
-    const today = new Date();
-    const day = today.getDate();
-    const month = today.getMonth() + 1;
-    return {
-      pickupDate: `${day}/${month}`,
-      dropoffDate: `${day}/${month}`,
-      pickupTime: '',
-      dropoffTime: '',
-      duration: 0
-    };
-  };
 
-  const [rentalDates, setRentalDates] = useState(getCurrentDateDefaults());
-  const [feedbacks, setFeedbacks] = useState([]);
-  const [loadingFeedback, setLoadingFeedback] = useState(false);
-  const [feedbackUsers, setFeedbackUsers] = useState({});
-  const [deliveryDistance, setDeliveryDistance] = useState(null);
-  const [deliveryFee, setDeliveryFee] = useState(60000);
-  const [loadingDistance, setLoadingDistance] = useState(false);
+  // Custom hooks
+  const {
+    currentCar,
+    loading,
+    error,
+    rentalRate,
+    loadingRate,
+    feedbacks,
+    loadingFeedback,
+    feedbackUsers
+  } = useCarDetail(id);
 
-  // Load rental dates and delivery location from localStorage on mount
-  useEffect(() => {
-    // Load rental dates
-    const savedRentalDates = localStorage.getItem('rentalDates');
-    if (savedRentalDates) {
-      try {
-        const parsed = JSON.parse(savedRentalDates);
-        if (parsed.pickupDate && parsed.dropoffDate && parsed.pickupTime && parsed.dropoffTime) {
-          setRentalDates({
-            pickupDate: parsed.pickupDate,
-            dropoffDate: parsed.dropoffDate,
-            pickupTime: parsed.pickupTime,
-            dropoffTime: parsed.dropoffTime,
-            duration: parsed.duration || 0
-          });
-        }
-      } catch (error) {
-        console.error('Failed to load rental dates from localStorage:', error);
-      }
-    } else {
-      // If no saved data, initialize with current date in localStorage
-      const today = new Date();
-      const defaultPickupDate = {
-        day: today.getDate(),
-        month: today.getMonth(),
-        year: today.getFullYear()
-      };
-      const defaultData = {
-        selectedPickupDate: defaultPickupDate,
-        selectedDropoffDate: null,
-        pickupTime: '06:00',
-        dropoffTime: '23:00'
-      };
-      localStorage.setItem('rentalDates', JSON.stringify(defaultData));
-    }
+  const { rentalDates, setRentalDates } = useRentalDates();
 
-    // Load delivery location
-    const savedDeliveryLocation = localStorage.getItem('deliveryLocation');
-    if (savedDeliveryLocation) {
-      setDeliveryLocation(savedDeliveryLocation);
-    }
-  }, []);
+  const {
+    deliveryLocation,
+    setDeliveryLocation,
+    deliveryDistance,
+    setDeliveryDistance,
+    deliveryFee,
+    setDeliveryFee,
+    loadingDistance
+  } = useDeliveryLocation(currentCar);
 
-  // Get car data from Redux store
-  const { currentCar, loading, error } = useSelector((state) => state.cars);
 
-  // Fetch car by ID on component mount
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchCarById(id));
-    }
-  }, [dispatch, id]);
-
-  // Fetch rental rate when car ID changes
-  useEffect(() => {
-    const fetchRentalRate = async () => {
-      if (!id) return;
-
-      setLoadingRate(true);
-      try {
-        const rateData = await getCarRentalRate(id);
-        setRentalRate(rateData);
-      } catch (error) {
-        console.error('Failed to fetch rental rate:', error);
-      } finally {
-        setLoadingRate(false);
-      }
-    };
-
-    fetchRentalRate();
-  }, [id]);
-
-  // Fetch feedback when car ID changes
-  useEffect(() => {
-    const fetchFeedback = async () => {
-      if (!id) return;
-
-      setLoadingFeedback(true);
-      try {
-        const feedbackData = await getCarFeedback(id);
-        const feedbackArray = Array.isArray(feedbackData) ? feedbackData : [];
-        setFeedbacks(feedbackArray);
-
-        // Fetch user data for each feedback
-        const usersData = {};
-        for (const feedback of feedbackArray) {
-          if (feedback.bookingId && !usersData[feedback.bookingId]) {
-            try {
-              const bookingData = await getBookingById(feedback.bookingId);
-
-              if (!bookingData) {
-                usersData[feedback.bookingId] = {
-                  username: 'Người dùng',
-                  avatar: null
-                };
-                continue;
-              }
-
-              const userId = bookingData?.userId || bookingData?.customerId;
-              if (userId) {
-                const userData = await getUserById(userId);
-
-                if (!userData) {
-                  usersData[feedback.bookingId] = {
-                    username: 'Người dùng',
-                    avatar: null
-                  };
-                  continue;
-                }
-
-                usersData[feedback.bookingId] = {
-                  username: userData.username || 'Người dùng',
-                  avatar: userData.imageAvatar || null
-                };
-              } else {
-                usersData[feedback.bookingId] = {
-                  username: 'Người dùng',
-                  avatar: null
-                };
-              }
-            } catch (error) {
-              console.error(`Failed to fetch user data for booking ${feedback.bookingId}:`, error);
-              usersData[feedback.bookingId] = {
-                username: 'Người dùng',
-                avatar: null
-              };
-            }
-          }
-        }
-        setFeedbackUsers(usersData);
-      } catch (error) {
-        console.error('Failed to fetch feedback:', error);
-        setFeedbacks([]);
-      } finally {
-        setLoadingFeedback(false);
-      }
-    };
-
-    fetchFeedback();
-  }, [id]);
-
-  // Calculate distance when delivery location changes
-  useEffect(() => {
-    const calculateDistance = async () => {
-      if (!deliveryLocation || !currentCar?.preferredLot) {
-        console.log('Distance calculation skipped:', {
-          hasDeliveryLocation: !!deliveryLocation,
-          hasPreferredLot: !!currentCar?.preferredLot
-        });
-        return;
-      }
-
-      setLoadingDistance(true);
-      try {
-        const sourceAddress = `${currentCar.preferredLot.address}, ${currentCar.preferredLot.city}`;
-        console.log('Calculating distance from:', sourceAddress, 'to:', deliveryLocation);
-
-        const distanceData = await getDistanceBetweenAddresses(sourceAddress, deliveryLocation);
-        console.log('Distance API response:', distanceData);
-
-        // API returns distance in meters, convert to kilometers
-        const distanceInMeters = distanceData?.distanceInMeters;
-
-        if (distanceInMeters) {
-          const distanceInKm = distanceInMeters / 1000;
-          setDeliveryDistance(distanceInKm);
-          // Calculate delivery fee based on distance (20000 VND per km, minimum 60000 VND)
-          const calculatedFee = Math.max(60000, Math.round(distanceInKm * 20000));
-          setDeliveryFee(calculatedFee);
-          console.log('Distance calculated:', distanceInKm, 'km, Fee:', calculatedFee, 'VND');
-        } else {
-          console.warn('No distance found in response:', distanceData);
-          setDeliveryDistance(null);
-          setDeliveryFee(60000);
-        }
-      } catch (error) {
-        console.error('Failed to calculate distance:', error);
-        // Keep default fee if calculation fails
-        setDeliveryDistance(null);
-        setDeliveryFee(60000);
-      } finally {
-        setLoadingDistance(false);
-      }
-    };
-
-    calculateDistance();
-  }, [deliveryLocation, currentCar]);
 
   // Helper function to process image URLs
   const processImageUrl = (imageUrl) => {

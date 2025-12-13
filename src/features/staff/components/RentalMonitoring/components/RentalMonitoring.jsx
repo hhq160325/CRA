@@ -1,23 +1,23 @@
 import { useState } from 'react';
 import RentalDetailsModal from './RentalDetailsModal';
 import ExtendedBooking from './ExtendedBooking';
-import RentalHistoryHeader from './RentalHistoryHeader';
-import RentalHistoryFilters from './RentalHistoryFilters';
-import RentalHistoryTable from './RentalHistoryTable';
+import RentalHistoryHeader from './RentalMonitoringHeader';
+import RentalHistoryFilters from './RentalMonitoringFilters';
+import RentalHistoryTable from './RentalMonitoringTable';
 import LoadingState from './LoadingState';
 import ErrorState from './ErrorState';
-import { useRentalHistory } from '../hooks/useRentalHistory';
+import { useRentalMonitoring } from '../hooks/useRentalMonitoring';
 import { useRentalFilters } from '../hooks/useRentalFilters';
 import { getStatusBadge, getPaymentBadge } from '../utils/rentalUtils';
 
-const RentalHistory = () => {
+const RentalMonitoring = () => {
   const [selectedRental, setSelectedRental] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isExtendModalOpen, setIsExtendModalOpen] = useState(false);
   const itemsPerPage = 10;
 
   // Custom hooks
-  const { rentalHistory, loading, error, fetchRentalHistory } = useRentalHistory();
+  const { rentalHistory, loading, error, fetchRentalHistory } = useRentalMonitoring();
   const {
     searchTerm,
     setSearchTerm,
@@ -155,5 +155,5 @@ const RentalHistory = () => {
   );
 };
 
-export default RentalHistory;
+export default RentalMonitoring;
 

@@ -658,7 +658,7 @@ const resources = {
       // Maintenance Schedule Component
       ...maintenanceScheduleTranslate.en.translation,
 
-      usageAndMileage: "Usage & Mileage",
+      usageAndMileage: "Usage",
       rentalHistory: "Rental History",
       customerFeedback: "Customer Feedback",
       inquiries: "Inquiries",
@@ -667,6 +667,7 @@ const resources = {
       registerNewCar: "Register New Car",
       registerNewCarSection: "Register New Car",
       maintenanceCalendar: "Maintenance Calendar",
+      submitVehicleRegistrationCertificate: "Submit Vehicle Registration Certificate",
       // Register Car Step 3 - Photo Upload
       clickToUpload: "Click to upload",
       orDragAndDrop: "or drag and drop",
@@ -1762,7 +1763,7 @@ const resources = {
       // Maintenance Schedule Component
       ...maintenanceScheduleTranslate.vi.translation,
 
-      usageAndMileage: "Sử Dụng & Số Km",
+      usageAndMileage: "Mức sử dụng",
       rentalHistory: "Lịch Sử Cho Thuê",
       customerFeedback: "Phản Hồi Khách Hàng",
       inquiries: "Yêu Cầu",
@@ -1770,6 +1771,8 @@ const resources = {
       payments: "Thanh Toán",
       registerNewCar: "Đăng Ký Xe Mới",
       registerNewCarSection: "Đăng Ký Xe Mới",
+      submitVehicleRegistrationCertificate: "Nộp giấy đăng kiểm",
+
 
       // Register Car Step 3 - Photo Upload
       clickToUpload: "Nhấp để tải lên",

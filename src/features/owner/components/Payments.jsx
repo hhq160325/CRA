@@ -5,7 +5,7 @@ import { filterPaymentData } from '../utils/filterUtils';
 import DropdownTemplate from '../../../shared/components/DropdownTemplate';
 import Pagination from '../../../shared/components/Pagination';
 import { paymentTypeOptions, getPaymentMethodOptions, paymentStatusOptions, dateFilterOptions } from '../owner-utils/dropdownOptions';
-import { fetchOwnerPaymentsData } from '../ownerApi';
+import { fetchOwnerPaymentsData } from '../api/ownerApi';
 
 const Payments = () => {
   const { t } = useTranslation();

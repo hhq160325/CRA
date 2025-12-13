@@ -1,4 +1,4 @@
-import { getAllCars, uploadCarRegistrationDocuments } from '../../../ownerApi';
+import { getAllCars, uploadCarRegistrationDocuments } from '../../../api/ownerApi';
 
 export const carRegisDocsService = {
   /* Fetch all cars belonging to the current user */

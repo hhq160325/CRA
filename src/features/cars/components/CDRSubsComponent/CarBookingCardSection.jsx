@@ -126,7 +126,9 @@ const CarBookingCardSection = ({
                   name="pickup-option"
                   checked={!!deliveryLocation}
                   className="mt-1 w-4 h-4 text-primary-600 focus:ring-primary-500"
-                  onChange={() => setShowDeliveryModal(true)}
+                  onChange={() => {
+                    setShowDeliveryModal(true)
+                  }}
                 />
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
@@ -183,7 +185,7 @@ const CarBookingCardSection = ({
               </span>
             </div>
           )}
-          
+
           <div className="flex justify-between text-sm text-blue-600">
             <span>{t('bookingFeesPayNow')}</span>
             <span className="flex items-center gap-1">
@@ -205,7 +207,7 @@ const CarBookingCardSection = ({
               )}
             </span>
           </div>
-          
+
           <div className="flex justify-between font-bold text-lg pt-2 border-t">
             <span>{t('totalPricePayNow')}</span>
             {loadingRate ? (

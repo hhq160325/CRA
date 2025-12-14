@@ -121,7 +121,7 @@ export const rentalHistoryService = {
         totalPaidAmount = allPaymentsTotal;
       }
 
-      const totalPaidAmountShow = (bookingFeePayment?.paidAmount || 0) + (rentalFeePayment?.paidAmount || 0);
+      const totalPaidAmountShow = (bookingFeePayment?.paidAmount || 0) + (rentalFeePayment?.paidAmount || 0) + (additionalFeePayment?.paidAmount || 0) + (bookingExtensionFeePayment?.paidAmount || 0);
 
       // Get payment methods for each payment type
       const bookingFeePaymentMethod = bookingFeePayment?.paymentMethod || t('rentalHistory.noPaymentMethod');

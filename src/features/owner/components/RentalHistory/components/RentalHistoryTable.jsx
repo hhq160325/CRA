@@ -79,7 +79,7 @@ const RentalHistoryTable = ({
                   </td>
                   <td className="py-4 px-6">
                     <span className={getPaymentBadge(rental.bookingFeeStatus)}>
-                      {translateStatus(rental.bookingFeeStatus)}
+                      {translateStatus(rental.bookingFeeStatus)} 
                     </span>
                     <div className="text-xs text-gray-500 mt-1">{formatVND(rental.bookingFeePaid)}</div>
                     <div className="text-xs text-gray-400 mt-0.5">{rental.bookingFeePaymentMethod}</div>
@@ -135,7 +135,7 @@ const RentalHistoryTable = ({
                           onClick={() => onExtendBooking(rental)}
                           className="text-green-600 hover:text-green-700 text-sm font-medium"
                         >
-                          Gia hạn
+                          {t('rentalHistory.extend')}
                         </button>
                       )}
                     </div>

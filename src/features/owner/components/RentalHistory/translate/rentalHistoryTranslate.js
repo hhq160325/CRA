@@ -47,7 +47,8 @@ export const rentalHistoryTranslate = {
       "rentalHistory.additionalFee": "Additional Fee",
       "rentalHistory.extendBookingFee": "Extend Booking Fee",
       "rentalHistory.noPaymentMethod": "No payment method",
-      // Rental Details Modal
+      "rentalHistory.extend":"Extend Rent",
+      // Rental Details Modal //{t('rentalHistory.extend')}
       "rentalHistory.rentalDetails": "Rental Details",
       "rentalHistory.vehicleInformation": "Vehicle Information",
       "rentalHistory.customerInformation": "Customer Information",
@@ -134,6 +135,7 @@ export const rentalHistoryTranslate = {
       "rentalHistory.additionalFee": "Phí bổ sung",
       "rentalHistory.extendBookingFee": "Phí gia hạn",
       "rentalHistory.noPaymentMethod": "Chưa có phương thức thanh toán",
+      "rentalHistory.extend":"Gia hạn",
       // Rental Details Modal
       "rentalHistory.rentalDetails": "Chi tiết thuê xe",
       "rentalHistory.vehicleInformation": "Thông tin xe",

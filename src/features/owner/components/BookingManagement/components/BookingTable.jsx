@@ -1,8 +1,40 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getStatusBadge } from '../utils/statusUtils';
+import ExtendedBooking from './ExtendedBooking';
 
-const BookingTable = ({ bookings }) => {
+const BookingTable = ({ bookings, onBookingUpdate }) => {
   const { t } = useTranslation();
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [isExtendModalOpen, setIsExtendModalOpen] = useState(false);
+
+  const handleExtendRent = (booking) => {
+    // Convert booking data to match ExtendedBooking component expectations
+    const rentalData = {
+      carId: booking.carId,
+      carName: booking.carName,
+      licensePlate: booking.licensePlate,
+      customer: booking.customer,
+      endDate: booking.endDate,
+      bookingId: booking.bookingId
+    };
+    setSelectedBooking(rentalData);
+    setIsExtendModalOpen(true);
+  };
+
+  const handleExtendSuccess = () => {
+    setIsExtendModalOpen(false);
+    setSelectedBooking(null);
+    // Call parent callback to refresh bookings
+    if (onBookingUpdate) {
+      onBookingUpdate();
+    }
+  };
+
+  const handleExtendClose = () => {
+    setIsExtendModalOpen(false);
+    setSelectedBooking(null);
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100">
@@ -27,6 +59,9 @@ const BookingTable = ({ bookings }) => {
               </th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">
                 {t('bookingManagement.status')}
+              </th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">
+                {t('bookingManagement.actions')}
               </th>
             </tr>
           </thead>
@@ -79,11 +114,29 @@ const BookingTable = ({ bookings }) => {
                     return <span className={badge.className}>{badge.label}</span>;
                   })()}
                 </td>
+                <td className="py-4 px-6">
+                  {(booking.status === 'Confirmed' || booking.status === 'checkedIn') && (
+                        <button
+                          onClick={() => handleExtendRent(booking)}
+                          className="text-green-600 hover:text-green-700 text-sm font-medium"
+                        >
+                          {t('rentalHistory.extend')}
+                        </button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* Extended Booking Modal */}
+      <ExtendedBooking
+        isOpen={isExtendModalOpen}
+        rental={selectedBooking}
+        onClose={handleExtendClose}
+        onSuccess={handleExtendSuccess}
+      />
     </div>
   );
 };

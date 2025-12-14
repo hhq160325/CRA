@@ -4,7 +4,7 @@ import { getUserIdFromToken } from '../../user/api';
 import { filterPaymentData } from '../utils/filterUtils';
 import DropdownTemplate from '../../../shared/components/DropdownTemplate';
 import Pagination from '../../../shared/components/Pagination';
-import { paymentTypeOptions, getPaymentMethodOptions, paymentStatusOptions, dateFilterOptions } from '../owner-utils/dropdownOptions';
+import { paymentTypeOptions, getPaymentMethodOptions, paymentStatusOptions, dateFilterOptions } from '../ownerUtils/dropdownOptions';
 import { fetchOwnerPaymentsData } from '../api/ownerApi';
 
 const Payments = () => {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchRentalHistoryData, fetchOwnerPaymentsData } from '../../../api/ownerApi';
+import { getAllInvoices } from '../../../api/ownerApi';
 import { getUserIdFromToken } from '../../../../user/api';
 
 export const useDashboardPaymentData = () => {
@@ -9,6 +9,7 @@ export const useDashboardPaymentData = () => {
     bookingFeeTotal: 0,
     rentalFeeTotal: 0,
   });
+  const [dailyData, setDailyData] = useState([]);
   const [paymentLoading, setPaymentLoading] = useState(true);
 
   const fetchPaymentData = async () => {
@@ -16,47 +17,71 @@ export const useDashboardPaymentData = () => {
       setPaymentLoading(true);
       const currentUserId = getUserIdFromToken();
 
-      // Fetch rental history data to get invoices
-      const { invoices: allInvoices } = await fetchRentalHistoryData();
+      // Fetch invoices data
+      const allInvoices = await getAllInvoices();
       const invoices = allInvoices.filter(invoice => invoice.vendorId === currentUserId);
 
-      // Fetch payment data for payment statistics
-      const { payments: allPayments } = await fetchOwnerPaymentsData();
+      // Calculate payment statistics - Update: we only count invoices with "status": "Completed" 
+      // Show totalReceived in last 7 days with "createDate"
+      // Temporarily commented pendingPayments, bookingFeeTotal and rentalFeeTotal
+      
+      // Get date 7 days ago
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      
+      // Filter invoices to only include "Completed" status and created in last 7 days
+      const completedInvoices = invoices.filter(invoice => {
+        const isCompleted = invoice.status === "Completed";
+        const invoiceDate = new Date(invoice.createDate);
+        const isWithinLast7Days = invoiceDate >= sevenDaysAgo;
+        return isCompleted && isWithinLast7Days;
+      });
 
-      // Filter payments for current vendor's invoices
-      const vendorInvoiceIds = invoices.map(invoice => invoice.id);
-      const vendorPayments = allPayments.filter(payment => vendorInvoiceIds.includes(payment.invoiceId));
+      const totalReceived = completedInvoices.reduce((sum, invoice) => sum + (invoice.grandTotal || 0), 0);
 
-      // Calculate payment statistics
-      const totalReceived = vendorPayments.filter(p =>
-        p.status?.toLowerCase() === 'paid' ||
-        p.status?.toLowerCase() === 'completed' ||
-        p.status?.toLowerCase() === 'success'
-      ).reduce((sum, p) => sum + (p.paidAmount || 0), 0);
+      // Generate daily breakdown for last 7 days
+      const dailyBreakdown = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        date.setHours(0, 0, 0, 0);
+        
+        const nextDate = new Date(date);
+        nextDate.setDate(date.getDate() + 1);
+        
+        const dayInvoices = completedInvoices.filter(invoice => {
+          const invoiceDate = new Date(invoice.createDate);
+          return invoiceDate >= date && invoiceDate < nextDate;
+        });
+        
+        const dayTotal = dayInvoices.reduce((sum, invoice) => sum + (invoice.grandTotal || 0), 0);
+        
+        dailyBreakdown.push({
+          date: date.toISOString(),
+          amount: dayTotal
+        });
+      }
 
-      const pendingPayments = vendorPayments.filter(p =>
-        p.status?.toLowerCase() === 'pending'
-      ).reduce((sum, p) => sum + (p.paidAmount || 0), 0);
+      setDailyData(dailyBreakdown);
 
-      const bookingFeeTotal = vendorPayments.filter(p =>
-        p.item?.toLowerCase().includes('booking') &&
-        (p.status?.toLowerCase() === 'paid' ||
-          p.status?.toLowerCase() === 'completed' ||
-          p.status?.toLowerCase() === 'success')
-      ).reduce((sum, p) => sum + (p.paidAmount || 0), 0);
+      // Temporarily commented out - only counting completed invoices for now
+      // const pendingPayments = invoices.filter(invoice => 
+      //   invoice.status === "Pending"
+      // ).reduce((sum, invoice) => sum + (invoice.grandTotal || 0), 0);
 
-      const rentalFeeTotal = vendorPayments.filter(p =>
-        !p.item?.toLowerCase().includes('booking') &&
-        (p.status?.toLowerCase() === 'paid' ||
-          p.status?.toLowerCase() === 'completed' ||
-          p.status?.toLowerCase() === 'success')
-      ).reduce((sum, p) => sum + (p.paidAmount || 0), 0);
+      // const bookingFeeTotal = completedInvoices.filter(invoice =>
+      //   invoice.item?.toLowerCase().includes('booking')
+      // ).reduce((sum, invoice) => sum + (invoice.grandTotal || 0), 0);
+
+      // const rentalFeeTotal = completedInvoices.filter(invoice =>
+      //   !invoice.item?.toLowerCase().includes('booking')
+      // ).reduce((sum, invoice) => sum + (invoice.grandTotal || 0), 0);
 
       setPaymentStats({
         totalReceived,
-        pendingPayments,
-        bookingFeeTotal,
-        rentalFeeTotal,
+        pendingPayments: 0, // Temporarily set to 0
+        bookingFeeTotal: 0, // Temporarily set to 0
+        rentalFeeTotal: 0,  // Temporarily set to 0
       });
     } catch (error) {
       console.error('Error fetching payment data:', error);
@@ -69,5 +94,5 @@ export const useDashboardPaymentData = () => {
     fetchPaymentData();
   }, []);
 
-  return { paymentStats, paymentLoading, refetchPaymentData: fetchPaymentData };
+  return { paymentStats, dailyData, paymentLoading, refetchPaymentData: fetchPaymentData };
 };

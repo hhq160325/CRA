@@ -21,7 +21,7 @@ export const useDashboardData = () => {
   });
 
   // Use the separate payment data hook
-  const { paymentStats, paymentLoading, refetchPaymentData } = useDashboardPaymentData();
+  const { paymentStats, dailyData, paymentLoading, refetchPaymentData } = useDashboardPaymentData();
   
   // Use the separate car data hook
   const { carStats, carLoading, ownerCars, manufacturerMap, refetchCarData, updateTopManufacturers } = useDashboardCarData();
@@ -214,6 +214,7 @@ export const useDashboardData = () => {
 
   return { 
     stats: { ...stats, ...paymentStats, ...carStats }, 
+    dailyData,
     loading: loading || paymentLoading || carLoading, 
     refetch: () => {
       fetchDashboardData();

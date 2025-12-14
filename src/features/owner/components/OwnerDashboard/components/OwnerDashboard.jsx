@@ -12,7 +12,7 @@ import LoadingSpinner from './LoadingSpinner';
 
 const OwnerDashboard = () => {
   const { t } = useTranslation();
-  const { stats, loading } = useDashboardData();
+  const { stats, dailyData, loading } = useDashboardData();
 
   if (loading) {
     return <LoadingSpinner />;
@@ -37,7 +37,7 @@ const OwnerDashboard = () => {
 
       {/* Second Row - Payment Summary and Recent Bookings */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <PaymentSummary stats={stats} />
+        <PaymentSummary stats={stats} dailyData={dailyData} />
         <RecentBookings bookings={stats.recentBookings} />
       </div>
 

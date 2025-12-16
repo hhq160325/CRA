@@ -31,7 +31,7 @@ const RecentBookings = ({ bookings }) => {
                 <tr key={booking.id} className="hover:bg-gray-50">
                   <td className="py-3 px-4">
                     <div className="font-medium text-gray-900 text-sm">
-                      BK{String(booking.id).padStart(3, '0')}
+                      {booking.bookingNumber}
                     </div>
                   </td>
                   <td className="py-3 px-4">

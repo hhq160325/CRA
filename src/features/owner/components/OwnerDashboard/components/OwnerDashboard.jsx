@@ -37,21 +37,24 @@ const OwnerDashboard = () => {
 
       {/* Second Row - Payment Summary and Recent Bookings */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <PaymentSummary stats={stats} dailyData={dailyData} />
-        <RecentBookings bookings={stats.recentBookings} />
+        <PaymentSummary />
       </div>
 
       {/* Third Row - Car Status, RegDoc Status, and Booking Status */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <CarStatusSummary carStatusData={stats.carStatusData} />
         <RegDocStatusSummary regDocStatusData={stats.regDocStatusData} />
-        <OwnerBookingStatus bookingStatusChartData={bookingStatusChartData} />
       </div>
 
       {/* Fourth Row - Booking Overview and Top Manufacturers */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <OwnerBookingOverview weeklyBookingData={stats.weeklyBookingData} />
-        <TopManufacturers topManufacturers={stats.topManufacturers} />
+        <OwnerBookingStatus bookingStatusChartData={bookingStatusChartData} />
+        {/* <TopManufacturers topManufacturers={stats.topManufacturers} /> */}
+      </div>
+      {/* Fifth Row - RecentBookings */}
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+        <RecentBookings bookings={stats.recentBookings} />
       </div>
     </div>
   );

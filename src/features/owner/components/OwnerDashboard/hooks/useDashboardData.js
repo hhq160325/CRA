@@ -5,6 +5,7 @@ import { getUserIdFromToken } from '../../../../user/api';
 import { fetchRentalHistoryData } from '../../../api/ownerApi';
 import { useDashboardPaymentData } from './useDashboardPaymentData';
 import { useDashboardCarData } from './useDashboardCarData';
+import { convertToVietnamTime } from '../../../../../shared/utils/CheckUTC';
 
 export const useDashboardData = () => {
   const [loading, setLoading] = useState(true);
@@ -75,8 +76,8 @@ export const useDashboardData = () => {
           customerName: userMap[booking.userId] || 'Unknown Customer'
         }))
         .sort((a, b) => {
-          const dateA = new Date(a.createDate || 0);
-          const dateB = new Date(b.createDate || 0);
+          const dateA = a.createDate ? convertToVietnamTime(a.createDate) : new Date(0);
+          const dateB = b.createDate ? convertToVietnamTime(b.createDate) : new Date(0);
           return dateB - dateA; // Most recent first
         });
 
@@ -110,7 +111,7 @@ export const useDashboardData = () => {
 
           // Calculate monthly earnings
           if (booking?.pickupTime) {
-            const bookingDate = new Date(booking.pickupTime);
+            const bookingDate = convertToVietnamTime(booking.pickupTime);
             if (bookingDate >= sixMonthsAgo) {
               const monthDiff = (currentDate.getFullYear() - bookingDate.getFullYear()) * 12 +
                 (currentDate.getMonth() - bookingDate.getMonth());
@@ -152,9 +153,9 @@ export const useDashboardData = () => {
         const dayBookings = ownerBookings.filter(booking => {
           let bookingDate;
           if (booking.updateDate && booking.createDate && booking.updateDate !== booking.createDate) {
-            bookingDate = new Date(booking.updateDate);
+            bookingDate = convertToVietnamTime(booking.updateDate);
           } else {
-            bookingDate = new Date(booking.createDate || booking.pickupTime);
+            bookingDate = convertToVietnamTime(booking.createDate || booking.pickupTime);
           }
           return bookingDate >= date && bookingDate < nextDate;
         });

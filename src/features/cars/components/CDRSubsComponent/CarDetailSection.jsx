@@ -199,20 +199,17 @@ const CarDetailSection = ({
         <div className="bg-white rounded-lg p-6">
           <h2 className="text-lg font-semibold mb-4">{t('description')}</h2>
           <div className="space-y-2 text-gray-700">
-            <p className="flex items-start gap-2">
-              <span>{carDescription}</span>
-            </p>
             {currentCar?.description && (
-              <p className="whitespace-pre-line">{currentCar.description}</p>
+              <p className="whitespace-pre-line text-wrap">{currentCar.description}</p>
             )}
             {!currentCar?.description && (
               <>
-                <p>- Hầy đủ options</p>
-                <p>- Xe mới 99%</p>
-                <p>- Cam 360, quạt hơi cao cấp</p>
-                <p>- Vietnam số 1 màn hình lớn, cam phạt nguội, am lam đi các cung đường lạ</p>
-                <p>- Dàn phanh cao nhất, Lumbar chỉnh hàng</p>
-                <p>- Màn hình Android Teyes 10.0, có đủ sẵn</p>
+                <p className="text-wrap">- Hầy đủ options</p>
+                <p className="text-wrap">- Xe mới 99%</p>
+                <p className="text-wrap">- Cam 360, quạt hơi cao cấp</p>
+                <p className="text-wrap">- Vietnam số 1 màn hình lớn, cam phạt nguội, am lam đi các cung đường lạ</p>
+                <p className="text-wrap">- Dàn phanh cao nhất, Lumbar chỉnh hàng</p>
+                <p className="text-wrap">- Màn hình Android Teyes 10.0, có đủ sẵn</p>
               </>
             )}
           </div>
@@ -440,7 +437,7 @@ const CarDetailSection = ({
                             <p className="font-medium text-sm mt-2">{feedback.title}</p>
                           )}
                           {feedback.content && (
-                            <p className="text-sm text-gray-600 mt-1 line-clamp-3">{feedback.content}</p>
+                            <p className="text-sm text-gray-600 mt-1 line-clamp-3 text-wrap">{feedback.content}</p>
                           )}
                           {feedback.imageUrls && feedback.imageUrls.length > 0 && (
                             <div className="flex gap-2 mt-2 overflow-x-auto">

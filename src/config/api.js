@@ -17,11 +17,11 @@ export const AUTH_ENDPOINTS = {
   GOOGLE_CALLBACK: `${API_CONFIG.BASE_URL}/Authen/google-callback`,
   OTP_VERIFY: `${API_CONFIG.BASE_URL}/Authen/SignUp/verify`,
   OTP_RESEND: `${API_CONFIG.BASE_URL}/Authen/otp/resend`,
-  FORGOT_PASSWORD: `${API_CONFIG.BASE_URL}/auth/forgot-password`,
-  RESET_PASSWORD: `${API_CONFIG.BASE_URL}/auth/reset-password`,
-  VERIFY_TOKEN: `${API_CONFIG.BASE_URL}/auth/verify-token`,
-  REFRESH_TOKEN: `${API_CONFIG.BASE_URL}/auth/refresh-token`,
-  LOGOUT: `${API_CONFIG.BASE_URL}/auth/logout`,
+  // FORGOT_PASSWORD: `${API_CONFIG.BASE_URL}/auth/forgot-password`,
+  // RESET_PASSWORD: `${API_CONFIG.BASE_URL}/auth/reset-password`,
+  // VERIFY_TOKEN: `${API_CONFIG.BASE_URL}/auth/verify-token`,
+  // REFRESH_TOKEN: `${API_CONFIG.BASE_URL}/auth/refresh-token`,
+  // LOGOUT: `${API_CONFIG.BASE_URL}/auth/logout`,
 };
 
 export const AUTH_API_CONFIG = {
@@ -39,6 +39,9 @@ export const USER_ENDPOINTS = {
   PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
   UPDATE_PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
   GET_ALL_DRIVER_LICENSE: `${API_CONFIG.BASE_URL}/User/driverLicense/all`,
+  //For reset password
+  RESET_PASSWORD_VERIFY: `${API_CONFIG.BASE_URL}/User/reset-password/verify`,
+  RESET_PASSWORD: `${API_CONFIG.BASE_URL}/User/reset-password`,
 };
 
 export const USER_API_CONFIG = {

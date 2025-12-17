@@ -52,9 +52,21 @@ export const forgotPasswordUser = createAsyncThunk(
 
 export const resetPasswordUser = createAsyncThunk(
   "auth/resetPassword",
-  async ({ token, newPassword }, { rejectWithValue }) => {
+  async (resetData, { rejectWithValue }) => {
     try {
-      const response = await authService.resetPassword(token, newPassword);
+      const response = await authService.resetPassword(resetData);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const verifyResetPasswordOTP = createAsyncThunk(
+  "auth/verifyResetPasswordOTP",
+  async (verifyData, { rejectWithValue }) => {
+    try {
+      const response = await authService.verifyResetPasswordOTP(verifyData);
       return response;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -80,6 +92,19 @@ export const refreshTokenUser = createAsyncThunk(
     try {
       const response = await authService.refreshToken();
       return response;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const fetchVerificationStatus = createAsyncThunk(
+  "auth/fetchVerificationStatus",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { getUserById } = await import("../user/api");
+      const userData = await getUserById();
+      return { isVerified: userData.isVerified };
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -123,6 +148,11 @@ export const authSlice = createSlice({
     updateUserData: (state, action) => {
       if (state.user) {
         state.user = { ...state.user, ...action.payload };
+      }
+    },
+    updateVerificationStatus: (state, action) => {
+      if (state.user) {
+        state.user.isVerified = action.payload;
       }
     },
   },
@@ -210,13 +240,30 @@ export const authSlice = createSlice({
       })
       .addCase(resetPasswordUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.success = action.payload.message || "Password reset successful!";
+        state.success = action.payload.message || "OTP sent to your email!";
         state.error = null;
-        state.resetPasswordToken = null;
       })
       .addCase(resetPasswordUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload || "Password reset failed";
+      });
+
+    // Verify Reset Password OTP
+    builder
+      .addCase(verifyResetPasswordOTP.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(verifyResetPasswordOTP.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.success = action.payload.message || "Password reset successful!";
+        state.error = null;
+        state.resetPasswordToken = null;
+        state.forgotPasswordEmail = null;
+      })
+      .addCase(verifyResetPasswordOTP.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || "OTP verification failed";
       });
 
     // Logout
@@ -253,6 +300,17 @@ export const authSlice = createSlice({
         state.isAuthenticated = false;
         state.user = null;
       });
+
+    // Fetch Verification Status
+    builder
+      .addCase(fetchVerificationStatus.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user.isVerified = action.payload.isVerified;
+        }
+      })
+      .addCase(fetchVerificationStatus.rejected, (state, action) => {
+        console.error("Failed to fetch verification status:", action.payload);
+      });
   },
 });
 
@@ -264,6 +322,7 @@ export const {
   setResetPasswordToken,
   clearAuthData,
   updateUserData,
+  updateVerificationStatus,
 } = authSlice.actions;
 
 // Export selectors

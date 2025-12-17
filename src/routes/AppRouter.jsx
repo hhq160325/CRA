@@ -6,8 +6,7 @@ import { PaymentPage, PaymentSuccess, PaymentCancel } from '../features/payment'
 import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring } from '../features/admin';
 import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter, ParklotCreate, RegDocsApproved, DriverLicenseApprove } from '../features/staff';
 import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments, CarRegisDocs } from '../features/owner';
-import { AuthPage, GoogleCallback } from '../features/auth';
-// import ForgotPassword from '../features/auth/components/ForgotPassword';
+import { AuthPage, GoogleCallback, ForgotPassword, ResetPassword } from '../features/auth';
 import SearchResult from '../features/search/components/SearchResult';
 import { HomePage } from '../features/homepage';
 import { selectIsAuthenticated } from '../features/auth/authSlice';
@@ -39,6 +38,8 @@ const AppRouter = () => {
       <Route path="/car-detail/:id" element={<CarDetailRev />} />
       {/* Auth route - redirects based on user role if already authenticated */}
       <Route path="/auth" element={!isAuthenticated ? <AuthPage /> : <AuthRedirect />} />
+      <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+      <Route path="/auth/reset-password" element={<ResetPassword />} />
       <Route path="/otp-verify" element={<OtpVerify />} />
       <Route path="/auth/google-callback" element={<GoogleCallback />} />
 

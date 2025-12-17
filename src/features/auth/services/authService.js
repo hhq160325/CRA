@@ -1,5 +1,5 @@
 // Service functions for auth
-import { AUTH_ENDPOINTS } from "../api/authApi";
+import { AUTH_ENDPOINTS, USER_ENDPOINTS } from "../api/authApi";
 import { authApiCall, tokenUtils, decodeJWT } from "../utils";
 import { logout } from "../../../shared/authGlobal";
 
@@ -44,23 +44,26 @@ export const login = async (credentials) => {
         email: credentials.email,
         roleId: roleId ? parseInt(roleId, 10) : null
       };
+      
+      // Store tokens (without isVerified)
       tokenUtils.storeTokens(data.token, data.token, user);
 
-      // Fetch full user data to get avatar and username
+      // Fetch full user data to get avatar, username, and isVerified
       if (userId) {
         try {
           const { getUserById } = await import('../../user/api');
           const userData = await getUserById();
           
-          // Update localStorage with avatar and username
+          // Update localStorage with avatar and username only (excluding isVerified)
           tokenUtils.updateUserData({
             username: userData.username,
             imageAvatar: userData.imageAvatar
           });
           
-          // Update return value with full user data
+          // Update return value with full user data including isVerified for Redux
           user.username = userData.username;
           user.imageAvatar = userData.imageAvatar;
+          user.isVerified = userData.isVerified; // Only stored in Redux, not localStorage
         } catch (userError) {
           console.error('Failed to fetch user data:', userError);
           // Continue with login even if user data fetch fails
@@ -131,21 +134,25 @@ export const register = async (userData) => {
         roleId: roleId ? parseInt(roleId, 10) : null
       };
       
+      // Store tokens (without isVerified)
       tokenUtils.storeTokens(data.token, data.token, user);
       
-      // Fetch full user data to get avatar
+      // Fetch full user data to get avatar and isVerified
       if (userId) {
         try {
           const { getUserById } = await import('../../user/api');
           const fullUserData = await getUserById();
           
+          // Update localStorage with avatar and username only (excluding isVerified)
           tokenUtils.updateUserData({
             username: fullUserData.username,
             imageAvatar: fullUserData.imageAvatar
           });
           
+          // Update user object with full data including isVerified for Redux
           user.username = fullUserData.username;
           user.imageAvatar = fullUserData.imageAvatar;
+          user.isVerified = fullUserData.isVerified; // Only stored in Redux, not localStorage
         } catch (userError) {
           console.error('Failed to fetch user data:', userError);
         }
@@ -161,7 +168,7 @@ export const register = async (userData) => {
     }
 
     // Fallback: Auto-login after successful registration if no token in response
-    // Check for success or if registration completed (some APIs don't return success flag)
+    // Check for success or if registration completed
     if (data.success || data.message || !data.error) {
       try {
         // Automatically log in with the same credentials
@@ -196,11 +203,17 @@ export const register = async (userData) => {
   }
 };
 
-// Forgot password function
-export const forgotPassword = async (email) => {
+// Reset password function (step 1: send email, password, confirmPassword)
+export const resetPassword = async (resetData) => {
   try {
-    const data = await authApiCall(AUTH_ENDPOINTS.FORGOT_PASSWORD, {
-      body: { email },
+    const requestBody = {
+      email: resetData.email,
+      password: resetData.password,
+      confirmPassword: resetData.confirmPassword
+    };
+
+    const data = await authApiCall(USER_ENDPOINTS.RESET_PASSWORD, {
+      body: requestBody,
     });
 
     return data;
@@ -209,11 +222,38 @@ export const forgotPassword = async (email) => {
   }
 };
 
-// Reset password function
-export const resetPassword = async (token, newPassword) => {
+// Verify reset password OTP function (step 2: verify OTP)
+export const verifyResetPasswordOTP = async (verifyData) => {
   try {
-    const data = await authApiCall(AUTH_ENDPOINTS.RESET_PASSWORD, {
-      body: { token, newPassword },
+    // Build URL with query parameters
+    const queryParams = new URLSearchParams({
+      email: verifyData.email,
+      OTPCode: verifyData.otp
+    });
+    
+    const urlWithParams = `${USER_ENDPOINTS.RESET_PASSWORD_VERIFY}?${queryParams.toString()}`;
+
+    console.log('RESET_PASSWORD_VERIFY - Input data:', verifyData);
+    console.log('RESET_PASSWORD_VERIFY - Query params:', queryParams.toString());
+    console.log('RESET_PASSWORD_VERIFY - Full URL:', urlWithParams);
+
+    const data = await authApiCall(urlWithParams, {
+      method: 'POST', // Ensure POST method as shown in curl
+    });
+
+    console.log('RESET_PASSWORD_VERIFY - Response data:', data);
+    return data;
+  } catch (error) {
+    console.error('RESET_PASSWORD_VERIFY - Error:', error);
+    throw error;
+  }
+};
+
+// Legacy forgot password function (kept for backward compatibility)
+export const forgotPassword = async (email) => {
+  try {
+    const data = await authApiCall(USER_ENDPOINTS.RESET_PASSWORD, {
+      body: { email },
     });
 
     return data;
@@ -248,12 +288,13 @@ export const refreshToken = async () => {
       body: { refreshToken },
     });
 
-    // Update stored tokens
+    // Update stored tokens (excluding isVerified from localStorage)
     if (data.accessToken) {
+      const currentUser = tokenUtils.getCurrentUser();
       tokenUtils.storeTokens(
         data.accessToken, 
         data.refreshToken || refreshToken, 
-        tokenUtils.getCurrentUser()
+        currentUser
       );
     }
 

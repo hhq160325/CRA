@@ -91,6 +91,45 @@ const resources = {
       hide: "Hide",
       forgotPassword: "Forgot password?",
       loggingIn: "Logging in...",
+      
+      // Forgot Password
+      forgotYourPassword: "Forgot your password?",
+      enterEmailForReset: "Enter your email address and we'll send you a link to reset it.",
+      sendResetEmail: "Send reset email",
+      sendingResetEmail: "Sending reset email...",
+      backToLogin: "Back to login",
+      
+      // Password Reset Flow
+      enterNewPasswordDetails: "Enter your email and new password details.",
+      sendOTP: "Send OTP",
+      sendingOTP: "Sending OTP...",
+      verifyOTP: "Verify OTP",
+      verifyingOTP: "Verifying OTP...",
+      otpCode: "OTP Code",
+      enterOTPSentToEmail: "Enter the 6-digit OTP code sent to your email.",
+      otpRequired: "OTP code is required",
+      otpInvalidLength: "OTP code must be 6 digits",
+      backToPasswordReset: "Back to password reset",
+      redirectingToLogin: "Redirecting to login page...",
+      passwordMinLength: "Password must be at least 6 characters",
+      passwordMeetsRequirements: "Password meets requirements",
+      passwordsMatch: "Passwords match",
+      
+      // Reset Password
+      resetYourPassword: "Reset your password",
+      enterNewPasswordBelow: "Enter your new password below.",
+      newPassword: "New Password",
+      enterNewPassword: "Enter new password",
+      confirmNewPassword: "Confirm New Password",
+      confirmNewPasswordPlaceholder: "Confirm new password",
+      resetPassword: "Reset password",
+      resettingPassword: "Resetting password...",
+      passwordsDoNotMatch: "Passwords do not match",
+      passwordTooShort: "Password must be at least 6 characters",
+      passwordRequirements: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+      emailRequired: "Email is required",
+      passwordRequired: "Password is required",
+      confirmPasswordRequired: "Please confirm your new password",
 
 
       // Auth - Register
@@ -1040,7 +1079,12 @@ const resources = {
       "payments.receiptDescription": "Description: {{description}}",
 
       // Car Registration Documents
-      ...ownerTranslations.en.translation
+      ...ownerTranslations.en.translation,
+
+      // Verification Modal
+      verificationRequired: "Verification Required",
+      verificationRequiredMessage: "You need to upload and verify your driver's license before you can rent a car.",
+      uploadDriverLicense: "Upload Driver License"
     }
   },
   vi: {
@@ -1128,6 +1172,45 @@ const resources = {
       hide: "Ẩn",
       forgotPassword: "Quên mật khẩu?",
       loggingIn: "Đang đăng nhập...",
+      
+      // Forgot Password
+      forgotYourPassword: "Quên mật khẩu?",
+      enterEmailForReset: "Nhập địa chỉ email của bạn và chúng tôi sẽ gửi liên kết đặt lại mật khẩu.",
+      sendResetEmail: "Gửi email đặt lại",
+      sendingResetEmail: "Đang gửi email đặt lại...",
+      backToLogin: "Quay lại đăng nhập",
+      
+      // Password Reset Flow
+      enterNewPasswordDetails: "Nhập email và thông tin mật khẩu mới của bạn.",
+      sendOTP: "Gửi mã OTP",
+      sendingOTP: "Đang gửi mã OTP...",
+      verifyOTP: "Xác minh OTP",
+      verifyingOTP: "Đang xác minh OTP...",
+      otpCode: "Mã OTP",
+      enterOTPSentToEmail: "Nhập mã OTP 6 chữ số đã được gửi đến email của bạn.",
+      otpRequired: "Mã OTP là bắt buộc",
+      otpInvalidLength: "Mã OTP phải có 6 chữ số",
+      backToPasswordReset: "Quay lại đặt lại mật khẩu",
+      redirectingToLogin: "Đang chuyển hướng đến trang đăng nhập...",
+      passwordMinLength: "Mật khẩu phải có ít nhất 6 ký tự",
+      passwordMeetsRequirements: "Mật khẩu đáp ứng yêu cầu",
+      passwordsMatch: "Mật khẩu khớp nhau",
+      
+      // Reset Password
+      resetYourPassword: "Đặt lại mật khẩu",
+      enterNewPasswordBelow: "Nhập mật khẩu mới của bạn bên dưới.",
+      newPassword: "Mật khẩu mới",
+      enterNewPassword: "Nhập mật khẩu mới",
+      confirmNewPassword: "Xác nhận mật khẩu mới",
+      confirmNewPasswordPlaceholder: "Xác nhận mật khẩu mới",
+      resetPassword: "Đặt lại mật khẩu",
+      resettingPassword: "Đang đặt lại mật khẩu...",
+      passwordsDoNotMatch: "Mật khẩu không khớp",
+      passwordTooShort: "Mật khẩu phải có ít nhất 6 ký tự",
+      passwordRequirements: "Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường và một số",
+      emailRequired: "Email là bắt buộc",
+      passwordRequired: "Mật khẩu là bắt buộc",
+      confirmPasswordRequired: "Vui lòng xác nhận mật khẩu mới",
       invalidEmailFormat: "Sai format email",
 
       // Auth - Register
@@ -1148,7 +1231,7 @@ const resources = {
       success: "Thành công!",
       redirectingToHomepage: "Đang chuyển đến trang chủ...",
       invalidEmailFormat: "Sai format email",
-      passwordRequirements: "Mật khẩu không hợp lệ",
+      passwordRequirements: "Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt",
       invalidPhoneNumber: "Số điện thoại không hợp lệ",
 
       // Footer
@@ -2095,7 +2178,12 @@ const resources = {
       "payments.receiptPaymentMethod": "Phương thức thanh toán: {{paymentMethod}}",
       "payments.receiptStatus": "Trạng thái: {{status}}",
       "payments.receiptDescription": "Mô tả: {{description}}",
-      ...ownerTranslations.vi.translation
+      ...ownerTranslations.vi.translation,
+
+      // Verification Modal
+      verificationRequired: "Yêu cầu xác minh",
+      verificationRequiredMessage: "Bạn cần tải lên và xác minh bằng lái xe trước khi có thể thuê xe.",
+      uploadDriverLicense: "Tải lên bằng lái xe"
     }
   }
 };

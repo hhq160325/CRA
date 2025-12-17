@@ -1,0 +1,192 @@
+/* Verification Modal Styles */
+
+/* Modal backdrop with smooth fade transition */
+.verification-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  transition: all 0.3s ease-out;
+}
+
+.verification-modal-backdrop.open {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.verification-modal-backdrop.closed {
+  background-color: rgba(0, 0, 0, 0);
+}
+
+/* Modal container with scale and slide animations */
+.verification-modal-container {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  max-width: 28rem;
+  width: 100%;
+  margin: 0 1rem;
+  transition: all 0.3s ease-out;
+  transform-origin: center;
+}
+
+.verification-modal-container.open {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.verification-modal-container.closed {
+  transform: scale(0.95) translateY(1rem);
+  opacity: 0;
+}
+
+/* Icon animation with scale and rotation */
+.verification-modal-icon {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 3rem;
+  width: 3rem;
+  border-radius: 50%;
+  background-color: #fef2f2;
+  margin-bottom: 1rem;
+  transition: all 0.5s ease-out;
+}
+
+.verification-modal-icon.open {
+  transform: scale(1) rotate(0deg);
+}
+
+.verification-modal-icon.closed {
+  transform: scale(0) rotate(180deg);
+}
+
+/* Title animation with fade and slide */
+.verification-modal-title {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 0.5rem;
+  transition: all 0.7s ease-out;
+}
+
+.verification-modal-title.open {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.verification-modal-title.closed {
+  opacity: 0;
+  transform: translateY(0.5rem);
+}
+
+/* Message animation with fade and slide (delayed) */
+.verification-modal-message {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+  transition: all 0.7s ease-out;
+  transition-delay: 0.1s;
+}
+
+.verification-modal-message.open {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.verification-modal-message.closed {
+  opacity: 0;
+  transform: translateY(0.5rem);
+}
+
+/* Buttons container animation (more delayed) */
+.verification-modal-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: all 0.7s ease-out;
+  transition-delay: 0.2s;
+}
+
+.verification-modal-buttons.open {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.verification-modal-buttons.closed {
+  opacity: 0;
+  transform: translateY(1rem);
+}
+
+/* Button base styles */
+.verification-modal-button {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease-out;
+}
+
+/* Primary button (Upload License) */
+.verification-modal-button-primary {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.verification-modal-button-primary:hover {
+  background-color: #2563eb;
+  transform: scale(1.05);
+}
+
+.verification-modal-button-primary:active {
+  transform: scale(0.95);
+}
+
+/* Secondary button (Cancel) */
+.verification-modal-button-secondary {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.verification-modal-button-secondary:hover {
+  background-color: #d1d5db;
+  transform: scale(1.05);
+}
+
+.verification-modal-button-secondary:active {
+  transform: scale(0.95);
+}
+
+/* Icon SVG styles */
+.verification-modal-icon svg {
+  height: 1.5rem;
+  width: 1.5rem;
+  color: #dc2626;
+}
+
+/* Text center alignment */
+.verification-modal-content {
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .verification-modal-container {
+    margin: 0 0.5rem;
+    padding: 1rem;
+  }
+  
+  .verification-modal-title {
+    font-size: 1rem;
+  }
+  
+  .verification-modal-message {
+    font-size: 0.8125rem;
+  }
+}

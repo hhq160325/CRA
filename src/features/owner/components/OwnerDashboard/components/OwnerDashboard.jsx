@@ -1,4 +1,4 @@
-import { useState } from 'react';
+// import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDashboardData } from '../hooks/useDashboardData';
 import StatsCards from './StatsCards';
@@ -6,7 +6,7 @@ import PaymentSummary from './PaymentSummary';
 import RecentBookings from './RecentBookings';
 import CarStatusSummary from './CarStatusSummary';
 import RegDocStatusSummary from './RegDocStatusSummary';
-import TopManufacturers from './TopManufacturers';
+// import TopManufacturers from './TopManufacturers';
 import OwnerBookingOverview from './OwnerBookingOverview';
 import OwnerBookingStatus from './OwnerBookingStatus';
 import LoadingSpinner from './LoadingSpinner';
@@ -14,8 +14,8 @@ import TrendingCar from './TrendingCar';
 
 const OwnerDashboard = () => {
   const { t } = useTranslation();
-  const { stats, dailyData, loading } = useDashboardData();
-
+  // const { stats, dailyData, loading } = useDashboardData();
+  const { stats, loading } = useDashboardData();
   if (loading) {
     return <LoadingSpinner />;
   }

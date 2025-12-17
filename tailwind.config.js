@@ -46,6 +46,12 @@ module.exports = {
           '&::-webkit-scrollbar': {
             display: 'none'
           }
+        },
+        '.text-wrap': {
+          'word-wrap': 'break-word',
+          'overflow-wrap': 'break-word',
+          'word-break': 'break-word',
+          'hyphens': 'auto'
         }
       })
     }

@@ -67,7 +67,6 @@ const generateBookingBreakdownData = (ownerBookings = [], period = '7days') => {
     
     case '7weeks': {
       for (let i = 6; i >= 0; i--) {
-        // Get current date in Vietnam timezone (similar to 7days approach)
         const baseDate = new Date();
         const vietnamNow = new Date(baseDate.getTime() + (7 * 60 * 60 * 1000));
         

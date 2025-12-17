@@ -122,7 +122,10 @@ const CarCard = ({ car, isApiData = false }) => {
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+        <Link 
+            to={`/car-detail/${carId}`}
+            className="block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+        >
             <div className="relative bg-gray-100">
                 {!imageLoaded && (
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -137,7 +140,11 @@ const CarCard = ({ car, isApiData = false }) => {
                     loading="lazy"
                 />
                 <button
-                    onClick={handleCarToggleFavorite}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleCarToggleFavorite();
+                    }}
                     className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow text-red-500 hover:text-red-600"
                 >
                     <svg
@@ -194,15 +201,18 @@ const CarCard = ({ car, isApiData = false }) => {
                             <div className="text-sm text-gray-500 line-through">{formatPrice(carOriginalPrice)} đ</div>
                         )}
                     </div>
-                    <Link
-                        to={`/car-detail/${carId}`}
+                    {/* <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }}
                         className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
                     >
                         {t('rentNow')}
-                    </Link>
+                    </button> */}
                 </div>
             </div>
-        </div>
+        </Link>
     );
 };
 

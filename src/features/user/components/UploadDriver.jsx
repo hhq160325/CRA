@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import { tokenUtils } from '../../auth/utils';
 import { USER_ENDPOINTS } from '../../../config/api';
+import { updateVerificationStatus } from '../../auth/authSlice';
 
 const UploadDriver = () => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -17,6 +20,16 @@ const UploadDriver = () => {
   useEffect(() => {
     fetchDriverLicenseStatus();
   }, []);
+
+  // Update verification status when license status changes
+  useEffect(() => {
+    if (licenseStatus === 'Approved') {
+      dispatch(updateVerificationStatus(true));
+    } else if (licenseStatus === 'Reject') {
+      dispatch(updateVerificationStatus(false));
+    }
+    // Note: For 'Pending' status, we don't change the verification status
+  }, [licenseStatus, dispatch]);
 
   const fetchDriverLicenseStatus = async () => {
     try {
@@ -44,6 +57,11 @@ const UploadDriver = () => {
       
       if (userLicense) {
         setLicenseStatus(userLicense.status);
+        
+        // Update isVerified in Redux state if license is approved
+        if (userLicense.status === 'Approved') {
+          dispatch(updateVerificationStatus(true));
+        }
       }
     } catch (err) {
       console.error('Error fetching driver license status:', err);
@@ -88,7 +106,8 @@ const UploadDriver = () => {
     };
 
     const config = statusConfig[licenseStatus] || statusConfig['Pending'];
-
+    console.log("licenseStatus",licenseStatus);
+    
     return (
       <span className={`ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${config.bg} ${config.text}`}>
         {config.label}

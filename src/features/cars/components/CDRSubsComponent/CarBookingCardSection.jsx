@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../../../auth/authSlice';
+import { useVerificationStatus } from '../../../auth/hooks/useVerificationStatus';
+import VerificationModal from '../VerificationModal';
 
 const CarBookingCardSection = ({
   id,
@@ -24,6 +28,16 @@ const CarBookingCardSection = ({
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const user = useSelector(selectUser);
+  const { isVerified, hasVerificationStatus, refreshVerificationStatus } = useVerificationStatus();
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+
+  // Fetch verification status if not available
+  useEffect(() => {
+    if (user && !hasVerificationStatus) {
+      refreshVerificationStatus();
+    }
+  }, [user, hasVerificationStatus, refreshVerificationStatus]);
 
   return (
     <div className="lg:col-span-1">
@@ -110,7 +124,7 @@ const CarBookingCardSection = ({
                     <p className="text-sm font-medium text-gray-700">{t('selfPickup')}</p>
                     <span className="text-sm font-semibold text-primary-600">{t('free')}</span>
                   </div>
-                  <p className="text-sm text-gray-600">{locationName},{locationAddress}</p>
+                  <p className="text-sm text-gray-600 text-wrap">{locationName},{locationAddress}</p>
                 </div>
               </div>
             </div>
@@ -143,7 +157,7 @@ const CarBookingCardSection = ({
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-600 text-wrap">
                         {deliveryLocation || `${locationAddress}, ${locationCity}`}
                       </p>
                       {deliveryDistance && (
@@ -218,16 +232,25 @@ const CarBookingCardSection = ({
           </div>
           {/* Rent Button */}
           <button
-            onClick={() => navigate('/payment', {
-              state: {
-                carId: id,
-                carName: carName,
-                carImage: carImages[0],
-                carPrice: dailyPrice,
-                carRating: 5.0,
-                carReviewCount: 100
+            onClick={() => {
+              // Check if user is verified
+              if (!isVerified) {
+                setShowVerificationModal(true);
+                return;
               }
-            })}
+              
+              // If verified, proceed to payment
+              navigate('/payment', {
+                state: {
+                  carId: id,
+                  carName: carName,
+                  carImage: carImages[0],
+                  carPrice: dailyPrice,
+                  carRating: 5.0,
+                  carReviewCount: 100
+                }
+              });
+            }}
             className="w-full bg-primary-500 text-white py-3 rounded-lg font-semibold mb-4 hover:bg-primary-600"
           >
             {t('rentNow')}
@@ -296,6 +319,12 @@ const CarBookingCardSection = ({
           </div>
         </div>
       </div>
+
+      {/* Verification Modal */}
+      <VerificationModal
+        isOpen={showVerificationModal}
+        onClose={() => setShowVerificationModal(false)}
+      />
     </div>
   );
 };

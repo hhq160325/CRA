@@ -2,19 +2,25 @@
 import { decodeJWT, getRoleFromToken, getUserIdFromToken } from './jwtUtils';
 
 export const tokenUtils = {
-  // Store tokens in localStorage
+  // Store tokens in localStorage (excluding isVerified)
   storeTokens: (accessToken, refreshToken, user) => {
     if (typeof window === 'undefined') return;
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
-    localStorage.setItem("user", JSON.stringify(user));
+    
+    // Store user data excluding isVerified (keep isVerified only in Redux state)
+    const { isVerified, ...userWithoutVerification } = user || {};
+    localStorage.setItem("user", JSON.stringify(userWithoutVerification));
   },
 
-  // Update user data in localStorage (for avatar and username updates)
+  // Update user data in localStorage (for avatar and username updates, excluding isVerified)
   updateUserData: (userData) => {
     if (typeof window === 'undefined') return;
     const currentUser = tokenUtils.getCurrentUser();
-    const updatedUser = { ...currentUser, ...userData };
+    
+    // Exclude isVerified from localStorage updates
+    const { isVerified, ...userDataWithoutVerification } = userData || {};
+    const updatedUser = { ...currentUser, ...userDataWithoutVerification };
     localStorage.setItem("user", JSON.stringify(updatedUser));
   },
 

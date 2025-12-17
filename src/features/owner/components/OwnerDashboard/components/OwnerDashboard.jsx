@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDashboardData } from '../hooks/useDashboardData';
 import StatsCards from './StatsCards';
@@ -9,6 +10,7 @@ import TopManufacturers from './TopManufacturers';
 import OwnerBookingOverview from './OwnerBookingOverview';
 import OwnerBookingStatus from './OwnerBookingStatus';
 import LoadingSpinner from './LoadingSpinner';
+import TrendingCar from './TrendingCar';
 
 const OwnerDashboard = () => {
   const { t } = useTranslation();
@@ -35,9 +37,10 @@ const OwnerDashboard = () => {
       {/* Top Stats Cards */}
       <StatsCards stats={stats} />
 
-      {/* Second Row - Payment Summary and Recent Bookings */}
+      {/* Second Row - Payment Summary and TrendingCar */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <PaymentSummary />
+        <TrendingCar ownerCars={stats.ownerCars || []} />
       </div>
 
       {/* Third Row - Car Status, RegDoc Status, and Booking Status */}
@@ -48,7 +51,7 @@ const OwnerDashboard = () => {
 
       {/* Fourth Row - Booking Overview and Top Manufacturers */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <OwnerBookingOverview weeklyBookingData={stats.weeklyBookingData} />
+        <OwnerBookingOverview ownerCars={stats.ownerCars || []} />
         <OwnerBookingStatus bookingStatusChartData={bookingStatusChartData} />
         {/* <TopManufacturers topManufacturers={stats.topManufacturers} /> */}
       </div>

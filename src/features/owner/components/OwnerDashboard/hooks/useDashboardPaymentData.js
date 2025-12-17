@@ -149,11 +149,11 @@ export const useDashboardPaymentData = (period = '7days') => {
       const { startDate, completedInvoices } = getFilteredInvoices(invoices, period);
 
       const totalReceived = completedInvoices.reduce((sum, invoice) => sum + (invoice.grandTotal || 0), 0);
-      console.log("totalReceived", totalReceived);
+      // console.log("totalReceived", totalReceived);
       
       // Generate breakdown data based on period
       const breakdown = generateBreakdownData(completedInvoices, period);
-      console.log("breakdown", breakdown);
+      // console.log("breakdown", breakdown);
       
       setChartData(breakdown);
 

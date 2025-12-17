@@ -33,26 +33,36 @@ const PaymentSummary = () => {
 
   // Get period display text and Y-axis formatter
   const getPeriodConfig = () => {
+    const formatYAxisValue = (value) => {
+      if (value >= 1000000) {
+        return `${(value / 1000000).toFixed(1)}M`;
+      } else if (value >= 1000) {
+        return `${(value / 1000).toFixed(0)}K`;
+      } else {
+        return value.toString();
+      }
+    };
+
     switch (selectedPeriod) {
       case '7days':
         return {
           title: 'Payment Overview (Last 7 Days)',
-          yAxisFormatter: (value) => `${(value / 1000000).toFixed(0)}M`
+          yAxisFormatter: formatYAxisValue
         };
       case '7months':
         return {
           title: 'Payment Overview (Last 7 Months)',
-          yAxisFormatter: (value) => `${(value / 1000000).toFixed(0)}M`
+          yAxisFormatter: formatYAxisValue
         };
       case '7years':
         return {
           title: 'Payment Overview (Last 7 Years)',
-          yAxisFormatter: (value) => `${(value / 1000000).toFixed(0)}M`
+          yAxisFormatter: formatYAxisValue
         };
       default:
         return {
           title: 'Payment Overview',
-          yAxisFormatter: (value) => `${(value / 1000000).toFixed(0)}M`
+          yAxisFormatter: formatYAxisValue
         };
     }
   };
@@ -154,6 +164,7 @@ const PaymentSummary = () => {
                   tickFormatter={periodConfig.yAxisFormatter}
                   axisLine={false}
                   tickLine={false}
+                  domain={[0, (dataMax) => Math.max(dataMax * 1.3, 1000000)]}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Bar 

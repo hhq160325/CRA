@@ -5,6 +5,162 @@ import { getUserIdFromToken } from '../../../../user/api';
 import { fetchRentalHistoryData } from '../../../api/ownerApi';
 import { useDashboardPaymentData } from './useDashboardPaymentData';
 import { useDashboardCarData } from './useDashboardCarData';
+import { convertToVietnamTime } from '../../../../../shared/utils/CheckUTC';
+
+// Helper function to generate booking breakdown data based on period
+const generateBookingBreakdownData = (ownerBookings, period) => {
+  const today = new Date();
+  const breakdown = [];
+
+  switch (period) {
+    case '7days': {
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        const vietnamNow = new Date(date.getTime() + (7 * 60 * 60 * 1000));
+        vietnamNow.setUTCDate(vietnamNow.getUTCDate() - i);
+        vietnamNow.setUTCHours(0, 0, 0, 0);
+
+        const dayBookings = ownerBookings.filter(booking => {
+          let bookingDate;
+          if (booking.updateDate && booking.createDate && booking.updateDate !== booking.createDate) {
+            bookingDate = convertToVietnamTime(booking.updateDate);
+          } else {
+            bookingDate = convertToVietnamTime(booking.createDate || booking.pickupTime);
+          }
+          
+          if (bookingDate) {
+            bookingDate.setUTCHours(0, 0, 0, 0);
+            return bookingDate.getTime() === vietnamNow.getTime();
+          }
+          return false;
+        });
+
+        const statusCounts = {
+          pending: 0,
+          confirmed: 0,
+          completed: 0,
+          cancelled: 0,
+        };
+
+        dayBookings.forEach(booking => {
+          const status = booking.status?.toLowerCase() || 'unknown';
+          if (statusCounts.hasOwnProperty(status)) {
+            statusCounts[status]++;
+          }
+        });
+
+        const dayName = days[vietnamNow.getUTCDay() === 0 ? 6 : vietnamNow.getUTCDay() - 1];
+
+        breakdown.push({
+          day: dayName,
+          date: vietnamNow.toLocaleDateString('en-GB'),
+          rawDate: vietnamNow.toISOString().split('T')[0],
+          ...statusCounts,
+        });
+      }
+      break;
+    }
+    
+    case '7weeks': {
+      for (let i = 6; i >= 0; i--) {
+        const weekStart = new Date();
+        weekStart.setDate(weekStart.getDate() - (i * 7) - weekStart.getDay() + 1); // Monday of the week
+        weekStart.setHours(0, 0, 0, 0);
+        
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6); // Sunday of the week
+        weekEnd.setHours(23, 59, 59, 999);
+
+        const weekBookings = ownerBookings.filter(booking => {
+          let bookingDate;
+          if (booking.updateDate && booking.createDate && booking.updateDate !== booking.createDate) {
+            bookingDate = convertToVietnamTime(booking.updateDate);
+          } else {
+            bookingDate = convertToVietnamTime(booking.createDate || booking.pickupTime);
+          }
+          
+          return bookingDate && bookingDate >= weekStart && bookingDate <= weekEnd;
+        });
+
+        const statusCounts = {
+          pending: 0,
+          confirmed: 0,
+          completed: 0,
+          cancelled: 0,
+        };
+
+        weekBookings.forEach(booking => {
+          const status = booking.status?.toLowerCase() || 'unknown';
+          if (statusCounts.hasOwnProperty(status)) {
+            statusCounts[status]++;
+          }
+        });
+
+        const weekLabel = `W${Math.ceil((weekStart.getDate() + weekStart.getDay()) / 7)}`;
+        
+        breakdown.push({
+          day: weekLabel,
+          date: `${weekStart.toLocaleDateString('en-GB')} - ${weekEnd.toLocaleDateString('en-GB')}`,
+          rawDate: weekStart.toISOString().split('T')[0],
+          ...statusCounts,
+        });
+      }
+      break;
+    }
+    
+    case '7months': {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+        const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
+
+        const monthBookings = ownerBookings.filter(booking => {
+          let bookingDate;
+          if (booking.updateDate && booking.createDate && booking.updateDate !== booking.createDate) {
+            bookingDate = convertToVietnamTime(booking.updateDate);
+          } else {
+            bookingDate = convertToVietnamTime(booking.createDate || booking.pickupTime);
+          }
+          
+          return bookingDate && bookingDate >= monthStart && bookingDate <= monthEnd;
+        });
+
+        const statusCounts = {
+          pending: 0,
+          confirmed: 0,
+          completed: 0,
+          cancelled: 0,
+        };
+
+        monthBookings.forEach(booking => {
+          const status = booking.status?.toLowerCase() || 'unknown';
+          if (statusCounts.hasOwnProperty(status)) {
+            statusCounts[status]++;
+          }
+        });
+
+        const monthName = months[date.getMonth()];
+        
+        breakdown.push({
+          day: monthName,
+          date: `${monthName} ${date.getFullYear()}`,
+          rawDate: date.toISOString().split('T')[0],
+          ...statusCounts,
+        });
+      }
+      break;
+    }
+    
+    default:
+      return [];
+  }
+
+  return breakdown;
+};
 
 export const useDashboardData = () => {
   const [loading, setLoading] = useState(true);
@@ -25,6 +181,8 @@ export const useDashboardData = () => {
   
   // Use the separate car data hook
   const { carStats, carLoading, ownerCars, manufacturerMap, refetchCarData, updateTopManufacturers } = useDashboardCarData();
+  
+  // Note: Trending data is now handled separately in TrendingCar component
 
   const fetchDashboardData = async () => {
     try {
@@ -75,8 +233,8 @@ export const useDashboardData = () => {
           customerName: userMap[booking.userId] || 'Unknown Customer'
         }))
         .sort((a, b) => {
-          const dateA = new Date(a.createDate || 0);
-          const dateB = new Date(b.createDate || 0);
+          const dateA = a.createDate ? convertToVietnamTime(a.createDate) : new Date(0);
+          const dateB = b.createDate ? convertToVietnamTime(b.createDate) : new Date(0);
           return dateB - dateA; // Most recent first
         });
 
@@ -110,7 +268,7 @@ export const useDashboardData = () => {
 
           // Calculate monthly earnings
           if (booking?.pickupTime) {
-            const bookingDate = new Date(booking.pickupTime);
+            const bookingDate = convertToVietnamTime(booking.pickupTime);
             if (bookingDate >= sixMonthsAgo) {
               const monthDiff = (currentDate.getFullYear() - bookingDate.getFullYear()) * 12 +
                 (currentDate.getMonth() - bookingDate.getMonth());
@@ -137,48 +295,11 @@ export const useDashboardData = () => {
         }
       });
 
-      // Calculate weekly booking data (last 7 days)
-      const weeklyBookingData = [];
-      const today = new Date();
+      // Generate booking data for default 7 days (for backward compatibility)
+      const weeklyBookingData = generateBookingBreakdownData(ownerBookings, '7days');
+      console.log("weeklyBookingData", weeklyBookingData);
 
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        date.setHours(0, 0, 0, 0);
 
-        const nextDate = new Date(date);
-        nextDate.setDate(nextDate.getDate() + 1);
-
-        const dayBookings = ownerBookings.filter(booking => {
-          let bookingDate;
-          if (booking.updateDate && booking.createDate && booking.updateDate !== booking.createDate) {
-            bookingDate = new Date(booking.updateDate);
-          } else {
-            bookingDate = new Date(booking.createDate || booking.pickupTime);
-          }
-          return bookingDate >= date && bookingDate < nextDate;
-        });
-
-        const statusCounts = {
-          pending: 0,
-          confirmed: 0,
-          completed: 0,
-          cancelled: 0,
-        };
-
-        dayBookings.forEach(booking => {
-          const status = booking.status?.toLowerCase() || 'unknown';
-          if (statusCounts.hasOwnProperty(status)) {
-            statusCounts[status]++;
-          }
-        });
-
-        weeklyBookingData.push({
-          day: date.toLocaleDateString('en-US', { weekday: 'short' }),
-          date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          ...statusCounts,
-        });
-      }
 
       // Update top manufacturers in car data
       updateTopManufacturers(topManufacturers);
@@ -213,7 +334,7 @@ export const useDashboardData = () => {
   }, [ownerCars, carLoading]);
 
   return { 
-    stats: { ...stats, ...paymentStats, ...carStats }, 
+    stats: { ...stats, ...paymentStats, ...carStats, ownerCars }, 
     dailyData,
     loading: loading || paymentLoading || carLoading, 
     refetch: () => {

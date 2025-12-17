@@ -32,8 +32,9 @@ const HomePage = () => {
   }, [dispatch]);
 
   // Filter out cars with Reserved status
-  const activeCars = cars.filter(car => car.status && car.status.toLowerCase() !== 'reserved');
-  
+  // const activeCars = cars.filter(car => car.status && car.status.toLowerCase() !== 'reserved');
+  const activeCars = cars;
+
   const popularCars = [];
 
   const recommendationCars = [];
@@ -45,26 +46,29 @@ const HomePage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Left Banner */}
           <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-xl sm:rounded-2xl p-6 sm:p-8 text-white relative overflow-hidden min-h-[200px] sm:min-h-[280px]">
+            {/* Dark gradient overlay from left */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent/10 pointer-events-none z-[5]"></div>
+            
             <div className="relative z-10 max-w-[60%] sm:max-w-none">
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-4">{t('heroTitle')}</h1>
-              <p className="text-blue-100 mb-4 sm:mb-6 text-sm sm:text-base lg:text-lg">
+              <p className="text-blue-100 text-balance mb-4 sm:mb-6 text-sm sm:text-base lg:text-lg">
                 {t('heroSubtitle')}
               </p>
               <button className="bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base">
                 {t('rentalCar')}
               </button>
             </div>
-            <div className="absolute bottom-0 right-0 w-40 h-32 sm:w-56 sm:h-40 lg:w-64 lg:h-48">
+            <div className="absolute bottom-0 right-0 w-full h-full sm:w-full sm:h-full lg:w-full lg:h-full">
               <img
-                src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=300&fit=crop"
-                alt="Koenigsegg"
+                src="/images/forza1.png"
+                alt="Featured Car"
                 className="w-full h-full object-cover rounded-lg"
               />
             </div>
           </div>
 
           {/* Right Banner */}
-          <div className="bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl sm:rounded-2xl p-6 sm:p-8 relative overflow-hidden min-h-[200px] sm:min-h-[280px]">
+          <div className="bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl sm:rounded-2xl p-6 sm:p-8 text-white relative overflow-hidden min-h-[200px] sm:min-h-[280px]">
             <div className="absolute inset-0 opacity-10">
               <svg className="w-full h-full" viewBox="0 0 100 100">
                 <defs>
@@ -75,19 +79,20 @@ const HomePage = () => {
                 <rect width="100" height="100" fill="url(#chevron)" />
               </svg>
             </div>
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent/10 pointer-events-none z-[5]"></div>
             <div className="relative z-10 max-w-[60%] sm:max-w-none">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-4">{t('heroTitle2')}</h2>
-              <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base lg:text-lg">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-4">{t('heroTitle2')}</h2>
+              <p className="text-blue-100 text-balance mb-4 sm:mb-6 text-sm sm:text-base lg:text-lg">
                 {t('heroSubtitle2')}
               </p>
               <button className="bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base">
                 {t('rentalCar')}
               </button>
             </div>
-            <div className="absolute bottom-0 right-0 w-40 h-32 sm:w-56 sm:h-40 lg:w-64 lg:h-48">
+            <div className="absolute bottom-0 right-0 w-full h-full sm:w-full sm:h-full lg:w-full lg:h-full">
               <img
-                src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop"
-                alt="Nissan GT-R"
+                src="/images/forza2.png"
+                alt="Featured Car"
                 className="w-full h-full object-cover rounded-lg"
               />
             </div>

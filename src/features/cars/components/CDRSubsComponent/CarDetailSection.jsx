@@ -32,6 +32,7 @@ const CarDetailSection = ({
   const carId = currentCar?.id;
   const isFavorite = useSelector(selectIsFavorite(carId));
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
+  const [showAllReviews, setShowAllReviews] = useState(false);
 
   // Get car data from Redux store
   const carFromStore = useSelector((state) => state.cars.currentCar);
@@ -41,6 +42,9 @@ const CarDetailSection = ({
   // console.log("Nguoi gui",currentUserId);
   // Get owner ID from Redux store or fallback to prop
   const carOwnerId = carFromStore?.owner.id;
+  console.log("carFromStore",carFromStore);
+  const carOwnerEmail = carFromStore?.owner.email
+  const carOwnerPhoneNumber = carFromStore?.owner.phoneNumber
   // console.log("Nguoi nhan",carOwnerId);
 
   const handleToggleFavorite = () => {
@@ -330,12 +334,13 @@ const CarDetailSection = ({
             <svg className="w-5 h-5 " fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
             <div className="flex-1">
               <p className="font-semibold">{t('managedByMorrent') || 'Xe được vận hành bởi MORRENT'}</p>
-              <button
+              {/* <button
                 onClick={() => setIsInquiryOpen(true)}
                 className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
               >
                 {t('contact') || 'Contact'}
-              </button>
+              </button> */}
+              <p className="font-regular"> Contact through email: {carOwnerEmail}</p><p className="font-regular"> Contact through phone number: {carOwnerPhoneNumber}</p>
             </div>
           </div>
         </div>
@@ -394,7 +399,7 @@ const CarDetailSection = ({
 
               {/* Reviews */}
               <div className="space-y-4">
-                {feedbacks.slice(0, 2).map((feedback, index) => {
+                {feedbacks.slice(0, showAllReviews ? feedbacks.length : 2).map((feedback, index) => {
                   const user = feedbackUsers[feedback.bookingId] || { username: 'Người dùng', avatar: null };
                   return (
                     <div key={index} className="border rounded-lg p-4">
@@ -460,9 +465,20 @@ const CarDetailSection = ({
                   );
                 })}
               </div>
-              {feedbacks.length > 2 && (
-                <button className="w-full mt-4 py-2 border border-primary-500 text-primary-600 rounded-lg font-semibold">
+              {feedbacks.length > 2 && !showAllReviews && (
+                <button 
+                  onClick={() => setShowAllReviews(true)}
+                  className="w-full mt-4 py-2 border border-primary-500 text-primary-600 rounded-lg font-semibold hover:bg-primary-50 transition-colors"
+                >
                   {t('viewMoreReviews')} ({feedbacks.length - 2} {t('moreReviews')})
+                </button>
+              )}
+              {showAllReviews && feedbacks.length > 2 && (
+                <button 
+                  onClick={() => setShowAllReviews(false)}
+                  className="w-full mt-4 py-2 border border-gray-300 text-gray-600 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                >
+                  {t('showLess') || 'Show less'}
                 </button>
               )}
             </>

@@ -39,6 +39,7 @@ export const USER_ENDPOINTS = {
   PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
   UPDATE_PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
   GET_ALL_DRIVER_LICENSE: `${API_CONFIG.BASE_URL}/User/driverLicense/all`,
+  GET_DRIVER_LICENSE_BY_ID: (userId, email) => `${API_CONFIG.BASE_URL}/User/driverLicense?UserId=${userId}&Email=${email}`,
   //For reset password
   RESET_PASSWORD_VERIFY: `${API_CONFIG.BASE_URL}/User/reset-password/verify`,
   RESET_PASSWORD: `${API_CONFIG.BASE_URL}/User/reset-password`,

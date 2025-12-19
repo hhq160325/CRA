@@ -199,10 +199,10 @@ const RegisterCar = () => {
                         </p>
 
                         <div className="grid grid-cols-2 gap-6 mb-6">
-                            {/* Manufacturer */}
+                            {/* Brand */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    {t('manufacturer')} <span className="text-red-500">*</span>
+                                    {t('brand')} <span className="text-red-500">*</span>
                                 </label>
                                 <DropdownTemplate
                                     value={formData.manufacturer}
@@ -221,7 +221,7 @@ const RegisterCar = () => {
                                         value: m.manufacturer,
                                         label: m.manufacturer
                                     }))}
-                                    placeholder={loadingManufacturers ? t('loading') || 'Loading...' : t('manufacturer')}
+                                    placeholder={loadingManufacturers ? t('loading') || 'Loading...' : t('brand')}
                                     disabled={loadingManufacturers}
                                 />
                             </div>

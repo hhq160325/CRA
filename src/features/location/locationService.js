@@ -9,8 +9,6 @@ import { TRACKASIA_ENDPOINTS, TRACKASIA_API_CONFIG } from '../../config/api';
 /**
  * Get user's current precise location
  * Optimized for Vietnam with high accuracy GPS
- * @param {Object} options - Geolocation options
- * @returns {Promise<Object>} Location data with coordinates and accuracy
  */
 export const getCurrentLocation = (options = {}) => {
   return new Promise((resolve, reject) => {
@@ -20,9 +18,9 @@ export const getCurrentLocation = (options = {}) => {
     }
 
     const defaultOptions = {
-      enableHighAccuracy: true, // Use GPS satellites for best accuracy (5-10m)
-      timeout: 30000,           // Wait max 30 seconds for GPS lock (longer = more accurate)
-      maximumAge: 0             // Don't use cached position, always get fresh data
+      enableHighAccuracy: true, 
+      timeout: 30000,           // Wait max 30 seconds for GPS lock
+      maximumAge: 0            
     };
 
     const finalOptions = { ...defaultOptions, ...options };
@@ -32,7 +30,7 @@ export const getCurrentLocation = (options = {}) => {
         const locationData = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy, // in meters
+          accuracy: position.coords.accuracy,
           altitude: position.coords.altitude,
           altitudeAccuracy: position.coords.altitudeAccuracy,
           heading: position.coords.heading,
@@ -75,10 +73,9 @@ export const getCurrentLocation = (options = {}) => {
 
 /**
  * Watch user's location for continuous updates
- * @param {Function} onSuccess - Callback for successful location updates
- * @param {Function} onError - Callback for errors
- * @param {Object} options - Geolocation options
- * @returns {number} Watch ID to clear the watch later
+ * onSuccess - Callback for successful location updates
+ * onError - Callback for errors
+ * options - Geolocation options
  */
 export const watchLocation = (onSuccess, onError, options = {}) => {
   if (!navigator.geolocation) {
@@ -112,7 +109,7 @@ export const watchLocation = (onSuccess, onError, options = {}) => {
 
 /**
  * Clear location watch
- * @param {number} watchId - Watch ID returned from watchLocation
+ * watchId - Watch ID returned from watchLocation
  */
 export const clearLocationWatch = (watchId) => {
   if (watchId && navigator.geolocation) {
@@ -122,10 +119,8 @@ export const clearLocationWatch = (watchId) => {
 
 /**
  * Reverse geocode coordinates to address using backend API
- * Better accuracy for Vietnam addresses
- * @param {number} latitude - Latitude coordinate
- * @param {number} longitude - Longitude coordinate
- * @returns {Promise<Object>} Address information
+ * latitude - Latitude coordinate
+ * longitude - Longitude coordinate
  */
 export const reverseGeocode = async (latitude, longitude) => {
   try {
@@ -164,9 +159,9 @@ export const reverseGeocode = async (latitude, longitude) => {
 /**
  * Get best possible location by trying multiple times
  * Similar to how mobile apps get precise location
- * @param {number} maxAttempts - Maximum number of attempts
- * @param {number} targetAccuracy - Target accuracy in meters
- * @returns {Promise<Object>} Best location found
+ * maxAttempts - Maximum number of attempts
+ * targetAccuracy - Target accuracy in meters
+ * Best location found
  */
 export const getBestLocation = async (maxAttempts = 3, targetAccuracy = 10) => {
   let bestLocation = null;
@@ -192,7 +187,7 @@ export const getBestLocation = async (maxAttempts = 3, targetAccuracy = 10) => {
       
       // Wait longer between attempts (GPS needs time to lock satellites)
       if (i < maxAttempts - 1) {
-        await new Promise(resolve => setTimeout(resolve, 3000)); // Increased from 2s to 3s
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Increased from 1s to 2s
       }
     } catch (error) {
       console.error(`Attempt ${i + 1} failed:`, error.message);
@@ -205,11 +200,7 @@ export const getBestLocation = async (maxAttempts = 3, targetAccuracy = 10) => {
   return bestLocation;
 };
 
-/**
- * Get current location with address
- * @param {boolean} useBestLocation - Try multiple times for best accuracy
- * @returns {Promise<Object>} Location with coordinates and address
- */
+/* Get current location with address */
 export const getCurrentLocationWithAddress = async (useBestLocation = false) => {
   try {
     const location = useBestLocation 
@@ -233,38 +224,38 @@ export const getCurrentLocationWithAddress = async (useBestLocation = false) => 
  * @param {string} address - Address string to geocode
  * @returns {Promise<Object>} Location data with coordinates
  */
-export const geocodeAddress = async (address) => {
-  try {
-    const apiKey = process.env.REACT_APP_TRACKASIA_API_KEY || 'public_key';
+// export const geocodeAddress = async (address) => {
+//   try {
+//     const apiKey = process.env.REACT_APP_TRACKASIA_API_KEY || 'public_key';
     
-    const response = await fetch(
-      `https://maps.track-asia.com/api/v2/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`
-    );
+//     const response = await fetch(
+//       `https://maps.track-asia.com/api/v2/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`
+//     );
 
-    if (!response.ok) {
-      throw new Error('Failed to geocode address');
-    }
+//     if (!response.ok) {
+//       throw new Error('Failed to geocode address');
+//     }
 
-    const data = await response.json();
+//     const data = await response.json();
     
-    if (data.status !== 'OK' || !data.results || data.results.length === 0) {
-      throw new Error('Address not found');
-    }
+//     if (data.status !== 'OK' || !data.results || data.results.length === 0) {
+//       throw new Error('Address not found');
+//     }
 
-    const result = data.results[0];
-    const location = result.geometry?.location || {};
+//     const result = data.results[0];
+//     const location = result.geometry?.location || {};
 
-    return {
-      latitude: parseFloat(location.lat),
-      longitude: parseFloat(location.lng),
-      formattedAddress: result.formatted_address || result.name || address,
-      placeId: result.place_id || '',
-      plusCode: result.plus_code?.global_code || ''
-    };
-  } catch (error) {
-    throw new Error(`Geocoding failed: ${error.message}`);
-  }
-};
+//     return {
+//       latitude: parseFloat(location.lat),
+//       longitude: parseFloat(location.lng),
+//       formattedAddress: result.formatted_address || result.name || address,
+//       placeId: result.place_id || '',
+//       plusCode: result.plus_code?.global_code || ''
+//     };
+//   } catch (error) {
+//     throw new Error(`Geocoding failed: ${error.message}`);
+//   }
+// };
 
 /**
  * Get place autocomplete suggestions using TrackAsia
@@ -272,47 +263,47 @@ export const geocodeAddress = async (address) => {
  * @param {string} input - Search input text
  * @returns {Promise<Array>} Array of place predictions
  */
-export const getPlaceAutocomplete = async (input) => {
-  if (!input || input.length < 3) {
-    return [];
-  }
+// export const getPlaceAutocomplete = async (input) => {
+//   if (!input || input.length < 3) {
+//     return [];
+//   }
 
-  try {
-    const apiKey = process.env.REACT_APP_TRACKASIA_API_KEY || 'public_key';
+//   try {
+//     const apiKey = process.env.REACT_APP_TRACKASIA_API_KEY || 'public_key';
     
-    const response = await fetch(
-      `https://maps.track-asia.com/api/v2/geocode/autocomplete?text=${encodeURIComponent(input)}&key=${apiKey}`
-    );
+//     const response = await fetch(
+//       `https://maps.track-asia.com/api/v2/geocode/autocomplete?text=${encodeURIComponent(input)}&key=${apiKey}`
+//     );
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch autocomplete suggestions');
-    }
+//     if (!response.ok) {
+//       throw new Error('Failed to fetch autocomplete suggestions');
+//     }
 
-    const data = await response.json();
+//     const data = await response.json();
     
-    if (data.status !== 'OK' || !data.predictions) {
-      return [];
-    }
+//     if (data.status !== 'OK' || !data.predictions) {
+//       return [];
+//     }
     
-    return data.predictions.map(place => {
-      const mainText = place.structured_formatting?.main_text || place.description?.split(',')[0] || '';
-      const secondaryText = place.structured_formatting?.secondary_text || place.description?.split(',').slice(1).join(',').trim() || '';
+//     return data.predictions.map(place => {
+//       const mainText = place.structured_formatting?.main_text || place.description?.split(',')[0] || '';
+//       const secondaryText = place.structured_formatting?.secondary_text || place.description?.split(',').slice(1).join(',').trim() || '';
       
-      return {
-        placeId: place.place_id || '',
-        description: place.description || mainText,
-        mainText: mainText,
-        secondaryText: secondaryText,
-        // Note: Autocomplete doesn't return coordinates, need to call geocode after selection
-        latitude: null,
-        longitude: null
-      };
-    });
-  } catch (error) {
-    console.error('Autocomplete error:', error);
-    return [];
-  }
-};
+//       return {
+//         placeId: place.place_id || '',
+//         description: place.description || mainText,
+//         mainText: mainText,
+//         secondaryText: secondaryText,
+//         // Note: Autocomplete doesn't return coordinates, need to call geocode after selection
+//         latitude: null,
+//         longitude: null
+//       };
+//     });
+//   } catch (error) {
+//     console.error('Autocomplete error:', error);
+//     return [];
+//   }
+// };
 
 /**
  * Check if geolocation is supported

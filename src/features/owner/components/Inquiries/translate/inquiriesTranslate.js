@@ -1,4 +1,3 @@
-// Owner feature specific translations
 export const inquiriesTranslate = {
   en: {
     translation: {

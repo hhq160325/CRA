@@ -9,13 +9,18 @@ import { updateVerificationStatus } from '../../auth/authSlice';
 const UploadDriver = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
+  const [frontFile, setFrontFile] = useState(null);
+  const [backFile, setBackFile] = useState(null);
+  const [frontPreviewUrl, setFrontPreviewUrl] = useState(null);
+  const [backPreviewUrl, setBackPreviewUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [error, setError] = useState('');
   const [licenseStatus, setLicenseStatus] = useState(null);
   const [loadingStatus, setLoadingStatus] = useState(true);
+  const [licenseImages, setLicenseImages] = useState({ front: null, back: null });
+  const [loadingImages, setLoadingImages] = useState(false);
+  const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
     fetchDriverLicenseStatus();
@@ -23,12 +28,14 @@ const UploadDriver = () => {
 
   // Update verification status when license status changes
   useEffect(() => {
-    if (licenseStatus === 'Approved') {
+    if (licenseStatus === 'AutoApproved') {
       dispatch(updateVerificationStatus(true));
-    } else if (licenseStatus === 'Reject') {
+      fetchDriverLicenseImages();
+    } else if (licenseStatus === 'Denied') {
       dispatch(updateVerificationStatus(false));
+      fetchDriverLicenseImages();
     }
-    // Note: For 'Pending' status, we don't change the verification status
+    // For 'Pending' status, the verification status is not change
   }, [licenseStatus, dispatch]);
 
   const fetchDriverLicenseStatus = async () => {
@@ -49,17 +56,16 @@ const UploadDriver = () => {
       });
 
       // The API returns { urls: [...], view: [...] }
-      // We need to access the 'view' array
       const licenses = response.data.view || [];
-      
+
       // Find the current user's license status
       const userLicense = licenses.find(license => license.userId === userId);
-      
+
       if (userLicense) {
         setLicenseStatus(userLicense.status);
-        
-        // Update isVerified in Redux state if license is approved
-        if (userLicense.status === 'Approved') {
+
+        // Update isVerified in Redux state if license is AutoApproved
+        if (userLicense.status === 'AutoApproved') {
           dispatch(updateVerificationStatus(true));
         }
       }
@@ -67,6 +73,47 @@ const UploadDriver = () => {
       console.error('Error fetching driver license status:', err);
     } finally {
       setLoadingStatus(false);
+    }
+  };
+
+  const fetchDriverLicenseImages = async () => {
+    try {
+      setLoadingImages(true);
+      const userId = tokenUtils.getUserId();
+      const token = tokenUtils.getAccessToken();
+      const currentUser = tokenUtils.getCurrentUser();
+
+      // Get user email from current user data
+      const userEmail = currentUser?.email;
+
+      if (!userId || !userEmail) {
+        console.error('User ID or email not found');
+        return;
+      }
+
+      const response = await axios.get(USER_ENDPOINTS.GET_DRIVER_LICENSE_BY_ID(userId, userEmail), {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const urls = response.data.urls || [];
+
+      // Assuming the first URL is front and second is back based on the naming convention
+      // You might need to adjust this logic based on how the backend returns the URLs
+      const frontImage = urls.find(url => url.includes('imageFront') || url.includes('front')) || urls[0];
+      const backImage = urls.find(url => url.includes('imageBack') || url.includes('back')) || urls[1];
+
+      setLicenseImages({
+        front: frontImage || null,
+        back: backImage || null
+      });
+
+    } catch (err) {
+      console.error('Error fetching driver license images:', err);
+    } finally {
+      setLoadingImages(false);
     }
   };
 
@@ -93,7 +140,7 @@ const UploadDriver = () => {
         text: 'text-yellow-800',
         label: t('uploadlicensepending')
       },
-      'Approved': {
+      'AutoApproved': {
         bg: 'bg-green-100',
         text: 'text-green-800',
         label: t('uploadlicenseapproved')
@@ -106,8 +153,8 @@ const UploadDriver = () => {
     };
 
     const config = statusConfig[licenseStatus] || statusConfig['Pending'];
-    console.log("licenseStatus",licenseStatus);
-    
+    console.log("licenseStatus", licenseStatus);
+
     return (
       <span className={`ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${config.bg} ${config.text}`}>
         {config.label}
@@ -115,9 +162,9 @@ const UploadDriver = () => {
     );
   };
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = (e, side) => {
     const file = e.target.files[0];
-    
+
     if (!file) return;
 
     // Validate file type
@@ -134,23 +181,39 @@ const UploadDriver = () => {
     }
 
     setError('');
-    setSelectedFile(file);
-    
-    // Create preview for images
-    if (file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
+
+    if (side === 'front') {
+      setFrontFile(file);
+
+      // Create preview for images
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFrontPreviewUrl(reader.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setFrontPreviewUrl(null);
+      }
     } else {
-      setPreviewUrl(null);
+      setBackFile(file);
+
+      // Create preview for images
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setBackPreviewUrl(reader.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setBackPreviewUrl(null);
+      }
     }
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) {
-      setError(t('pleaseSelectFileFirst'));
+    if (!frontFile && !backFile) {
+      setError(t('pleaseSelectAtLeastOneFile'));
       return;
     }
 
@@ -166,7 +229,15 @@ const UploadDriver = () => {
       }
 
       const formData = new FormData();
-      formData.append('images', selectedFile);
+
+      if (frontFile) {
+        formData.append('frontDriverLicenseimg', frontFile);
+      }
+
+      if (backFile) {
+        formData.append('backDriverLicenseimg', backFile);
+      }
+
       formData.append('userId', userId);
 
       await axios.post(USER_ENDPOINTS.UPLOAD_DRIVER_LICENSE(userId), formData, {
@@ -178,7 +249,7 @@ const UploadDriver = () => {
 
       setUploadSuccess(true);
       setTimeout(() => setUploadSuccess(false), 3000);
-      
+
       // Refresh the license status after successful upload
       fetchDriverLicenseStatus();
     } catch (err) {
@@ -188,10 +259,27 @@ const UploadDriver = () => {
     }
   };
 
-  const handleRemove = () => {
-    setSelectedFile(null);
-    setPreviewUrl(null);
+  const handleRemove = (side) => {
+    if (side === 'front') {
+      setFrontFile(null);
+      setFrontPreviewUrl(null);
+    } else {
+      setBackFile(null);
+      setBackPreviewUrl(null);
+    }
     setError('');
+  };
+
+  const handleEditModeToggle = () => {
+    if (editMode) {
+      // Cancel edit mode - clear any selected files
+      setFrontFile(null);
+      setBackFile(null);
+      setFrontPreviewUrl(null);
+      setBackPreviewUrl(null);
+      setError('');
+    }
+    setEditMode(!editMode);
   };
 
   return (
@@ -200,53 +288,186 @@ const UploadDriver = () => {
         <h2 className="text-2xl font-semibold text-gray-900 mb-2 flex items-center">
           {t('updateDriverLicense')}
           {getStatusBadge()}
+          {(licenseStatus === 'AutoApproved' || licenseStatus === 'Denied') && (
+            <button
+              onClick={handleEditModeToggle}
+              className="ml-3 px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              {editMode ? t('cancelEdit') : t('editLicense')}
+            </button>
+          )}
         </h2>
         <p className="text-gray-600 mb-6">
           {t('uploadDriverLicenseDescription')}
         </p>
-
-        {/* Upload Area */}
-        <div className="mb-6">
-          <label
-            htmlFor="file-upload"
-            className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
-          >
-            {previewUrl ? (
-              <div className="relative w-full h-full p-4">
-                <img
-                  src={previewUrl}
-                  alt="Driver's license preview"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            ) : selectedFile ? (
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <svg className="w-16 h-16 mb-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <p className="mb-2 text-sm text-gray-700 font-medium">{selectedFile.name}</p>
-                <p className="text-xs text-gray-500">{(selectedFile.size / 1024).toFixed(2)} KB</p>
+        {/* Upload Areas or Display Images */}
+        {(licenseStatus === 'AutoApproved' || licenseStatus === 'Denied') && !editMode ? (
+          /* Display uploaded images for approved/denied licenses */
+          <div>
+            {loadingImages ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <svg className="w-16 h-16 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                <p className="mb-2 text-sm text-gray-700">
-                  <span className="font-semibold">{t('clickToUpload')}</span>
-                </p>
-                <p className="text-xs text-gray-500">{t('driverLicenseFormatsAccepted')}</p>
+              <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Front License Display */}
+                <div>
+                  <h4 className="text-lg font-medium text-gray-900 mb-3">{t('frontDriverLicense')}</h4>
+                  <div className="w-full h-64 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                    {licenseImages.front ? (
+                      <img
+                        src={licenseImages.front}
+                        alt="Front driver's license"
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                        <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p className="text-sm">{t('noFrontImageAvailable')}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Back License Display */}
+                <div>
+                  <h4 className="text-lg font-medium text-gray-900 mb-3">{t('backDriverLicense')}</h4>
+                  <div className="w-full h-64 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                    {licenseImages.back ? (
+                      <img
+                        src={licenseImages.back}
+                        alt="Back driver's license"
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                        <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p className="text-sm">{t('noBackImageAvailable')}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
-            <input
-              id="file-upload"
-              type="file"
-              className="hidden"
-              accept="image/jpeg,image/jpg,image/png,application/pdf"
-              onChange={handleFileSelect}
-            />
-          </label>
-        </div>
+          </div>
+        ) : (
+          /* Upload interface for pending or no license */
+          <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Front License Upload */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">{t('frontDriverLicense')}</h3>
+              <label
+                htmlFor="front-file-upload"
+                className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+              >
+                {frontPreviewUrl ? (
+                  <div className="relative w-full h-full p-4">
+                    <img
+                      src={frontPreviewUrl}
+                      alt="Front driver's license preview"
+                      className="w-full h-full object-contain"
+                    />
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleRemove('front');
+                      }}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : frontFile ? (
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg className="w-16 h-16 mb-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-700 font-medium">{frontFile.name}</p>
+                    <p className="text-xs text-gray-500">{(frontFile.size / 1024).toFixed(2)} KB</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg className="w-16 h-16 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-700">
+                      <span className="font-semibold">{t('clickToUpload')}</span>
+                    </p>
+                    <p className="text-xs text-gray-500">{t('frontLicenseDescription')}</p>
+                  </div>
+                )}
+                <input
+                  id="front-file-upload"
+                  type="file"
+                  className="hidden"
+                  accept="image/jpeg,image/jpg,image/png,application/pdf"
+                  onChange={(e) => handleFileSelect(e, 'front')}
+                />
+              </label>
+            </div>
+
+            {/* Back License Upload */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">{t('backDriverLicense')}</h3>
+              <label
+                htmlFor="back-file-upload"
+                className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+              >
+                {backPreviewUrl ? (
+                  <div className="relative w-full h-full p-4">
+                    <img
+                      src={backPreviewUrl}
+                      alt="Back driver's license preview"
+                      className="w-full h-full object-contain"
+                    />
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleRemove('back');
+                      }}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : backFile ? (
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg className="w-16 h-16 mb-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-700 font-medium">{backFile.name}</p>
+                    <p className="text-xs text-gray-500">{(backFile.size / 1024).toFixed(2)} KB</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg className="w-16 h-16 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-700">
+                      <span className="font-semibold">{t('clickToUpload')}</span>
+                    </p>
+                    <p className="text-xs text-gray-500">{t('backLicenseDescription')}</p>
+                  </div>
+                )}
+                <input
+                  id="back-file-upload"
+                  type="file"
+                  className="hidden"
+                  accept="image/jpeg,image/jpg,image/png,application/pdf"
+                  onChange={(e) => handleFileSelect(e, 'back')}
+                />
+              </label>
+            </div>
+          </div>
+        )}
 
         {/* Error Message */}
         {error && (
@@ -270,23 +491,35 @@ const UploadDriver = () => {
 
         {/* Action Buttons */}
         <div className="flex gap-3">
-          {selectedFile && (
-            <button
-              onClick={handleRemove}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              disabled={uploading}
-            >
-              {t('remove')}
-            </button>
+          {(frontFile || backFile) && (licenseStatus !== 'AutoApproved' && licenseStatus !== 'Denied' || editMode) && (
+            <div className="flex gap-2">
+              {/* {frontFile && (
+                <button
+                  onClick={() => handleRemove('front')}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                  disabled={uploading}
+                >
+                  {t('removeFront')}
+                </button>
+              )} */}
+              {/* {backFile && (
+                <button
+                  onClick={() => handleRemove('back')}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                  disabled={uploading}
+                >
+                  {t('removeBack')}
+                </button>
+              )} */}
+            </div>
           )}
           <button
             onClick={handleUpload}
-            disabled={!selectedFile || uploading}
-            className={`flex-1 px-6 py-2 rounded-lg font-medium transition-colors ${
-              !selectedFile || uploading
+            disabled={(!frontFile && !backFile) || uploading || ((licenseStatus === 'AutoApproved' || licenseStatus === 'Denied') && !editMode)}
+            className={`flex-1 px-6 py-2 rounded-lg font-medium transition-colors ${(!frontFile && !backFile) || uploading || ((licenseStatus === 'AutoApproved' || licenseStatus === 'Denied') && !editMode)
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700'
-            }`}
+              }`}
           >
             {uploading ? (
               <span className="flex items-center justify-center">

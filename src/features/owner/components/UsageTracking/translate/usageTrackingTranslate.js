@@ -1,0 +1,67 @@
+// Booking Management feature specific translations
+export const usageTrackingTranslate = {
+  en: {
+    translation: {
+      // Usage Tracking Component
+      "usageTracking.title": "Vehicle Maintenance Management",
+      "usageTracking.subtitle": "Track vehicle status",
+      "usageTracking.searchPlaceholder": "Search by car name, license plate or ID",
+      "usageTracking.allBrands": "All Brands",
+      "usageTracking.selectBrandFirst": "Select brand first",
+      "usageTracking.allModels": "All Models",
+      "usageTracking.allStatuses": "All Statuses",
+      "usageTracking.showingResults": "Showing {{filtered}} of {{total}} vehicles",
+      "usageTracking.carInfo": "Car Information",
+      "usageTracking.rentals": "Rentals",
+      "usageTracking.daysRented": "Days Rented",
+      "usageTracking.status": "Status",
+      "usageTracking.actions": "Actions",
+      "usageTracking.totalBookings": "Total bookings",
+      "usageTracking.days": "days",
+      "usageTracking.viewDetails": "View Details",
+      "usageTracking.schedule": "Schedule",
+      "usageTracking.noCarsFound": "No cars found",
+      "usageTracking.loadingCars": "Loading car data...",
+      "usageTracking.errorLoadingCars": "Unable to load car data",
+      "usageTracking.cannotIdentifyUser": "Cannot identify current user. Please log in again.",
+      "usageTracking.available": "Available",
+      "usageTracking.reserved": "Reserved",
+      "usageTracking.maintenance": "Maintenance",
+      "usageTracking.unavailable": "Unavailable",
+      "usageTracking.unknown": "Unknown",
+      "usageTracking.seats": "seats",
+    }
+  },
+  vi: {
+    translation: {
+      // Usage Tracking Component
+      "usageTracking.title": "Quản lý bảo dưỡng xe",
+      "usageTracking.subtitle": "theo dõi tình trạng xe",
+      "usageTracking.searchPlaceholder": "Tìm kiếm theo tên xe, biển số hoặc ID",
+      "usageTracking.allBrands": "Tất cả thương hiệu",
+      "usageTracking.selectBrandFirst": "Chọn thương hiệu trước",
+      "usageTracking.allModels": "Tất cả mẫu xe",
+      "usageTracking.allStatuses": "Tất cả trạng thái",
+      "usageTracking.showingResults": "Hiển thị {{filtered}} trong tổng số {{total}} xe",
+      "usageTracking.carInfo": "Thông tin xe",
+      "usageTracking.rentals": "Lượt thuê",
+      "usageTracking.daysRented": "Số ngày thuê",
+      "usageTracking.status": "Trạng thái",
+      "usageTracking.actions": "Thao tác",
+      "usageTracking.totalBookings": "Tổng đặt xe",
+      "usageTracking.days": "ngày",
+      "usageTracking.viewDetails": "Xem chi tiết",
+      "usageTracking.schedule": "Lên lịch",
+      "usageTracking.noCarsFound": "Không tìm thấy xe nào",
+      "usageTracking.loadingCars": "Đang tải dữ liệu xe...",
+      "usageTracking.errorLoadingCars": "Không thể tải dữ liệu xe",
+      "usageTracking.cannotIdentifyUser": "Không thể xác định người dùng hiện tại. Vui lòng đăng nhập lại.",
+      "usageTracking.available": "Có sẵn",
+      "usageTracking.reserved": "Đã đặt",
+      "usageTracking.maintenance": "Bảo dưỡng",
+      "usageTracking.unavailable": "Không khả dụng",
+      "usageTracking.unknown": "không rõ",
+      "usageTracking.seats": "chỗ",
+    }
+  }
+};

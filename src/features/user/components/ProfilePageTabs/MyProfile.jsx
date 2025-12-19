@@ -64,7 +64,7 @@ const MyProfile = () => {
           gender: data.gender === 1 ? 'Male' : data.gender === 2 ? 'Female' : 'Other',
           phoneNumber: data.phoneNumber || '',
           email: data.email || '',
-          facebook: '', // Add this field to API if needed
+          // facebook: '', // Add this field to API if needed
           google: data.isGoogle ? data.email : '',
           imageAvatar: data.imageAvatar,
           isGoogle: data.isGoogle,
@@ -181,7 +181,7 @@ const MyProfile = () => {
         gender: finalData.gender === 1 ? 'Male' : finalData.gender === 2 ? 'Female' : 'Other',
         phoneNumber: finalData.phoneNumber || '',
         email: finalData.email || '',
-        facebook: '',
+        // facebook: '',
         google: finalData.isGoogle ? finalData.email : '',
         imageAvatar: finalData.imageAvatar,
         isGoogle: finalData.isGoogle,
@@ -292,7 +292,7 @@ const MyProfile = () => {
   useEffect(() => {
     if (location && address) {
       // Use formattedAddress from location service
-      // Format: [houseNumber road], [ward], [district]
+      // Format: [houseNumber road], [ward], [city]
       const formattedAddress = address.formattedAddress || '';
       
       setUserInfo(prev => ({

@@ -43,7 +43,7 @@ const ForgotPassword = () => {
     setEmail(value);
     if (emailError) setEmailError("");
     
-    // Real-time email validation feedback (only show error if user has stopped typing)
+    // Email validation
     if (value && value.length > 3 && !emailValidation.isValidEmail(value)) {
       setTimeout(() => {
         if (email === value && !emailValidation.isValidEmail(value)) {
@@ -58,7 +58,7 @@ const ForgotPassword = () => {
     setPassword(value);
     if (passwordError) setPasswordError("");
     
-    // Real-time validation feedback (only show error after user has typed a reasonable amount)
+    // Password validation
     if (value && value.length > 3 && !passwordValidation.isValidPassword(value)) {
       setTimeout(() => {
         if (password === value && !passwordValidation.isValidPassword(value)) {
@@ -73,7 +73,7 @@ const ForgotPassword = () => {
     setConfirmPassword(value);
     if (confirmPasswordError) setConfirmPasswordError("");
     
-    // Real-time password matching validation
+    // Password matching validation
     if (value && password && value !== password) {
       setConfirmPasswordError(t('passwordsDoNotMatch'));
     } else if (value && password && value === password) {
@@ -204,13 +204,13 @@ const ForgotPassword = () => {
   return (
     <div className="min-h-screen flex items-center justify-center relative">
       {/* Gradient background matching the design */}
-      {/* <div className="absolute inset-0 bg-gradient-to-br from-pink-500 via-purple-500 to-orange-400"></div> */}
+      <div className="absolute inset-0 bg-gradient-to-br from-pink-500 via-purple-500 to-orange-400"></div>
 
       {/* Background image - uncomment and add your image path */}
       {/* <img src="/images/forza2.png" alt="" className="absolute inset-0 w-full h-full object-cover" /> */}
 
       {/* Video background - 4k Stock Videos by Vecteezy */}
-      <video
+      {/* <video
         autoPlay
         loop
         muted
@@ -218,12 +218,12 @@ const ForgotPassword = () => {
         className="absolute inset-0 w-full h-full object-cover"
       >
         <source src="/video/homepage_backgoundvideo.mp4" type="video/mp4" />
-      </video>
+      </video> */}
 
       {/* Video attribution */}
-      <div className="absolute bottom-2 right-2 z-20 text-xs opacity-50">
+      {/* <div className="absolute bottom-2 right-2 z-20 text-xs opacity-50">
         <a href="https://www.vecteezy.com/free-videos/aerial-shot-of-car-driving">Aerial Shot Of Car Driving Stock Videos by Vecteezy</a>
-      </div>
+      </div> */}
       <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4">
         {step === 1 ? (
           <>

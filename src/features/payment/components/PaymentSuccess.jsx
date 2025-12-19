@@ -68,12 +68,12 @@ const PaymentSuccess = () => {
         
         // Format the payment details from booking data
         const subtotal = bookingData.carRentPrice * bookingData.rentime;
-        const bookingFeeAmount = subtotal * (bookingData.bookingFee / 100); // Calculate 15% of subtotal
+        const bookingFeeAmount = subtotal * (bookingData.bookingFee / 100);
         const totalRentalPrice = subtotal + bookingFeeAmount;
         
         const details = {
           transactionId: 'TXN' + Date.now(),
-          amount: bookingFeeAmount, // User only pays the booking fee upfront
+          amount: bookingFeeAmount,
           totalRentalPrice: totalRentalPrice, // Total rental price for reference
           paymentMethod: 'QR Payment',
           paymentDate: new Date().toLocaleDateString(currentLocale, { 

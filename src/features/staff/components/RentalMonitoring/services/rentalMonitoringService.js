@@ -114,15 +114,25 @@ export const rentalMonitoringService = {
       // Calculate total paid amount based on payment statuses
       let totalPaidAmount = 0;
 
-      // If booking fee is success and rental fee is pending, only count booking fee
+      // If booking fee is success and rental fee is pending, only count booking fee and successful additional/extension fees
       if (bookingFeeStatus === 'success' && rentalFeeStatus === 'pending') {
-        totalPaidAmount = (bookingFeePayment?.paidAmount || 0) + (additionalFeePayment?.paidAmount || 0) + (bookingExtensionFeePayment?.paidAmount || 0);
+        totalPaidAmount = (bookingFeePayment?.paidAmount || 0);
+        
+        // Only add additional fee if its status is success
+        if (additionalFeeStatus === 'success') {
+          totalPaidAmount += (additionalFeePayment?.paidAmount || 0);
+        }
+        
+        // Only add booking extension fee if its status is success
+        if (extendBookingFeeStatus === 'success') {
+          totalPaidAmount += (bookingExtensionFeePayment?.paidAmount || 0);
+        }
       } else {
         // Otherwise, count all payments
         totalPaidAmount = allPaymentsTotal;
       }
 
-      const totalPaidAmountShow = (bookingFeePayment?.paidAmount || 0) + (rentalFeePayment?.paidAmount || 0);
+      const totalPaidAmountShow = (bookingFeePayment?.paidAmount || 0) + (rentalFeePayment?.paidAmount || 0) + (additionalFeePayment?.paidAmount || 0) + (bookingExtensionFeePayment?.paidAmount || 0);
 
       // Get payment methods for each payment type
       const bookingFeePaymentMethod = bookingFeePayment?.paymentMethod || t('rentalHistory.noPaymentMethod');
@@ -151,8 +161,17 @@ export const rentalMonitoringService = {
       // Always get daily rate from "Car Rental After returned" item
       const carRentalAfterReturnedItem = invoice.invoiceItems?.find(item => item.item === 'Car Rental After returned');
       const dailyRate = carRentalAfterReturnedItem?.unitPrice || 0;
-      // Get remaining after return cars
-      const remainingPayment = carRentalAfterReturnedItem?.total || 0;
+      
+      // Calculate remaining payment - show 0 if both booking and rental fees are paid
+      let remainingPayment = carRentalAfterReturnedItem?.total || 0;
+      
+      // If both booking fee and rental fee are success or complete, remaining should be 0
+      const isBookingFeePaid = bookingFeeStatus === 'success' || bookingFeeStatus === 'complete';
+      const isRentalFeePaid = rentalFeeStatus === 'success' || rentalFeeStatus === 'complete';
+      
+      if (isBookingFeePaid && isRentalFeePaid) {
+        remainingPayment = 0;
+      }
 
       const car = carId ? (carMap[carId] || {}) : {};
 

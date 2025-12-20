@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { STATUS_FILTER_OPTIONS } from '../utils/filterUtils';
+import DropdownTemplate from '../../../../../shared/components/DropdownTemplate';
 
 const BookingFilters = ({ 
   searchTerm, 
@@ -10,6 +11,20 @@ const BookingFilters = ({
   totalCount 
 }) => {
   const { t } = useTranslation();
+
+  // Transform STATUS_FILTER_OPTIONS for DropdownTemplate
+  const statusOptions = STATUS_FILTER_OPTIONS.map(option => ({
+    id: option.value,
+    value: option.value,
+    label: option.value === 'all' 
+      ? t('bookingManagement.allStatuses') 
+      : t(`bookingManagement.${option.value}Status`) || option.label
+  }));
+
+  // Handle status filter change
+  const handleStatusChange = (selectedOption) => {
+    setStatusFilter(selectedOption.value);
+  };
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
@@ -27,20 +42,19 @@ const BookingFilters = ({
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
             />
           </div>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            {STATUS_FILTER_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.value === 'all' 
-                  ? t('bookingManagement.allStatuses') 
-                  : t(`bookingManagement.${option.value}Status`) || option.label
-                }
-              </option>
-            ))}
-          </select>
+          
+          {/* Replace select with DropdownTemplate */}
+          <div className="min-w-[200px]">
+            <DropdownTemplate
+              value={statusFilter}
+              onChange={handleStatusChange}
+              options={statusOptions}
+              placeholder={t('bookingManagement.selectStatus')}
+              searchable={false}
+              searchPlaceholder={t('bookingManagement.searchStatus')}
+              className="w-full"
+            />
+          </div>
         </div>
         <div className="text-sm text-gray-600">
           {t('bookingManagement.showingResults', { filtered: filteredCount, total: totalCount })}

@@ -129,7 +129,7 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
                 <div>
                   <p className="text-xs text-gray-600 mb-1">{t('rentalHistory.totalBill')}</p>
                   <p className="text-lg font-bold text-gray-900">
-                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.totalAmount)}
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.totalPaidAmountShow)}
                   </p>
                 </div>
                 <div>

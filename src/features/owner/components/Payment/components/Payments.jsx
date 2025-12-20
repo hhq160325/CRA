@@ -6,6 +6,8 @@ import DropdownTemplate from '../../../../../shared/components/DropdownTemplate'
 import Pagination from '../../../../../shared/components/Pagination';
 import { paymentTypeOptions, getPaymentMethodOptions, paymentStatusOptions, dateFilterOptions } from '../../../ownerUtils/dropdownOptions';
 import { fetchOwnerPaymentsData } from '../../../api/ownerApi';
+import { sortByLatest } from '../../../../../shared/utils/SortByLatest';
+import { convertToVietnamTime } from '../../../../../shared/utils/CheckUTC';
 
 const Payments = () => {
   const { t } = useTranslation();
@@ -95,6 +97,14 @@ const Payments = () => {
           const carId = extractCarIdFromInvoice(invoice);
           const carDetails = carId ? carMap.get(carId) : null;
 
+          // Keep original dates for sorting and convert to Vietnam time
+          const createDate = payment.createDate;
+          const updateDate = payment.updateDate;
+          
+          // Convert dates to Vietnam time for display
+          const vietnamCreateDate = createDate ? convertToVietnamTime(createDate) : null;
+          const vietnamUpdateDate = updateDate ? convertToVietnamTime(updateDate) : null;
+          
           return {
             id: payment.id,
             transactionId: payment.orderCode || payment.id.substring(0, 8).toUpperCase(),
@@ -108,7 +118,10 @@ const Payments = () => {
             carName: carDetails?.name || 'N/A',
             licensePlate: carDetails?.licensePlate || '',
             amount: payment.paidAmount || 0,
-            date: payment.createDate ? new Date(payment.createDate).toISOString().split('T')[0] : 'N/A',
+            createDate: createDate, // Keep original for sorting
+            updateDate: updateDate, // Keep original for sorting
+            dateCreate: vietnamCreateDate ? vietnamCreateDate.toISOString().split('T')[0] : 'N/A',
+            dateUpdate: vietnamUpdateDate ? vietnamUpdateDate.toISOString().split('T')[0] : 'N/A',
             status: payment.status?.toLowerCase() || 'pending',
             paymentMethod: payment.paymentMethod || 'N/A',
             description: payment.item || 'Payment',
@@ -116,8 +129,18 @@ const Payments = () => {
           };
         });
 
-      console.log('Filtered Vendor Payments:', vendorPayments);
-      setPayments(vendorPayments);
+      // Sort payments by latest createDate, but use createDate if updateDate equals createDate
+      const sortedVendorPayments = sortByLatest(vendorPayments.map(payment => {
+        // If updateDate equals createDate, prioritize createDate for sorting
+        const sortDate = payment.updateDate === payment.createDate ? payment.createDate : payment.updateDate;
+        return {
+          ...payment,
+          sortDate: sortDate
+        };
+      }), 'sortDate');
+
+      console.log('Filtered and Sorted Vendor Payments:', sortedVendorPayments);
+      setPayments(sortedVendorPayments);
     } catch (err) {
       console.error('Error fetching payments:', err);
       setError(t('payments.errorLoadingPayments'));
@@ -180,7 +203,8 @@ const Payments = () => {
     // Generate receipt data
     const receiptData = {
       transactionId: payment.transactionId,
-      date: payment.date,
+      dateCreate: payment.dateCreate,
+      dateUpdate: payment.dateUpdate,
       type: formatTypeName(payment.type),
       customerName: payment.customerName,
       carName: payment.carName,
@@ -196,7 +220,8 @@ const Payments = () => {
 ${t('payments.receipt')}
 ${t('payments.receiptSeparator')}
 ${t('payments.receiptTransactionId', { transactionId: receiptData.transactionId })}
-${t('payments.receiptDate', { date: receiptData.date })}
+${t('payments.receiptCreateDate', { date: receiptData.dateCreate })}
+${t('payments.receiptUpdateDate', { date: receiptData.dateUpdate })}
 ${t('payments.receiptType', { type: receiptData.type })}
 ${t('payments.receiptCustomer', { customerName: receiptData.customerName })}
 ${t('payments.receiptCar', { carName: receiptData.carName })}${receiptData.licensePlate ? ` (${receiptData.licensePlate})` : ''}
@@ -207,11 +232,11 @@ ${t('payments.receiptDescription', { description: receiptData.description })}
 ${t('payments.receiptSeparator')}
     `.trim();
 
-    const blob = new Blob([receiptText], { type: 'text/plain' });
+    const blob = new Blob([receiptText], { type: 'text/plain;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `receipt_${receiptData.transactionId}_${receiptData.date}.txt`;
+    a.download = `receipt_${receiptData.transactionId}_${receiptData.dateCreate}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -220,22 +245,23 @@ ${t('payments.receiptSeparator')}
 
   const handleExportAllReceipts = () => {
     const csvContent = [
-      [t('payments.transactionId'), t('payments.date'), t('payments.type'), t('customer'), t('car'), 'Biển số', 'Số tiền (VND)', t('payments.paymentMethod'), t('payments.status'), t('payments.description')].join(','),
+      [t('payments.transactionId'), t('payments.createDate'), t('payments.updateDate'), t('payments.type'), t('customer'), t('car'), 'Biển số', 'Số tiền (VND)', t('payments.paymentMethod'), t('payments.status'), t('payments.description')].join(','),
       ...filteredPayments.map(p => [
         p.transactionId,
-        p.date,
+        p.dateCreate,
+        p.dateUpdate,
         formatTypeName(p.type),
         `"${p.customerName}"`,
         `"${p.carName}"`,
         p.licensePlate || '',
-        p.amount,
+        `"${formatVND(p.amount)}"`,
         p.paymentMethod,
-        p.status,
+        p.status.toUpperCase(),
         `"${p.description}"`
       ].join(','))
     ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -292,10 +318,10 @@ ${t('payments.receiptSeparator')}
   }, [searchTerm, statusFilter, typeFilter, paymentMethodFilter, dateFilter]);
 
   // Calculate statistics
-  const totalReceived = payments.filter(p => p.status === 'paid' || p.status === 'completed' || p.status === 'success').reduce((sum, p) => sum + p.amount, 0);
-  const pendingPayments = payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
-  const bookingFeeTotal = payments.filter(p => p.type === 'booking_fee' && (p.status === 'paid' || p.status === 'completed' || p.status === 'success')).reduce((sum, p) => sum + p.amount, 0);
-  const rentalFeeTotal = payments.filter(p => p.type === 'rental_fee' && (p.status === 'paid' || p.status === 'completed' || p.status === 'success')).reduce((sum, p) => sum + p.amount, 0);
+  // const totalReceived = payments.filter(p => p.status === 'paid' || p.status === 'completed' || p.status === 'success').reduce((sum, p) => sum + p.amount, 0);
+  // const pendingPayments = payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
+  // const bookingFeeTotal = payments.filter(p => p.type === 'booking_fee' && (p.status === 'paid' || p.status === 'completed' || p.status === 'success')).reduce((sum, p) => sum + p.amount, 0);
+  // const rentalFeeTotal = payments.filter(p => p.type === 'rental_fee' && (p.status === 'paid' || p.status === 'completed' || p.status === 'success')).reduce((sum, p) => sum + p.amount, 0);
 
   if (loading) {
     return (
@@ -328,26 +354,27 @@ ${t('payments.receiptSeparator')}
   }
 
   return (
-    <div className="p-8 space-y-6 min-h-full bg-gray-50">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('payments.title')}</h1>
-          <p className="text-gray-600">{t('payments.subtitle')}</p>
+    <>
+      <div className="p-8 space-y-6 min-h-full bg-gray-50">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{t('payments.title')}</h1>
+            <p className="text-gray-600">{t('payments.subtitle')}</p>
+          </div>
+          <div className="flex space-x-3">
+            <button
+              onClick={handleExportAllReceipts}
+              disabled={filteredPayments.length === 0}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {t('payments.exportAllReceipts')}
+            </button>
+          </div>
         </div>
-        <div className="flex space-x-3">
-          <button
-            onClick={handleExportAllReceipts}
-            disabled={filteredPayments.length === 0}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            {t('payments.exportAllReceipts')}
-          </button>
-        </div>
-      </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* Statistics Cards */}
+        {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
           <div className="flex items-center justify-between">
             <div>
@@ -403,155 +430,159 @@ ${t('payments.receiptSeparator')}
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
-      {/* Filters */}
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-          <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 flex-1">
-            <div className="relative flex-1 max-w-md">
-              <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder={t('payments.searchPlaceholder')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+        {/* Filters */}
+        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+            <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 flex-1">
+              <div className="relative flex-1 max-w-md">
+                <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder={t('payments.searchPlaceholder')}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+                />
+              </div>
+              <DropdownTemplate
+                value={typeFilter}
+                onChange={(option) => setTypeFilter(option.value)}
+                options={paymentTypeOptions}
+                placeholder={t('payments.allTypes')}
+                className="min-w-[160px]"
+              />
+              <DropdownTemplate
+                value={paymentMethodFilter}
+                onChange={(option) => setPaymentMethodFilter(option.value)}
+                options={paymentMethodOptions}
+                placeholder={t('payments.allPaymentMethods')}
+                searchable={paymentMethodOptions.length > 5}
+                searchPlaceholder="Tìm phương thức thanh toán..."
+                className="min-w-[200px]"
+              />
+              <DropdownTemplate
+                value={statusFilter}
+                onChange={(option) => setStatusFilter(option.value)}
+                options={paymentStatusOptions}
+                placeholder={t('payments.allStatuses')}
+                searchable
+                searchPlaceholder="Tìm trạng thái..."
+                className="min-w-[160px]"
+              />
+              <DropdownTemplate
+                value={dateFilter}
+                onChange={(option) => setDateFilter(option.value)}
+                options={dateFilterOptions}
+                placeholder={t('payments.allDates')}
+                className="min-w-[160px]"
               />
             </div>
-            <DropdownTemplate
-              value={typeFilter}
-              onChange={(option) => setTypeFilter(option.value)}
-              options={paymentTypeOptions}
-              placeholder={t('payments.allTypes')}
-              className="min-w-[160px]"
-            />
-            <DropdownTemplate
-              value={paymentMethodFilter}
-              onChange={(option) => setPaymentMethodFilter(option.value)}
-              options={paymentMethodOptions}
-              placeholder={t('payments.allPaymentMethods')}
-              searchable={paymentMethodOptions.length > 5}
-              searchPlaceholder="Tìm phương thức thanh toán..."
-              className="min-w-[200px]"
-            />
-            <DropdownTemplate
-              value={statusFilter}
-              onChange={(option) => setStatusFilter(option.value)}
-              options={paymentStatusOptions}
-              placeholder={t('payments.allStatuses')}
-              searchable
-              searchPlaceholder="Tìm trạng thái..."
-              className="min-w-[160px]"
-            />
-            <DropdownTemplate
-              value={dateFilter}
-              onChange={(option) => setDateFilter(option.value)}
-              options={dateFilterOptions}
-              placeholder={t('payments.allDates')}
-              className="min-w-[160px]"
-            />
-          </div>
-          <div className="text-sm text-gray-600">
-            {t('payments.showingResults', { filtered: filteredPayments.length, total: payments.length })}
+            <div className="text-sm text-gray-600">
+              {t('payments.showingResults', { filtered: filteredPayments.length, total: payments.length })}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Payments Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.transactionId')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.type')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.description')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.customerAndCar')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.amount')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.paymentMethod')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.date')}</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.status')}</th>
-                <th className="text-center py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.actions')}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {paginatedPayments.length === 0 ? (
-                <tr>
-                  <td colSpan="9" className="py-8 text-center text-gray-500">
-                    {t('payments.noPaymentsFound')}
-                  </td>
+        {/* Payments Table */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200 bg-gray-50">
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.transactionId')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.type')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.description')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.customerAndCar')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.amount')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.paymentMethod')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.createDate')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.updateDate')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.status')}</th>
+                  <th className="text-center py-4 px-6 font-semibold text-gray-900 text-sm">{t('payments.actions')}</th>
                 </tr>
-              ) : (
-                paginatedPayments.map((payment) => (
-                  <tr key={payment.id} className="hover:bg-gray-50">
-                    <td className="py-4 px-6">
-                      <div className="font-medium text-gray-900 text-sm">{payment.transactionId}</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={getTypeBadge(payment.type)}>
-                        {formatTypeName(payment.type)}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="text-sm text-gray-900">{payment.description}</div>
-                      <div className="text-xs text-gray-500">{t('payments.invoice')}: {payment.bookingId}</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="text-sm text-gray-900 font-medium">{payment.customerName}</div>
-                      <div className="text-xs text-gray-500">
-                        {payment.carName}
-                        {payment.licensePlate && ` • ${payment.licensePlate}`}
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="text-sm font-bold text-green-600">{formatVND(payment.amount)}</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="text-sm text-gray-900">{payment.paymentMethod}</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="text-sm text-gray-900">{payment.date}</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={getStatusBadge(payment.status)}>
-                        {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex flex-col items-center space-y-1">
-                        <button
-                          onClick={() => openModal(payment)}
-                          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                        >
-                          {t('payments.viewDetails')}
-                        </button>
-                        <button
-                          onClick={() => handleExportReceipt(payment)}
-                          className="text-green-600 hover:text-green-700 text-sm font-medium"
-                        >
-                          {t('payments.exportReceipt')}
-                        </button>
-                      </div>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {paginatedPayments.length === 0 ? (
+                  <tr>
+                    <td colSpan="9" className="py-8 text-center text-gray-500">
+                      {t('payments.noPaymentsFound')}
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  paginatedPayments.map((payment) => (
+                    <tr key={payment.id} className="hover:bg-gray-50">
+                      <td className="py-4 px-6">
+                        <div className="font-medium text-gray-900 text-sm">{payment.transactionId}</div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={getTypeBadge(payment.type)}>
+                          {formatTypeName(payment.type)}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="text-sm text-gray-900">{payment.description}</div>
+                        <div className="text-xs text-gray-500">{t('payments.invoice')}: {payment.bookingId}</div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="text-sm text-gray-900 font-medium">{payment.customerName}</div>
+                        <div className="text-xs text-gray-500">
+                          {payment.carName}
+                          {payment.licensePlate && ` • ${payment.licensePlate}`}
+                        </div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="text-sm font-bold text-green-600">{formatVND(payment.amount)}</div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="text-sm text-gray-900">{payment.paymentMethod}</div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="text-sm text-gray-900">{payment.dateCreate}</div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="text-sm text-gray-900">{payment.dateUpdate}</div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={getStatusBadge(payment.status)}>
+                          {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="flex flex-col items-center space-y-1">
+                          <button
+                            onClick={() => openModal(payment)}
+                            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                          >
+                            {t('payments.viewDetails')}
+                          </button>
+                          <button
+                            onClick={() => handleExportReceipt(payment)}
+                            className="text-green-600 hover:text-green-700 text-sm font-medium"
+                          >
+                            {t('payments.exportReceipt')}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredPayments.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         </div>
-
-        {/* Pagination */}
-        <Pagination
-          currentPage={currentPage}
-          totalItems={filteredPayments.length}
-          itemsPerPage={itemsPerPage}
-          onPageChange={setCurrentPage}
-        />
       </div>
-
       {/* Modal for payment details */}
       {isModalOpen && selectedPayment && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -606,8 +637,12 @@ ${t('payments.receiptSeparator')}
                     </span>
                   </div>
                   <div>
-                    <p className="text-gray-600">{t('payments.date')}</p>
-                    <p className="font-medium text-gray-900">{selectedPayment.date}</p>
+                    <p className="text-gray-600">{t('payments.createDate')}</p>
+                    <p className="font-medium text-gray-900">{selectedPayment.dateCreate}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">{t('payments.updateDate')}</p>
+                    <p className="font-medium text-gray-900">{selectedPayment.dateUpdate}</p>
                   </div>
                   <div>
                     <p className="text-gray-600">{t('payments.paymentMethod')}</p>
@@ -663,7 +698,7 @@ ${t('payments.receiptSeparator')}
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

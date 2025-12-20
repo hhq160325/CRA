@@ -1,5 +1,6 @@
 import { getUserIdFromToken } from '../../../../user/api';
 import { rentalHistoryApi } from '../api/rentalHistoryApi';
+import { convertToVietnamTime } from '../../../../../shared/utils/CheckUTC';
 
 export const rentalHistoryService = {
   /* Fetch all required data for rental history */
@@ -91,7 +92,14 @@ export const rentalHistoryService = {
   processInvoices(invoices, lookupMaps, bookingMap, t) {
     const { carMap, userMap, paymentMap } = lookupMaps;
 
-    return invoices.map((invoice, index) => {
+    // Sort invoices by createDate (latest first) using UTC conversion
+    const sortedInvoices = invoices.sort((a, b) => {
+      const dateA = convertToVietnamTime(a.createDate || a.issueDate);
+      const dateB = convertToVietnamTime(b.createDate || b.issueDate);
+      return dateB - dateA; // Latest first
+    });
+
+    return sortedInvoices.map((invoice, index) => {
       const user = userMap[invoice.customerId] || {};
       const paymentsForInvoice = paymentMap[invoice.id] || [];
       const booking = bookingMap[invoice.id] || null;
@@ -189,6 +197,7 @@ export const rentalHistoryService = {
         endDate: dueDate.toISOString().split('T')[0],
         pickupDate: issueDate.toLocaleString(),
         returnDate: dueDate.toLocaleString(),
+        createDate: convertToVietnamTime(invoice.createDate || invoice.issueDate),
         duration: rentalDays,
         totalAmount: invoice.grandTotal || invoice.subTotal || 0,
         dailyRate: dailyRate,

@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { axiosInstance } from '../../shared/utils/axiosInstance';
-import { SCHEDULE_ENDPOINTS, PAYMENT_ENDPOINTS, INVOICE_ENDPOINTS } from '../../config/api';
+import { BOOKING_ENDPOINTS, PAYMENT_ENDPOINTS, INVOICE_ENDPOINTS } from '../../config/api';
 import { decodeJWT } from '../auth/utils';
+import { convertToVietnamTime } from '../../shared/utils/CheckUTC';
 
 // Helper function to get user ID from token
 const getUserIdFromToken = () => {
@@ -59,18 +60,17 @@ export const fetchUserBookings = createAsyncThunk(
         return [];
       }
 
-      // Fetch schedules and payments in parallel
-      const [schedulesResponse, paymentMap] = await Promise.all([
-        axiosInstance.get(SCHEDULE_ENDPOINTS.GET_USER_SCHEDULES(userId)),
+      // Fetch bookings and payments in parallel
+      const [bookingsResponse, paymentMap] = await Promise.all([
+        axiosInstance.get(BOOKING_ENDPOINTS.GET_ALL_BOOKINGS),
         fetchAllPayments()
       ]);
       
-      const schedules = schedulesResponse.data || [];
+      const bookings = bookingsResponse.data || [];
 
       // Fetch invoice details and match with payments
-      const schedulesWithDetails = await Promise.all(
-        schedules.map(async (schedule) => {
-          const booking = schedule.booking || {};
+      const bookingsWithDetails = await Promise.all(
+        bookings.map(async (booking) => {
           let invoiceData = null;
           let paymentData = null;
           
@@ -82,16 +82,26 @@ export const fetchUserBookings = createAsyncThunk(
           }
           
           return {
-            ...schedule,
+            ...booking,
             invoice: invoiceData,
             payment: paymentData,
           };
         })
       );
 
-      return schedulesWithDetails;
+      // Filter bookings to show only those where the current user is the vendor/car owner
+      const userOwnedBookings = bookingsWithDetails.filter(booking => {
+        const invoice = booking.invoice;
+        // If no invoice data, include the booking (fallback)
+        if (!invoice) return true;
+        
+        // Compare vendorId from invoice with current user ID
+        return invoice.vendorId === userId;
+      });
+
+      return userOwnedBookings;
     } catch (error) {
-      console.error('Error fetching schedules:', error);
+      console.error('Error fetching bookings:', error);
       if (error.response?.status === 404) {
         return [];
       }
@@ -218,27 +228,23 @@ const calendarSlice = createSlice({
       })
       .addCase(fetchUserBookings.fulfilled, (state, action) => {
         state.loading = false;
-        // Transform schedule data to calendar events
-        state.events = (action.payload || []).map(schedule => {
-          const car = schedule.car || {};
-          const booking = schedule.booking || {};
-          const invoice = schedule.invoice || {};
-          const payment = schedule.payment || {};
+        // Transform booking data to calendar events
+        state.events = (action.payload || []).map(booking => {
+          const car = booking.car || {};
+          const invoice = booking.invoice || {};
+          const payment = booking.payment || {};
           const carName = `${car.manufacturer || ''} ${car.model || ''}`.trim() || 'Unknown Car';
           
           return {
-            id: schedule.id,
-            title: `${schedule.title} - ${carName}`,
-            start: schedule.startDate ? new Date(schedule.startDate) : new Date(),
-            end: schedule.endDate ? new Date(schedule.endDate) : new Date(),
+            id: booking.id,
+            title: `Booking ${booking.id} - ${carName}`,
+            start: booking.pickupTime ? new Date(booking.pickupTime) : new Date(),
+            end: booking.dropoffTime ? new Date(booking.dropoffTime) : new Date(),
             allDay: false,
-            // Store full schedule details for modal display
-            scheduleId: schedule.id,
-            scheduleType: schedule.scheduleType,
-            priority: schedule.priority,
-            isBlocking: schedule.isBlocking,
-            status: schedule.status,
-            notes: schedule.note,
+            // Store full booking details for modal display
+            bookingId: booking.id,
+            status: booking.status,
+            notes: booking.notes,
             // Car details
             carId: car.id,
             carName: carName,
@@ -247,7 +253,6 @@ const calendarSlice = createSlice({
             transmission: car.transmission,
             fuelType: car.fuelType,
             // Booking details
-            bookingId: booking.id,
             pickupPlace: booking.pickupPlace,
             dropoffPlace: booking.dropoffPlace,
             pickupTime: booking.pickupTime,

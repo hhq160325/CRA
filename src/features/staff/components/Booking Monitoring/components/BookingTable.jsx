@@ -1,19 +1,37 @@
 import { useTranslation } from 'react-i18next';
 import Pagination from '../../../../../shared/components/Pagination';
 import { getStatusBadge, getStatusText, getPaymentBadge, getPaymentStatusText, formatCurrency } from '../utils/bookingUtils';
+import { convertToVietnamTime } from '../../../../../shared/utils/CheckUTC';
 
-const BookingTable = ({ 
-  bookings, 
-  loading, 
-  currentPage, 
-  itemsPerPage, 
-  onPageChange, 
-  onOpenModal 
+const BookingTable = ({
+  bookings,
+  loading,
+  currentPage,
+  itemsPerPage,
+  onPageChange,
+  onOpenModal
 }) => {
   const { t } = useTranslation();
 
+  // Helper function to format dates with Vietnam time conversion
+  const formatDateWithVietnamTime = (dateString) => {
+    if (!dateString) return '';
+    try {
+      const vietnamDate = convertToVietnamTime(dateString);
+      return vietnamDate.toLocaleDateString('vi-VN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString; // Fallback to original string
+    }
+  };
+
   // Pagination calculations
-  const totalPages = Math.ceil(bookings.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentItems = bookings.slice(startIndex, endIndex);
@@ -50,6 +68,7 @@ const BookingTable = ({
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingId')}</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('customer')}</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('car')}</th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingManagement.createDate')}</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('duration')}</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('amount')}</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('status')}</th>
@@ -65,13 +84,27 @@ const BookingTable = ({
                 </td>
                 <td className="py-4 px-6">
                   <div className="font-medium text-gray-900 text-sm">{booking.customer}</div>
+                  <div className="text-xs text-gray-500">{booking.customerEmail}</div>
+                  <div className="text-xs text-gray-400">{booking.customerPhone}</div>
                 </td>
                 <td className="py-4 px-6">
                   <div className="font-medium text-gray-900 text-sm">{booking.car}</div>
+                  <div className="text-xs text-gray-500">{booking.carLicensePlate}</div>
+                  <div className="text-xs text-gray-400">{booking.carId}</div>
+                  <div className="text-xs text-gray-400">{booking.carOwner}</div>
                 </td>
                 <td className="py-4 px-6">
-                  <div className="text-sm text-gray-600">{booking.startDate}</div>
-                  <div className="text-sm text-gray-600">{t('to')} {booking.endDate}</div>
+                  <div className="font-medium text-gray-900 text-sm">
+                    {formatDateWithVietnamTime(booking.createDate) || booking.createDateFormatted}
+                  </div>
+                </td>
+                <td className="py-4 px-6">
+                  <div className="text-sm text-gray-600">
+                    {formatDateWithVietnamTime(booking.startDate) || booking.startDate}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {t('to')} {formatDateWithVietnamTime(booking.endDate) || booking.endDate}
+                  </div>
                 </td>
                 <td className="py-4 px-6">
                   <div className="font-medium text-gray-900 text-sm">
@@ -128,12 +161,12 @@ const BookingTable = ({
 
       {/* Pagination */}
       {bookings.length > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalItems={bookings.length}
-            itemsPerPage={itemsPerPage}
-            onPageChange={onPageChange}
-          />
+        <Pagination
+          currentPage={currentPage}
+          totalItems={bookings.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={onPageChange}
+        />
       )}
     </div>
   );

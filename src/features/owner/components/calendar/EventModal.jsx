@@ -28,14 +28,24 @@ const EventModal = () => {
   //   }).format(amount || 0);
   // };
 
-  const getStatusColor = (status) => {
+  const getPaymentStatusColor = (status) => {
+    const colors = {
+      success: 'bg-green-100 text-green-800',
+      pending: 'bg-yellow-100 text-yellow-800',
+      cancelled: 'bg-red-100 text-red-800',
+    };
+    return colors[status?.toLowerCase()] || 'bg-gray-100 text-gray-800';
+  };
+
+  const getBookingStatusColor = (status) => {
     const colors = {
       pending: 'bg-yellow-100 text-yellow-800',
       active: 'bg-blue-100 text-blue-800',
+      confirmed: 'bg-blue-100 text-blue-800',
       completed: 'bg-green-100 text-green-800',
       cancelled: 'bg-red-100 text-red-800',
     };
-    return colors[status] || 'bg-gray-100 text-gray-800';
+    return colors[status?.toLowerCase()] || 'bg-gray-100 text-gray-800';
   };
 
   if (!isEventModalOpen) return null;
@@ -67,7 +77,7 @@ const EventModal = () => {
                   <p className="text-sm text-gray-500">{t('bookingId') || 'Booking ID'}</p>
                   <p className="text-lg font-semibold">{selectedEvent.bookingId}</p>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedEvent.bookingStatus?.toLowerCase())}`}>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getBookingStatusColor(selectedEvent.bookingStatus)}`}>
                   {selectedEvent.bookingStatus?.toUpperCase()}
                 </span>
               </div>
@@ -148,14 +158,12 @@ const EventModal = () => {
               </div> */}
 
               {/* Payment Status */}
-              <div>
+              {/* <div>
                 <p className="text-sm text-gray-500 mb-1">{t('paymentStatus') || 'Payment Status'}</p>
-                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                  selectedEvent.paymentStatus === 'Paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
+                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getPaymentStatusColor(selectedEvent.paymentStatus)}`}>
                   {selectedEvent.paymentStatus?.toUpperCase()}
                 </span>
-              </div>
+              </div> */}
 
               {/* Notes */}
               {selectedEvent.notes && (

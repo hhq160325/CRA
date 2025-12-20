@@ -16,7 +16,8 @@ const BookingTable = ({ bookings, onBookingUpdate }) => {
       licensePlate: booking.licensePlate,
       customer: booking.customer,
       endDate: booking.endDate,
-      bookingId: booking.bookingId
+      bookingId: booking.bookingId,
+      createDate: booking.createDateFormatted
     };
     setSelectedBooking(rentalData);
     setIsExtendModalOpen(true);
@@ -52,6 +53,9 @@ const BookingTable = ({ bookings, onBookingUpdate }) => {
                 {t('bookingManagement.customer')}
               </th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">
+                {t('bookingManagement.createDate')}
+              </th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">
                 {t('bookingManagement.rentalPeriod')}
               </th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">
@@ -80,6 +84,9 @@ const BookingTable = ({ bookings, onBookingUpdate }) => {
                   <div className="font-medium text-gray-900 text-sm">{booking.customer}</div>
                   <div className="text-xs text-gray-500">{booking.customerEmail}</div>
                   <div className="text-xs text-gray-400">{booking.customerPhone}</div>
+                </td>
+                <td className="py-4 px-6">
+                  <div className="font-medium text-gray-900 text-sm">{booking.createDateFormatted}</div>
                 </td>
                 <td className="py-4 px-6">
                   <div className="text-sm text-gray-900">{booking.startDate}</div>
@@ -116,12 +123,12 @@ const BookingTable = ({ bookings, onBookingUpdate }) => {
                 </td>
                 <td className="py-4 px-6">
                   {(booking.status === 'Confirmed' || booking.status === 'checkedIn') && (
-                        <button
-                          onClick={() => handleExtendRent(booking)}
-                          className="text-green-600 hover:text-green-700 text-sm font-medium"
-                        >
-                          {t('rentalHistory.extend')}
-                        </button>
+                    <button
+                      onClick={() => handleExtendRent(booking)}
+                      className="text-green-600 hover:text-green-700 text-sm font-medium"
+                    >
+                      {t('rentalHistory.extend')}
+                    </button>
                   )}
                 </td>
               </tr>

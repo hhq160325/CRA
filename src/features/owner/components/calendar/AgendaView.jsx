@@ -19,9 +19,13 @@ const AgendaView = ({ events, currentDate }) => {
     sorted.forEach(event => {
       if (!event.start || !event.end) return;
       
-      // Add event to pickup date
+      // Add event to pickup date using local date components
       const startDate = event.start instanceof Date ? event.start : new Date(event.start);
-      const startKey = startDate.toISOString().split('T')[0];
+      const startYear = startDate.getFullYear();
+      const startMonth = String(startDate.getMonth() + 1).padStart(2, '0');
+      const startDay = String(startDate.getDate()).padStart(2, '0');
+      const startKey = `${startYear}-${startMonth}-${startDay}`;
+      
       if (!groups[startKey]) {
         groups[startKey] = [];
       }
@@ -29,7 +33,11 @@ const AgendaView = ({ events, currentDate }) => {
       
       // Add event to dropoff date (if different from pickup)
       const endDate = event.end instanceof Date ? event.end : new Date(event.end);
-      const endKey = endDate.toISOString().split('T')[0];
+      const endYear = endDate.getFullYear();
+      const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+      const endDay = String(endDate.getDate()).padStart(2, '0');
+      const endKey = `${endYear}-${endMonth}-${endDay}`;
+      
       if (startKey !== endKey) {
         if (!groups[endKey]) {
           groups[endKey] = [];

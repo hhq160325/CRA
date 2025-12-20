@@ -3,22 +3,15 @@ import { useTranslation } from 'react-i18next';
 
 const getStatusColor = (status) => {
   const colors = {
-    Active: 'bg-blue-100 text-blue-800 border-blue-300',
-    Pending: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-    Confirmed: 'bg-green-100 text-green-800 border-green-300',
-    Completed: 'bg-purple-100 text-purple-800 border-purple-300',
-    Cancelled: 'bg-red-100 text-red-800 border-red-300',
-    Rejected: 'bg-gray-100 text-gray-800 border-gray-300',
-    // Lowercase versions for fallback
     active: 'bg-blue-100 text-blue-800 border-blue-300',
     pending: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-    confirmed: 'bg-green-100 text-green-800 border-green-300',
-    completed: 'bg-purple-100 text-purple-800 border-purple-300',
+    confirmed: 'bg-blue-100 text-blue-800 border-blue-300',
+    completed: 'bg-green-100 text-green-800 border-green-300',
     cancelled: 'bg-red-100 text-red-800 border-red-300',
     rejected: 'bg-gray-100 text-gray-800 border-gray-300',
     overdue: 'bg-red-100 text-red-800 border-red-300',
   };
-  return colors[status] || colors.pending;
+  return colors[status?.toLowerCase()] || colors.pending;
 };
 
 const EventCard = ({ event, compact = false, onClick, date }) => {
@@ -84,7 +77,7 @@ const EventCard = ({ event, compact = false, onClick, date }) => {
         <div className="text-xs text-gray-500 mt-1">{t('car')}: {event.carName || event.car}</div>
       )}
       <div className={`text-xs mt-2 px-2 py-1 rounded inline-block ${statusColor}`}>
-        {t(displayStatus)}
+        {t(displayStatus?.toLowerCase())}
       </div>
     </div>
   );

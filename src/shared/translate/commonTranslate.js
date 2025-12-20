@@ -137,7 +137,7 @@ export const commonTranslate = {
       or: "Or",
       signInWithGoogle: "Sign in with Google",
       signInWithFacebook: "Sign in with Facebook",
-      success: "Success!",
+      success: "Success",
       redirectingToHomepage: "Redirecting to homepage...",
       invalidEmailFormat: "Invalid Email Format",
       passwordRequirements: "Invalid Password",

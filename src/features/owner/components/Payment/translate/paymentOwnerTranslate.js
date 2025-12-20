@@ -1,4 +1,4 @@
-export const paymentTranslate = {
+export const paymentOwnerTranslate = {
   en: {
     translation: {
       // Payments Component
@@ -21,7 +21,8 @@ export const paymentTranslate = {
       "payments.customerAndCar": "Customer & Car",
       "payments.amount": "Amount",
       "payments.paymentMethod": "Payment Method",
-      "payments.date": "Date",
+      "payments.createDate": "Create Date",
+      "payments.updateDate": "Update Date",
       "payments.status": "Status",
       "payments.actions": "Actions",
       "payments.viewDetails": "View Details",
@@ -78,7 +79,8 @@ export const paymentTranslate = {
       "payments.customerAndCar": "Khách hàng & Xe",
       "payments.amount": "Số tiền",
       "payments.paymentMethod": "Phương thức",
-      "payments.date": "Ngày",
+      "payments.createDate": "Ngày tạo",
+      "payments.updateDate": "Ngày cập nhập",
       "payments.status": "Trạng thái",
       "payments.actions": "Thao tác",
       "payments.viewDetails": "Xem chi tiết",

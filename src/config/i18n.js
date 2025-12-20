@@ -15,6 +15,7 @@ import { paymentTranslate } from '../features/payment/translate/paymentTranslate
 import { usageTrackingTranslate } from '../features/owner/components/UsageTracking/translate/usageTrackingTranslate'
 import { regDocsApprovedTranslate } from '../features/staff/components/RegDocsApproved/translate/regDocsApprovedTranslate'
 import { driverLicenseApproveTranslate } from '../features/staff/components/DriverLicenseApprove/translate/driverLicenseApproveTranslate'
+import { paymentOwnerTranslate } from '../features/owner/components/Payment/translate/paymentOwnerTranslate'
 const resources = {
   en: {
     translation: {
@@ -41,6 +42,9 @@ const resources = {
 
       //Car Translate
       ...carTranslate.en.translation,
+
+      //Payment Owner Translate
+      ...paymentOwnerTranslate.en.translation,
 
       //Payment Translate
       ...paymentTranslate.en.translation,
@@ -108,6 +112,9 @@ const resources = {
 
       // Booking Management Component
       ...bookingManagementTranslations.vi.translation,
+
+      //Payment Owner Translate
+      ...paymentOwnerTranslate.vi.translation,
 
       // Payments Component
       ...paymentTranslate.vi.translation,

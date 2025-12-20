@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
-import { openEventModal } from '../../calendarSlice';
+import { openEventModal, openDayEventsModal } from '../../calendarSlice';
 import EventCard from './EventCard';
 
 const WeekView = ({ events, currentDate }) => {
@@ -23,12 +23,49 @@ const WeekView = ({ events, currentDate }) => {
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
   const getEventsForDate = (date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    // Use local date string to avoid timezone issues
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    
     return events.filter(event => {
-      if (!event.start) return false;
-      const eventStart = (event.start instanceof Date ? event.start : new Date(event.start)).toISOString().split('T')[0];
-      return dateStr === eventStart;
+      if (!event.start || !event.end) return false;
+      
+      // Get local date strings for event start and end
+      const startDate = event.start instanceof Date ? event.start : new Date(event.start);
+      const startYear = startDate.getFullYear();
+      const startMonth = String(startDate.getMonth() + 1).padStart(2, '0');
+      const startDay = String(startDate.getDate()).padStart(2, '0');
+      const eventStart = `${startYear}-${startMonth}-${startDay}`;
+      
+      const endDate = event.end instanceof Date ? event.end : new Date(event.end);
+      const endYear = endDate.getFullYear();
+      const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+      const endDay = String(endDate.getDate()).padStart(2, '0');
+      const eventEnd = `${endYear}-${endMonth}-${endDay}`;
+      
+      // Only show event on pickup date (start) and dropoff date (end)
+      return dateStr === eventStart || dateStr === eventEnd;
     });
+  };
+
+  const groupEventsByTimeSlot = (dayEvents) => {
+    const timeSlots = {};
+    
+    dayEvents.forEach(event => {
+      const start = event.start instanceof Date ? event.start : new Date(event.start);
+      const hour = start.getHours();
+      const minute = start.getMinutes();
+      const timeKey = `${hour}:${minute.toString().padStart(2, '0')}`;
+      
+      if (!timeSlots[timeKey]) {
+        timeSlots[timeKey] = [];
+      }
+      timeSlots[timeKey].push(event);
+    });
+    
+    return timeSlots;
   };
 
   const getEventPosition = (event) => {
@@ -83,19 +120,63 @@ const WeekView = ({ events, currentDate }) => {
                 ))}
                 
                 {/* Events */}
-                {dayEvents.map(event => {
-                  const { top, height } = getEventPosition(event);
-                  return (
-                    <div
-                      key={event.id}
-                      onClick={() => dispatch(openEventModal(event))}
-                      className="absolute left-1 right-1 cursor-pointer z-10"
-                      style={{ top: `${top}px`, height: `${height}px` }}
-                    >
-                      <EventCard event={event} compact />
-                    </div>
-                  );
-                })}
+                {(() => {
+                  const timeSlots = groupEventsByTimeSlot(dayEvents);
+                  const renderedElements = [];
+                  
+                  Object.entries(timeSlots).forEach(([timeKey, timeEvents]) => {
+                    const firstEvent = timeEvents[0];
+                    const { top, height } = getEventPosition(firstEvent);
+                    
+                    if (timeEvents.length === 1) {
+                      // Single event - render normally
+                      renderedElements.push(
+                        <div
+                          key={firstEvent.id}
+                          onClick={() => dispatch(openEventModal(firstEvent))}
+                          className="absolute left-1 right-1 cursor-pointer z-10"
+                          style={{ top: `${top}px`, height: `${height}px` }}
+                        >
+                          <EventCard event={firstEvent} compact />
+                        </div>
+                      );
+                    } else {
+                      // Multiple events at same time - calculate proper height for event + button
+                      const eventCardHeight = 24; // Compact event card height
+                      const buttonHeight = 20; // Button height
+                      const spacing = 2; // Spacing between elements
+                      const totalHeight = eventCardHeight + buttonHeight + spacing;
+                      
+                      renderedElements.push(
+                        <div
+                          key={`${timeKey}-group`}
+                          className="absolute left-1 right-1 z-10 flex flex-col"
+                          style={{ top: `${top}px`, height: `${totalHeight}px` }}
+                        >
+                          <div 
+                            onClick={() => dispatch(openEventModal(firstEvent))}
+                            className="cursor-pointer flex-shrink-0"
+                            style={{ height: `${eventCardHeight}px` }}
+                          >
+                            <EventCard event={firstEvent} compact />
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              dispatch(openDayEventsModal(timeEvents));
+                            }}
+                            className="text-xs text-blue-600 hover:text-blue-800 hover:underline px-1 bg-blue-50 rounded border border-blue-200 w-full text-left transition-colors flex-shrink-0"
+                            style={{ height: `${buttonHeight}px`, lineHeight: `${buttonHeight}px` }}
+                          >
+                            +{timeEvents.length - 1} more at {timeKey}
+                          </button>
+                        </div>
+                      );
+                    }
+                  });
+                  
+                  return renderedElements;
+                })()}
               </div>
             </div>
           );

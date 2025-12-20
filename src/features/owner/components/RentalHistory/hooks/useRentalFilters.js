@@ -15,7 +15,7 @@ export const useRentalFilters = (rentalHistory) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Get unique car names for filter
-  const uniqueCars = useMemo(() => 
+  const uniqueCars = useMemo(() =>
     [...new Set(rentalHistory.map(rental => rental.carName))].sort(),
     [rentalHistory]
   );
@@ -30,33 +30,34 @@ export const useRentalFilters = (rentalHistory) => {
     { id: 'all', value: 'all', label: t('rentalHistory.allStatuses') },
     { id: 'confirmed', value: 'confirmed', label: t('rentalHistory.confirmed') },
     { id: 'completed', value: 'completed', label: t('rentalHistory.completed') },
+    { id: 'pending', value: 'pending', label: t('rentalHistory.pending') },
     { id: 'cancelled', value: 'cancelled', label: t('rentalHistory.cancelled') }
   ], [t]);
 
   const bookingFeeStatusOptions = useMemo(() => [
     { id: 'all', value: 'all', label: t('rentalHistory.allBookingFeeStatuses') },
-    { id: 'paid', value: 'paid', label: t('rentalHistory.paid') },
+    { id: 'success', value: 'success', label: t('rentalHistory.paid') },
     { id: 'pending', value: 'pending', label: t('rentalHistory.pending') },
     { id: 'cancelled', value: 'cancelled', label: t('rentalHistory.cancelled') }
   ], [t]);
 
   const rentalFeeStatusOptions = useMemo(() => [
     { id: 'all', value: 'all', label: t('rentalHistory.allRentalFeeStatuses') },
-    { id: 'paid', value: 'paid', label: t('rentalHistory.paid') },
+    { id: 'success', value: 'success', label: t('rentalHistory.paid') },
     { id: 'pending', value: 'pending', label: t('rentalHistory.pending') },
     { id: 'cancelled', value: 'cancelled', label: t('rentalHistory.cancelled') }
   ], [t]);
 
   const additionalFeeStatusOptions = useMemo(() => [
     { id: 'all', value: 'all', label: t('rentalHistory.allAdditionalFeeStatuses') },
-    { id: 'paid', value: 'paid', label: t('rentalHistory.paid') },
+    { id: 'success', value: 'success', label: t('rentalHistory.paid') },
     { id: 'pending', value: 'pending', label: t('rentalHistory.pending') },
     { id: 'cancelled', value: 'cancelled', label: t('rentalHistory.cancelled') }
   ], [t]);
 
   const extendBookingFeeStatusOptions = useMemo(() => [
     { id: 'all', value: 'all', label: t('rentalHistory.allExtendBookingFeeStatuses') },
-    { id: 'paid', value: 'paid', label: t('rentalHistory.paid') },
+    { id: 'success', value: 'success', label: t('rentalHistory.paid') },
     { id: 'pending', value: 'pending', label: t('rentalHistory.pending') },
     { id: 'cancelled', value: 'cancelled', label: t('rentalHistory.cancelled') }
   ], [t]);
@@ -134,7 +135,7 @@ export const useRentalFilters = (rentalHistory) => {
     setEndDate,
     currentPage,
     setCurrentPage,
-    
+
     // Options
     carOptions,
     statusOptions,
@@ -142,10 +143,10 @@ export const useRentalFilters = (rentalHistory) => {
     rentalFeeStatusOptions,
     additionalFeeStatusOptions,
     extendBookingFeeStatusOptions,
-    
+
     // Filtered data
     filteredRentals,
-    
+
     // Actions
     clearDateFilters
   };

@@ -35,7 +35,7 @@ export const useRentalFilters = (rentalHistory) => {
 
   const bookingFeeStatusOptions = useMemo(() => [
     { id: 'all', value: 'all', label: t('rentalHistory.allBookingFeeStatuses') },
-    { id: 'paid', value: 'paid', label: t('rentalHistory.paid') },
+    { id: 'success', value: 'success', label: t('rentalHistory.paid') },
     { id: 'pending', value: 'pending', label: t('rentalHistory.pending') },
     { id: 'cancelled', value: 'cancelled', label: t('rentalHistory.cancelled') }
   ], [t]);

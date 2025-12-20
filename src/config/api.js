@@ -35,7 +35,7 @@ export const USER_ENDPOINTS = {
   GET_ALL_USERS: `${API_CONFIG.BASE_URL}/User/GetAllUsers`,
   UPDATE_USER_INFO: `${API_CONFIG.BASE_URL}/User/UpdateUserInfo`,
   UPLOAD_AVATAR: (userId) => `${API_CONFIG.BASE_URL}/User/upload-avatar/${userId}`,
-  UPLOAD_DRIVER_LICENSE: (userId) => `${API_CONFIG.BASE_URL}/User/driverLicense/${userId}`,
+  UPLOAD_DRIVER_LICENSE: `${API_CONFIG.BASE_URL}/User/driverLicense/upload`,
   PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
   UPDATE_PROFILE: `${API_CONFIG.BASE_URL}/user/profile`,
   GET_ALL_DRIVER_LICENSE: `${API_CONFIG.BASE_URL}/User/driverLicense/all`,

@@ -92,12 +92,19 @@ const DriverLicenseApprove = () => {
             status: normalizedStatus,
             urls: imageUrls, // Array with single URL string
             url: imageUrls[0] || null, // Primary image URL
-            // createdDate: license.createDate,
+            createDate: license.createDate, // Keep raw date for sorting
           };
         });
 
-        // console.log('DriverLicenseApprove - Transformed licenses:', transformedData);
-        setDriverLicenses(transformedData);
+        // Sort by createDate (latest first)
+        const sortedData = transformedData.sort((a, b) => {
+          const dateA = a.createDate ? new Date(a.createDate) : new Date(0);
+          const dateB = b.createDate ? new Date(b.createDate) : new Date(0);
+          return dateB - dateA; // Descending order (latest first)
+        });
+
+        // console.log('DriverLicenseApprove - Transformed licenses:', sortedData);
+        setDriverLicenses(sortedData);
       } catch (error) {
         dispatch(setError({ section: 'driverLicenses', error: error.message }));
         setDriverLicenses([]);

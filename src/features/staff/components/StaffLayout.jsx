@@ -5,7 +5,7 @@ import LogoutButton from '../../../shared/components/LogoutButton';
 const StaffLayout = () => {
   const { t } = useTranslation();
   const location = useLocation();
-
+  const isActive = (path) => location.pathname === path;
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -16,10 +16,7 @@ const StaffLayout = () => {
             <nav className="space-y-2">
               <Link
                 to="/staff"
-                className={`flex items-center px-3 py-2 rounded-lg ${location.pathname === '/staff'
-                  ? 'text-white bg-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-                  }`}
+                className={`flex items-center px-3 py-2 rounded-lg ${isActive('/staff') ? 'text-white bg-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
               >
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -27,11 +24,8 @@ const StaffLayout = () => {
                 {t('dashboard')}
               </Link>
               <Link
-                to="/staff/car-owners"
-                className={`flex items-center px-3 py-2 rounded-lg ${location.pathname === '/staff/car-owners'
-                  ? 'text-white bg-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-                  }`}
+                to="/staff/car_owners"
+                className={`flex items-center px-3 py-2 rounded-lg ${isActive('/staff/car_owners') ? 'text-white bg-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
               >
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -40,10 +34,7 @@ const StaffLayout = () => {
               </Link>
               <Link
                 to="/staff/bookings"
-                className={`flex items-center px-3 py-2 rounded-lg ${location.pathname === '/staff/bookings'
-                  ? 'text-white bg-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-                  }`}
+                className={`flex items-center px-3 py-2 rounded-lg ${isActive('/staff/bookings') ? 'text-white bg-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
               >
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -51,11 +42,8 @@ const StaffLayout = () => {
                 {t('monitorBookings')}
               </Link>
               <Link
-                to="/staff/rental-monitoring"
-                className={`flex items-center px-3 py-2 rounded-lg ${location.pathname === '/staff/rental-monitoring'
-                  ? 'text-white bg-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-                  }`}
+                to="/staff/rental_monitoring"
+                className={`flex items-center px-3 py-2 rounded-lg ${isActive('/staff/rental_monitoring') ? 'text-white bg-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
               >
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -64,10 +52,7 @@ const StaffLayout = () => {
               </Link>
               <Link
                 to="/staff/customers"
-                className={`flex items-center px-3 py-2 rounded-lg ${location.pathname === '/staff/customers'
-                  ? 'text-white bg-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-                  }`}
+                className={`flex items-center px-3 py-2 rounded-lg ${isActive('/staff/customers') ? 'text-white bg-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
               >
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
@@ -76,10 +61,7 @@ const StaffLayout = () => {
               </Link>
               <Link
                 to="/staff/notifications"
-                className={`flex items-center px-3 py-2 rounded-lg ${location.pathname === '/staff/notifications'
-                  ? 'text-white bg-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-                  }`}
+                className={`flex items-center px-3 py-2 rounded-lg ${isActive('/staff/notifications') ? 'text-white bg-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
               >
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4.828 7l2.828 2.828L5.828 12l-2.828-2.828L4.828 7zM9 11H1m22 6l-3-3m-3 3l3-3M8 21l4-7h7l-4 7H8z" />
@@ -87,11 +69,8 @@ const StaffLayout = () => {
                 {t('sendNotifications')}
               </Link>
               <Link
-                to="/staff/parklot-create"
-                className={`flex items-center px-3 py-2 rounded-lg ${location.pathname === '/staff/parklot-create'
-                  ? 'text-white bg-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-                  }`}
+                to="/staff/parklot_create"
+                className={`flex items-center px-3 py-2 rounded-lg ${isActive('/staff/parklot_create') ? 'text-white bg-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
               >
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -99,11 +78,8 @@ const StaffLayout = () => {
                 {t('createParkingLot')}
               </Link>
               <Link
-                to="/staff/reg-docs"
-                className={`flex items-center px-3 py-2 rounded-lg ${location.pathname === '/staff/reg-docs'
-                  ? 'text-white bg-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-                  }`}
+                to="/staff/reg_docs"
+                className={`flex items-center px-3 py-2 rounded-lg ${isActive('/staff/reg_docs') ? 'text-white bg-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
               >
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -111,11 +87,8 @@ const StaffLayout = () => {
                 {t('registrationDocuments')}
               </Link>
               <Link
-                to="/staff/driver-license-approve"
-                className={`flex items-center px-3 py-2 rounded-lg ${location.pathname === '/staff/driver-license-approve'
-                  ? 'text-white bg-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-                  }`}
+                to="/staff/driver_license_approve"
+                className={`flex items-center px-3 py-2 rounded-lg ${isActive('/staff/driver_license_approve') ? 'text-white bg-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
               >
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

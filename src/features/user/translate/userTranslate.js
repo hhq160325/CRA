@@ -103,12 +103,12 @@ export const userTranslate = {
 
       // Upload Driver License
       updateDriverLicense: "Update Driver's License",
-      uploadDriverLicenseDescription: "Upload a clear photo or scan of your driver's license. Accepted formats: JPG, PNG, PDF (max 5MB)",
-      invalidDriverLicenseFileType: "Please upload a valid image (JPG, PNG) or PDF file",
+      uploadDriverLicenseDescription: "Upload a clear photo or scan of your driver's license. Accepted formats: JPG, PNG,(max 5MB)",
+      invalidDriverLicenseFileType: "Please upload a valid image (JPG, PNG)",
       driverLicenseUploadedSuccessfully: "Driver's license uploaded successfully!",
       pleaseSelectFileFirst: "Please select a file first",
       failedToUploadDriverLicense: "Failed to upload driver's license. Please try again.",
-      driverLicenseFormatsAccepted: "JPG, PNG or PDF (max 5MB)",
+      driverLicenseFormatsAccepted: "JPG, PNG (max 5MB)",
       uploadDriverLicenseButton: "Upload Driver's License",
       driverLicenseTip1: "Ensure all text on the license is clearly visible",
       driverLicenseTip2: "The license must be valid and not expired",
@@ -118,6 +118,7 @@ export const userTranslate = {
       cancelEdit: "Cancell",
       frontDriverLicense: "Front Driver License",
       backDriverLicense: "Back Driver License",
+      invalidImg: "Please upload a photo of your valid driver's license."
     }
   },
   vi: {
@@ -225,12 +226,12 @@ export const userTranslate = {
 
       // Upload Driver License
       updateDriverLicense: "Cập Nhật Giấy Phép Lái Xe",
-      uploadDriverLicenseDescription: "Tải lên ảnh hoặc bản scan rõ ràng giấy phép lái xe của bạn. Định dạng chấp nhận: JPG, PNG, PDF (tối đa 5MB)",
-      invalidDriverLicenseFileType: "Vui lòng tải lên ảnh hợp lệ (JPG, PNG) hoặc tệp PDF",
+      uploadDriverLicenseDescription: "Tải lên ảnh hoặc bản scan rõ ràng giấy phép lái xe của bạn. Định dạng chấp nhận: JPG, PNG, (tối đa 5MB)",
+      invalidDriverLicenseFileType: "Vui lòng tải lên ảnh hợp lệ (JPG, PNG)",
       driverLicenseUploadedSuccessfully: "Tải giấy phép lái xe lên thành công!",
       pleaseSelectFileFirst: "Vui lòng chọn tệp trước",
       failedToUploadDriverLicense: "Không thể tải giấy phép lái xe lên. Vui lòng thử lại.",
-      driverLicenseFormatsAccepted: "JPG, PNG hoặc PDF (tối đa 5MB)",
+      driverLicenseFormatsAccepted: "JPG, PNG (tối đa 5MB)",
       uploadDriverLicenseButton: "Tải Lên Giấy Phép Lái Xe",
       driverLicenseTip1: "Đảm bảo tất cả văn bản trên giấy phép đều rõ ràng",
       driverLicenseTip2: "Giấy phép phải còn hiệu lực và chưa hết hạn",
@@ -240,6 +241,7 @@ export const userTranslate = {
       cancelEdit: "Hủy",
       frontDriverLicense: "Mặt trước",
       backDriverLicense: "Mặt sau",
+      invalidImg: "Vui lòng tải ảnh bằng lái hợp lệ",
       //InboxPage
       messageDetails: "Thông báo",
       messageInformation: "Thông tin người gửi",

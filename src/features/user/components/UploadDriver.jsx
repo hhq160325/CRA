@@ -7,7 +7,7 @@ import { USER_ENDPOINTS } from '../../../config/api';
 import { updateVerificationStatus } from '../../auth/authSlice';
 
 const UploadDriver = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
   const [frontFile, setFrontFile] = useState(null);
   const [backFile, setBackFile] = useState(null);
@@ -25,6 +25,13 @@ const UploadDriver = () => {
   useEffect(() => {
     fetchDriverLicenseStatus();
   }, []);
+
+  // Translate error when language changes
+  useEffect(() => {
+    if (error === "Please upload a photo of your valid driver's license." || error === "Vui lòng tải ảnh bằng lái hợp lệ") {
+      setError(t('invalidImg'));
+    }
+  }, [i18n.language, t]);
 
   // Update verification status when license status changes
   useEffect(() => {
@@ -101,7 +108,6 @@ const UploadDriver = () => {
       const urls = response.data.urls || [];
 
       // Assuming the first URL is front and second is back based on the naming convention
-      // You might need to adjust this logic based on how the backend returns the URLs
       const frontImage = urls.find(url => url.includes('imageFront') || url.includes('front')) || urls[0];
       const backImage = urls.find(url => url.includes('imageBack') || url.includes('back')) || urls[1];
 
@@ -168,7 +174,7 @@ const UploadDriver = () => {
     if (!file) return;
 
     // Validate file type
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
     if (!validTypes.includes(file.type)) {
       setError(t('invalidDriverLicenseFileType'));
       return;
@@ -240,7 +246,15 @@ const UploadDriver = () => {
 
       formData.append('userId', userId);
 
-      await axios.post(USER_ENDPOINTS.UPLOAD_DRIVER_LICENSE(userId), formData, {
+      // Log the data being sent to server
+      console.log('Data being sent to server:', {
+        userId: userId,
+        frontFile: frontFile ? { name: frontFile.name, size: frontFile.size, type: frontFile.type } : null,
+        backFile: backFile ? { name: backFile.name, size: backFile.size, type: backFile.type } : null,
+        endpoint: USER_ENDPOINTS.UPLOAD_DRIVER_LICENSE
+      });
+
+      await axios.post(USER_ENDPOINTS.UPLOAD_DRIVER_LICENSE, formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
@@ -253,7 +267,12 @@ const UploadDriver = () => {
       // Refresh the license status after successful upload
       fetchDriverLicenseStatus();
     } catch (err) {
-      setError(err.response?.data?.message || err.message || t('failedToUploadDriverLicense'));
+      const statusCode = err.response?.status;
+      if (statusCode === 400 || statusCode === 500) {
+        setError(t('invalidImg'));
+      } else {
+        setError(err.response?.data?.message || err.message || t('failedToUploadDriverLicense'));
+      }
     } finally {
       setUploading(false);
     }
@@ -406,7 +425,7 @@ const UploadDriver = () => {
                   id="front-file-upload"
                   type="file"
                   className="hidden"
-                  accept="image/jpeg,image/jpg,image/png,application/pdf"
+                  accept="image/jpeg,image/jpg,image/png"
                   onChange={(e) => handleFileSelect(e, 'front')}
                 />
               </label>
@@ -461,7 +480,7 @@ const UploadDriver = () => {
                   id="back-file-upload"
                   type="file"
                   className="hidden"
-                  accept="image/jpeg,image/jpg,image/png,application/pdf"
+                  accept="image/jpeg,image/jpg,image/png"
                   onChange={(e) => handleFileSelect(e, 'back')}
                 />
               </label>

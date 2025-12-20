@@ -125,24 +125,15 @@ const RegisterCar = () => {
 
         // Save form data to localStorage before navigating
         localStorage.setItem('carRegistrationStep1', JSON.stringify(formData));
-        navigate('/register-car/step-2');
+        navigate('/owner/register_car/step2');
     };
 
     return (
         <div className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-2xl mx-auto px-4">
                 {/* Header */}
-                <div className="relative flex items-center mb-8">
-                    {/* <button
-                        onClick={handleReturn}
-                        className="flex items-center text-gray-600 hover:text-gray-800"
-                    >
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                        {t('return')}
-                    </button> */}
-                    <h1 className="absolute left-1/2 transform -translate-x-1/2 text-xl font-semibold text-gray-900">{t('registerCar')}</h1>
+                <div className="text-center mb-8">
+                    <h1 className="text-xl font-semibold text-gray-900">{t('registerCar')}</h1>
                 </div>
 
                 {/* Progress Steps */}

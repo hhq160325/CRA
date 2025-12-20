@@ -13,7 +13,7 @@ const RegisterCarStep3 = () => {
     const [error, setError] = useState('');
 
     const handleReturn = () => {
-        navigate('/register-car/step-2');
+        navigate('/owner/register_car/step2');
     };
 
     const handleNext = async () => {
@@ -30,9 +30,9 @@ const RegisterCarStep3 = () => {
             const step1Data = JSON.parse(localStorage.getItem('carRegistrationStep1') || '{}');
             const step2Data = JSON.parse(localStorage.getItem('carRegistrationStep2') || '{}');
 
-            console.log('Step 1 Data:', step1Data);
-            console.log('Step 2 Data:', step2Data);
-            console.log('Uploaded Photos:', uploadedPhotos);
+            // console.log('Step 1 Data:', step1Data);
+            // console.log('Step 2 Data:', step2Data);
+            // console.log('Uploaded Photos:', uploadedPhotos);
 
             // Validate required fields
             if (!step1Data.licensePlate) {
@@ -52,7 +52,7 @@ const RegisterCarStep3 = () => {
 
             // Call the register car API
             const response = await registerCar(carData);
-            
+
             // console.log('Full API response:', response);
             // console.log('Response type:', typeof response);
             // console.log('Response keys:', Object.keys(response || {}));
@@ -60,21 +60,21 @@ const RegisterCarStep3 = () => {
             // Store the car ID to localStorage after successful registration
             // Try different possible field names for the car ID
             const carId = response?.id || response?.carId || response?.CarId || response?.data?.id;
-            
+
             if (carId) {
                 localStorage.setItem('registeredCarId', carId);
                 console.log('Car ID stored in localStorage:', carId);
-                
+
                 // Set rental rate after car registration
                 const dailyPrice = step2Data.dailyPrice;
                 if (dailyPrice) {
                     try {
                         // Handle both string and number formats
-                        const priceNumber = typeof dailyPrice === 'string' 
-                            ? parseFloat(dailyPrice.replace(/[.,]/g, '')) 
+                        const priceNumber = typeof dailyPrice === 'string'
+                            ? parseFloat(dailyPrice.replace(/[.,]/g, ''))
                             : dailyPrice;
                         console.log('Setting rental rate with dailyPrice:', priceNumber);
-                        
+
                         const rentalRateResponse = await setCarRentalRate(carId, priceNumber);
                         console.log('Car rental price set successfully!');
                         console.log('Rental rate response:', rentalRateResponse);
@@ -89,7 +89,7 @@ const RegisterCarStep3 = () => {
             }
 
             setUploadSuccess(true);
-            
+
             // Clear localStorage after successful registration
             localStorage.removeItem('carRegistrationStep1');
             localStorage.removeItem('carRegistrationStep2');
@@ -102,11 +102,12 @@ const RegisterCarStep3 = () => {
         } catch (err) {
             console.error('Registration error:', err);
             console.error('Error details:', err.response?.data);
-            
+
             // Show more detailed error message
-            const errorMessage = err.response?.data?.message 
+            const errorMessage = err.response?.data?.message
+                || err.response?.data?.Medias
                 || err.response?.data?.title
-                || err.message 
+                || err.message
                 || t('failedToUploadPhotos');
             setError(errorMessage);
         } finally {
@@ -120,17 +121,8 @@ const RegisterCarStep3 = () => {
         <div className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-2xl mx-auto px-4">
                 {/* Header */}
-                <div className="relative flex items-center mb-8">
-                    <button
-                        onClick={handleReturn}
-                        className="flex items-center text-gray-600 hover:text-gray-800"
-                    >
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                        {t('return')}
-                    </button>
-                    <h1 className="absolute left-1/2 transform -translate-x-1/2 text-xl font-semibold text-gray-900">{t('registerCar')}</h1>
+                <div className="text-center mb-8">
+                    <h1 className="text-xl font-semibold text-gray-900">{t('registerCar')}</h1>
                 </div>
 
                 {/* Progress Steps */}
@@ -184,11 +176,10 @@ const RegisterCarStep3 = () => {
                         <button
                             onClick={handleNext}
                             disabled={uploadedPhotos.length === 0 || uploading}
-                            className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors ${
-                                uploadedPhotos.length === 0 || uploading
+                            className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors ${uploadedPhotos.length === 0 || uploading
                                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                     : 'bg-blue-600 text-white hover:bg-blue-700'
-                            }`}
+                                }`}
                         >
                             {uploading ? (
                                 <span className="flex items-center justify-center">

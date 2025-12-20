@@ -5,5 +5,6 @@ export { default as CustomerFeedback } from './CustomerFeedback';
 export { default as Inquiries } from './Inquiries';
 export { default as BookingManagement } from './BookingManagement';
 export { default as Payments } from './Payment';
+export { default as Maps } from './Maps/components/Maps';
 
 

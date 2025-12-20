@@ -1,20 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FilePond, registerPlugin } from 'react-filepond';
-import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
-import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
-import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
-
-import 'filepond/dist/filepond.min.css';
-import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
-import './CarPhotoUpload.css';
-
-// Register FilePond plugins
-registerPlugin(
-    FilePondPluginImagePreview,
-    FilePondPluginFileValidateType,
-    FilePondPluginFileValidateSize
-);
 
 const CarPhotoUpload = ({ 
     uploadedPhotos = [], 
@@ -23,204 +8,96 @@ const CarPhotoUpload = ({
     onErrorChange 
 }) => {
     const { t, i18n } = useTranslation();
-    const [files, setFiles] = useState([]);
-    const errorTimeoutRef = useRef(null);
-    const fileCountRef = useRef(0);
-    const errorTypeRef = useRef(null); // Track error type
-    const errorDataRef = useRef(null); // Track error data (filename, filesize)
-    const MAX_FILES_ALLOWED = 10 - 4; // 6 files maximum
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [previewUrls, setPreviewUrls] = useState([]);
+    const MAX_FILES_ALLOWED = 5; // 5 files maximum
 
+    // Translate error when language changes
     useEffect(() => {
-        return () => {
-            if (errorTimeoutRef.current) {
-                clearTimeout(errorTimeoutRef.current);
-            }
-        };
-    }, []);
-
-    // Update error message when language changes
-    useEffect(() => {
-        if (error && errorTypeRef.current) {
-            const errorType = errorTypeRef.current;
-            const errorData = errorDataRef.current || {};
-            
-            if (errorType === 'maxFiles') {
-                onErrorChange(t('maxFilesReached', { max: MAX_FILES_ALLOWED }));
-            } else if (errorType === 'invalidType') {
-                const fileName = errorData.fileName || '';
-                onErrorChange(`${t('invalidFileType')}${fileName ? ': ' + fileName : ''}`);
-            } else if (errorType === 'fileSize') {
-                const fileName = errorData.fileName || '';
-                const fileSizeText = errorData.fileSize ? ` (${errorData.fileSize})` : '';
-                onErrorChange(`${t('fileSizeTooLarge')}${fileName ? ': ' + fileName : ''}${fileSizeText}`);
-            }
+        if (error === "Please upload a photo of your valid driver's license." || error === "Vui lòng tải ảnh bằng lái hợp lệ") {
+            onErrorChange(t('invalidImg'));
+        } else if (error.includes('Invalid file type') || error.includes('Vui lòng tải lên ảnh hợp lệ')) {
+            onErrorChange(t('invalidFileType'));
+        } else if (error.includes('File size too large') || error.includes('Kích thước tệp quá lớn')) {
+            onErrorChange(t('fileSizeTooLarge'));
+        } else if (error.includes('Maximum') || error.includes('Tối đa')) {
+            onErrorChange(t('maxFilesReached', { max: MAX_FILES_ALLOWED }));
         }
-    }, [i18n.language, error, MAX_FILES_ALLOWED, onErrorChange, t]);
+    }, [i18n.language, t, error, onErrorChange, MAX_FILES_ALLOWED]);
 
-    const handleAddFile = (error, file) => {
-        // Check if max files limit is reached using ref for accurate count
-        if (fileCountRef.current >= MAX_FILES_ALLOWED) {
-            if (errorTimeoutRef.current) {
-                clearTimeout(errorTimeoutRef.current);
-            }
-            errorTypeRef.current = 'maxFiles';
-            errorDataRef.current = null;
-            errorTimeoutRef.current = setTimeout(() => {
-                onErrorChange(t('maxFilesReached', { max: MAX_FILES_ALLOWED }));
-            }, 100);
-            return false;
-        }
-
-        if (error) {
-            // Clear any existing timeout
-            if (errorTimeoutRef.current) {
-                clearTimeout(errorTimeoutRef.current);
-            }
-
-            const fileName = file?.filename || file?.file?.name || '';
-            const fileSize = file?.fileSize || file?.file?.size;
-            const fileSizeText = fileSize ? `${(fileSize / 1024 / 1024).toFixed(2)}MB` : '';
-            
-            // Determine error type - check against both English and Vietnamese translations
-            const errorMsg = error.main ? error.main.toLowerCase() : '';
-            const invalidTypeEn = t('invalidFileType').toLowerCase();
-            const fileSizeTooLargeEn = t('fileSizeTooLarge').toLowerCase();
-            
-            if (errorMsg.includes('type') || errorMsg.includes('file type') || 
-                errorMsg.includes('tệp ảnh hợp lệ') || errorMsg.includes(invalidTypeEn)) {
-                errorTypeRef.current = 'invalidType';
-                errorDataRef.current = { fileName };
-                errorTimeoutRef.current = setTimeout(() => {
-                    onErrorChange(`${t('invalidFileType')}${fileName ? ': ' + fileName : ''}`);
-                }, 100);
-            } else if (errorMsg.includes('size') || errorMsg.includes('large') || 
-                       errorMsg.includes('kích thước') || errorMsg.includes(fileSizeTooLargeEn)) {
-                errorTypeRef.current = 'fileSize';
-                errorDataRef.current = { fileName, fileSize: fileSizeText };
-                errorTimeoutRef.current = setTimeout(() => {
-                    onErrorChange(`${t('fileSizeTooLarge')}${fileName ? ': ' + fileName : ''}${fileSizeText ? ' (' + fileSizeText + ')' : ''}`);
-                }, 100);
-            } else {
-                errorTypeRef.current = null;
-                errorDataRef.current = null;
-                errorTimeoutRef.current = setTimeout(() => {
-                    if (error.main) {
-                        onErrorChange(`${error.main}${fileName ? ': ' + fileName : ''}${fileSizeText ? ' (' + fileSizeText + ')' : ''}`);
-                    } else if (error.body) {
-                        onErrorChange(error.body);
-                    }
-                }, 100);
-            }
-
-            // Prevent file from being added
-            return false;
-        }
+    const handleFileSelect = (e) => {
+        const files = Array.from(e.target.files);
         
-        // Increment count when file is successfully added
-        fileCountRef.current += 1;
-        errorTypeRef.current = null;
-        errorDataRef.current = null;
-        return true;
-    };
+        if (!files.length) return;
 
-    const handleUpdateFiles = (fileItems) => {
-        // Filter out any items with errors
-        const validItems = fileItems.filter(item => {
-            return item.status !== 7 && item.status !== 8; // 7 = LOAD_ERROR, 8 = PROCESSING_ERROR
-        });
-
-        // Update the file count ref
-        fileCountRef.current = validItems.length;
-
-        // Check if exceeds max files and remove excess
-        if (validItems.length > MAX_FILES_ALLOWED) {
-            const limitedItems = validItems.slice(0, MAX_FILES_ALLOWED);
-            setFiles(limitedItems);
-            fileCountRef.current = MAX_FILES_ALLOWED;
-            
-            const photosData = limitedItems.map(fileItem => ({
-                file: fileItem.file,
-                preview: URL.createObjectURL(fileItem.file),
-                name: fileItem.file.name,
-                size: fileItem.file.size
-            }));
-            onPhotosChange(photosData);
-            
-            // Show error message immediately without timeout
-            onErrorChange(t('maxFilesReached', { max: MAX_FILES_ALLOWED }) || `Maximum ${MAX_FILES_ALLOWED} files allowed`);
+        // Check if adding these files would exceed the limit
+        if (selectedFiles.length + files.length > MAX_FILES_ALLOWED) {
+            onErrorChange(t('maxFilesReached', { max: MAX_FILES_ALLOWED }));
             return;
         }
 
-        setFiles(validItems);
-        
-        // Only clear error and update photos if all files are valid
-        if (validItems.length > 0) {
-            const photosData = validItems.map(fileItem => ({
-                file: fileItem.file,
-                preview: URL.createObjectURL(fileItem.file),
-                name: fileItem.file.name,
-                size: fileItem.file.size
-            }));
-            
-            onPhotosChange(photosData);
-            
-            // Don't clear error if it's a max files error
-            if (errorTimeoutRef.current) {
-                clearTimeout(errorTimeoutRef.current);
+        // Validate each file
+        const validFiles = [];
+        const newPreviewUrls = [];
+
+        for (const file of files) {
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            if (!validTypes.includes(file.type)) {
+                onErrorChange(`${t('invalidFileType')}: ${file.name}`);
+                return;
             }
-            // Clear error if we're within the allowed limit (including exactly at max)
-            if (validItems.length <= MAX_FILES_ALLOWED) {
-                onErrorChange('');
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                const fileSizeText = `${(file.size / 1024 / 1024).toFixed(2)}MB`;
+                onErrorChange(`${t('fileSizeTooLarge')}: ${file.name} (${fileSizeText})`);
+                return;
             }
-        } else {
-            onPhotosChange([]);
+
+            validFiles.push(file);
+            newPreviewUrls.push(URL.createObjectURL(file));
         }
+
+        // Update state with new files
+        const updatedFiles = [...selectedFiles, ...validFiles];
+        const updatedPreviews = [...previewUrls, ...newPreviewUrls];
+
+        setSelectedFiles(updatedFiles);
+        setPreviewUrls(updatedPreviews);
+
+        // Create photos data for parent component
+        const photosData = updatedFiles.map((file, index) => ({
+            file: file,
+            preview: updatedPreviews[index],
+            name: file.name,
+            size: file.size
+        }));
+
+        onPhotosChange(photosData);
+        onErrorChange(''); // Clear any previous errors
     };
 
-    const handleError = (error, file) => {
-        // Clear any existing timeout
-        if (errorTimeoutRef.current) {
-            clearTimeout(errorTimeoutRef.current);
-        }
+    const handleRemove = (index) => {
+        // Revoke the object URL to prevent memory leaks
+        URL.revokeObjectURL(previewUrls[index]);
 
-        const fileName = file?.filename || '';
-        const fileSize = file?.fileSize;
-        const fileSizeText = fileSize ? `${(fileSize / 1024 / 1024).toFixed(2)}MB` : '';
+        const updatedFiles = selectedFiles.filter((_, i) => i !== index);
+        const updatedPreviews = previewUrls.filter((_, i) => i !== index);
 
-        // Determine error type from FilePond's warning
-        if (error.main) {
-            const errorMsg = error.main.toLowerCase();
-            const invalidTypeEn = t('invalidFileType').toLowerCase();
-            const fileSizeTooLargeEn = t('fileSizeTooLarge').toLowerCase();
-            
-            if (errorMsg.includes('type') || errorMsg.includes('file type') || 
-                errorMsg.includes('tệp ảnh hợp lệ') || errorMsg.includes(invalidTypeEn)) {
-                errorTypeRef.current = 'invalidType';
-                errorDataRef.current = { fileName };
-                errorTimeoutRef.current = setTimeout(() => {
-                    onErrorChange(`${t('invalidFileType')}${fileName ? ': ' + fileName : ''}`);
-                }, 300);
-            } else if (errorMsg.includes('size') || errorMsg.includes('large') || 
-                       errorMsg.includes('kích thước') || errorMsg.includes(fileSizeTooLargeEn)) {
-                errorTypeRef.current = 'fileSize';
-                errorDataRef.current = { fileName, fileSize: fileSizeText };
-                errorTimeoutRef.current = setTimeout(() => {
-                    onErrorChange(`${t('fileSizeTooLarge')}${fileName ? ': ' + fileName : ''}${fileSizeText ? ' (' + fileSizeText + ')' : ''}`);
-                }, 300);
-            } else {
-                errorTypeRef.current = null;
-                errorDataRef.current = null;
-                errorTimeoutRef.current = setTimeout(() => {
-                    onErrorChange(`${error.main}${fileName ? ': ' + fileName : ''}${fileSizeText ? ' (' + fileSizeText + ')' : ''}`);
-                }, 300);
-            }
-        } else if (error.body) {
-            errorTypeRef.current = null;
-            errorDataRef.current = null;
-            errorTimeoutRef.current = setTimeout(() => {
-                onErrorChange(error.body);
-            }, 300);
-        }
+        setSelectedFiles(updatedFiles);
+        setPreviewUrls(updatedPreviews);
+
+        // Update photos data for parent component
+        const photosData = updatedFiles.map((file, i) => ({
+            file: file,
+            preview: updatedPreviews[i],
+            name: file.name,
+            size: file.size
+        }));
+
+        onPhotosChange(photosData);
+        onErrorChange(''); // Clear any errors when removing files
     };
 
     return (
@@ -232,44 +109,64 @@ const CarPhotoUpload = ({
                 {t('photosDescription')}
             </p>
 
-            {/* FilePond Upload Area */}
-            <div className=" filepond-horizontal">
-                <FilePond
-                    files={files}
-                    onupdatefiles={handleUpdateFiles}
-                    onaddfile={handleAddFile}
-                    onwarning={handleError}
-                    allowMultiple={true}
-                    maxFiles={10}
-                    maxFileSize="5MB"
-                    acceptedFileTypes={['image/png', 'image/jpeg', 'image/jpg', 'image/jfif', 'image/gif']}
-                    instantUpload={false}
-                    allowRevert={false}
-                    allowProcess={false}
-                    checkValidity={true}
-                    itemInsertLocation="after"
-                    labelIdle={`
-                        <div class="flex flex-col items-center">
-                            <svg class="w-16 h-16 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                            </svg>
-                            <p class="mb-2 text-sm text-gray-700">
-                                <span class="font-semibold">${t('clickToUpload')}</span> ${t('orDragAndDrop')}
-                            </p>
-                            <p class="text-xs text-gray-500">${t('imageFormatsAccepted')}</p>
-                        </div>
-                    `}
-                    labelFileTypeNotAllowed={t('invalidFileType')}
-                    fileValidateTypeLabelExpectedTypes={t('imageFormatsAccepted')}
-                    labelMaxFileSizeExceeded={t('fileSizeTooLarge')}
-                    labelMaxFileSize={t('maxFileSize', { size: '5MB' })}
-                    credits={false}
-                    stylePanelLayout="integrated"
-                    imagePreviewHeight={100}
-                    imageResizeTargetWidth={100}
-                    imageResizeTargetHeight={100}
-                />
+            {/* Upload Area */}
+            <div className="mb-6">
+                <label
+                    htmlFor="photo-upload"
+                    className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                >
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg className="w-16 h-16 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p className="mb-2 text-sm text-gray-700">
+                            <span className="font-semibold">{t('clickToUpload')}</span> {t('orDragAndDrop')}
+                        </p>
+                        <p className="text-xs text-gray-500">{t('imageFormatsAccepted')}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                            {selectedFiles.length}/{MAX_FILES_ALLOWED} {t('filesSelected')}
+                        </p>
+                    </div>
+                    <input
+                        id="photo-upload"
+                        type="file"
+                        className="hidden"
+                        accept="image/jpeg,image/jpg,image/png,image/gif"
+                        multiple
+                        onChange={handleFileSelect}
+                        disabled={selectedFiles.length >= MAX_FILES_ALLOWED}
+                    />
+                </label>
             </div>
+
+            {/* Preview Grid */}
+            {selectedFiles.length > 0 && (
+                <div className="mb-6">
+                    <h4 className="text-sm font-medium text-gray-900 mb-3">{t('selectedPhotos')}</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {previewUrls.map((url, index) => (
+                            <div key={index} className="relative group">
+                                <img
+                                    src={url}
+                                    alt={`Preview ${index + 1}`}
+                                    className="w-full h-32 object-cover rounded-lg border border-gray-300"
+                                />
+                                <button
+                                    onClick={() => handleRemove(index)}
+                                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                                <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                                    {selectedFiles[index].name}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Error Message */}
             {error && (

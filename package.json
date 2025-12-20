@@ -4,6 +4,7 @@
   "description": "Capstone Project with Authentication System",
   "private": true,
   "dependencies": {
+    "@openmapvn/openmapvn-gl": "^1.0.1",
     "@reduxjs/toolkit": "^1.9.7",
     "axios": "^1.13.2",
     "embla-carousel-react": "^8.6.0",
@@ -23,7 +24,8 @@
     "react-router-dom": "^6.16.0",
     "react-scripts": "^5.0.1",
     "react-toastify": "^11.0.5",
-    "recharts": "^3.5.1"
+    "recharts": "^3.5.1",
+    "trackasia-gl": "^2.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

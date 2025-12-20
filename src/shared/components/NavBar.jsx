@@ -145,7 +145,7 @@ const NavBar = () => {
 
                         {/* Heart/Favorites */}
                         <Link
-                            to={isAuthenticated ? "/profile/favourite-car" : "/auth"}
+                            to={isAuthenticated ? "/profile/favourite_car" : "/auth"}
                             className="p-2 text-gray-400 hover:text-gray-600 relative"
                         >
                             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

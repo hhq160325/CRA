@@ -5,7 +5,7 @@ import { ProfilePage } from '../features/user';
 import { PaymentPage, PaymentSuccess, PaymentCancel } from '../features/payment';
 import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring } from '../features/admin';
 import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter, ParklotCreate, RegDocsApproved, DriverLicenseApprove } from '../features/staff';
-import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments, CarRegisDocs } from '../features/owner';
+import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments, CarRegisDocs, Maps } from '../features/owner';
 import { AuthPage, GoogleCallback, ForgotPassword, ResetPassword } from '../features/auth';
 import SearchResult from '../features/search/components/SearchResult';
 import { HomePage } from '../features/homepage';
@@ -35,32 +35,32 @@ const AppRouter = () => {
       <Route path="/cars" element={<CarRental />} />
       <Route path="/cars/:id" element={<CarDetail />} />
       <Route path="/search" element={<SearchResult />} />
-      <Route path="/car-detail/:id" element={<CarDetailRev />} />
+      <Route path="/car_detail/:id" element={<CarDetailRev />} />
       {/* Auth route - redirects based on user role if already authenticated */}
       <Route path="/auth" element={!isAuthenticated ? <AuthPage /> : <AuthRedirect />} />
-      <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-      <Route path="/auth/reset-password" element={<ResetPassword />} />
+      <Route path="/auth/forgot_password" element={<ForgotPassword />} />
+      <Route path="/auth/reset_password" element={<ResetPassword />} />
       <Route path="/otp-verify" element={<OtpVerify />} />
-      <Route path="/auth/google-callback" element={<GoogleCallback />} />
+      <Route path="/auth/google_callback" element={<GoogleCallback />} />
 
       {/* Protected routes - authentication required */}
-      <Route path="/profile" element={<RoleBasedRoute allowedRoles={[ROLES.CUSTOMER,ROLES.OWNER,ROLES.STAFF,ROLES.ADMIN]}><ProfilePage /></RoleBasedRoute>}>
+      <Route path="/profile" element={<RoleBasedRoute allowedRoles={[ROLES.CUSTOMER, ROLES.OWNER, ROLES.STAFF, ROLES.ADMIN]}><ProfilePage /></RoleBasedRoute>}>
         <Route index element={<MyProfile />} />
-        <Route path="favourite-car" element={<FavouriteCarPage />} />
-        <Route path="favourite-car" element={<FavouriteCarPage />} />
-        <Route path="rental-history" element={<RentalHistoryPage />} />
-        <Route path="payment-history" element={<PaymentHistoryPage />} />
+        <Route path="favourite_car" element={<FavouriteCarPage />} />
+        <Route path="favourite_car" element={<FavouriteCarPage />} />
+        <Route path="rental_history" element={<RentalHistoryPage />} />
+        <Route path="payment_history" element={<PaymentHistoryPage />} />
         <Route path="inbox" element={<InboxPage />} />
         <Route path="reimburse" element={<ReimbursePage />} />
         <Route path="security" element={<SettingsPage />} />
-        <Route path="help-center" element={<HelpCenterPage />} />
+        <Route path="help_center" element={<HelpCenterPage />} />
       </Route>
-      <Route path="/register-car" element={isAuthenticated ? <RegisterCar /> : <Navigate to="/auth" replace />} />
+      {/* <Route path="/register-car" element={isAuthenticated ? <RegisterCar /> : <Navigate to="/auth" replace />} />
       <Route path="/register-car/step-2" element={isAuthenticated ? <RegisterCarStep2 /> : <Navigate to="/auth" replace />} />
-      <Route path="/register-car/step-3" element={isAuthenticated ? <RegisterCarStep3 /> : <Navigate to="/auth" replace />} />
+      <Route path="/register-car/step-3" element={isAuthenticated ? <RegisterCarStep3 /> : <Navigate to="/auth" replace />} /> */}
       <Route path="/payment" element={isAuthenticated ? <PaymentPage /> : <Navigate to="/auth" replace />} />
-      <Route path="/payment-success" element={<PaymentSuccess />} />
-      <Route path="/payment-cancel" element={<PaymentCancel />} />
+      <Route path="/payment_success" element={<PaymentSuccess />} />
+      <Route path="/payment_cancel" element={<PaymentCancel />} />
 
       {/* Admin Routes - Only accessible by Admin role */}
       <Route path="/admin" element={<RoleBasedRoute allowedRoles={[ROLES.ADMIN]}><AdminLayout /></RoleBasedRoute>}>
@@ -72,14 +72,14 @@ const AppRouter = () => {
       {/* Staff Routes - Only accessible by Staff role */}
       <Route path="/staff" element={<RoleBasedRoute allowedRoles={[ROLES.STAFF]}><StaffLayout /></RoleBasedRoute>}>
         <Route index element={<StaffDashboard />} />
-        <Route path="car-owners" element={<CarOwnerManagement />} />
+        <Route path="car_owners" element={<CarOwnerManagement />} />
         <Route path="customers" element={<CustomerManagement />} />
         <Route path="bookings" element={<BookingMonitoring />} />
         <Route path="notifications" element={<NotificationCenter />} />
-        <Route path="parklot-create" element={<ParklotCreate />} />
-        <Route path="rental-monitoring" element={<RentalMonitoring />} />
-        <Route path="reg-docs" element={<RegDocsApproved />} />
-        <Route path="driver-license-approve" element={<DriverLicenseApprove />} />
+        <Route path="parklot_create" element={<ParklotCreate />} />
+        <Route path="rental_monitoring" element={<RentalMonitoring />} />
+        <Route path="reg_docs" element={<RegDocsApproved />} />
+        <Route path="driver_license_approve" element={<DriverLicenseApprove />} />
       </Route>
 
       {/* Car Owner (Manager) Routes */}
@@ -93,8 +93,12 @@ const AppRouter = () => {
         <Route path="inquiries" element={<Inquiries />} />
         <Route path="bookings" element={<BookingManagement />} />
         <Route path="payments" element={<Payments />} />
-        <Route path="car-regis-docs" element={<CarRegisDocs />} />
+        <Route path="car_regis_docs" element={<CarRegisDocs />} />
         <Route path="calendar" element={<CalendarPage />} />
+        <Route path="register_car" element={<RegisterCar />} />
+        <Route path="register_car/step2" element={<RegisterCarStep2 />} />
+        <Route path="register_car/step3" element={<RegisterCarStep3 />} />
+        <Route path="maps" element={<Maps />} />
       </Route>
     </Routes>
   );

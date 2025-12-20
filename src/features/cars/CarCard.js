@@ -123,7 +123,7 @@ const CarCard = ({ car, isApiData = false }) => {
 
     return (
         <Link 
-            to={`/car-detail/${carId}`}
+            to={`/car_detail/${carId}`}
             className="block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
         >
             <div className="relative bg-gray-100">

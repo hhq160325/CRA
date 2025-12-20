@@ -285,6 +285,9 @@ export const staffTranslate = {
       close: "Close",
       more: "more",
       allEvents: "All Events",
+      //Create Parlot
+      selectCarOwner: "Select Car Owner",
+      noCarOwnersFound: "No Car Owners Found",
     }
   },
   vi: {
@@ -574,6 +577,9 @@ export const staffTranslate = {
       close: "Đóng",
       more: "thêm",
       allEvents: "Tất Cả Sự Kiện",
+      //Create Parlot
+      selectCarOwner: "Chọn quản lý bãi xe",
+      noCarOwnersFound: "Không tìm thấy",
     }
   }
 };

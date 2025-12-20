@@ -1,15 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
+import axios from 'axios';
 import { selectUser } from '../../auth/authSlice';
 import { getCurrentLocationWithAddress } from '../../location/locationService';
-import { API_CONFIG, TRACKASIA_ENDPOINTS, TRACKASIA_API_CONFIG } from '../../../config/api';
+import { API_CONFIG, TRACKASIA_ENDPOINTS, TRACKASIA_API_CONFIG, USER_ENDPOINTS } from '../../../config/api';
 import { tokenUtils } from '../../auth/utils';
+import DropdownTemplate from '../../../shared/components/DropdownTemplate';
 
 const ParklotCreate = () => {
   const { t } = useTranslation();
   const user = useSelector(selectUser);
-  
+
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -18,15 +20,43 @@ const ParklotCreate = () => {
     longitude: 0,
     capacity: '',
     contactNum: '',
-    notes: ''
+    notes: '',
+    carOwnerId: '',
+    carOwnersName: ''
   });
-  
+
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [isLoadingCoordinates, setIsLoadingCoordinates] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [addressDebounceTimer, setAddressDebounceTimer] = useState(null);
+  const [carOwners, setCarOwners] = useState([]);
+  const [isLoadingCarOwners, setIsLoadingCarOwners] = useState(false);
+
+  // Fetch car owners from API
+  const fetchCarOwners = useCallback(async () => {
+    setIsLoadingCarOwners(true);
+    try {
+      const token = tokenUtils.getAccessToken();
+      const response = await axios.get(USER_ENDPOINTS.GET_ALL_USERS, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      // Filter users with roleId = 2 (car owners)
+      const allUsers = response.data || [];
+      const carOwnerUsers = allUsers.filter(user => user.roleId === 2);
+      setCarOwners(carOwnerUsers);
+    } catch (err) {
+      console.error('Error fetching car owners:', err);
+      // Don't show error to user, just log it
+    } finally {
+      setIsLoadingCarOwners(false);
+    }
+  }, []);
 
   // Fetch coordinates from address
   const fetchCoordinatesFromAddress = useCallback(async (address) => {
@@ -35,7 +65,7 @@ const ParklotCreate = () => {
     }
 
     setIsLoadingCoordinates(true);
-    
+
     try {
       const response = await fetch(TRACKASIA_ENDPOINTS.GET_COORDINATE_FROM_ADDRESS, {
         method: 'POST',
@@ -48,7 +78,7 @@ const ParklotCreate = () => {
       }
 
       const data = await response.json();
-      
+
       if (data.latitude && data.longitude) {
         setFormData(prev => ({
           ...prev,
@@ -64,6 +94,14 @@ const ParklotCreate = () => {
     }
   }, []);
 
+  // Transform car owners data for dropdown
+  const carOwnerOptions = carOwners.map(owner => ({
+    id: owner.id || owner.userId,
+    value: owner.id || owner.userId,
+    label: `${owner.fullName || owner.username || owner.email}${owner.email && owner.fullName ? ` (${owner.email})` : ''}`,
+    data: owner
+  }));
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -71,6 +109,18 @@ const ParklotCreate = () => {
       [name]: value
     }));
     setError(null);
+
+    // If car owner is selected, also set the car owner's name
+    if (name === 'carOwnerId' && value) {
+      const selectedOwner = carOwners.find(owner => (owner.id || owner.userId) === value);
+      if (selectedOwner) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: value,
+          carOwnersName: selectedOwner.fullName || selectedOwner.username || selectedOwner.email || ''
+        }));
+      }
+    }
 
     // If address field changed, debounce the coordinate fetch
     if (name === 'address') {
@@ -88,6 +138,25 @@ const ParklotCreate = () => {
     }
   };
 
+  // Handle car owner dropdown selection
+  const handleCarOwnerChange = (selectedOption) => {
+    const ownerId = selectedOption?.value || '';
+    const ownerName = selectedOption?.data ? 
+      (selectedOption.data.fullName || selectedOption.data.username || selectedOption.data.email || '') : '';
+    
+    setFormData(prev => ({
+      ...prev,
+      carOwnerId: ownerId,
+      carOwnersName: ownerName
+    }));
+    setError(null);
+  };
+
+  // Fetch car owners on component mount
+  useEffect(() => {
+    fetchCarOwners();
+  }, [fetchCarOwners]);
+
   // Cleanup timer on unmount
   useEffect(() => {
     return () => {
@@ -100,10 +169,10 @@ const ParklotCreate = () => {
   const handleGetCurrentLocation = async () => {
     setIsLoadingLocation(true);
     setError(null);
-    
+
     try {
       const locationData = await getCurrentLocationWithAddress(true);
-      
+
       setFormData(prev => ({
         ...prev,
         address: locationData.formattedAddress || '',
@@ -143,15 +212,19 @@ const ParklotCreate = () => {
       setError(t('contactNumberRequired'));
       return;
     }
-
+    if (!formData.carOwnerId) {
+      setError(t('carOwnerRequired'));
+      return;
+    }
+    if (!formData.carOwnersName) {
+      setError(t('carOwnersNameRequired'));
+      return;
+    }
     setIsSubmitting(true);
 
     try {
-      const token = localStorage.getItem('token');
-      
-      // Get userId from token
-      const userId = tokenUtils.getUserId();
-      
+      const token = tokenUtils.getAccessToken();
+
       const requestBody = {
         name: formData.name.trim(),
         address: formData.address.trim(),
@@ -161,8 +234,9 @@ const ParklotCreate = () => {
         capacity: parseInt(formData.capacity),
         contactNum: formData.contactNum.trim(),
         notes: formData.notes.trim() || '',
-        managerId: userId || user?.userId || user?.id || '',
-        managerName: user?.fullName || user?.username || ''
+        managerId: formData.carOwnerId || user?.userId || user?.id || '',
+        managerName: formData.carOwnersName || user?.fullName || user?.username || '',
+        carOwnerId: formData.carOwnerId
       };
 
       console.log('Creating parking lot with data:', requestBody);
@@ -181,8 +255,8 @@ const ParklotCreate = () => {
         throw new Error(errorData.message || `Failed to create parking lot: ${response.status}`);
       }
 
-      const result = await response.json();
-      
+      await response.json();
+
       setSuccess(true);
       // Reset form
       setFormData({
@@ -193,7 +267,9 @@ const ParklotCreate = () => {
         longitude: 0,
         capacity: '',
         contactNum: '',
-        notes: ''
+        notes: '',
+        carOwnerId: '',
+        carOwnersName: ''
       });
 
       // Show success message for 3 seconds
@@ -363,6 +439,27 @@ const ParklotCreate = () => {
             placeholder={t('enterContactNumber')}
             required
           />
+        </div>
+
+        {/* Car Owner */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t('carOwner')} <span className="text-red-500">*</span>
+          </label>
+          <DropdownTemplate
+            value={formData.carOwnerId}
+            onChange={handleCarOwnerChange}
+            options={carOwnerOptions}
+            placeholder={isLoadingCarOwners ? t('loading') : t('selectCarOwner')}
+            searchable={true}
+            searchPlaceholder={t('searchCarOwners')}
+            loading={isLoadingCarOwners}
+            disabled={isLoadingCarOwners}
+            className="w-full"
+          />
+          {carOwners.length === 0 && !isLoadingCarOwners && (
+            <p className="mt-1 text-sm text-gray-500">{t('noCarOwnersFound')}</p>
+          )}
         </div>
 
         {/* Notes */}

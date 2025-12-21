@@ -49,7 +49,7 @@ const RecentTransaction = () => {
           return dateB - dateA;
         });
 
-        setRecentTransactions(sortedTransactions.slice(0, 10)); // Show top 10 recent transactions
+        setRecentTransactions(sortedTransactions.slice(0, 5)); // Show top 5 recent transactions
       } catch (error) {
         console.error('Error loading recent transactions:', error);
         setRecentTransactions([]);

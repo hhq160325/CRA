@@ -1,6 +1,6 @@
 // Import utilities
 import { axiosInstance } from "../../shared/utils/axiosInstance";
-import { BOOKING_ENDPOINTS } from "../../config/api";
+import { BOOKING_ENDPOINTS, PAYMENT_ENDPOINTS } from "../../config/api";
 
 // Create booking
 export const createBooking = async (bookingData) => {
@@ -31,6 +31,27 @@ export const updateBooking = async (bookingId, status) => {
     const response = await axiosInstance.patch(BOOKING_ENDPOINTS.UPDATE_BOOKING, {
       bookingId,
       status
+    });
+    
+    console.log('API - Update booking response:', response.data);
+    
+    return response.data;
+  } catch (error) {
+    console.error("API - Error updating booking:", error);
+    console.error("API - Error response:", error.response?.data);
+    throw error;
+  }
+};
+
+//Update Booking Payment Status
+export const updateBookingPayment = async (orderCode, status, method) => {
+  try {
+    console.log('API - updateBooking called with:', { orderCode, status, method });
+    
+    const response = await axiosInstance.patch(PAYMENT_ENDPOINTS.PATCH_BOOKING_PAYMENT_STATUS, {
+      orderCode,
+      status,
+      method,
     });
     
     console.log('API - Update booking response:', response.data);

@@ -1,4 +1,7 @@
 import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
+import axios from 'axios';
+import { CAR_ENDPOINTS } from '../../../../../config/api';
 
 const ReportDetailsModal = ({ 
   isOpen, 
@@ -7,12 +10,51 @@ const ReportDetailsModal = ({
   onRecallCar 
 }) => {
   const { t } = useTranslation();
+  const [isRecalling, setIsRecalling] = useState(false);
+
+  // Log selectedReport to see its structure
+  console.log('selectedReport in ReportDetailsModal:', selectedReport);
 
   if (!isOpen || !selectedReport) return null;
 
-  const handleRecallCar = () => {
-    onRecallCar(selectedReport.id, selectedReport.carId);
-    onClose();
+  const handleRecallCar = async () => {
+    if (!selectedReport?.reportedCarId || !selectedReport?.carLicensePlate) {
+      alert('Missing car information');
+      return;
+    }
+
+    try {
+      setIsRecalling(true);
+      const token = localStorage.getItem('accessToken');
+      
+      const requestBody = {
+        carId: selectedReport.reportedCarId,
+        licensePlate: selectedReport.carLicensePlate,
+        isActive: false
+      };
+
+      console.log('Recalling car with request:', requestBody);
+
+      await axios.patch(CAR_ENDPOINTS.PATCH_CAR_ACTIVE_STATUS, requestBody, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      alert('Car has been recalled successfully');
+      onClose();
+      
+      // Call the original onRecallCar if it exists for additional handling
+      if (onRecallCar) {
+        onRecallCar(selectedReport.id, selectedReport.reportedCarId);
+      }
+    } catch (error) {
+      console.error('Error recalling car:', error);
+      alert('Failed to recall car. Please try again.');
+    } finally {
+      setIsRecalling(false);
+    }
   };
 
   const getStatusBadge = (status) => {
@@ -177,9 +219,10 @@ const ReportDetailsModal = ({
           {selectedReport.status === 'Active' && (
             <button
               onClick={handleRecallCar}
-              className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              disabled={isRecalling}
+              className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Recall Car
+              {isRecalling ? 'Recalling...' : 'Recall Car'}
             </button>
           )}
         </div>

@@ -1,7 +1,7 @@
 export const adminTranslate = {
   en: {
     translation: {
-       // Admin - Sidebar
+      // Admin - Sidebar
       mainMenu: "MAIN MENU",
       dashboard: "Dashboard",
       operationsDashboard: "Operations Dashboard",
@@ -28,6 +28,9 @@ export const adminTranslate = {
       returned: "Returned",
       previous: "Previous",
       next: "Next",
+      staffLog: "Staff Log",
+      carHandover: "Car Handover",
+      staffManagement: "Staff Management",
 
       // Admin - Top Car Rental
       topCarRental: "Top 5 Car Rental",
@@ -106,16 +109,16 @@ export const adminTranslate = {
       actions: "Actions",
       view: "View",
       suspend: "Suspend",
-      
+
       // Staff Status
       active: "Active",
       pending: "Pending",
       suspended: "Suspended",
-      
+
       // Staff Roles
       Staff: "Staff",
       User: "User",
-      
+
       // Error Messages
       failedToLoadStaffData: "Failed to load staff data",
 
@@ -176,7 +179,9 @@ export const adminTranslate = {
       returned: "Đã trả",
       previous: "Trước",
       next: "Tiếp",
-
+      staffLog: "Nhật ký theo dõi",
+      carHandover: "Nhật ký bàn giao xe",
+      staffManagement: "Quản lý nhân viên",
       // Admin - Top Car Rental
       topCarRental: "Top 5 Xe Cho Thuê",
       sportCar: "Xe thể thao",
@@ -254,16 +259,16 @@ export const adminTranslate = {
       actions: "Hành động",
       view: "Xem",
       suspend: "Tạm ngưng",
-      
+
       // Staff Status
       active: "Hoạt động",
       pending: "Chờ xử lý",
       suspended: "Tạm ngưng",
-      
+
       // Staff Roles
       Staff: "Nhân viên",
       User: "Người dùng",
-      
+
       // Error Messages
       failedToLoadStaffData: "Không thể tải dữ liệu nhân viên",
 

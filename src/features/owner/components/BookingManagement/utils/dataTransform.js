@@ -3,11 +3,18 @@ import { convertToVietnamTime } from '../../../../../shared/utils/CheckUTC';
 export const transformBookingData = (allBookings, t) => {
   // Transform and enrich booking data
   return allBookings.map(booking => {
-    // Convert dates to Vietnam time (UTC+7)
-    const pickupTimeVN = booking.pickupTime ? convertToVietnamTime(booking.pickupTime) : null;
-    const dropoffTimeVN = booking.dropoffTime ? convertToVietnamTime(booking.dropoffTime) : null;
+    // Convert dates to Vietnam time (UTC+7) - TEMPORARILY DISABLED
+    // const pickupTimeVN = booking.pickupTime ? convertToVietnamTime(booking.pickupTime) : null;
+    // const dropoffTimeVN = booking.dropoffTime ? convertToVietnamTime(booking.dropoffTime) : null;
+    // const createDateVN = booking.createDate || booking.createdAt || booking.bookingDate 
+    //   ? convertToVietnamTime(booking.createDate || booking.createdAt || booking.bookingDate)
+    //   : new Date();
+    
+    // Use dates as-is without UTC conversion
+    const pickupTimeVN = booking.pickupTime ? new Date(booking.pickupTime) : null;
+    const dropoffTimeVN = booking.dropoffTime ? new Date(booking.dropoffTime) : null;
     const createDateVN = booking.createDate || booking.createdAt || booking.bookingDate 
-      ? convertToVietnamTime(booking.createDate || booking.createdAt || booking.bookingDate)
+      ? new Date(booking.createDate || booking.createdAt || booking.bookingDate)
       : new Date();
 
     return {
@@ -27,6 +34,7 @@ export const transformBookingData = (allBookings, t) => {
       // Include createDate for sorting (Date object)
       createDate: createDateVN,
       // Include formatted createDate for display (string)
+      //createDateFormatted: createDateVN.toLocaleString('vi-VN', {
       createDateFormatted: createDateVN.toLocaleString('vi-VN', {
         year: 'numeric',
         month: '2-digit',

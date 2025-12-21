@@ -4,7 +4,8 @@ export const useReportModal = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
 
-  const openModal = (report) => {
+  const openModal = (report, modalType = 'view') => {
+    console.log('Opening modal with report:', report, 'modalType:', modalType);
     setSelectedReport(report);
     setIsModalOpen(true);
   };

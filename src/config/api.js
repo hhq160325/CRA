@@ -82,6 +82,7 @@ export const CAR_ENDPOINTS = {
   APPROVE_REG_DOC: `${API_CONFIG.BASE_URL}/Car/regDoc/approve`,
   GET_ALL_MANUFACTURER: `${API_CONFIG.BASE_URL}/Car/lookup/Manufacturer`,
   GET_MODEL_BY_MANUFACTURERID: (manufacturerId) => `${API_CONFIG.BASE_URL}/Car/lookup/Model?manufacturerId=${manufacturerId}`,
+  PATCH_CAR_ACTIVE_STATUS: `${API_CONFIG.BASE_URL}/Car/activeStatus/change`,
 };
 
 export const CAR_API_CONFIG = {
@@ -137,7 +138,8 @@ export const PAYMENT_ENDPOINTS = {
   GET_ALL_PAYMENTS: `${API_CONFIG.ALTER_URL}/Invoice/All`,
   GET_PAYMENT_BY_ID: (paymentId) => `${API_CONFIG.ALTER_URL}/Payment/GetPaymentById/${paymentId}`,
   CREATE_PAYMENT: `${API_CONFIG.ALTER_URL}/Payment/CreatePayment`,
-  CREATE_ADDITIONAL_PAYMENT: `${API_CONFIG.ALTER_URL}/CreateAdditionalPayment`
+  CREATE_ADDITIONAL_PAYMENT: `${API_CONFIG.ALTER_URL}/CreateAdditionalPayment`,
+  PATCH_BOOKING_PAYMENT_STATUS: `${API_CONFIG.ALTER_URL}/UpdatePayment/Booking/PaymentOrderCode`
 };
 
 export const PAYMENT_API_CONFIG = {

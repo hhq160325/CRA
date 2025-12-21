@@ -20,7 +20,7 @@ export const paymentTranslate = {
       // Payment Success
       paymentSuccessful: "Payment Successful!",
       paymentSuccessMessage: "Your payment has been processed successfully.",
-      transactionId: "Transaction ID",
+      transactionId: "Order Code",
       paymentDetails: "Payment Details",
       amountPaidBookingFee: "Amount Paid (Booking Fee)",
       remaining: "Remaining",

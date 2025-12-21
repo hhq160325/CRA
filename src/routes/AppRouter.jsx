@@ -59,8 +59,8 @@ const AppRouter = () => {
       <Route path="/register-car/step-2" element={isAuthenticated ? <RegisterCarStep2 /> : <Navigate to="/auth" replace />} />
       <Route path="/register-car/step-3" element={isAuthenticated ? <RegisterCarStep3 /> : <Navigate to="/auth" replace />} /> */}
       <Route path="/payment" element={isAuthenticated ? <PaymentPage /> : <Navigate to="/auth" replace />} />
-      <Route path="/payment_success" element={<PaymentSuccess />} />
-      <Route path="/payment_cancel" element={<PaymentCancel />} />
+      <Route path="/payment-success" element={<PaymentSuccess />} />
+      <Route path="/payment-cancel" element={<PaymentCancel />} />
 
       {/* Admin Routes - Only accessible by Admin role */}
       <Route path="/admin" element={<RoleBasedRoute allowedRoles={[ROLES.ADMIN]}><AdminLayout /></RoleBasedRoute>}>

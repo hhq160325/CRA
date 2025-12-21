@@ -28,6 +28,8 @@ export const getPaymentBadge = (status) => {
   switch (normalizedStatus) {
     case 'success':
       return `${baseClasses} bg-green-100 text-green-800`;
+    case 'paid':
+      return `${baseClasses} bg-green-100 text-green-800`;
     case 'pending':
       return `${baseClasses} bg-yellow-100 text-yellow-800`;
     case 'refunded':
@@ -52,6 +54,7 @@ export const useTranslateStatus = () => {
       'active': t('active'),
       'overdue': t('overdue'),
       'success': t('rentalHistory.paid'),
+      'paid': t('rentalHistory.paid'),
       'pending': t('rentalHistory.pending'),
       'refunded': t('rentalHistory.refunded'),
       'failed': t('rentalHistory.failed')

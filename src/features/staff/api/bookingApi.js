@@ -136,6 +136,9 @@ export const getAllReports = async () => {
     const allCars = carsResponse.data;
     const allUsers = usersResponse.data;
     
+    // Filter to only include car reports (exclude user reports where reportedUserId is null)
+    const carReports = reports.filter(report => report.reportedUserId === null);
+    
     // Create user map by id
     const userMap = {};
     allUsers.forEach(user => {
@@ -149,9 +152,9 @@ export const getAllReports = async () => {
     });
     
     // Enrich reports with user and car data
-    const enrichedReports = reports.map(report => {
-      const user = userMap[report.userId];
-      const car = carMap[report.carId];
+    const enrichedReports = carReports.map(report => {
+      const user = userMap[report.reporterId];
+      const car = carMap[report.reportedCarId];
       
       // Get reporter name - prioritize username over email
       let reporterName = 'N/A';
@@ -165,10 +168,10 @@ export const getAllReports = async () => {
         } else if (user.email) {
           reporterName = user.email;
         } else {
-          reporterName = `User ${report.userId.slice(0, 8)}`;
+          reporterName = report.reporterId ? `User ${report.reporterId.slice(0, 8)}` : 'Unknown User';
         }
       } else {
-        reporterName = `User ${report.userId.slice(0, 8)}...`;
+        reporterName = report.reporterId ? `User ${report.reporterId.slice(0, 8)}...` : 'Unknown User';
       }
       
       return {

@@ -1,67 +1,117 @@
 import { useTranslation } from 'react-i18next';
-import { formatPriceWithCurrency } from '../../../../../shared/utils/priceFormatter';
+import { useState } from 'react';
+import axios from 'axios';
+import { CAR_ENDPOINTS } from '../../../../../config/api';
 
-const ReportCarViewModal = ({ 
-  selectedBooking, 
-  getStatusBadge, 
-  getPaymentBadge, 
-  onChangeModalType 
+const ReportCarViewModal = ({
+  selectedReport,
+  getStatusBadge,
+  onChangeModalType,
+  onReportUpdate
 }) => {
   const { t } = useTranslation();
-  
+  const [isRecalling, setIsRecalling] = useState(false);
+
+  // Log selectedReport to see its structure
+  console.log('selectedReport:', selectedReport);
+
+  const handleRecallCar = async () => {
+    if (!selectedReport?.reportedCarId || !selectedReport?.carLicensePlate) {
+      alert('Missing car information');
+      return;
+    }
+
+    try {
+      setIsRecalling(true);
+      const token = localStorage.getItem('accessToken');
+
+      const requestBody = {
+        carId: selectedReport.reportedCarId,
+        licensePlate: selectedReport.carLicensePlate,
+        isActive: false
+      };
+
+      await axios.patch(CAR_ENDPOINTS.PATCH_CAR_ACTIVE_STATUS, requestBody, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        }
+      });
+
+      alert('Car has been recalled successfully');
+
+      // Notify parent component to refresh data
+      if (onReportUpdate) {
+        onReportUpdate();
+      }
+    } catch (error) {
+      console.error('Error recalling car:', error);
+      alert('Failed to recall car. Please try again.');
+    } finally {
+      setIsRecalling(false);
+    }
+  };
+
   return (
     <>
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('bookingId')}</label>
-            <p className="text-gray-900">{selectedBooking.bookingNumber}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('reportNo')}</label>
+            <p className="text-gray-900">{selectedReport.reportNo}</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('status')}</label>
-            <span className={getStatusBadge(selectedBooking.status)}>
-              {t(selectedBooking.status)}
+            <span className={getStatusBadge(selectedReport.status)}>
+              {t(selectedReport.status)}
             </span>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('customer')}</label>
-            <p className="text-gray-900">{selectedBooking.customer}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('title')}</label>
+            <p className="text-gray-900">{selectedReport.title}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('carOwner')}</label>
-            <p className="text-gray-900">{selectedBooking.carOwner}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('reporter')}</label>
+            <p className="text-gray-900">{selectedReport.reporterName}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('reporterEmail')}</label>
+            <p className="text-gray-900">{selectedReport.reporterEmail}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('reporterPhone')}</label>
+            <p className="text-gray-900">{selectedReport.reporterPhone}</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('car')}</label>
-            <p className="text-gray-900">{selectedBooking.car}</p>
+            <p className="text-gray-900">{selectedReport.carName}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('totalAmount')}</label>
-            <p className="text-gray-900">{formatPriceWithCurrency(selectedBooking.paidAmount)}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('licensePlate')}</label>
+            <p className="text-gray-900">{selectedReport.carLicensePlate}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('startDate')}</label>
-            <p className="text-gray-900">{selectedBooking.startDate}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('carOwner')}</label>
+            <p className="text-gray-900">{selectedReport.carOwner}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('endDate')}</label>
-            <p className="text-gray-900">{selectedBooking.endDate}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('carOwnerEmail')}</label>
+            <p className="text-gray-900">{selectedReport.carEmail}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('paymentStatus')}</label>
-            <span className={getPaymentBadge(selectedBooking.paymentStatus)}>
-              {t(selectedBooking.paymentStatus)}
-            </span>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('carOwnerPhone')}</label>
+            <p className="text-gray-900">{selectedReport.carPhoneNumber}</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('createdAt')}</label>
-            <p className="text-gray-900">{selectedBooking.createDate}</p>
+            <p className="text-gray-900">{selectedReport.createDate}</p>
           </div>
         </div>
-        {selectedBooking.notes && (
+
+        {selectedReport.content && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('notes')}</label>
-            <p className="text-gray-900 bg-gray-50 p-3 rounded-lg">{selectedBooking.notes}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('reportContent')}</label>
+            <p className="text-gray-900 bg-gray-50 p-3 rounded-lg">{selectedReport.content}</p>
           </div>
         )}
       </div>
@@ -74,20 +124,21 @@ const ReportCarViewModal = ({
         >
           {t('edit')}
         </button>
-        {selectedBooking.status === 'overdue' && (
+
+        <button
+          onClick={handleRecallCar}
+          disabled={isRecalling}
+          className="px-4 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isRecalling ? t('recalling') : t('recallCar')}
+        </button>
+
+        {selectedReport.status === 'pending' && (
           <button
             onClick={() => onChangeModalType('resolve')}
             className="px-4 py-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
           >
             {t('resolve')}
-          </button>
-        )}
-        {(selectedBooking.status === 'pending' || selectedBooking.status === 'active') && (
-          <button
-            onClick={() => onChangeModalType('cancel')}
-            className="px-4 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-          >
-            {t('cancel')}
           </button>
         )}
       </div>

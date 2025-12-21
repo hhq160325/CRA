@@ -88,8 +88,10 @@ export const ownerTranslate = {
       tapToUndo: "Tap to undo",
       retry: "Retry",
       undo: "Undo",
+      maps:"Map",
 
       //The Rest II
+      paymentHistory: "Payment History",
       totalRevenue: "Total Revenue",
       newCarBookingRequest: "New Car Booking Request",
       vehiclesCurrentlyRented: "Vehicles Currently Rented",
@@ -261,6 +263,8 @@ export const ownerTranslate = {
       noConfirmedCompletedBookings: "Chưa có đặt xe nào được xác nhận hoặc hoàn thành",
       noBookingData: "Không có dữ liệu đặt phòng",
       bookingsText: "đặt phòng",
+      maps:"Bản đồ",
+
 
       //The Rest II
       paymentHistory: "Lịch sử giao dịch",

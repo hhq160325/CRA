@@ -14,6 +14,10 @@ const ReportCarMonitoring = () => {
   const loading = useSelector((state) => state.staff.loading.bookings);
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Log the data to see what we're getting
+  console.log('bookingActivities (actually reports):', bookingActivities);
+  console.log('loading:', loading);
+
   // Initialize hooks
   useReportCarData();
   const filterProps = useReportCarFilters(bookingActivities);

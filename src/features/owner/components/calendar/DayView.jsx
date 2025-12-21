@@ -119,7 +119,7 @@ const DayView = ({ events, currentDate }) => {
                   <div
                     key={firstEvent.id}
                     onClick={() => dispatch(openEventModal(firstEvent))}
-                    className="absolute left-2 right-2 cursor-pointer z-10 flex flex-collum"
+                    className="absolute left-2 right-2 cursor-pointer z-10 flex flex-col"
                     style={{ top: `${top}px`, height: `${height}px` }}
                   >
                     <EventCard event={firstEvent} />

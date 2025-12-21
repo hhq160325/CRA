@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 import { axiosInstance } from '../../../../../shared/utils/axiosInstance';
 import { USER_ENDPOINTS } from '../../../../../config/api';
-// COMMENTED OUT: Car endpoints and ROLES import (not needed for basic user management)
-// import { CAR_ENDPOINTS } from '../../../../../config/api';
-// import { ROLES } from '../../../../auth/utils';
 
 export const useStaffData = () => {
   const [staffMembers, setStaffMembers] = useState([]);

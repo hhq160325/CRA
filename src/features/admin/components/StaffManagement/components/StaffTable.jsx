@@ -66,12 +66,12 @@ const StaffTable = ({
                 </td>
                 <td className="py-4 px-6">
                   <span className={getRoleBadge(staff.roleName)}>
-                    {staff.roleName}
+                    {t(staff.roleName)}
                   </span>
                 </td>
                 <td className="py-4 px-6">
                   <span className={getStatusBadge(staff.status)}>
-                    {staff.status}
+                    {t(staff.status)}
                   </span>
                 </td>
                 {/* <td className="py-4 px-6 text-gray-600 text-sm">

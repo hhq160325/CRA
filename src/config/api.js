@@ -198,3 +198,16 @@ export const REPORT_CAR_API_CONFIG = {
     'Content-Type': 'multipart/form-data',
   },
 };
+
+// Audit Log
+export const AUDIT_LOG_ENDPOINTS = {
+  GET_STAFF_LOGS: `${API_CONFIG.BASE_URL}/Audit/staffLogs`,
+  GET_STAFF_LOGS_BY_STAFF_ID: (staffId) => `${API_CONFIG.BASE_URL}/Audit/staffLogs/${staffId}`,
+  GET_CAR_HANDOVER_LOGS: `${API_CONFIG.BASE_URL}/Audit/carHandover`,
+  GET_CAR_HANDOVER_LOGS_BY_SCHEDULE_ID: (scheduleId) => `${API_CONFIG.BASE_URL}/Audit/carHandover/${scheduleId}`,
+};
+
+export const AUDIT_LOG_API_CONFIG = {
+  timeout: API_CONFIG.TIMEOUT,
+  headers: API_CONFIG.HEADERS,
+};

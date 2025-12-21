@@ -51,7 +51,7 @@ const AdminLayout = () => {
                 </svg>
                 {t('transactionMonitoring')}
               </Link>
-              <Link
+              {/* <Link
                 to="/admin/cars"
                 className={`flex items-center px-3 py-2 rounded-lg ${location.pathname === '/admin/cars'
                   ? 'text-white bg-blue-600'
@@ -62,7 +62,7 @@ const AdminLayout = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
                 {t('carRent')}
-              </Link>
+              </Link> */}
               <Link
                 to="/admin/staff_management"
                 className={`flex items-center px-3 py-2 rounded-lg ${location.pathname === '/admin/staff_management'
@@ -76,6 +76,30 @@ const AdminLayout = () => {
                 {t('staff_management')}
               </Link>
               <Link
+                to="/admin/staff_log"
+                className={`flex items-center px-3 py-2 rounded-lg ${location.pathname === '/admin/staff_log'
+                  ? 'text-white bg-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+              >
+                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                {t('staff_log')}
+              </Link>
+              <Link
+                to="/admin/car_handover"
+                className={`flex items-center px-3 py-2 rounded-lg ${location.pathname === '/admin/car_handover'
+                  ? 'text-white bg-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+              >
+                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                {t('car_handover')}
+              </Link>
+              {/* <Link
                 to="/admin/reimburse"
                 className={`flex items-center px-3 py-2 rounded-lg ${location.pathname === '/admin/reimburse'
                   ? 'text-white bg-blue-600'
@@ -98,7 +122,7 @@ const AdminLayout = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
                 {t('inbox')}
-              </Link>
+              </Link> */}
               <Link
                 to="/admin/calendar"
                 className={`flex items-center px-3 py-2 rounded-lg ${location.pathname === '/admin/calendar'

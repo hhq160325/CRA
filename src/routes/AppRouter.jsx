@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { RegisterCar, RegisterCarStep2, RegisterCarStep3, CarDetail, CarDetailRev, CarRental } from '../features/cars';
 import { ProfilePage } from '../features/user';
 import { PaymentPage, PaymentSuccess, PaymentCancel } from '../features/payment';
-import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring, StaffManagement } from '../features/admin';
+import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring, StaffManagement, StaffLog, CarHandover } from '../features/admin';
 import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter, ParklotCreate, RegDocsApproved, DriverLicenseApprove, ReportCarMonitoring } from '../features/staff';
 import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments, CarRegisDocs, Maps } from '../features/owner';
 import { AuthPage, GoogleCallback, ForgotPassword, ResetPassword } from '../features/auth';
@@ -68,6 +68,8 @@ const AppRouter = () => {
         <Route path="operations" element={<OperationsDashboard />} />
         <Route path="transactions" element={<TransactionMonitoring />} />
         <Route path="staff_management" element={<StaffManagement />} />
+        <Route path="staff_log" element={<StaffLog />} />
+        <Route path="car_handover" element={<CarHandover />} />
       </Route>
 
       {/* Staff Routes - Only accessible by Staff role */}

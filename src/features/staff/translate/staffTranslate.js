@@ -288,6 +288,12 @@ export const staffTranslate = {
       //Create Parlot
       selectCarOwner: "Select Car Owner",
       noCarOwnersFound: "No Car Owners Found",
+      //Report Car
+      reportcar: "Report Car",
+      reportCarMonitoring:"Report Car Monitoring",
+      monitorAndManageReport:"Monitor and manage all report request",
+      noReportFound:"No Report Found",
+      reportNo:"Report",
     }
   },
   vi: {
@@ -580,6 +586,8 @@ export const staffTranslate = {
       //Create Parlot
       selectCarOwner: "Chọn quản lý bãi xe",
       noCarOwnersFound: "Không tìm thấy",
+      //Report Car
+      reportcar: "Khiếu Nại Xe",
     }
   }
 };

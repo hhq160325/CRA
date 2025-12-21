@@ -20,11 +20,11 @@ const ProfileSidebar = () => {
     switch (location.pathname) {
       case '/profile':
         return t('myProfile');
-      case '/profile/rental-history':
+      case '/profile/rental_history':
         return t('rentalHistory');
-      case '/profile/payment-history':
+      case '/profile/payment_history':
         return t('paymentHistory');
-      case '/profile/favourite-car':
+      case '/profile/favourite_car':
         return t('favouriteCars');
       case '/profile/inbox':
         return t('inbox');
@@ -34,7 +34,7 @@ const ProfileSidebar = () => {
         return t('reimburse');
       case '/profile/security':
         return t('security');
-      case '/profile/help-center':
+      case '/profile/help_center':
         return t('helpCenter');
       default:
         return t('myProfile');
@@ -77,8 +77,8 @@ const ProfileSidebar = () => {
                 {t('myProfile')}
               </Link>
               <Link
-                to="/profile/rental-history"
-                className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/rental-history')
+                to="/profile/rental_history"
+                className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/rental_history')
                   ? 'text-white bg-blue-600'
                   : 'text-gray-600 hover:bg-gray-50'
                   }`}
@@ -89,8 +89,8 @@ const ProfileSidebar = () => {
                 {t('Rental History')}
               </Link>
               <Link
-                to="/profile/payment-history"
-                className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/payment-history')
+                to="/profile/payment_history"
+                className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/payment_history')
                   ? 'text-white bg-blue-600'
                   : 'text-gray-600 hover:bg-gray-50'
                   }`}
@@ -101,8 +101,8 @@ const ProfileSidebar = () => {
                 {t('paymentHistory')}
               </Link>
               <Link
-                to="/profile/favourite-car"
-                className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/favourite-car')
+                to="/profile/favourite_car"
+                className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/favourite_car')
                   ? 'text-white bg-blue-600'
                   : 'text-gray-600 hover:bg-gray-50'
                   }`}
@@ -188,7 +188,7 @@ const ProfileSidebar = () => {
                 </svg>
                 {t('security')}
               </Link>
-              <Link to="/profile/help-center" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/help-center')
+              <Link to="/profile/help_center" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/help_center')
                   ? 'text-white bg-blue-600'
                   : 'text-gray-600 hover:bg-gray-50'
                   }`}>

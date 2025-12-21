@@ -10,4 +10,5 @@ export { default as RegDocsApproved } from './components/RegDocsApproved/compone
 export { default as DriverLicenseApprove } from './components/DriverLicenseApprove/components/DriverLicenseApprove';
 export { default as RentalMonitoring} from './components/RentalMonitoring/components/RentalMonitoring';
 export { default as CustomerAccountOverview } from './components/StaffDashBoardSubsComponent/CustomerAccountOverview';
+export { default as ReportCarMonitoring } from './components/ReportCar/components/ReportCarMonitoring';
 export { staffSlice } from './staffSlice';

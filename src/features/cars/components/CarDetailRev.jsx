@@ -13,7 +13,7 @@ const CarDetailRev = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+
   // Local component state
   const [selectedImage, setSelectedImage] = useState(0);
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
@@ -125,6 +125,11 @@ const CarDetailRev = () => {
   const locationName = currentCar?.preferredLot?.name || 'Phường Phạm Ngũ Lão, Quận 1';
   const locationAddress = currentCar?.preferredLot?.address || 'Phường Phạm Ngũ Lão, Quận 1';
   const locationCity = currentCar?.preferredLot?.city || 'TP.Hồ Chí Minh';
+  const currentCarLongtitude = currentCar?.preferredLot?.longtitude
+  const currentCarLatitude = currentCar?.preferredLot?.latitude
+
+  // console.log("currentCarLongtitude", currentCarLongtitude);
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -152,6 +157,7 @@ const CarDetailRev = () => {
             feedbacks={feedbacks}
             loadingFeedback={loadingFeedback}
             feedbackUsers={feedbackUsers}
+            coordinates={currentCarLongtitude && currentCarLatitude ? [currentCarLongtitude, currentCarLatitude] : null}
           />
 
           {/* Right Column - Booking Card*/}

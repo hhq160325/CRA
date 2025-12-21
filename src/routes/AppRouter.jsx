@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 import { RegisterCar, RegisterCarStep2, RegisterCarStep3, CarDetail, CarDetailRev, CarRental } from '../features/cars';
 import { ProfilePage } from '../features/user';
 import { PaymentPage, PaymentSuccess, PaymentCancel } from '../features/payment';
-import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring } from '../features/admin';
-import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter, ParklotCreate, RegDocsApproved, DriverLicenseApprove } from '../features/staff';
+import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring, StaffManagement } from '../features/admin';
+import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter, ParklotCreate, RegDocsApproved, DriverLicenseApprove, ReportCarMonitoring } from '../features/staff';
 import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments, CarRegisDocs, Maps } from '../features/owner';
 import { AuthPage, GoogleCallback, ForgotPassword, ResetPassword } from '../features/auth';
 import SearchResult from '../features/search/components/SearchResult';
@@ -67,6 +67,7 @@ const AppRouter = () => {
         <Route index element={<AdminDashboard />} />
         <Route path="operations" element={<OperationsDashboard />} />
         <Route path="transactions" element={<TransactionMonitoring />} />
+        <Route path="staff_management" element={<StaffManagement />} />
       </Route>
 
       {/* Staff Routes - Only accessible by Staff role */}
@@ -80,6 +81,7 @@ const AppRouter = () => {
         <Route path="rental_monitoring" element={<RentalMonitoring />} />
         <Route path="reg_docs" element={<RegDocsApproved />} />
         <Route path="driver_license_approve" element={<DriverLicenseApprove />} />
+        <Route path="report_car" element={<ReportCarMonitoring />} />
       </Route>
 
       {/* Car Owner (Manager) Routes */}

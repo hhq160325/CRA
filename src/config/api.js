@@ -185,3 +185,16 @@ export const INQUIRY_API_CONFIG = {
     'Content-Type': 'multipart/form-data',
   },
 };
+
+// Report Car
+export const REPORT_CAR_ENDPOINTS = {
+  CREATE_REPORT_CAR: `${API_CONFIG.BASE_URL}/Inquiry/initial`,
+  GET_REPORT_CAR: `${API_CONFIG.BASE_URL}/Report`,
+};
+
+export const REPORT_CAR_API_CONFIG = {
+  timeout: API_CONFIG.TIMEOUT,
+  headers: {
+    'Content-Type': 'multipart/form-data',
+  },
+};

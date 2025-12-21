@@ -6,4 +6,5 @@ export { default as TransactionMonitoring } from './components/TransactionMonito
 export { default as StatusOverview } from './components/StatusOverview';
 export { default as TopCarRental } from './components/TopCarRental';
 export { default as RecentTransaction } from './components/RecentTransaction';
+export { default as StaffManagement } from './components/StaffManagement/components/StaffManagement'
 export { adminSlice } from './adminSlice';

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { BOOKING_ENDPOINTS, BOOKING_API_CONFIG, USER_ENDPOINTS, CAR_ENDPOINTS } from '../../../config/api';
+import { BOOKING_ENDPOINTS, BOOKING_API_CONFIG, USER_ENDPOINTS, CAR_ENDPOINTS, REPORT_CAR_ENDPOINTS } from '../../../config/api';
 
 // Get all bookings with user and car details
 export const getAllBookings = async () => {
@@ -102,6 +102,90 @@ export const getAllBookings = async () => {
     return enrichedBookings;
   } catch (error) {
     console.error('Error fetching all bookings:', error);
+    throw error;
+  }
+};
+// Get all car reports with user and car details
+export const getAllReports = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    
+    // Fetch all data in parallel
+    const [reportsResponse, carsResponse, usersResponse] = await Promise.all([
+      axios.get(REPORT_CAR_ENDPOINTS.GET_REPORT_CAR, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+      axios.get(CAR_ENDPOINTS.GET_ALL_CARS, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+      axios.get(USER_ENDPOINTS.GET_ALL_USERS, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+    ]);
+    
+    const reports = reportsResponse.data;
+    const allCars = carsResponse.data;
+    const allUsers = usersResponse.data;
+    
+    // Create user map by id
+    const userMap = {};
+    allUsers.forEach(user => {
+      userMap[user.id] = user;
+    });
+    
+    // Create car map by id
+    const carMap = {};
+    allCars.forEach(car => {
+      carMap[car.id] = car;
+    });
+    
+    // Enrich reports with user and car data
+    const enrichedReports = reports.map(report => {
+      const user = userMap[report.userId];
+      const car = carMap[report.carId];
+      
+      // Get reporter name - prioritize username over email
+      let reporterName = 'N/A';
+      if (user) {
+        // Try full name first
+        const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+        if (fullName) {
+          reporterName = fullName;
+        } else if (user.username) {
+          reporterName = user.username;
+        } else if (user.email) {
+          reporterName = user.email;
+        } else {
+          reporterName = `User ${report.userId.slice(0, 8)}`;
+        }
+      } else {
+        reporterName = `User ${report.userId.slice(0, 8)}...`;
+      }
+      
+      return {
+        ...report,
+        reporterName,
+        reporterEmail: user?.email || 'N/A',
+        reporterPhone: user?.phoneNumber || 'N/A',
+        carModel: car?.model || 'N/A',
+        carManufacturer: car?.manufacturer || 'N/A',
+        carLicensePlate: car?.licensePlate || 'N/A',
+        carName: `${car?.manufacturer || ''} ${car?.model || ''}`.trim() || 'N/A',
+      };
+    });
+    
+    return enrichedReports;
+  } catch (error) {
+    console.error('Error fetching all reports:', error);
     throw error;
   }
 };

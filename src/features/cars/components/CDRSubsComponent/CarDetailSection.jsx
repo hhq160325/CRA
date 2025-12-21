@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toggleFavorite, selectIsFavorite } from '../../../favorites/favoritesSlice';
 import { fetchCarById } from '../../carsSlice';
 import SendInquiry from './SendInquiry';
+import MapModal from './MapModal';
 import { tokenUtils } from '../../../auth/utils';
 
 const CarDetailSection = ({
@@ -25,7 +26,8 @@ const CarDetailSection = ({
   locationCity,
   feedbacks,
   loadingFeedback,
-  feedbackUsers
+  feedbackUsers,
+  coordinates
 }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -33,6 +35,7 @@ const CarDetailSection = ({
   const isFavorite = useSelector(selectIsFavorite(carId));
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
+  const [showMapModal, setShowMapModal] = useState(false);
 
   // Get car data from Redux store
   const carFromStore = useSelector((state) => state.cars.currentCar);
@@ -355,7 +358,11 @@ const CarDetailSection = ({
               <p className="text-xs text-gray-500 mt-1">{t('specificAddressAfterBooking')}</p>
             </div>
           </div>
-          <button className="w-full py-2 border border-gray-300 rounded-lg flex items-center justify-center gap-2">
+          
+          <button 
+            className="w-full py-2 border border-gray-300 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors"
+            onClick={() => setShowMapModal(true)}
+          >
             <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 -0.28 46.384 46.384">
               <g id="Group_47" data-name="Group 47" transform="translate(-369.028 -1786.405)">
                 <path id="Path_126" data-name="Path 126" d="M384.789,1824.733l-13.761,5.5v-36.329l13.761-5.5Z" fill="#ffffff" stroke="#231f20" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" />
@@ -491,6 +498,16 @@ const CarDetailSection = ({
         onClose={() => setIsInquiryOpen(false)}
         carOwnerId={carOwnerId}
         currentUserId={currentUserId}
+      />
+      
+      {/* Map Modal */}
+      <MapModal
+        isOpen={showMapModal}
+        onClose={() => setShowMapModal(false)}
+        locationName={locationName}
+        locationAddress={locationAddress}
+        locationCity={locationCity}
+        coordinates={coordinates}
       />
     </>
   );

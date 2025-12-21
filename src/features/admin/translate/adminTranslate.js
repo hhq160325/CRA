@@ -83,6 +83,68 @@ export const adminTranslate = {
       activeCars: "Active Cars",
       carsInUse: "Car in use",
       TotalBookings: "Total Bookings",
+
+      // Admin - Staff Management
+      StaffManagement: "Staff Management",
+      viewAndManageStaffAndCarOwners: "View and manage staff and car owners",
+      exportData: "Export Data",
+      loading: "Loading...",
+      searchStaff: "Search staff by name, email, or phone",
+      allRoles: "All Roles",
+      staff: "Staff",
+      carOwner: "Car Owner",
+      showing: "Showing",
+      of: "of",
+      members: "members",
+      noStaffFound: "No Staff Found",
+      noStaffMatchingFilters: "No staff members match your current filters",
+      member: "Member",
+      phone: "Phone",
+      email: "Email",
+      role: "Role",
+      joinDate: "Join Date",
+      actions: "Actions",
+      view: "View",
+      suspend: "Suspend",
+      
+      // Staff Status
+      active: "Active",
+      pending: "Pending",
+      suspended: "Suspended",
+      
+      // Staff Roles
+      Staff: "Staff",
+      User: "User",
+      
+      // Error Messages
+      failedToLoadStaffData: "Failed to load staff data",
+
+      // Admin - Staff Logs
+      StaffLogs: "Staff Activity Logs",
+      viewStaffActivityLogs: "View and monitor staff activity logs",
+      searchStaffLogs: "Search staff logs...",
+      allActions: "All Actions",
+      checkIn: "Check-in",
+      checkOut: "Check-out",
+      logs: "logs",
+      action: "Action",
+      timestamp: "Timestamp",
+      handoverId: "Handover ID",
+      userAgent: "User Agent",
+      logDetails: "Log Details",
+      logId: "Log ID",
+      ipAddress: "IP Address",
+
+      // Admin - Car Handover Logs
+      CarHandoverLogs: "Car Handover Logs",
+      viewCarHandoverLogs: "View and monitor car handover activity logs",
+      searchCarHandoverLogs: "Search car handover logs...",
+      type: "Type",
+      pickup: "Pickup",
+      return: "Return",
+      description: "Description",
+      scheduleId: "Schedule ID",
+      verificationMethod: "Verification Method",
     }
   },
   vi: {
@@ -169,6 +231,68 @@ export const adminTranslate = {
       activeCars: "Xe đang hoạt động",
       carsInUse: "Xe đang vận hành",
       TotalBookings: "Tổng số đơn đặt",
+
+      // Admin - Staff Management
+      StaffManagement: "Quản lý nhân viên",
+      viewAndManageStaffAndCarOwners: "Xem và quản lý nhân viên và chủ xe",
+      exportData: "Xuất dữ liệu",
+      loading: "Đang tải...",
+      searchStaff: "Tìm kiếm nhân viên theo tên, email hoặc số điện thoại",
+      allRoles: "Tất cả vai trò",
+      staff: "Nhân viên",
+      carOwner: "Chủ xe",
+      showing: "Hiển thị",
+      of: "trong tổng số",
+      members: "thành viên",
+      noStaffFound: "Không tìm thấy nhân viên",
+      noStaffMatchingFilters: "Không có nhân viên nào phù hợp với bộ lọc hiện tại",
+      member: "Thành viên",
+      phone: "Số điện thoại",
+      email: "Email",
+      role: "Vai trò",
+      joinDate: "Ngày tham gia",
+      actions: "Hành động",
+      view: "Xem",
+      suspend: "Tạm ngưng",
+      
+      // Staff Status
+      active: "Hoạt động",
+      pending: "Chờ xử lý",
+      suspended: "Tạm ngưng",
+      
+      // Staff Roles
+      Staff: "Nhân viên",
+      User: "Người dùng",
+      
+      // Error Messages
+      failedToLoadStaffData: "Không thể tải dữ liệu nhân viên",
+
+      // Admin - Staff Logs
+      StaffLogs: "Nhật ký hoạt động nhân viên",
+      viewStaffActivityLogs: "Xem và giám sát nhật ký hoạt động nhân viên",
+      searchStaffLogs: "Tìm kiếm nhật ký nhân viên...",
+      allActions: "Tất cả hành động",
+      checkIn: "Đăng nhập",
+      checkOut: "Đăng xuất",
+      logs: "nhật ký",
+      action: "Hành động",
+      timestamp: "Thời gian",
+      handoverId: "ID bàn giao",
+      userAgent: "Trình duyệt",
+      logDetails: "Chi tiết nhật ký",
+      logId: "ID nhật ký",
+      ipAddress: "Địa chỉ IP",
+
+      // Admin - Car Handover Logs
+      CarHandoverLogs: "Nhật ký bàn giao xe",
+      viewCarHandoverLogs: "Xem và giám sát nhật ký hoạt động bàn giao xe",
+      searchCarHandoverLogs: "Tìm kiếm nhật ký bàn giao xe...",
+      type: "Loại",
+      pickup: "Nhận xe",
+      return: "Trả xe",
+      description: "Mô tả",
+      scheduleId: "ID lịch trình",
+      verificationMethod: "Phương thức xác minh",
     }
   }
 };

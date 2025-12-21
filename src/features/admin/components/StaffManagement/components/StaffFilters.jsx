@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import DropdownTemplate from '../../../../../shared/components/DropdownTemplate';
 
 const StaffFilters = ({
   searchTerm,
@@ -11,6 +12,30 @@ const StaffFilters = ({
   totalCount
 }) => {
   const { t } = useTranslation();
+
+  // COMMENTED OUT: Status options for dropdown
+  // const statusOptions = [
+  //   { id: 'all', value: 'all', label: t('allStatus') },
+  //   { id: 'active', value: 'active', label: t('active') },
+  //   { id: 'pending', value: 'pending', label: t('pending') },
+  //   { id: 'suspended', value: 'suspended', label: t('suspended') }
+  // ];
+
+  // Role options for dropdown
+  const roleOptions = [
+    { id: 'all', value: 'all', label: t('allRoles') },
+    { id: 'staff', value: 'staff', label: t('staff') },
+    { id: 'carOwner', value: 'car owner', label: t('carOwner') }
+  ];
+
+  // COMMENTED OUT: Status change handler
+  // const handleStatusChange = (option) => {
+  //   setStatusFilter(option.value);
+  // };
+
+  const handleRoleChange = (option) => {
+    setRoleFilter(option.value);
+  };
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
@@ -30,30 +55,23 @@ const StaffFilters = ({
             />
           </div>
 
-          {/* Status Filter */}
-          <select
+          {/* COMMENTED OUT: Status Filter */}
+          {/* <DropdownTemplate
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="all">{t('allStatus')}</option>
-            <option value="active">{t('active')}</option>
-            <option value="pending">{t('pending')}</option>
-            <option value="suspended">{t('suspended')}</option>
-          </select>
+            onChange={handleStatusChange}
+            options={statusOptions}
+            placeholder={t('allStatus')}
+            className="min-w-[140px]"
+          /> */}
 
           {/* Role Filter */}
-          <select
+          <DropdownTemplate
             value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="all">{t('allRoles')}</option>
-            <option value="staff">{t('staff')}</option>
-            <option value="user">{t('user')}</option>
-            {/* COMMENTED OUT: Car owner filter option */}
-            {/* <option value="car owner">{t('carOwner')}</option> */}
-          </select>
+            onChange={handleRoleChange}
+            options={roleOptions}
+            placeholder={t('allRoles')}
+            className="min-w-[140px]"
+          />
         </div>
 
         {/* Results Count */}

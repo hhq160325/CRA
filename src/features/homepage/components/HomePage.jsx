@@ -32,8 +32,8 @@ const HomePage = () => {
   }, [dispatch]);
 
   // Filter out cars with Reserved status
-  // const activeCars = cars.filter(car => car.status && car.status.toLowerCase() !== 'reserved');
-  const activeCars = cars;
+  const activeCars = cars.filter(car => car.status && car.status.toLowerCase() !== 'reserved');
+  // const activeCars = cars;
 
   const popularCars = [];
 

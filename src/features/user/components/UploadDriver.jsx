@@ -10,15 +10,14 @@ const UploadDriver = () => {
   const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
   const [frontFile, setFrontFile] = useState(null);
-  const [backFile, setBackFile] = useState(null);
   const [frontPreviewUrl, setFrontPreviewUrl] = useState(null);
-  const [backPreviewUrl, setBackPreviewUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [error, setError] = useState('');
   const [licenseStatus, setLicenseStatus] = useState(null);
   const [loadingStatus, setLoadingStatus] = useState(true);
-  const [licenseImages, setLicenseImages] = useState({ front: null, back: null });
+  const [licenseImages, setLicenseImages] = useState({ front: null });
+  const [licenseInfo, setLicenseInfo] = useState(null);
   const [loadingImages, setLoadingImages] = useState(false);
   const [editMode, setEditMode] = useState(false);
 
@@ -105,16 +104,27 @@ const UploadDriver = () => {
         }
       });
 
-      const urls = response.data.urls || [];
+      const licenseData = response.data.view?.[0]; // Get the first license data
 
-      // Assuming the first URL is front and second is back based on the naming convention
-      const frontImage = urls.find(url => url.includes('imageFront') || url.includes('front')) || urls[0];
-      const backImage = urls.find(url => url.includes('imageBack') || url.includes('back')) || urls[1];
+      // Set license information
+      if (licenseData) {
+        setLicenseInfo({
+          licenseNumber: licenseData.licenseNumber,
+          licenseName: licenseData.licenseName,
+          licenseDoB: licenseData.licenseDoB,
+          licenseClass: licenseData.licenseClass,
+          licenseIssue: licenseData.licenseIssue,
+          licenseExpiry: licenseData.licenseExpiry
+        });
 
-      setLicenseImages({
-        front: frontImage || null,
-        back: backImage || null
-      });
+        // Get the image URLs from the license data
+        const urls = licenseData.urls || [];
+        const frontImage = urls.find(url => url.includes('imageFront') || url.includes('front')) || urls[0];
+
+        setLicenseImages({
+          front: frontImage || null
+        });
+      }
 
     } catch (err) {
       console.error('Error fetching driver license images:', err);
@@ -168,7 +178,7 @@ const UploadDriver = () => {
     );
   };
 
-  const handleFileSelect = (e, side) => {
+  const handleFileSelect = (e) => {
     const file = e.target.files[0];
 
     if (!file) return;
@@ -187,38 +197,22 @@ const UploadDriver = () => {
     }
 
     setError('');
+    setFrontFile(file);
 
-    if (side === 'front') {
-      setFrontFile(file);
-
-      // Create preview for images
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setFrontPreviewUrl(reader.result);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        setFrontPreviewUrl(null);
-      }
+    // Create preview for images
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFrontPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
     } else {
-      setBackFile(file);
-
-      // Create preview for images
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setBackPreviewUrl(reader.result);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        setBackPreviewUrl(null);
-      }
+      setFrontPreviewUrl(null);
     }
   };
 
   const handleUpload = async () => {
-    if (!frontFile && !backFile) {
+    if (!frontFile) {
       setError(t('pleaseSelectAtLeastOneFile'));
       return;
     }
@@ -235,22 +229,13 @@ const UploadDriver = () => {
       }
 
       const formData = new FormData();
-
-      if (frontFile) {
-        formData.append('frontDriverLicenseimg', frontFile);
-      }
-
-      if (backFile) {
-        formData.append('backDriverLicenseimg', backFile);
-      }
-
+      formData.append('frontDriverLicenseimg', frontFile);
       formData.append('userId', userId);
 
       // Log the data being sent to server
       console.log('Data being sent to server:', {
         userId: userId,
         frontFile: frontFile ? { name: frontFile.name, size: frontFile.size, type: frontFile.type } : null,
-        backFile: backFile ? { name: backFile.name, size: backFile.size, type: backFile.type } : null,
         endpoint: USER_ENDPOINTS.UPLOAD_DRIVER_LICENSE
       });
 
@@ -278,14 +263,9 @@ const UploadDriver = () => {
     }
   };
 
-  const handleRemove = (side) => {
-    if (side === 'front') {
-      setFrontFile(null);
-      setFrontPreviewUrl(null);
-    } else {
-      setBackFile(null);
-      setBackPreviewUrl(null);
-    }
+  const handleRemove = () => {
+    setFrontFile(null);
+    setFrontPreviewUrl(null);
     setError('');
   };
 
@@ -293,9 +273,7 @@ const UploadDriver = () => {
     if (editMode) {
       // Cancel edit mode - clear any selected files
       setFrontFile(null);
-      setBackFile(null);
       setFrontPreviewUrl(null);
-      setBackPreviewUrl(null);
       setError('');
     }
     setEditMode(!editMode);
@@ -328,7 +306,7 @@ const UploadDriver = () => {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
               </div>
             ) : (
-              <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="mb-6 grid grid-cols-1 md:grid-cols-1 gap-6">
                 {/* Front License Display */}
                 <div>
                   <h4 className="text-lg font-medium text-gray-900 mb-3">{t('frontDriverLicense')}</h4>
@@ -350,32 +328,53 @@ const UploadDriver = () => {
                   </div>
                 </div>
 
-                {/* Back License Display */}
-                <div>
-                  <h4 className="text-lg font-medium text-gray-900 mb-3">{t('backDriverLicense')}</h4>
-                  <div className="w-full h-64 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
-                    {licenseImages.back ? (
-                      <img
-                        src={licenseImages.back}
-                        alt="Back driver's license"
-                        className="w-full h-full object-contain"
-                      />
+                {/* License Information Display */}
+                {/* <div>
+                  <h4 className="text-lg font-medium text-gray-900 mb-3">{t('licenseInformation')}</h4>
+                  <div className="w-full h-64 border-2 border-gray-200 rounded-lg bg-gray-50 p-4 overflow-y-auto">
+                    {licenseInfo ? (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">{t('licenseNumber')}</label>
+                          <p className="text-sm text-gray-900">{licenseInfo.licenseNumber || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">{t('licenseName')}</label>
+                          <p className="text-sm text-gray-900">{licenseInfo.licenseName || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">{t('dateOfBirth')}</label>
+                          <p className="text-sm text-gray-900">{licenseInfo.licenseDoB ? new Date(licenseInfo.licenseDoB).toLocaleDateString() : 'N/A'}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">{t('licenseClass')}</label>
+                          <p className="text-sm text-gray-900">{licenseInfo.licenseClass || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">{t('issueDate')}</label>
+                          <p className="text-sm text-gray-900">{licenseInfo.licenseIssue ? new Date(licenseInfo.licenseIssue).toLocaleDateString() : 'N/A'}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">{t('expiryDate')}</label>
+                          <p className="text-sm text-gray-900">{licenseInfo.licenseExpiry ? new Date(licenseInfo.licenseExpiry).toLocaleDateString() : t('noExpiry')}</p>
+                        </div>
+                      </div>
                     ) : (
                       <div className="flex flex-col items-center justify-center h-full text-gray-400">
                         <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <p className="text-sm">{t('noBackImageAvailable')}</p>
+                        <p className="text-sm">{t('noLicenseInfoAvailable')}</p>
                       </div>
                     )}
                   </div>
-                </div>
+                </div> */}
               </div>
             )}
           </div>
         ) : (
           /* Upload interface for pending or no license */
-          <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="mb-6">
             {/* Front License Upload */}
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-3">{t('frontDriverLicense')}</h3>
@@ -393,7 +392,7 @@ const UploadDriver = () => {
                     <button
                       onClick={(e) => {
                         e.preventDefault();
-                        handleRemove('front');
+                        handleRemove();
                       }}
                       className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                     >
@@ -426,62 +425,7 @@ const UploadDriver = () => {
                   type="file"
                   className="hidden"
                   accept="image/jpeg,image/jpg,image/png"
-                  onChange={(e) => handleFileSelect(e, 'front')}
-                />
-              </label>
-            </div>
-
-            {/* Back License Upload */}
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">{t('backDriverLicense')}</h3>
-              <label
-                htmlFor="back-file-upload"
-                className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
-              >
-                {backPreviewUrl ? (
-                  <div className="relative w-full h-full p-4">
-                    <img
-                      src={backPreviewUrl}
-                      alt="Back driver's license preview"
-                      className="w-full h-full object-contain"
-                    />
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleRemove('back');
-                      }}
-                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                ) : backFile ? (
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg className="w-16 h-16 mb-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <p className="mb-2 text-sm text-gray-700 font-medium">{backFile.name}</p>
-                    <p className="text-xs text-gray-500">{(backFile.size / 1024).toFixed(2)} KB</p>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg className="w-16 h-16 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>
-                    <p className="mb-2 text-sm text-gray-700">
-                      <span className="font-semibold">{t('clickToUpload')}</span>
-                    </p>
-                    <p className="text-xs text-gray-500">{t('backLicenseDescription')}</p>
-                  </div>
-                )}
-                <input
-                  id="back-file-upload"
-                  type="file"
-                  className="hidden"
-                  accept="image/jpeg,image/jpg,image/png"
-                  onChange={(e) => handleFileSelect(e, 'back')}
+                  onChange={handleFileSelect}
                 />
               </label>
             </div>
@@ -510,32 +454,10 @@ const UploadDriver = () => {
 
         {/* Action Buttons */}
         <div className="flex gap-3">
-          {(frontFile || backFile) && (licenseStatus !== 'AutoApproved' && licenseStatus !== 'Denied' || editMode) && (
-            <div className="flex gap-2">
-              {/* {frontFile && (
-                <button
-                  onClick={() => handleRemove('front')}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
-                  disabled={uploading}
-                >
-                  {t('removeFront')}
-                </button>
-              )} */}
-              {/* {backFile && (
-                <button
-                  onClick={() => handleRemove('back')}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
-                  disabled={uploading}
-                >
-                  {t('removeBack')}
-                </button>
-              )} */}
-            </div>
-          )}
           <button
             onClick={handleUpload}
-            disabled={(!frontFile && !backFile) || uploading || ((licenseStatus === 'AutoApproved' || licenseStatus === 'Denied') && !editMode)}
-            className={`flex-1 px-6 py-2 rounded-lg font-medium transition-colors ${(!frontFile && !backFile) || uploading || ((licenseStatus === 'AutoApproved' || licenseStatus === 'Denied') && !editMode)
+            disabled={!frontFile || uploading || ((licenseStatus === 'AutoApproved' || licenseStatus === 'Denied') && !editMode)}
+            className={`flex-1 px-6 py-2 rounded-lg font-medium transition-colors ${!frontFile || uploading || ((licenseStatus === 'AutoApproved' || licenseStatus === 'Denied') && !editMode)
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700'
               }`}

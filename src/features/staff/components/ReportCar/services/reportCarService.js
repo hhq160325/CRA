@@ -133,7 +133,7 @@ export const fetchBookingsWithReports = async () => {
   try {
     console.log('Fetching reports data using GET_REPORT_CAR API...');
     
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken');
     
     // Fetch reports, users, and cars data in parallel
     const [reportsData, usersResponse, carsResponse] = await Promise.all([
@@ -175,6 +175,8 @@ export const fetchBookingsWithReports = async () => {
     // Transform reports with enriched user and car data
     const transformedData = transformReportDataWithEnrichment(reportsArray, userMap, carMap);
     
+    console.log('Transformed report data:', transformedData);
+    
     // Sort reports by createDate (latest first)
     return sortByLatest(transformedData, 'createDate');
   } catch (error) {
@@ -192,16 +194,16 @@ export const transformReportData = (reportsArray) => {
     content: report.content,
     createDate: new Date(report.createDate).toLocaleString(),
     status: report.status,
-    carId: report.carId,
-    userId: report.userId,
+    reportedCarId: report.reportedCarId,
+    reporterId: report.reporterId,
   }));
 };
 
 // Transform report data with enriched user and car information
 export const transformReportDataWithEnrichment = (reportsArray, userMap, carMap) => {
   return reportsArray.map(report => {
-    const user = userMap[report.userId];
-    const car = carMap[report.carId];
+    const user = userMap[report.reporterId];
+    const car = carMap[report.reportedCarId];
     
     // Get reporter name - prioritize full name over username over email
     let reporterName = 'N/A';
@@ -214,10 +216,10 @@ export const transformReportDataWithEnrichment = (reportsArray, userMap, carMap)
       } else if (user.email) {
         reporterName = user.email;
       } else {
-        reporterName = `User ${report.userId.slice(0, 8)}`;
+        reporterName = report.reporterId ? `User ${report.reporterId.slice(0, 8)}` : 'Unknown User';
       }
     } else {
-      reporterName = `User ${report.userId.slice(0, 8)}...`;
+      reporterName = report.reporterId ? `User ${report.reporterId.slice(0, 8)}...` : 'Unknown User';
     }
     
     // Get car information
@@ -225,10 +227,10 @@ export const transformReportDataWithEnrichment = (reportsArray, userMap, carMap)
     const carModel = car?.model || 'N/A';
     const carManufacturer = car?.manufacturer || 'N/A';
     const carLicensePlate = car?.licensePlate || 'N/A';
-    const carOwner = car.owner.fullname || car.owner.username || 'N/A';
-    const carEmail = car.owner.email || 'N/A';
-    const carPhoneNumber = car.owner.phoneNumber || 'N/A';
-    console.log("car",car.owner);
+    const carOwner = car?.owner?.fullname || car?.owner?.username || 'N/A';
+    const carEmail = car?.owner?.email || 'N/A';
+    const carPhoneNumber = car?.owner?.phoneNumber || 'N/A';
+    console.log("car", car?.owner);
     
     return {
       id: report.id,
@@ -237,8 +239,8 @@ export const transformReportDataWithEnrichment = (reportsArray, userMap, carMap)
       content: report.content,
       createDate: new Date(report.createDate).toLocaleString(),
       status: report.status,
-      carId: report.carId,
-      userId: report.userId,
+      reportedCarId: report.reportedCarId,
+      reporterId: report.reporterId,
       reporterName: reporterName,
       reporterEmail: user?.email || 'N/A',
       reporterPhone: user?.phoneNumber || 'N/A',

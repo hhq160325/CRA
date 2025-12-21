@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import { validateLicensePlate, formatLicensePlate } from '../../../shared/utils/LicensePlateFormat';
 import { DropdownTemplate } from '../../../shared';
 import { getAllManufacturers, getModelsByManufacturerId } from '../carApi';
@@ -120,6 +121,36 @@ const RegisterCar = () => {
         const validation = validateLicensePlate(formData.licensePlate);
         if (!validation.isValid) {
             setLicensePlateError(validation.message);
+            return;
+        }
+
+        // Validate required fields
+        const requiredFields = [
+            { field: 'manufacturer', message: t('manufacturerRequired') },
+            { field: 'model', message: t('modelRequired') },
+            { field: 'numberOfSeats', message: t('numberOfSeatsRequired') },
+            { field: 'yearOfManufacture', message: t('yearOfManufactureRequired') },
+            { field: 'transmission', message: t('transmissionRequired') },
+            { field: 'fuelType', message: t('fuelTypeRequired') }
+        ];
+
+        for (const { field, message } of requiredFields) {
+            if (!formData[field] || !formData[field].toString().trim()) {
+                toast.error(message);
+                return;
+            }
+        }
+
+        // Additional validation for numberOfSeats (should be a positive number)
+        if (formData.numberOfSeats && (isNaN(formData.numberOfSeats) || parseInt(formData.numberOfSeats) <= 0)) {
+            toast.error(t('invalidNumberOfSeats'));
+            return;
+        }
+
+        // Additional validation for yearOfManufacture (should be a valid year)
+        const currentYear = new Date().getFullYear();
+        if (formData.yearOfManufacture && (isNaN(formData.yearOfManufacture) || parseInt(formData.yearOfManufacture) < 1900 || parseInt(formData.yearOfManufacture) > currentYear)) {
+            toast.error(t('invalidYearOfManufacture', { currentYear }));
             return;
         }
 

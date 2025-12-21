@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-
+import { useTranslation } from 'react-i18next';
 const RENTAL_DATES_KEY = 'rentalDates';
 
 // Custom Time Dropdown Component
@@ -7,7 +7,6 @@ const TimeDropdown = ({ label, value, onChange, options, disabledTimes = [] }) =
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const listRef = useRef(null);
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -24,12 +23,12 @@ const TimeDropdown = ({ label, value, onChange, options, disabledTimes = [] }) =
     if (isOpen && listRef.current) {
       // Find the first available (non-disabled) time
       const firstAvailableIndex = options.findIndex(time => !disabledTimes.includes(time));
-      
+
       if (firstAvailableIndex !== -1) {
         // Calculate scroll position (each item is approximately 52px tall)
         const itemHeight = 52;
         const scrollPosition = firstAvailableIndex * itemHeight;
-        
+
         // Scroll to the first available time
         setTimeout(() => {
           if (listRef.current) {
@@ -53,10 +52,10 @@ const TimeDropdown = ({ label, value, onChange, options, disabledTimes = [] }) =
         className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent flex items-center justify-between"
       >
         <span className="text-2xl font-semibold text-gray-900">{value}</span>
-        <svg 
+        <svg
           className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          fill="none" 
-          stroke="currentColor" 
+          fill="none"
+          stroke="currentColor"
           viewBox="0 0 24 24"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -64,7 +63,7 @@ const TimeDropdown = ({ label, value, onChange, options, disabledTimes = [] }) =
       </button>
 
       {isOpen && (
-        <div 
+        <div
           ref={listRef}
           className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto scroll-smooth"
         >
@@ -81,26 +80,23 @@ const TimeDropdown = ({ label, value, onChange, options, disabledTimes = [] }) =
                   }
                 }}
                 disabled={disabled}
-                className={`w-full px-4 py-3 text-left flex items-center gap-3 transition-colors ${
-                  disabled 
-                    ? 'cursor-not-allowed opacity-40' 
+                className={`w-full px-4 py-3 text-left flex items-center gap-3 transition-colors ${disabled
+                    ? 'cursor-not-allowed opacity-40'
                     : 'hover:bg-gray-50 cursor-pointer'
-                }`}
+                  }`}
               >
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                  value === time ? 'border-blue-500' : 'border-gray-300'
-                }`}>
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${value === time ? 'border-blue-500' : 'border-gray-300'
+                  }`}>
                   {value === time && (
                     <div className="w-3 h-3 rounded-full bg-blue-500"></div>
                   )}
                 </div>
-                <span className={`text-lg ${
-                  value === time 
-                    ? 'font-semibold text-gray-900' 
-                    : disabled 
-                    ? 'text-gray-400' 
-                    : 'text-gray-600'
-                }`}>
+                <span className={`text-lg ${value === time
+                    ? 'font-semibold text-gray-900'
+                    : disabled
+                      ? 'text-gray-400'
+                      : 'text-gray-600'
+                  }`}>
                   {time}
                 </span>
               </button>
@@ -113,6 +109,7 @@ const TimeDropdown = ({ label, value, onChange, options, disabledTimes = [] }) =
 };
 
 const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
+  const { t } = useTranslation();
   const currentDate = new Date();
   const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth()); // Current month (0-indexed)
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
@@ -124,21 +121,21 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
   // Get next available pickup time for today
   const getNextAvailablePickupTime = (selectedDate) => {
     const now = new Date();
-    const isToday = selectedDate.day === now.getDate() && 
-                    selectedDate.month === now.getMonth() && 
-                    selectedDate.year === now.getFullYear();
-    
+    const isToday = selectedDate.day === now.getDate() &&
+      selectedDate.month === now.getMonth() &&
+      selectedDate.year === now.getFullYear();
+
     if (!isToday) return '06:00'; // Default time for future dates
-    
+
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
-    
+
     // If current time is past the hour, use next hour
     const nextHour = currentMinute > 0 ? currentHour + 1 : currentHour;
-    
+
     // Ensure we don't go past 23:00
     const validHour = Math.min(nextHour, 23);
-    
+
     return `${validHour.toString().padStart(2, '0')}:00`;
   };
 
@@ -150,19 +147,19 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
         const parsed = JSON.parse(savedData);
         if (parsed.selectedPickupDate) {
           setSelectedPickupDate(parsed.selectedPickupDate);
-          
+
           // Validate and update pickup time if it's today and time has passed
           const now = new Date();
-          const isToday = parsed.selectedPickupDate.day === now.getDate() && 
-                          parsed.selectedPickupDate.month === now.getMonth() && 
-                          parsed.selectedPickupDate.year === now.getFullYear();
-          
+          const isToday = parsed.selectedPickupDate.day === now.getDate() &&
+            parsed.selectedPickupDate.month === now.getMonth() &&
+            parsed.selectedPickupDate.year === now.getFullYear();
+
           if (isToday && parsed.pickupTime) {
             const savedHour = parseInt(parsed.pickupTime.split(':')[0]);
             const currentHour = now.getHours();
             const currentMinute = now.getMinutes();
             const cutoffHour = currentMinute > 0 ? currentHour + 1 : currentHour;
-            
+
             if (savedHour < cutoffHour) {
               // Saved time is no longer valid, update to next available time
               const nextAvailableTime = getNextAvailablePickupTime(parsed.selectedPickupDate);
@@ -174,7 +171,7 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
             setPickupTime(parsed.pickupTime || '06:00');
           }
         }
-        
+
         if (parsed.selectedDropoffDate) setSelectedDropoffDate(parsed.selectedDropoffDate);
         if (parsed.dropoffTime) setDropoffTime(parsed.dropoffTime);
       } catch (error) {
@@ -189,7 +186,7 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
         year: today.getFullYear()
       };
       const defaultPickupTime = getNextAvailablePickupTime(defaultPickupDate);
-      
+
       setSelectedPickupDate(defaultPickupDate);
       setPickupTime(defaultPickupTime);
       saveToLocalStorage({ selectedPickupDate: defaultPickupDate, pickupTime: defaultPickupTime });
@@ -197,11 +194,11 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
   }, []);
 
   const monthNames = [
-    'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
-    'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+    t('january'), t('february'), t('march'), t('april'), t('may'), t('june'),
+    t('july'), t('august'), t('september'), t('october'), t('november'), t('december')
   ];
 
-  const weekDays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+  const weekDays = [t('monday'), t('tuesday'), t('wednesday'), t('thursday'), t('friday'), t('saturday'), t('sunday')];
 
   // Generate time options (00:00 to 23:00)
   const timeOptions = Array.from({ length: 24 }, (_, i) => {
@@ -259,26 +256,26 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
 
   const handleDateClick = (day, month, year) => {
     if (!day) return;
-    
+
     // Check if date is within 10 days from current date
     const clickedDate = new Date(year, month, day);
     const currentDate = new Date();
     const maxDate = new Date(currentDate);
     maxDate.setDate(currentDate.getDate() + 10);
-    
+
     // Reset time to compare only dates
     clickedDate.setHours(0, 0, 0, 0);
     currentDate.setHours(0, 0, 0, 0);
     maxDate.setHours(0, 0, 0, 0);
-    
+
     // Prevent selection if date is in the past or more than 10 days from now
     if (clickedDate < currentDate || clickedDate > maxDate) {
       return;
     }
-    
+
     const clickedDateObj = { day, month, year };
     const clickedTimestamp = clickedDate.getTime();
-    
+
     if (!selectedPickupDate) {
       setSelectedPickupDate(clickedDateObj);
       // Update pickup time if selecting today
@@ -287,7 +284,7 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
       saveToLocalStorage({ selectedPickupDate: clickedDateObj, pickupTime: nextAvailableTime });
     } else if (!selectedDropoffDate) {
       const pickupTimestamp = new Date(selectedPickupDate.year, selectedPickupDate.month, selectedPickupDate.day).getTime();
-      
+
       if (clickedTimestamp > pickupTimestamp) {
         setSelectedDropoffDate(clickedDateObj);
         saveToLocalStorage({ selectedDropoffDate: clickedDateObj });
@@ -322,47 +319,47 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
 
   const isDateInRange = (day, month, year) => {
     if (!day || !selectedPickupDate || !selectedDropoffDate) return false;
-    
+
     const currentTimestamp = new Date(year, month, day).getTime();
     const pickupTimestamp = new Date(selectedPickupDate.year, selectedPickupDate.month, selectedPickupDate.day).getTime();
     const dropoffTimestamp = new Date(selectedDropoffDate.year, selectedDropoffDate.month, selectedDropoffDate.day).getTime();
-    
+
     return currentTimestamp > pickupTimestamp && currentTimestamp < dropoffTimestamp;
   };
 
   const isDateSelected = (day, month, year) => {
     if (!day) return false;
-    
-    if (selectedPickupDate && 
-        selectedPickupDate.day === day && 
-        selectedPickupDate.month === month && 
-        selectedPickupDate.year === year) {
+
+    if (selectedPickupDate &&
+      selectedPickupDate.day === day &&
+      selectedPickupDate.month === month &&
+      selectedPickupDate.year === year) {
       return true;
     }
-    
-    if (selectedDropoffDate && 
-        selectedDropoffDate.day === day && 
-        selectedDropoffDate.month === month && 
-        selectedDropoffDate.year === year) {
+
+    if (selectedDropoffDate &&
+      selectedDropoffDate.day === day &&
+      selectedDropoffDate.month === month &&
+      selectedDropoffDate.year === year) {
       return true;
     }
-    
+
     return false;
   };
 
   const isDateDisabled = (day, month, year) => {
     if (!day) return false;
-    
+
     const dateToCheck = new Date(year, month, day);
     const currentDate = new Date();
     const maxDate = new Date(currentDate);
     maxDate.setDate(currentDate.getDate() + 10);
-    
+
     // Reset time to compare only dates
     dateToCheck.setHours(0, 0, 0, 0);
     currentDate.setHours(0, 0, 0, 0);
     maxDate.setHours(0, 0, 0, 0);
-    
+
     // Disable if date is in the past or more than 10 days from now
     return dateToCheck < currentDate || dateToCheck > maxDate;
   };
@@ -381,47 +378,47 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
   // Get disabled times for pickup based on current date/time
   const getDisabledPickupTimes = () => {
     if (!selectedPickupDate) return [];
-    
+
     const now = new Date();
-    const isToday = selectedPickupDate.day === now.getDate() && 
-                    selectedPickupDate.month === now.getMonth() && 
-                    selectedPickupDate.year === now.getFullYear();
-    
+    const isToday = selectedPickupDate.day === now.getDate() &&
+      selectedPickupDate.month === now.getMonth() &&
+      selectedPickupDate.year === now.getFullYear();
+
     if (!isToday) return [];
-    
+
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
     const disabledTimes = [];
-    
+
     // Disable all times before current time
     // If current time is past the hour (e.g., 14:30), disable that hour too
     const cutoffHour = currentMinute > 0 ? currentHour + 1 : currentHour;
-    
+
     for (let i = 0; i < cutoffHour; i++) {
       disabledTimes.push(`${i.toString().padStart(2, '0')}:00`);
     }
-    
+
     return disabledTimes;
   };
 
   // Get disabled times for dropoff based on pickup time and date
   const getDisabledDropoffTimes = () => {
     if (!selectedDropoffDate || !selectedPickupDate) return [];
-    
-    const isSameDay = selectedPickupDate.day === selectedDropoffDate.day && 
-                      selectedPickupDate.month === selectedDropoffDate.month && 
-                      selectedPickupDate.year === selectedDropoffDate.year;
-    
+
+    const isSameDay = selectedPickupDate.day === selectedDropoffDate.day &&
+      selectedPickupDate.month === selectedDropoffDate.month &&
+      selectedPickupDate.year === selectedDropoffDate.year;
+
     if (!isSameDay) return [];
-    
+
     // If same day, disable times before or equal to pickup time
     const pickupHour = parseInt(pickupTime.split(':')[0]);
     const disabledTimes = [];
-    
+
     for (let i = 0; i <= pickupHour; i++) {
       disabledTimes.push(`${i.toString().padStart(2, '0')}:00`);
     }
-    
+
     return disabledTimes;
   };
 
@@ -437,10 +434,10 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
         selectedPickupDate,
         selectedDropoffDate
       };
-      
+
       // Save complete data to localStorage
       localStorage.setItem(RENTAL_DATES_KEY, JSON.stringify(rentalData));
-      
+
       onConfirm(rentalData);
       onClose();
     }
@@ -458,8 +455,8 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
       <div className="bg-white rounded-lg max-w-2xl w-full animate-slideUp shadow-xl">
         {/* Header */}
         <div className="bg-white border-b px-6 py-4 flex items-center justify-between rounded-t-lg">
-          <h2 className="text-lg font-semibold">Thời gian</h2>
-          <button 
+          <h2 className="text-lg font-semibold"> {t('time')} </h2>
+          <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
           >
@@ -471,7 +468,7 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
 
         {/* Header Title */}
         <div className="px-6 pt-4 pb-2">
-          <h3 className="text-sm font-medium text-gray-900 text-center">Thuê theo ngày</h3>
+          <h3 className="text-sm font-medium text-gray-900 text-center">{t('rentalPerDay')}</h3>
         </div>
 
         {/* Calendar Content */}
@@ -510,15 +507,14 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
                       <button
                         onClick={() => handleDateClick(day, selectedMonth, selectedYear)}
                         disabled={isDateDisabled(day, selectedMonth, selectedYear)}
-                        className={`w-full h-full flex flex-col items-center justify-center text-sm transition-colors rounded ${
-                          isDateSelected(day, selectedMonth, selectedYear)
+                        className={`w-full h-full flex flex-col items-center justify-center text-sm transition-colors rounded ${isDateSelected(day, selectedMonth, selectedYear)
                             ? 'bg-blue-500 text-white font-semibold'
                             : isDateInRange(day, selectedMonth, selectedYear)
-                            ? 'bg-blue-100 text-gray-900'
-                            : isDateDisabled(day, selectedMonth, selectedYear)
-                            ? 'text-gray-300 cursor-not-allowed'
-                            : 'hover:bg-gray-100 text-gray-700'
-                        }`}
+                              ? 'bg-blue-100 text-gray-900'
+                              : isDateDisabled(day, selectedMonth, selectedYear)
+                                ? 'text-gray-300 cursor-not-allowed'
+                                : 'hover:bg-gray-100 text-gray-700'
+                          }`}
                       >
                         <span>{day}</span>
                       </button>
@@ -563,15 +559,14 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
                       <button
                         onClick={() => handleDateClick(day, nextMonth, nextMonthYear)}
                         disabled={isDateDisabled(day, nextMonth, nextMonthYear)}
-                        className={`w-full h-full flex flex-col items-center justify-center text-sm transition-colors rounded ${
-                          isDateSelected(day, nextMonth, nextMonthYear)
+                        className={`w-full h-full flex flex-col items-center justify-center text-sm transition-colors rounded ${isDateSelected(day, nextMonth, nextMonthYear)
                             ? 'bg-blue-500 text-white font-semibold'
                             : isDateInRange(day, nextMonth, nextMonthYear)
-                            ? 'bg-blue-100 text-gray-900'
-                            : isDateDisabled(day, nextMonth, nextMonthYear)
-                            ? 'text-gray-300 cursor-not-allowed'
-                            : 'hover:bg-gray-100 text-gray-700'
-                        }`}
+                              ? 'bg-blue-100 text-gray-900'
+                              : isDateDisabled(day, nextMonth, nextMonthYear)
+                                ? 'text-gray-300 cursor-not-allowed'
+                                : 'hover:bg-gray-100 text-gray-700'
+                          }`}
                       >
                         <span>{day}</span>
                       </button>
@@ -588,7 +583,7 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
           <div className="mt-6 grid grid-cols-2 gap-4">
             {/* Pickup Time */}
             <TimeDropdown
-              label="Nhận xe"
+              label={t('pickUpVehicle')}
               value={pickupTime}
               onChange={(time) => {
                 setPickupTime(time);
@@ -600,7 +595,7 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
 
             {/* Dropoff Time */}
             <TimeDropdown
-              label="Trả xe"
+              label={t('returnVehicle')}
               value={dropoffTime}
               onChange={(time) => {
                 setDropoffTime(time);
@@ -614,11 +609,11 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
           {/* Time Range Display */}
           <div className="mt-4 space-y-1 text-xs text-gray-600">
             <div className="flex justify-between">
-              <span>Thời gian nhận xe</span>
+              <span>{t('pickUpTime')}</span>
               <span>{pickupTime}-22:00</span>
             </div>
             <div className="flex justify-between">
-              <span>Thời gian trả xe</span>
+              <span>{t('returnTime')}</span>
               <span>06:00-{dropoffTime}</span>
             </div>
           </div>
@@ -638,7 +633,7 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
                 )}
               </div>
               <div className="text-xs text-gray-600 mt-1">
-                Thời gian thuê: <span className="text-blue-600 font-semibold">{calculateDuration()} ngày</span>
+                {t('rentalDuration')}: <span className="text-blue-600 font-semibold">{calculateDuration()} {t('days')}</span>
                 {calculateDuration() > 0 && (
                   <button className="ml-1 text-gray-400 hover:text-gray-600">
                     <svg className="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -653,7 +648,7 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
               disabled={!selectedPickupDate || !selectedDropoffDate}
               className="ml-4 px-6 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed text-sm"
             >
-              Tiếp tục
+              {t('next')}
             </button>
           </div>
         </div>

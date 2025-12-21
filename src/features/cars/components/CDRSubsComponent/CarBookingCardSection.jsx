@@ -39,6 +39,13 @@ const CarBookingCardSection = ({
     }
   }, [user, hasVerificationStatus, refreshVerificationStatus]);
 
+  // Save total price with delivery to localStorage whenever values change
+  useEffect(() => {
+    if (!loadingRate && dailyPrice && rentalDates.duration) {
+      const totalPriceDelivery = Math.round(dailyPrice * rentalDates.duration * 0.15 + (deliveryLocation ? deliveryFee : 0));
+      localStorage.setItem('totalPriceDelivery', totalPriceDelivery.toString());
+    }
+  }, [dailyPrice, rentalDates.duration, deliveryLocation, deliveryFee, loadingRate]);
   return (
     <div className="lg:col-span-1">
       <div className="bg-white rounded-lg p-6 sticky top-4">
@@ -158,7 +165,7 @@ const CarBookingCardSection = ({
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <p className="text-sm text-gray-600 text-wrap">
-                        {deliveryLocation || `${locationAddress}, ${locationCity}`}
+                        {deliveryLocation || `${locationAddress}`}
                       </p>
                       {deliveryDistance && (
                         <p className="text-xs text-gray-500 mt-1">

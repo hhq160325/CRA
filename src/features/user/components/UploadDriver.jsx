@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { tokenUtils } from '../../auth/utils';
 import { USER_ENDPOINTS } from '../../../config/api';
 import { updateVerificationStatus } from '../../auth/authSlice';
+import { selectUser } from '../../auth/authSlice';
 
 const UploadDriver = () => {
   const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
+  const user = useSelector(selectUser);
   const [frontFile, setFrontFile] = useState(null);
   const [frontPreviewUrl, setFrontPreviewUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -22,8 +24,17 @@ const UploadDriver = () => {
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
-    fetchDriverLicenseStatus();
-  }, []);
+    // Check if user is verified first, then fetch license status
+    if (user?.isVerified) {
+      // If user is verified, set status as AutoApproved and load images
+      setLicenseStatus('AutoApproved');
+      fetchDriverLicenseImages();
+      setLoadingStatus(false);
+    } else {
+      // If not verified, fetch the actual license status
+      fetchDriverLicenseStatus();
+    }
+  }, [user?.isVerified]);
 
   // Translate error when language changes
   useEffect(() => {
@@ -36,7 +47,10 @@ const UploadDriver = () => {
   useEffect(() => {
     if (licenseStatus === 'AutoApproved') {
       dispatch(updateVerificationStatus(true));
-      fetchDriverLicenseImages();
+      // Only fetch images if not already loaded from user.isVerified check
+      if (!licenseImages.front) {
+        fetchDriverLicenseImages();
+      }
     } else if (licenseStatus === 'Denied') {
       dispatch(updateVerificationStatus(false));
       fetchDriverLicenseImages();
@@ -77,6 +91,10 @@ const UploadDriver = () => {
       }
     } catch (err) {
       console.error('Error fetching driver license status:', err);
+      // If user.isVerified is true but API fails, still show as AutoApproved
+      if (user?.isVerified) {
+        setLicenseStatus('AutoApproved');
+      }
     } finally {
       setLoadingStatus(false);
     }
@@ -142,7 +160,10 @@ const UploadDriver = () => {
       );
     }
 
-    if (!licenseStatus) {
+    // If user.isVerified is true, show as approved regardless of API status
+    const effectiveStatus = user?.isVerified ? 'AutoApproved' : licenseStatus;
+
+    if (!effectiveStatus) {
       return (
         <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600">
           {t('noLicenseUploaded')}
@@ -161,6 +182,11 @@ const UploadDriver = () => {
         text: 'text-green-800',
         label: t('uploadlicenseapproved')
       },
+      'Approved': {
+        bg: 'bg-green-100',
+        text: 'text-green-800',
+        label: t('uploadlicenseapproved')
+      },
       'Denied': {
         bg: 'bg-red-100',
         text: 'text-red-800',
@@ -168,8 +194,8 @@ const UploadDriver = () => {
       }
     };
 
-    const config = statusConfig[licenseStatus] || statusConfig['Pending'];
-    console.log("licenseStatus", licenseStatus);
+    const config = statusConfig[effectiveStatus] || statusConfig['Pending'];
+    console.log("effectiveStatus", effectiveStatus, "user.isVerified", user?.isVerified);
 
     return (
       <span className={`ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${config.bg} ${config.text}`}>
@@ -285,7 +311,7 @@ const UploadDriver = () => {
         <h2 className="text-2xl font-semibold text-gray-900 mb-2 flex items-center">
           {t('updateDriverLicense')}
           {getStatusBadge()}
-          {(licenseStatus === 'AutoApproved' || licenseStatus === 'Denied') && (
+          {((licenseStatus === 'AutoApproved' || licenseStatus === 'Approved') || user?.isVerified) && (
             <button
               onClick={handleEditModeToggle}
               className="ml-3 px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -298,7 +324,7 @@ const UploadDriver = () => {
           {t('uploadDriverLicenseDescription')}
         </p>
         {/* Upload Areas or Display Images */}
-        {(licenseStatus === 'AutoApproved' || licenseStatus === 'Denied') && !editMode ? (
+        {((licenseStatus === 'AutoApproved' || licenseStatus === 'Approved') || user?.isVerified) && !editMode ? (
           /* Display uploaded images for approved/denied licenses */
           <div>
             {loadingImages ? (
@@ -329,34 +355,36 @@ const UploadDriver = () => {
                 </div>
 
                 {/* License Information Display */}
-                {/* <div>
+                <div>
                   <h4 className="text-lg font-medium text-gray-900 mb-3">{t('licenseInformation')}</h4>
-                  <div className="w-full h-64 border-2 border-gray-200 rounded-lg bg-gray-50 p-4 overflow-y-auto">
+                  <div className="w-full border-2 border-gray-200 rounded-lg bg-gray-50 p-4 overflow-y-auto">
                     {licenseInfo ? (
                       <div className="space-y-3">
-                        <div>
-                          <label className="text-sm font-medium text-gray-600">{t('licenseNumber')}</label>
-                          <p className="text-sm text-gray-900">{licenseInfo.licenseNumber || 'N/A'}</p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-gray-600">{t('licenseName')}</label>
-                          <p className="text-sm text-gray-900">{licenseInfo.licenseName || 'N/A'}</p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-gray-600">{t('dateOfBirth')}</label>
-                          <p className="text-sm text-gray-900">{licenseInfo.licenseDoB ? new Date(licenseInfo.licenseDoB).toLocaleDateString() : 'N/A'}</p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-gray-600">{t('licenseClass')}</label>
-                          <p className="text-sm text-gray-900">{licenseInfo.licenseClass || 'N/A'}</p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-gray-600">{t('issueDate')}</label>
-                          <p className="text-sm text-gray-900">{licenseInfo.licenseIssue ? new Date(licenseInfo.licenseIssue).toLocaleDateString() : 'N/A'}</p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-gray-600">{t('expiryDate')}</label>
-                          <p className="text-sm text-gray-900">{licenseInfo.licenseExpiry ? new Date(licenseInfo.licenseExpiry).toLocaleDateString() : t('noExpiry')}</p>
+                        <div className='grid grid-cols-2'>
+                          <div>
+                            <label className="text-sm font-medium text-gray-600">{t('licenseNumber')}</label>
+                            <p className="text-sm text-gray-900">{licenseInfo.licenseNumber || 'N/A'}</p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-gray-600">{t('licenseName')}</label>
+                            <p className="text-sm text-gray-900">{licenseInfo.licenseName || 'N/A'}</p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-gray-600">{t('dateOfBirth')}</label>
+                            <p className="text-sm text-gray-900">{licenseInfo.licenseDoB ? new Date(licenseInfo.licenseDoB).toLocaleDateString() : 'N/A'}</p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-gray-600">{t('licenseClass')}</label>
+                            <p className="text-sm text-gray-900">{licenseInfo.licenseClass || 'N/A'}</p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-gray-600">{t('issueDate')}</label>
+                            <p className="text-sm text-gray-900">{licenseInfo.licenseIssue ? new Date(licenseInfo.licenseIssue).toLocaleDateString() : 'N/A'}</p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-gray-600">{t('expiryDate')}</label>
+                            <p className="text-sm text-gray-900">{licenseInfo.licenseExpiry ? new Date(licenseInfo.licenseExpiry).toLocaleDateString() : t('noExpiry')}</p>
+                          </div>
                         </div>
                       </div>
                     ) : (
@@ -368,7 +396,7 @@ const UploadDriver = () => {
                       </div>
                     )}
                   </div>
-                </div> */}
+                </div>
               </div>
             )}
           </div>
@@ -456,10 +484,10 @@ const UploadDriver = () => {
         <div className="flex gap-3">
           <button
             onClick={handleUpload}
-            disabled={!frontFile || uploading || ((licenseStatus === 'AutoApproved' || licenseStatus === 'Denied') && !editMode)}
+            disabled={!frontFile || uploading || (((licenseStatus === 'AutoApproved' || licenseStatus === 'Approved') || user?.isVerified) && !editMode)}
             className={`flex-1 px-6 py-2 rounded-lg font-medium transition-colors ${!frontFile || uploading || ((licenseStatus === 'AutoApproved' || licenseStatus === 'Denied') && !editMode)
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-700'
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
               }`}
           >
             {uploading ? (

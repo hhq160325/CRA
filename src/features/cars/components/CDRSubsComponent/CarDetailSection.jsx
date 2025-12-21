@@ -354,8 +354,7 @@ const CarDetailSection = ({
             <svg className="w-5 h-5 " fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
             <div>
               <p className="font-semibold">{locationName}</p>
-              <p className="text-sm text-gray-600">{locationAddress}, {locationCity}</p>
-              <p className="text-xs text-gray-500 mt-1">{t('specificAddressAfterBooking')}</p>
+              <p className="text-sm text-gray-600">{locationAddress}</p>
             </div>
           </div>
           

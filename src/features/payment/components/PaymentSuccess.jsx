@@ -1,18 +1,34 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { updateBooking } from '../api';
+import { updateBooking, updateBookingPayment } from '../api';
 
 const PaymentSuccess = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [paymentDetails, setPaymentDetails] = useState(null);
+  
+  // Extract URL parameters
+  const orderCode = searchParams.get('orderCode');
+  const paymentStatus = searchParams.get('status');
+  const paymentId = searchParams.get('id');
+  const code = searchParams.get('code');
+  const cancel = searchParams.get('cancel');
+  
+  console.log('PaymentSuccess - URL Parameters:', {
+    orderCode,
+    paymentStatus,
+    paymentId,
+    code,
+    cancel
+  });
   
   useEffect(() => {
     const getDefaultPaymentDetails = () => {
       const currentLocale = i18n.language === 'vi' ? 'vi-VN' : 'en-US';
       return {
-        transactionId: 'TXN' + Date.now(),
+        transactionId: orderCode || 'TXN' + Date.now(),
         amount: '80.00',
         paymentMethod: 'QR Payment',
         paymentDate: new Date().toLocaleDateString(currentLocale, { 
@@ -22,6 +38,8 @@ const PaymentSuccess = () => {
           hour: '2-digit',
           minute: '2-digit'
         }),
+        paymentStatus: paymentStatus || 'PAID',
+        paymentId: paymentId,
         carName: 'Nissan GT - R',
         carImage: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=120&h=80&fit=crop',
         billingInfo: {
@@ -50,29 +68,46 @@ const PaymentSuccess = () => {
         console.log('PaymentSuccess - Retrieved booking data:', bookingData);
         
         // Update booking status to "Confirmed" if bookingId exists
-        if (bookingData.bookingId) {
-          updateBooking(bookingData.bookingId, 'Confirmed')
+        // if (bookingData.bookingId) {
+        //   updateBooking(bookingData.bookingId, 'Confirmed')
+        //     .then(() => {
+        //       console.log('PaymentSuccess - Booking status updated to Confirmed');
+        //     })
+        //     .catch((error) => {
+        //       console.error('PaymentSuccess - Failed to update booking status:', error);
+        //       // Continue showing success page even if update fails
+        //     });
+        // } else {
+        //   console.warn('PaymentSuccess - No bookingId found in booking data');
+        // }
+
+        // Update booking payment status to "Paid" with orderCode and paymentStatus, set method: PayOS
+        if (orderCode && paymentStatus) {
+          updateBookingPayment(orderCode, paymentStatus, 'PayOS')
             .then(() => {
-              console.log('PaymentSuccess - Booking status updated to Completed');
+              console.log('PaymentSuccess - Booking payment status updated to:', paymentStatus);
             })
             .catch((error) => {
-              console.error('PaymentSuccess - Failed to update booking status:', error);
+              console.error('PaymentSuccess - Failed to update booking payment status:', error);
               // Continue showing success page even if update fails
             });
         } else {
-          console.warn('PaymentSuccess - No bookingId found in booking data');
+          console.warn('PaymentSuccess - No orderCode or paymentStatus found in URL parameters');
         }
-        
+
         // Get current locale from i18n
         const currentLocale = i18n.language === 'vi' ? 'vi-VN' : 'en-US';
         
         // Format the payment details from booking data
-        const subtotal = bookingData.carRentPrice * bookingData.rentime;
-        const bookingFeeAmount = subtotal * (bookingData.bookingFee / 100);
-        const totalRentalPrice = subtotal + bookingFeeAmount;
-        
+        // const subtotal = bookingData.carRentPrice * bookingData.rentime;
+        // const bookingFeeAmount = subtotal * (bookingData.bookingFee / 100);
+        // const totalRentalPrice = subtotal + bookingFeeAmount;
+        const rawTotalPrice = localStorage.getItem("totalPriceDelivery");
+        const subtotal = rawTotalPrice ? parseInt(rawTotalPrice) : 0;
+        const bookingFeeAmount = rawTotalPrice ? parseInt(rawTotalPrice) : 0;
+        const totalRentalPrice = rawTotalPrice ? parseInt(rawTotalPrice) : 0;
         const details = {
-          transactionId: 'TXN' + Date.now(),
+          transactionId: orderCode || 'TXN' + Date.now(),
           amount: bookingFeeAmount,
           totalRentalPrice: totalRentalPrice, // Total rental price for reference
           paymentMethod: 'QR Payment',
@@ -83,6 +118,8 @@ const PaymentSuccess = () => {
             hour: '2-digit',
             minute: '2-digit'
           }),
+          paymentStatus: paymentStatus || 'PAID',
+          paymentId: paymentId,
           carName: bookingData.carName || 'Nissan GT - R',
           carImage: bookingData.carImage || 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=120&h=80&fit=crop',
           carRating: bookingData.carRating,
@@ -140,6 +177,7 @@ const PaymentSuccess = () => {
   // Function to clear localStorage and navigate
   const handleNavigation = (path) => {
     localStorage.removeItem('pendingBooking');
+    localStorage.removeItem("totalPriceDelivery");
     console.log('PaymentSuccess - Cleared pendingBooking from localStorage');
     navigate(path);
   };
@@ -175,10 +213,10 @@ const PaymentSuccess = () => {
             {t('paymentSuccessMessage')}
           </p>
           
-          {/* <div className="inline-block bg-green-50 border border-green-200 rounded-lg px-6 py-3">
+          <div className="inline-block bg-green-50 border border-green-200 rounded-lg px-6 py-3">
             <p className="text-sm text-gray-600">{t('transactionId')}</p>
             <p className="text-lg font-bold text-gray-900">{paymentDetails.transactionId}</p>
-          </div> */}
+          </div>
         </div>
 
         {/* Payment Details */}
@@ -318,7 +356,7 @@ const PaymentSuccess = () => {
             </button> */}
             
             <button
-              onClick={() => handleNavigation('/profile/rental-history')}
+              onClick={() => handleNavigation('/profile/rental_history')}
               className="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
               {t('viewRentalHistory')}

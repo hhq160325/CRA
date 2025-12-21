@@ -1,6 +1,16 @@
 export const carTranslate = {
   en: {
     translation: {
+      // Car Registration Validation
+      manufacturerRequired: "Brand is required",
+      modelRequired: "Model is required",
+      numberOfSeatsRequired: "Number of seats is required",
+      yearOfManufactureRequired: "Year of manufacture is required",
+      transmissionRequired: "Transmission is required",
+      fuelTypeRequired: "Fuel type is required",
+      invalidNumberOfSeats: "Number of seats must be a positive number",
+      invalidYearOfManufacture: "Year of manufacture must be between 1900 and {{currentYear}}",
+
       // Car Detail Rev
       viewAllPhotos: "View all photos",
       trips: "trips",
@@ -87,7 +97,8 @@ export const carTranslate = {
       deliveryFee: "Delivery fee",
       discount: "Discount",
       discountDesc: "Discount for daily rate",
-
+      filesSelected: "Files Selected",
+      managedByMorrent: "Managed By Morrent",
       // Additional Car Detail translations
       chooseOneOfTwo: "Choose 1 of 2 options",
       licenseAndPassportHold: "License (verify) & Passport (hold)",
@@ -105,11 +116,67 @@ export const carTranslate = {
       // Verification Modal
       verificationRequired: "Verification Required",
       verificationRequiredMessage: "You need to upload and verify your driver's license before you can rent a car.",
-      uploadDriverLicense: "Upload Driver License"
+      uploadDriverLicense: "Upload Driver License",
+
+      //Delivery Location Modal
+      vehiclePicDeliLocation: "Vehicle Pickup and Delivery Location",
+      deliveryCar: "Delivery (20,000 VND/km)",
+      customAddress: "Custom Address",
+      closeModal: "Close",
+      inputOrTapIcon: "Enter a specific address or tap the icon to get the current location",
+      airportLocation: "Airport Delivery",
+      deliveryFees: "Delivery fee will be calculated based on the actual distance",
+      minimum: "20.000₫/km (minimum 60.000₫)",
+      changeAddress: "Change Address",
+      addressConfirmation: " Address Confirmation",
+
+      //DateAndTimePicker
+      time: "Time",
+      rentalPerDay: "Rental per day",
+      month: "Month",
+      pickUpVehicle: "Pick up vehicle",
+      returnVehicle: "Return vehicle",
+      pickUpTime: "Pick up time",
+      returnTime: "Return time",
+      rentalDuration: "Rental duration",
+      days: "ngày",
+      T: "T",
+      next: "Next",
+      // Month names
+      january: "January",
+      february: "February",
+      march: "March",
+      april: "April",
+      may: "May",
+      june: "June",
+      july: "July",
+      august: "August",
+      september: "September",
+      october: "October",
+      november: "November",
+      december: "December",
+      // Week names
+      monday: "M",
+      tuesday: "T",
+      wednesday: "W",
+      thursday: "T",
+      friday: "F",
+      saturday: "S",
+      sunday: "S",
     }
   },
   vi: {
     translation: {
+      // Car Registration Validation
+      manufacturerRequired: "Hãng xe là bắt buộc",
+      modelRequired: "Mẫu xe là bắt buộc",
+      numberOfSeatsRequired: "Số ghế là bắt buộc",
+      yearOfManufactureRequired: "Năm sản xuất là bắt buộc",
+      transmissionRequired: "Hộp số là bắt buộc",
+      fuelTypeRequired: "Loại nhiên liệu là bắt buộc",
+      invalidNumberOfSeats: "Số ghế phải là số dương",
+      invalidYearOfManufacture: "Năm sản xuất phải từ 1900 đến {{currentYear}}",
+
       // Car Detail Rev
       viewAllPhotos: "Xem tất cả ảnh",
       trips: "chuyến",
@@ -196,7 +263,8 @@ export const carTranslate = {
       deliveryFee: "Phí giao nhận xe",
       discount: "Chương trình giảm giá",
       discountDesc: "Giảm 120k cho đơn giá",
-
+      filesSelected: "File đã chọn",
+      managedByMorrent: "Managed By Morrent",
       // Additional Car Detail translations
       chooseOneOfTwo: "Chọn 1 trong 2 hình thức",
       licenseAndPassportHold: "GPLX (đối chiếu) & Passport (giữ lại)",
@@ -214,7 +282,51 @@ export const carTranslate = {
       // Verification Modal
       verificationRequired: "Yêu cầu xác minh",
       verificationRequiredMessage: "Bạn cần tải lên và xác minh bằng lái xe trước khi có thể thuê xe.",
-      uploadDriverLicense: "Tải lên bằng lái xe"
+      uploadDriverLicense: "Tải lên bằng lái xe",
+      //Delivery Location Modal
+      vehiclePicDeliLocation: "Địa điểm giao nhận xe",
+      deliveryCar: "Giao xe tận nơi (20.000₫/km)",
+      customAddress: "Địa chỉ tùy chỉnh",
+      closeModal: "Đóng",
+      inputOrTapIcon: "Nhập địa chỉ cụ thể hoặc nhấn biểu tượng để lấy vị trí hiện tại",
+      airportLocation: "Giao xe sân bay",
+      deliveryFee: "Phí giao xe sẽ được tính dựa trên khoảng cách thực tế",
+      minimum: "20.000₫/km (tối thiểu 60.000₫)",
+      changeAddress: "Thay đổi",
+      addressConfirmation: " Xác nhận địa chỉ",
+      //DateAndTimePicker
+      time: "Thời gian",
+      rentalPerDay: "Thuê theo ngày",
+      month: "Tháng",
+      pickUpVehicle: "Nhận xe",
+      returnVehicle: "Trả xe",
+      pickUpTime: "Thời gian nhận xe",
+      returnTime: "Thời gian trả xe",
+      rentalDuration: "Thời gian thuê",
+      days: "ngày",
+      T: "T",
+      next: "Tiếp tục",
+      // Month names
+      january: "Tháng 1",
+      february: "Tháng 2",
+      march: "Tháng 3",
+      april: "Tháng 4",
+      may: "Tháng 5",
+      june: "Tháng 6",
+      july: "Tháng 7",
+      august: "Tháng 8",
+      september: "Tháng 9",
+      october: "Tháng 10",
+      november: "Tháng 11",
+      december: "Tháng 12",
+      // Week names
+      monday: "T2",
+      tuesday: "T3",
+      wednesday: "T4",
+      thursday: "T5",
+      friday: "T6",
+      saturday: "T7",
+      sunday: "CN",
     }
   }
 };

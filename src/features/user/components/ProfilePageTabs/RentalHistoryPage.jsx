@@ -23,7 +23,7 @@ const RentalHistoryPage = () => {
     const fetchRentalHistory = async () => {
       try {
         setLoading(true);
-        
+
         // Get userId from JWT token
         const token = localStorage.getItem('accessToken');
         if (!token) {
@@ -61,7 +61,7 @@ const RentalHistoryPage = () => {
           // For other errors, throw to be caught by outer catch
           throw bookingError;
         }
-        
+
         // Fetch all cars
         const carsResponse = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS);
         const allCars = carsResponse.data;
@@ -99,19 +99,19 @@ const RentalHistoryPage = () => {
           .map((booking) => {
             const car = carsMap[booking.carId];
             const pickupDate = new Date(booking.pickupTime);
-            
+
             // Get payment date from PayOS if available
             let paymentDate = 'No Payment';
             if (booking.invoiceId && paymentsMap[booking.invoiceId]) {
               const payment = paymentsMap[booking.invoiceId];
               const paymentStatus = payment.status ? String(payment.status).toLowerCase() : '';
-              
+
               // console.log(`RentalHistory - Booking ${booking.id} matched payment:`, {
               //   invoiceId: booking.invoiceId,
               //   paymentStatus,
               //   createdAt: payment.createDate
               // });
-              
+
               // Only show payment date if payment was successful
               if (paymentStatus === 'paid' || paymentStatus === 'success' || paymentStatus === 'completed') {
                 const paidDate = payment.createDate ? new Date(payment.createDate) : null;
@@ -122,7 +122,7 @@ const RentalHistoryPage = () => {
             } else {
               // console.log(`RentalHistory - Booking ${booking.id} has no matching payment. InvoiceId: ${booking.invoiceId}`);
             }
-       
+
             // Use the most recent date for sorting: updateDate if newer, otherwise createDate
             const createDate = booking.createDate || booking.pickupTime;
             const updateDate = booking.updateDate;
@@ -132,6 +132,7 @@ const RentalHistoryPage = () => {
 
             return {
               bookingId: booking.id,
+              bookingNumber: booking.bookingNumber,
               carId: booking.carId,
               carOwnerId: car?.owner?.id || null,
               carName: car?.model || 'Unknown Car',
@@ -155,7 +156,7 @@ const RentalHistoryPage = () => {
             ...item,
             id: index + 1 // Assign sequential ID after sorting
           }));
-        
+
         setRentalHistory(history);
         setError(null);
       } catch (err) {
@@ -248,63 +249,75 @@ const RentalHistoryPage = () => {
           <>
             {/* Mobile Card View */}
             <div className="lg:hidden">
-          {currentItems.map((rental) => (
-            <div key={rental.id} className="border-b border-gray-200 p-4">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-semibold text-gray-900 text-sm">{rental.carName}</h3>
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${rental.status === 'Confirmed' || rental.status === 'Paid'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
-                  }`}>
-                  {rental.status === 'Confirmed' ? t('confirmed') : t('cancelled')}
-                </span>
-              </div>
-              <div className="space-y-1 text-sm text-gray-600">
-                {/* <div className="flex justify-between">
+              {currentItems.map((rental) => (
+                <div key={rental.id} className="border-b border-gray-200 p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-semibold text-gray-900 text-sm">{rental.carName}</h3>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      rental.status === 'Confirmed' || rental.status === 'Paid'
+                        ? 'bg-green-100 text-green-800'
+                        : rental.status === 'Completed'
+                        ? 'bg-blue-100 text-blue-800'
+                        : rental.status === 'Pending'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {rental.status === 'Confirmed' 
+                        ? t('confirmed') 
+                        : rental.status === 'Completed' 
+                        ? t('completed') 
+                        : rental.status === 'Pending'
+                        ? t('pending')
+                        : t('cancelled')
+                      }
+                    </span>
+                  </div>
+                  <div className="space-y-1 text-sm text-gray-600">
+                    {/* <div className="flex justify-between">
                   <span>{t('type')}:</span>
                   <span>{rental.type}</span>
                 </div> */}
-                <div className="flex justify-between">
-                  <span>{t('brand')}:</span>
-                  <span>{rental.brand}</span>
+                    <div className="flex justify-between">
+                      <span>{t('brand')}:</span>
+                      <span>{rental.brand}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{t('plateNo')}:</span>
+                      <span>{rental.plateNo}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{t('rentDay')}:</span>
+                      <span>{rental.rentDay}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{t('paymentDate')}:</span>
+                      <span>{rental.paymentDate === 'No Payment' ? t('noPayment') : rental.paymentDate}</span>
+                    </div>
+                  </div>
+                  {(rental.status === 'Confirmed' || rental.status === 'Paid') && (
+                    <div className="mt-3 space-y-2">
+                      <button
+                        onClick={() => handleOpenFeedback(rental)}
+                        className="w-full px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                        </svg>
+                        {t('leaveFeedback') || 'Leave Feedback'}
+                      </button>
+                      <button
+                        onClick={() => handleOpenContact(rental)}
+                        className="w-full px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        {t('contact') || 'Contact'}
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <div className="flex justify-between">
-                  <span>{t('plateNo')}:</span>
-                  <span>{rental.plateNo}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{t('rentDay')}:</span>
-                  <span>{rental.rentDay}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{t('paymentDate')}:</span>
-                  <span>{rental.paymentDate === 'No Payment' ? t('noPayment') : rental.paymentDate}</span>
-                </div>
-              </div>
-              {(rental.status === 'Confirmed' || rental.status === 'Paid') && (
-                <div className="mt-3 space-y-2">
-                  <button
-                    onClick={() => handleOpenFeedback(rental)}
-                    className="w-full px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                    </svg>
-                    {t('leaveFeedback') || 'Leave Feedback'}
-                  </button>
-                  <button
-                    onClick={() => handleOpenContact(rental)}
-                    className="w-full px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                    {t('contact') || 'Contact'}
-                  </button>
-                </div>
-              )}
-              </div>
-            ))}
+              ))}
             </div>
 
             {/* Desktop Table View */}
@@ -319,31 +332,43 @@ const RentalHistoryPage = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('plateNo')}</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('rentDay')}</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('status')}</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('paymentDate')}</th>
+                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('paymentDate')}</th> */}
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('actions') || 'Actions'}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {currentItems.map((rental) => (
                     <tr key={rental.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.id}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.bookingNumber}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.carName}</td>
                       {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.type}</td> */}
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.brand}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.plateNo}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.rentDay}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${rental.status === 'Confirmed' || rental.status === 'Paid'
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          rental.status === 'Confirmed' || rental.status === 'Paid'
                             ? 'bg-green-100 text-green-800'
+                            : rental.status === 'Completed'
+                            ? 'bg-blue-100 text-blue-800'
+                            : rental.status === 'Pending'
+                            ? 'bg-yellow-100 text-yellow-800'
                             : 'bg-red-100 text-red-800'
-                          }`}>
-                          {rental.status === 'Confirmed' ? t('confirmed') : t('cancelled')}
+                        }`}>
+                          {rental.status === 'Confirmed' 
+                            ? t('confirmed') 
+                            : rental.status === 'Completed' 
+                            ? t('completed') 
+                            : rental.status === 'Pending'
+                            ? t('pending')
+                            : t('cancelled')
+                          }
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.paymentDate === 'No Payment' ? t('noPayment') : rental.paymentDate}</td>
+                      {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.paymentDate === 'No Payment' ? t('noPayment') : rental.paymentDate}</td> */}
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {(rental.status === 'Confirmed' || rental.status === 'Paid') && (
-                          <div className="flex gap-2">
+                        {(rental.status === 'Confirmed' || rental.status === 'Completed' || rental.status === 'Paid') && (
+                          <div className="flex gap-2 grid grid-cols-1 align-center justify-items-center">
                             <button
                               onClick={() => handleOpenFeedback(rental)}
                               className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors"
@@ -378,22 +403,20 @@ const RentalHistoryPage = () => {
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
-                      currentPage === 1
+                    className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${currentPage === 1
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : 'bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     {t('previous') || 'Previous'}
                   </button>
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className={`ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
-                      currentPage === totalPages
+                    className={`ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${currentPage === totalPages
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : 'bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     {t('next') || 'Next'}
                   </button>
@@ -411,11 +434,10 @@ const RentalHistoryPage = () => {
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 text-sm font-medium ${
-                          currentPage === 1
+                        className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 text-sm font-medium ${currentPage === 1
                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                             : 'bg-white text-gray-500 hover:bg-gray-50'
-                        }`}
+                          }`}
                       >
                         <span className="sr-only">{t('previous') || 'Previous'}</span>
                         <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -434,11 +456,10 @@ const RentalHistoryPage = () => {
                             <button
                               key={pageNumber}
                               onClick={() => handlePageChange(pageNumber)}
-                              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                currentPage === pageNumber
+                              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === pageNumber
                                   ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
                                   : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                              }`}
+                                }`}
                             >
                               {pageNumber}
                             </button>
@@ -461,11 +482,10 @@ const RentalHistoryPage = () => {
                       <button
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage === totalPages}
-                        className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 text-sm font-medium ${
-                          currentPage === totalPages
+                        className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 text-sm font-medium ${currentPage === totalPages
                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                             : 'bg-white text-gray-500 hover:bg-gray-50'
-                        }`}
+                          }`}
                       >
                         <span className="sr-only">{t('next') || 'Next'}</span>
                         <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">

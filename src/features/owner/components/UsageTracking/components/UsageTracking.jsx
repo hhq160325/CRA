@@ -156,14 +156,16 @@ const UsageTracking = () => {
   };
 
   const filteredUsage = useMemo(() => {
-    return usageData.filter(car =>
-      filterCarUsageData(car, {
-        searchTerm,
-        brandFilter,
-        modelFilter,
-        statusFilter,
-      })
-    );
+    return usageData
+      .filter(car =>
+        filterCarUsageData(car, {
+          searchTerm,
+          brandFilter,
+          modelFilter,
+          statusFilter,
+        })
+      )
+      .sort((a, b) => a.carName.localeCompare(b.carName));
   }, [usageData, searchTerm, brandFilter, modelFilter, statusFilter]);
 
   // Get unique brands, models and statuses for filter dropdowns
@@ -332,8 +334,8 @@ const UsageTracking = () => {
                     return (
                       <tr key={car.id} className="hover:bg-gray-50">
                         <td className="py-4 px-6">
-                          <div className="font-medium text-gray-900 text-sm">{car.carName}</div>
-                          <div className="text-xs text-gray-500">{car.carModel} • {car.licensePlate}</div>
+                          <div className="font-medium text-gray-900 text-sm">{car.carName} • {car.licensePlate}</div>
+                          {/* <div className="text-xs text-gray-500">{car.carModel} </div> */}
                           <div className="text-xs text-gray-400">{car.seats} {t('usageTracking.seats')} • {car.transmission} • {car.fuelType}</div>
                         </td>
                         {/* <td className="py-4 px-6">
@@ -387,23 +389,23 @@ const UsageTracking = () => {
                         </td>
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-2">
-                            <button
+                            {/* <button
                               onClick={() => openModal(car)}
                               className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                             >
                               {t('usageTracking.viewDetails')}
+                            </button> */}
+                            <button
+                              onClick={() => openMaintenanceModal(car)}
+                              disabled={!(car.currentStatus === 'pending' || car.currentStatus === 'active')}
+                              className={`text-sm font-medium ${
+                                (car.currentStatus === 'pending' || car.currentStatus === 'active')
+                                  ? 'text-orange-600 hover:text-orange-700 cursor-pointer'
+                                  : 'text-gray-400 cursor-not-allowed'
+                              }`}
+                            >
+                              {t('usageTracking.schedule')}
                             </button>
-                            {(car.currentStatus === 'pending' || car.currentStatus === 'active') && (
-                              <>
-                                <span className="text-gray-300">|</span>
-                                <button
-                                  onClick={() => openMaintenanceModal(car)}
-                                  className="text-orange-600 hover:text-orange-700 text-sm font-medium"
-                                >
-                                  {t('usageTracking.schedule')}
-                                </button>
-                              </>
-                            )}
                           </div>
                         </td>
                       </tr>

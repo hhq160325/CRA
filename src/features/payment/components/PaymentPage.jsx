@@ -317,9 +317,9 @@ const PaymentPage = () => {
                 paymentUrl = response.payment || response.paymentUrl || response.checkoutUrl || response.url || '';
             }
             
-            console.log('PaymentPage - Extracted bookingId:', bookingId);
-            console.log('PaymentPage - Extracted bookingIdInSchedule:', bookingIdInSchedule);
-            console.log('PaymentPage - Extracted paymentUrl:', paymentUrl);
+            // console.log('PaymentPage - Extracted bookingId:', bookingId);
+            // console.log('PaymentPage - Extracted bookingIdInSchedule:', bookingIdInSchedule);
+            // console.log('PaymentPage - Extracted paymentUrl:', paymentUrl);
             
             // Store booking data to localStorage after successful API call
             const bookingDataToStore = {
@@ -339,7 +339,7 @@ const PaymentPage = () => {
                 createdAt: new Date().toISOString()
             };
             localStorage.setItem('pendingBooking', JSON.stringify(bookingDataToStore));
-            console.log('PaymentPage - Booking data stored to localStorage with bookingId:', bookingIdInSchedule);
+            // console.log('PaymentPage - Booking data stored to localStorage with bookingId:', bookingIdInSchedule);
             
             // Redirect to payment URL
             if (paymentUrl && paymentUrl.startsWith('http')) {

@@ -21,6 +21,7 @@ const CarHandover = () => {
   if (error) return <ErrorState error={error} />;
 
   return (
+    <>
     <div className="p-8 space-y-6 space-y-reverse-0 min-h-full bg-gray-50">
       <CarHandoverHeader />
       
@@ -42,14 +43,14 @@ const CarHandover = () => {
         itemsPerPage={10}
         onPageChange={handlePageChange}
       />
-
-      <CarHandoverModal
+    </div>
+          <CarHandoverModal
         isOpen={isModalOpen}
         selectedLog={selectedLog}
         staffMap={staffMap}
         onClose={closeModal}
       />
-    </div>
+      </>
   );
 };
 

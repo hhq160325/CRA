@@ -37,7 +37,7 @@ const DriverLicenseApprove = () => {
           handleReject={handleReject}
           currentPage={currentPage}
           totalItems={totalItems}
-          itemsPerPage={10}
+          itemsPerPage={20}
           onPageChange={handlePageChange}
           driverLicenses={driverLicenses}
         />

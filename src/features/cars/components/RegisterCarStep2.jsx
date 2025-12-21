@@ -34,11 +34,11 @@ const RegisterCarStep2 = () => {
         }
     }, []);
 
-    const currencies = [
-        { value: 'VND', label: 'VND' },
-        { value: 'USD', label: 'USD' },
-        { value: 'EUR', label: 'EUR' }
-    ];
+    // const currencies = [
+    //     { value: 'VND', label: 'VND' },
+    //     { value: 'USD', label: 'USD' },
+    //     { value: 'EUR', label: 'EUR' }
+    // ];
 
     useEffect(() => {
         loadParkLots();
@@ -172,7 +172,10 @@ const RegisterCarStep2 = () => {
                                 />
                             </div>
                             <div className="w-24 relative">
-                                <button
+                                <div className="w-full px-4 py-3 rounded-lg bg-white text-left flex items-center justify-between">
+                                    VND
+                                </div>
+                                {/* <button
                                     type="button"
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-left flex items-center justify-between"
@@ -209,7 +212,7 @@ const RegisterCarStep2 = () => {
                                             ))}
                                         </div>
                                     </>
-                                )}
+                                )} */}
                             </div>
                         </div>
                     </div>

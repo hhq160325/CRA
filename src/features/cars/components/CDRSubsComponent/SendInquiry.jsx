@@ -1,25 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import { axiosInstance } from '../../../../shared/utils/axiosInstance';
 import { INQUIRY_ENDPOINTS } from '../../../../config/api';
 
-const SendInquiry = ({ isOpen, onClose, carOwnerId, currentUserId }) => {
+const SendInquiry = ({ isOpen, onClose, carOwnerId, currentUserId, bookingInfo }) => {
     const { t } = useTranslation();
+
     const [formData, setFormData] = useState({
-        title: '',
+        title: 'Extend Booking Request',
         content: '',
         medias: []
     });
+    const [extendDays, setExtendDays] = useState('');
+    const [daysError, setDaysError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState(false);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+    // Generate final content with booking information and days
+    const generateFinalContent = () => {
+        if (!bookingInfo) return extendDays ? `Extend Booking Days Prefer: ${extendDays} days` : '';
+        
+        return `Booking Number: ${bookingInfo.bookingNumber || 'N/A'}
+Car License: ${bookingInfo.plateNo || 'N/A'}
+Car: ${bookingInfo.carName || 'N/A'} (${bookingInfo.brand || 'N/A'})
+
+Extend Booking Days Prefer: ${extendDays || '[Not specified]'} days`;
+    };
+
+    // Reset form when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            setExtendDays('');
+            setDaysError('');
+        }
+    }, [isOpen]);
+
+    const handleExtendDaysChange = (e) => {
+        const value = e.target.value;
+        
+        // Clear previous days error
+        setDaysError('');
+        
+        // Only allow positive numbers
+        if (value === '' || (Number(value) > 0 && Number.isInteger(Number(value)))) {
+            // Check if value is more than 5
+            if (Number(value) > 5) {
+                setDaysError(t('maxExtendDaysExceeded') || 'Maximum extend days is 5. Please enter 5 or fewer days.');
+                setExtendDays(value); // Still set the value to show user input
+            } else {
+                setExtendDays(value);
+            }
+        }
     };
 
     const handleFileChange = (e) => {
@@ -39,29 +70,36 @@ const SendInquiry = ({ isOpen, onClose, carOwnerId, currentUserId }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        if (!formData.title.trim() || !formData.content.trim()) {
-            setError(t('pleaseFillAllRequiredFields') || 'Please fill all required fields');
+
+        if (!extendDays || !extendDays.trim()) {
+            toast.error(t('pleaseSpecifyExtendDays') || 'Please specify the number of days to extend');
+            return;
+        }
+
+        // Check if days exceed maximum limit
+        if (Number(extendDays) > 5) {
+            toast.error(t('maxExtendDaysExceeded') || 'Maximum extend days is 5. Please enter 5 or fewer days.');
             return;
         }
 
         if (!currentUserId || !carOwnerId) {
-            setError(t('missingUserInformation') || 'Missing user information');
+            toast.error(t('missingUserInformation') || 'Missing user information');
             return;
         }
 
         setIsSubmitting(true);
-        setError('');
-        setSuccess(false);
 
         try {
+            // Generate final content before sending
+            const finalContent = generateFinalContent();
+            
             // Create FormData for multipart/form-data
             const formDataToSend = new FormData();
             formDataToSend.append('SenderId', currentUserId);
             formDataToSend.append('ReceiverId', carOwnerId);
             formDataToSend.append('Title', formData.title);
-            formDataToSend.append('Content', formData.content);
-            
+            formDataToSend.append('Content', finalContent);
+
             // Append media files
             formData.medias.forEach((file) => {
                 formDataToSend.append('Medias', file);
@@ -78,20 +116,26 @@ const SendInquiry = ({ isOpen, onClose, carOwnerId, currentUserId }) => {
             );
 
             console.log('Inquiry sent successfully:', response.data);
-            setSuccess(true);
             
+            // Show success toast
+            toast.success(t('inquirySentSuccessfully') || 'Inquiry sent successfully!');
+
             // Reset form and close modal after a short delay
             setTimeout(() => {
-                setFormData({ title: '', content: '', medias: [] });
-                setSuccess(false);
+                setExtendDays('');
+                setFormData({
+                    title: 'Extend Booking Request',
+                    content: '',
+                    medias: []
+                });
                 onClose();
             }, 1500);
         } catch (err) {
             console.error('Error sending inquiry:', err);
-            setError(
-                err.response?.data?.message || 
-                err.message || 
-                t('failedToSendInquiry') || 
+            toast.error(
+                err.response?.data?.message ||
+                err.message ||
+                t('failedToSendInquiry') ||
                 'Failed to send inquiry'
             );
         } finally {
@@ -104,7 +148,7 @@ const SendInquiry = ({ isOpen, onClose, carOwnerId, currentUserId }) => {
     return (
         <>
             {/* Backdrop */}
-            <div 
+            <div
                 className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"
                 onClick={onClose}
             />
@@ -129,56 +173,71 @@ const SendInquiry = ({ isOpen, onClose, carOwnerId, currentUserId }) => {
 
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                        {/* Error Message */}
-                        {error && (
-                            <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
-                                <svg className="w-5 h-5 text-red-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                </svg>
-                                <p className="text-sm text-red-800">{error}</p>
-                            </div>
-                        )}
-
-                        {/* Success Message */}
-                        {success && (
-                            <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-start">
-                                <svg className="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                                <p className="text-sm text-green-800">{t('inquirySentSuccessfully') || 'Inquiry sent successfully!'}</p>
-                            </div>
-                        )}
-
-                        {/* Title Field */}
+                        {/* Title Field - Display Only */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                {t('title') || 'Title'} <span className="text-red-500">*</span>
+                                {t('title') || 'Title'}
                             </label>
-                            <input
-                                type="text"
-                                name="title"
-                                value={formData.title}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder={t('enterTitle') || 'Enter title'}
-                                required
-                            />
+                            <div className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-700">
+                                {formData.title}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                                {t('titleIsFixed') || 'Title is automatically set for extend booking requests'}
+                            </p>
                         </div>
 
-                        {/* Content Field */}
+                        {/* Booking Information - Read Only */}
+                        {bookingInfo && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    {t('bookingInformation') || 'Booking Information'}
+                                </label>
+                                <div className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-700 space-y-1">
+                                    <div className="flex justify-between">
+                                        <span className="font-medium">{t('bookingNumber') || 'Booking Number'}:</span>
+                                        <span>{bookingInfo.bookingNumber || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="font-medium">{t('carLicense') || 'Car License'}:</span>
+                                        <span>{bookingInfo.plateNo || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="font-medium">{t('car') || 'Car'}:</span>
+                                        <span>{bookingInfo.carName || 'N/A'} ({bookingInfo.brand || 'N/A'})</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Extend Days Input */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                {t('content') || 'Content'} <span className="text-red-500">*</span>
+                                {t('extendBookingDays') || 'Extend Booking Days'} <span className="text-red-500">*</span>
                             </label>
-                            <textarea
-                                name="content"
-                                value={formData.content}
-                                onChange={handleInputChange}
-                                rows={6}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                                placeholder={t('enterContent') || 'Enter your message'}
+                            <input
+                                type="number"
+                                min="1"
+                                max="5"
+                                step="1"
+                                value={extendDays}
+                                onChange={handleExtendDaysChange}
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                    daysError ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                }`}
+                                placeholder={t('enterNumberOfDays') || 'Enter number of days (e.g., 3)'}
                                 required
                             />
+                            {daysError && (
+                                <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg flex items-start">
+                                    <svg className="w-4 h-4 text-red-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                    </svg>
+                                    <p className="text-sm text-red-800">{daysError}</p>
+                                </div>
+                            )}
+                            <p className="text-xs text-gray-500 mt-1">
+                                {t('extendDaysDescription') || 'Specify how many days you would like to extend your booking (maximum 5 days)'}
+                            </p>
                         </div>
 
                         {/* Medias Field */}
@@ -186,7 +245,7 @@ const SendInquiry = ({ isOpen, onClose, carOwnerId, currentUserId }) => {
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 {t('attachments') || 'Attachments'} <span className="text-gray-500 text-xs">(Optional)</span>
                             </label>
-                            
+
                             {/* File Upload Button */}
                             <div className="mb-3">
                                 <label className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
@@ -241,12 +300,11 @@ const SendInquiry = ({ isOpen, onClose, carOwnerId, currentUserId }) => {
                             </button>
                             <button
                                 type="submit"
-                                disabled={isSubmitting}
-                                className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors ${
-                                    isSubmitting
+                                disabled={isSubmitting || daysError}
+                                className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors ${isSubmitting || daysError
                                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                         : 'bg-blue-600 text-white hover:bg-blue-700'
-                                }`}
+                                    }`}
                             >
                                 {isSubmitting ? (
                                     <span className="flex items-center justify-center">

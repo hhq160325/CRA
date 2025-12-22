@@ -8,6 +8,9 @@ export const commonTranslate = {
       notification: "Notification",
       noNotifications: "No notifications",
       bookingSuccessful: "Booking successful",
+      unread: "unread",
+      viewAllNotifications: "View all notifications",
+      loading: "Loading...",
 
       // Filters
       filters: "Filters",
@@ -203,6 +206,9 @@ export const commonTranslate = {
       notification: "Thông báo",
       noNotifications: "Không có thông báo",
       bookingSuccessful: "Đặt xe thành công",
+      unread: "chưa đọc",
+      viewAllNotifications: "Xem tất cả thông báo",
+      loading: "Đang tải...",
 
       // Filters
       filters: "Bộ lọc",

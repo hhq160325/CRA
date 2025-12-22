@@ -3,6 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { selectIsAuthenticated, selectUser } from '../../features/auth/authSlice';
+import { axiosInstance } from '../utils/axiosInstance';
+import { NOTIFICATION_ENDPOINTS } from '../../config/api';
+import { tokenUtils } from '../../features/auth/utils';
 import Modal from './Modal';
 
 const NavBar = () => {
@@ -13,6 +16,8 @@ const NavBar = () => {
     const [filterName, setFilterName] = useState('');
     const [filterFuel, setFilterFuel] = useState('');
     const [filterSeats, setFilterSeats] = useState('');
+    const [notifications, setNotifications] = useState([]);
+    const [notificationLoading, setNotificationLoading] = useState(false);
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const user = useSelector(selectUser);
     const navigate = useNavigate();
@@ -24,10 +29,76 @@ const NavBar = () => {
         localStorage.setItem('language', newLang);
     };
 
-    // Simple mock notifications; replace with real data when wired to backend
-    const notifications = [
-        { id: 1, title: 'Booking successful', type: 'success' }
-    ];
+    // Fetch notifications for authenticated user
+    const fetchNotifications = async () => {
+        if (!isAuthenticated) {
+            setNotifications([]);
+            return;
+        }
+
+        const currentUserId = tokenUtils.getUserId();
+        if (!currentUserId) {
+            setNotifications([]);
+            return;
+        }
+
+        try {
+            setNotificationLoading(true);
+            const response = await axiosInstance.get(NOTIFICATION_ENDPOINTS.GET_NOTIFICATION_BY_USER_ID(currentUserId));
+            
+            if (Array.isArray(response.data)) {
+                // Transform the data to match the expected format
+                const transformedNotifications = response.data.map(notification => ({
+                    id: notification.id,
+                    title: notification.content.length > 50 ? notification.content.substring(0, 50) + '...' : notification.content,
+                    content: notification.content,
+                    type: getNotificationType(notification.content),
+                    isRead: notification.isViewed,
+                    createDate: notification.createDate
+                }));
+                setNotifications(transformedNotifications);
+            } else {
+                setNotifications([]);
+            }
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+            setNotifications([]);
+        } finally {
+            setNotificationLoading(false);
+        }
+    };
+
+    // Helper function to determine notification type based on content
+    const getNotificationType = (content) => {
+        const lowerContent = content.toLowerCase();
+        if (lowerContent.includes('payment') || lowerContent.includes('paid') || lowerContent.includes('invoice')) {
+            return 'payment';
+        }
+        if (lowerContent.includes('booking') || lowerContent.includes('rental')) {
+            return 'booking';
+        }
+        return 'info';
+    };
+
+    // Get unread notifications count
+    const unreadCount = notifications.filter(n => !n.isRead).length;
+
+    // Mark notification as read
+    const markAsRead = async (notificationId) => {
+        try {
+            await axiosInstance.patch(NOTIFICATION_ENDPOINTS.PATCH_NOTIFICATION_MARK_AS_READ(notificationId));
+            setNotifications(prev => 
+                prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n)
+            );
+        } catch (error) {
+            console.error('Error marking notification as read:', error);
+        }
+    };
+
+    // Fetch notifications when user authentication status changes
+    useEffect(() => {
+        fetchNotifications();
+    }, [isAuthenticated]);
 
     const notificationRef = useRef(null);
 
@@ -162,9 +233,6 @@ const NavBar = () => {
                                 aria-expanded={isNotificationOpen}
                                 className="p-2 text-gray-400 hover:text-gray-600 relative"
                             >
-                                {/* <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4 19h10a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg> */}
                                 <svg fill="#9ca3af" stroke="currentColor" className="h-6 w-6" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 611.999 611.999">
                                     <g>
@@ -188,36 +256,98 @@ const NavBar = () => {
                                         </g>
                                     </g>
                                 </svg>
-                                {/* Notification badge */}
-                                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
+                                {/* Notification badge - only show if there are unread notifications */}
+                                {unreadCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center">
+                                        <span className="text-xs text-white font-medium">
+                                            {unreadCount > 9 ? '9+' : unreadCount}
+                                        </span>
+                                    </span>
+                                )}
                             </button>
 
                             {isNotificationOpen && (
                                 <div
                                     role="menu"
                                     aria-label="Notifications"
-                                    className="absolute right-0 mt-3 w-72 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50"
+                                    className="absolute right-0 mt-3 w-80 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50"
                                 >
-                                    <div className="px-4 py-3 border-b border-gray-100">
+                                    <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
                                         <p className="text-sm font-semibold text-gray-900">{t('notification')}</p>
+                                        {unreadCount > 0 && (
+                                            <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                                                {unreadCount} {t('unread')}
+                                            </span>
+                                        )}
                                     </div>
                                     <ul className="max-h-80 overflow-auto">
-                                        {notifications.length === 0 && (
-                                            <li className="px-4 py-4 text-sm text-gray-500">{t('noNotifications')}</li>
+                                        {notificationLoading && (
+                                            <li className="px-4 py-4 text-center">
+                                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+                                                <p className="text-sm text-gray-500 mt-2">{t('loading')}</p>
+                                            </li>
                                         )}
-                                        {notifications.map((n) => (
-                                            <li key={n.id} className="px-4 py-3 hover:bg-gray-50 flex items-start gap-3">
-                                                {/* success icon */}
-                                                <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-green-100">
-                                                    <svg className="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                        <path d="M20 6L9 17l-5-5" />
-                                                    </svg>
-                                                </span>
-                                                <div className="min-w-0">
-                                                    <p className="text-sm text-gray-900">{n.title}</p>
+                                        {!notificationLoading && notifications.length === 0 && (
+                                            <li className="px-4 py-4 text-sm text-gray-500 text-center">{t('noNotifications')}</li>
+                                        )}
+                                        {!notificationLoading && notifications.slice(0, 5).map((notification) => (
+                                            <li 
+                                                key={notification.id} 
+                                                className={`px-4 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-b-0 cursor-pointer ${
+                                                    !notification.isRead ? 'bg-blue-50' : ''
+                                                }`}
+                                                onClick={() => {
+                                                    if (!notification.isRead) {
+                                                        markAsRead(notification.id);
+                                                    }
+                                                }}
+                                            >
+                                                <div className="flex items-start gap-3">
+                                                    {/* Notification icon based on type */}
+                                                    <span className={`mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full ${
+                                                        notification.type === 'payment' ? 'bg-green-100' :
+                                                        notification.type === 'booking' ? 'bg-blue-100' : 'bg-gray-100'
+                                                    }`}>
+                                                        {notification.type === 'payment' ? (
+                                                            <svg className="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                                <path d="M20 6L9 17l-5-5" />
+                                                            </svg>
+                                                        ) : notification.type === 'booking' ? (
+                                                            <svg className="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                                <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                            </svg>
+                                                        ) : (
+                                                            <svg className="h-4 w-4 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                                <circle cx="12" cy="12" r="10" />
+                                                                <path d="m9 12 2 2 4-4" />
+                                                            </svg>
+                                                        )}
+                                                    </span>
+                                                    <div className="min-w-0 flex-1">
+                                                        <p className={`text-sm ${!notification.isRead ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
+                                                            {notification.title}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500 mt-1">
+                                                            {new Date(notification.createDate).toLocaleString()}
+                                                        </p>
+                                                        {!notification.isRead && (
+                                                            <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-1"></span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </li>
                                         ))}
+                                        {!notificationLoading && notifications.length > 5 && (
+                                            <li className="px-4 py-3 text-center border-t border-gray-100">
+                                                <Link 
+                                                    to="/profile/notification" 
+                                                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                                                    onClick={() => setIsNotificationOpen(false)}
+                                                >
+                                                    {t('viewAllNotifications')}
+                                                </Link>
+                                            </li>
+                                        )}
                                     </ul>
                                 </div>
                             )}

@@ -59,9 +59,9 @@ const MyProfile = () => {
           name: data.username || 'N/A',
           username: data.username || '',
           fullname: data.fullname || '',
-          joinDate: 'Join 12/9/2025', // You can format this from data if available
-          dateOfBirth: '30/9/2001', // Add this field to API if needed
-          gender: data.gender === 1 ? 'Male' : data.gender === 2 ? 'Female' : 'Other',
+          joinDate: data.behaviourScore, // You can format this from data if available
+          dateOfBirth: convertDateFromApiFormat(data.dateOfBirth) || '30/9/2001', // Convert from API format and add fallback
+          gender: data.gender === 1 ? 'Male' : data.gender === 0 ? 'Female' : 'Other',
           phoneNumber: data.phoneNumber || '',
           email: data.email || '',
           // facebook: '', // Add this field to API if needed
@@ -125,6 +125,28 @@ const MyProfile = () => {
     setIsEditing(!isEditing);
   };
 
+  // Helper function to convert date from DD/MM/YYYY to YYYY/MM/DD
+  const convertDateToApiFormat = (dateString) => {
+    if (!dateString || dateString.trim() === '') return '';
+    
+    const parts = dateString.split('/');
+    if (parts.length !== 3) return dateString; // Return original if not in expected format
+    
+    const [day, month, year] = parts;
+    return `${year}/${month}/${day}`;
+  };
+
+  // Helper function to convert date from YYYY/MM/DD to DD/MM/YYYY
+  const convertDateFromApiFormat = (dateString) => {
+    if (!dateString || dateString.trim() === '') return '';
+    
+    const parts = dateString.split('/');
+    if (parts.length !== 3) return dateString; // Return original if not in expected format
+    
+    const [year, month, day] = parts;
+    return `${day}/${month}/${year}`;
+  };
+
   const handleSave = async () => {
     try {
       setLoading(true);
@@ -165,7 +187,8 @@ const MyProfile = () => {
         address: userInfo.address,
         imageAvatar: updatedData?.imageAvatar || userInfo.imageAvatar, // Use new avatar URL if uploaded
         status: userInfo.status,
-        gender: genderValue
+        gender: genderValue,
+        dateOfBirth: convertDateToApiFormat(userInfo.dateOfBirth) // Convert to API format
       };
 
       await updateUserInfo(updateData);
@@ -176,8 +199,8 @@ const MyProfile = () => {
         name: finalData.username || 'N/A',
         username: finalData.username || '',
         fullname: finalData.fullname || '',
-        joinDate: 'Join 12/9/2025',
-        dateOfBirth: '30/9/2001',
+        joinDate: finalData.behaviourScore,
+        dateOfBirth: convertDateFromApiFormat(finalData.dateOfBirth) || '30/9/2001',
         gender: finalData.gender === 1 ? 'Male' : finalData.gender === 2 ? 'Female' : 'Other',
         phoneNumber: finalData.phoneNumber || '',
         email: finalData.email || '',
@@ -227,7 +250,7 @@ const MyProfile = () => {
         username: data.username || '',
         fullname: data.fullname || '',
         joinDate: 'Join 12/9/2025',
-        dateOfBirth: '30/9/2001',
+        dateOfBirth: convertDateFromApiFormat(data.dateOfBirth) || '30/9/2001',
         gender: data.gender === 1 ? 'Male' : data.gender === 2 ? 'Female' : 'Other',
         phoneNumber: data.phoneNumber || '',
         email: data.email || '',
@@ -420,7 +443,7 @@ const MyProfile = () => {
               ) : (
                 <h2 className="text-lg sm:text-xl font-semibold text-gray-900">{userInfo.name}</h2>
               )}
-              <p className="text-sm text-gray-500 mt-1">{userInfo.joinDate}</p>
+              <p className="text-sm text-gray-500 mt-1">Behaviour Score <p className="text-sm text-red-500">{userInfo.joinDate}</p> </p>
             </div>
           </div>
 
@@ -609,29 +632,21 @@ const MyProfile = () => {
               </div>
             </div> */}
 
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('google')}</label>
-              <div className="flex items-center justify-between">
-                {userInfo.google ? (
-                  <div className="flex items-center space-x-2">
-                    <span className="text-gray-900 break-all">{userInfo.google}</span>
-                    {userInfo.isGoogle && (
+            {userInfo.isGoogle && (
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('google')}</label>
+                <div className="flex items-center justify-between">
+                  {userInfo.google ? (
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-900 break-all">{userInfo.google}</span>
                       <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">{t('connected')}</span>
-                    )}
-                  </div>
-                ) : (
-                  <span className="text-blue-600 text-sm cursor-pointer">{t('addLink')}</span>
-                )}
-                {/* <button
-                  onClick={() => handleEdit('google')}
-                  className="text-blue-600 hover:text-blue-700 ml-2 flex-shrink-0"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                  </svg>
-                </button> */}
+                    </div>
+                  ) : (
+                    <span className="text-blue-600 text-sm cursor-pointer">{t('addLink')}</span>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

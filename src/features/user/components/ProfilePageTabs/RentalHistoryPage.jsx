@@ -224,7 +224,13 @@ const RentalHistoryPage = () => {
       console.error('Car owner ID not available');
       return;
     }
-    setSelectedCarOwner(rental.carOwnerId);
+    setSelectedCarOwner({
+      ownerId: rental.carOwnerId,
+      bookingNumber: rental.bookingNumber,
+      plateNo: rental.plateNo,
+      carName: rental.carName,
+      brand: rental.brand
+    });
     setIsContactModalOpen(true);
   };
 
@@ -513,8 +519,9 @@ const RentalHistoryPage = () => {
       <SendInquiry
         isOpen={isContactModalOpen}
         onClose={handleCloseContact}
-        carOwnerId={selectedCarOwner}
+        carOwnerId={selectedCarOwner?.ownerId}
         currentUserId={currentUserId}
+        bookingInfo={selectedCarOwner}
       />
     </div>
   );

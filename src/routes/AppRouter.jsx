@@ -18,6 +18,7 @@ import RentalMonitoring from '../features/staff/components/RentalMonitoring'
 import MaintenanceCalendar from '../features/owner/components/MaintenanceScheduleCalendar/components/MaintenanceCalendar';
 import { FavouriteCarPage, RentalHistoryPage, PaymentHistoryPage, InboxPage, ReimbursePage, SettingsPage, HelpCenterPage, MyProfile } from '../features/user/components';
 import OtpVerify from '../features/auth/components/OtpVerify';
+import Notification from '../features/user/components/ProfilePageTabs/Notification';
 // Component to redirect authenticated users based on their role
 const AuthRedirect = () => {
   const userRole = tokenUtils.getUserRole();
@@ -50,6 +51,7 @@ const AppRouter = () => {
         <Route path="favourite_car" element={<FavouriteCarPage />} />
         <Route path="rental_history" element={<RentalHistoryPage />} />
         <Route path="payment_history" element={<PaymentHistoryPage />} />
+        <Route path="notification" element={<Notification />} />
         <Route path="inbox" element={<InboxPage />} />
         <Route path="reimburse" element={<ReimbursePage />} />
         <Route path="security" element={<SettingsPage />} />

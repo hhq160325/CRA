@@ -84,7 +84,7 @@ export const staffTranslate = {
       suspendCustomer: "Suspend Car Customer",
       suspendCustomerAccount: "Suspend Customer Account",
       suspendCustomerWarning: "Are you sure you want to suspend",
-      suspendCustomerDescription: "'s account? This will prevent them from accessing their account and listing new cars.",
+      suspendCustomerDescription: "'s account? This will prevent them from accessing their account and bookings new cars.",
       totalBookings: "Total Bookings",
       confirmedBookings: "Confirmed Bookings",
       completedBookings: "Completed Bookings",
@@ -285,15 +285,28 @@ export const staffTranslate = {
       close: "Close",
       more: "more",
       allEvents: "All Events",
+      
       //Create Parlot
       selectCarOwner: "Select Car Owner",
       noCarOwnersFound: "No Car Owners Found",
+
       //Report Car
       reportcar: "Report Car",
-      reportCarMonitoring:"Report Car Monitoring",
-      monitorAndManageReport:"Monitor and manage all report request",
-      noReportFound:"No Report Found",
-      reportNo:"Report",
+      reportCarMonitoring: "Report Car Monitoring",
+      monitorAndManageReport: "Monitor and manage all report request",
+      noReportFound: "No Report Found",
+      reportNo: "Report",
+      reportUser: "Report User",
+      noBookings: "No Bookings",
+      bookingStats: "Booking Stats",
+
+      //Report User
+      reportingUser: "Reporting User",
+      deductedPoints: "Deducted Points",
+      pointsToDeductFromUser: "Points To Deduct From User",
+      enterReportTitle: "Enter Report Title",
+      enterReportContent: "Enter Report Content",
+      submitReport: "Submit Report",
     }
   },
   vi: {
@@ -588,6 +601,21 @@ export const staffTranslate = {
       noCarOwnersFound: "Không tìm thấy",
       //Report Car
       reportcar: "Khiếu Nại Xe",
+      reportCarMonitoring: "Quản lý khiếu nại xe",
+      monitorAndManageReport: "Quản lý và giám sát khiếu nại về xe",
+      noReportFound: "Không thấy khiếu nại",
+      reportNo: "Khiếu nại số",
+      reportUser: "Khiếu Nại người dùng",
+      noBookings: "Không có đơn đặt",
+      bookingStats: "Thống kê đặt chỗ",
+
+      //Report User
+      reportingUser: "Người dùng bị báo cáo",
+      deductedPoints: "Điểm bị trừ",
+      pointsToDeductFromUser: "Điểm cần trừ từ người dùng",
+      enterReportTitle: "Nhập tiêu đề báo cáo",
+      enterReportContent: "Nhập nội dung báo cáo",
+      submitReport: "Gửi báo cáo",
     }
   }
 };

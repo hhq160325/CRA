@@ -43,3 +43,12 @@ export const getUserIdFromToken = (token) => {
          decoded.nameid ||
          null;
 };
+
+// Extract isVerified from JWT token
+export const getIsVerifiedFromToken = (token) => {
+  const decoded = decodeJWT(token);
+  if (!decoded) return false;
+
+  // Check for isVerified claim in the token
+  return decoded.isVerified === true || decoded.IsVerified === true || false;
+};

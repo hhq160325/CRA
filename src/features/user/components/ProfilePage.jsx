@@ -112,19 +112,28 @@ const ProfileSidebar = () => {
                 </svg>
                 {t('favouriteCar')}
               </Link>
-              <Link to="/profile/reimburse" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/reimburse')
-                  ? 'text-white bg-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-                  }`}>
+              {/* <Link to="/profile/reimburse" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/reimburse')
+                ? 'text-white bg-blue-600'
+                : 'text-gray-600 hover:bg-gray-50'
+                }`}>
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 {t('reimburse')}
+              </Link> */}
+              <Link to="/profile/notification" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/notification')
+                ? 'text-white bg-blue-600'
+                : 'text-gray-600 hover:bg-gray-50'
+                }`}>
+                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+                {t('notification')}
               </Link>
               <Link to="/profile/inbox" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/inbox')
-                  ? 'text-white bg-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-                  }`}>
+                ? 'text-white bg-blue-600'
+                : 'text-gray-600 hover:bg-gray-50'
+                }`}>
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
@@ -141,9 +150,9 @@ const ProfileSidebar = () => {
               </Link> */}
               {isOwner && (
                 <Link to="/owner" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/owner')
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-600 hover:bg-gray-50'
-                    }`}>
+                  ? 'text-white bg-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+                  }`}>
                   <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
@@ -152,9 +161,9 @@ const ProfileSidebar = () => {
               )}
               {isStaff && (
                 <Link to="/staff" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/staff')
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-600 hover:bg-gray-50'
-                    }`}>
+                  ? 'text-white bg-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+                  }`}>
                   <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
@@ -163,9 +172,9 @@ const ProfileSidebar = () => {
               )}
               {isAdmin && (
                 <Link to="/admin" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/admin')
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-600 hover:bg-gray-50'
-                    }`}>
+                  ? 'text-white bg-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+                  }`}>
                   <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
@@ -179,9 +188,9 @@ const ProfileSidebar = () => {
             <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wide mb-4">{t('preferences')}</h2>
             <nav className="space-y-2">
               <Link to="/profile/security" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/security')
-                  ? 'text-white bg-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-                  }`}>
+                ? 'text-white bg-blue-600'
+                : 'text-gray-600 hover:bg-gray-50'
+                }`}>
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -189,15 +198,15 @@ const ProfileSidebar = () => {
                 {t('security')}
               </Link>
               <Link to="/profile/help_center" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/profile/help_center')
-                  ? 'text-white bg-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-                  }`}>
+                ? 'text-white bg-blue-600'
+                : 'text-gray-600 hover:bg-gray-50'
+                }`}>
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 {t('helpCenter')}
               </Link>
-              <div className="flex items-center px-3 py-2 text-gray-600">
+              {/* <div className="flex items-center px-3 py-2 text-gray-600">
                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                 </svg>
@@ -208,7 +217,7 @@ const ProfileSidebar = () => {
                     <div className="w-4 h-4 bg-white rounded-full shadow transform translate-x-5 translate-y-1"></div>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </nav>
           </div>
 

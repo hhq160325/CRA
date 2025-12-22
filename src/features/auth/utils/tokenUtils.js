@@ -1,5 +1,5 @@
 // Token management utilities
-import { decodeJWT, getRoleFromToken, getUserIdFromToken } from './jwtUtils';
+import { decodeJWT, getRoleFromToken, getUserIdFromToken, getIsVerifiedFromToken } from './jwtUtils';
 
 export const tokenUtils = {
   // Store tokens in localStorage (excluding isVerified)
@@ -79,5 +79,11 @@ export const tokenUtils = {
   getUserId: () => {
     const token = tokenUtils.getAccessToken();
     return getUserIdFromToken(token);
+  },
+
+  // Get isVerified status from token
+  getIsVerified: () => {
+    const token = tokenUtils.getAccessToken();
+    return getIsVerifiedFromToken(token);
   }
 };

@@ -54,6 +54,11 @@ const CustomerManagement = () => {
   const handleActivateCustomer = (customer) => {
     handleAccountUpdate(customer.id, { status: 'active' });
   };
+  const handleReportUser = (customer) => {
+    // This function can be used to refresh customer data after reporting
+    // or perform any additional actions needed after a user is reported
+    console.log('User reported:', customer);
+  };
 
   // Pagination
   const handlePageChange = (pageNumber) => {
@@ -87,6 +92,7 @@ const CustomerManagement = () => {
         onEditCustomer={handleEditCustomer}
         onSuspendCustomer={handleSuspendCustomer}
         onActivateCustomer={handleActivateCustomer}
+        onReportUser={handleReportUser}
         getStatusBadge={getStatusBadge}
         getVerificationBadge={getVerificationBadge}
       />

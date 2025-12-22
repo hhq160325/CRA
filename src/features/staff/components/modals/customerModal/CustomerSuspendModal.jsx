@@ -25,8 +25,6 @@ const CustomerSuspendModal = ({ selectedCustomer, onSuspend, onClose }) => {
         <h4 className="font-medium text-gray-900 mb-2">{t('accountDetails')}</h4>
         <div className="text-sm text-gray-600 space-y-1">
           <p><span className="font-medium">{t('email')}:</span> {selectedCustomer.email}</p>
-          <p><span className="font-medium">{t('totalBookings')}:</span> {selectedCustomer.totalBookings}</p>
-          <p><span className="font-medium">{t('totalSpent')}:</span> ${(selectedCustomer.totalSpent || 0).toLocaleString()}</p>
         </div>
       </div>
 

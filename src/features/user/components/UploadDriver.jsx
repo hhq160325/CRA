@@ -26,10 +26,15 @@ const UploadDriver = () => {
   useEffect(() => {
     // Check if user is verified first, then fetch license status
     if (user?.isVerified) {
-      // If user is verified, set status as AutoApproved and load images
-      setLicenseStatus('AutoApproved');
-      fetchDriverLicenseImages();
-      setLoadingStatus(false);
+      // If user is verified, check if they have existing license status
+      // If they have 'Approved' status, keep it; otherwise set as 'AutoApproved'
+      fetchDriverLicenseStatus().then(() => {
+        // After fetching, if no status or status is not 'Approved', set as 'AutoApproved'
+        if (!licenseStatus || (licenseStatus !== 'Approved' && licenseStatus !== 'AutoApproved')) {
+          setLicenseStatus('AutoApproved');
+        }
+        fetchDriverLicenseImages();
+      });
     } else {
       // If not verified, fetch the actual license status
       fetchDriverLicenseStatus();
@@ -45,7 +50,7 @@ const UploadDriver = () => {
 
   // Update verification status when license status changes
   useEffect(() => {
-    if (licenseStatus === 'AutoApproved') {
+    if (licenseStatus === 'AutoApproved' || licenseStatus === 'Approved') {
       dispatch(updateVerificationStatus(true));
       // Only fetch images if not already loaded from user.isVerified check
       if (!licenseImages.front) {
@@ -82,12 +87,21 @@ const UploadDriver = () => {
       const userLicense = licenses.find(license => license.userId === userId);
 
       if (userLicense) {
-        setLicenseStatus(userLicense.status);
-
-        // Update isVerified in Redux state if license is AutoApproved
-        if (userLicense.status === 'AutoApproved') {
+        // Handle both 'Approved' and 'AutoApproved' statuses
+        if (userLicense.status === 'Approved' || userLicense.status === 'AutoApproved') {
+          setLicenseStatus(userLicense.status);
           dispatch(updateVerificationStatus(true));
+        } else {
+          setLicenseStatus(userLicense.status);
+          // For other statuses (Pending, Denied), don't update verification
+          if (userLicense.status === 'Denied') {
+            dispatch(updateVerificationStatus(false));
+          }
         }
+      } else if (user?.isVerified) {
+        // If no license found but user is verified, set as AutoApproved
+        setLicenseStatus('AutoApproved');
+        dispatch(updateVerificationStatus(true));
       }
     } catch (err) {
       console.error('Error fetching driver license status:', err);
@@ -161,7 +175,7 @@ const UploadDriver = () => {
     }
 
     // If user.isVerified is true, show as approved regardless of API status
-    const effectiveStatus = user?.isVerified ? 'AutoApproved' : licenseStatus;
+    const effectiveStatus = user?.isVerified ? (licenseStatus || 'AutoApproved') : licenseStatus;
 
     if (!effectiveStatus) {
       return (

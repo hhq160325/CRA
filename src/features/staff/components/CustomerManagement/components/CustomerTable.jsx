@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Pagination from '../../../../../shared/components/Pagination';
+import ReportUserModal from './ReportUserModal';
 
 const CustomerTable = ({
   customers,
@@ -10,16 +12,31 @@ const CustomerTable = ({
   onEditCustomer,
   onSuspendCustomer,
   onActivateCustomer,
+  onReportUser,
   getStatusBadge,
   getVerificationBadge
 }) => {
   const { t } = useTranslation();
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   // Pagination calculations
   const totalPages = Math.ceil(customers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentItems = customers.slice(startIndex, endIndex);
+
+  const handleReportUser = (customer) => {
+    setSelectedCustomer(customer);
+    setIsReportModalOpen(true);
+  };
+
+  const handleReportSuccess = () => {
+    // Optionally refresh customer data or show success message
+    if (onReportUser) {
+      onReportUser(selectedCustomer);
+    }
+  };
 
   if (customers.length === 0) {
     return (
@@ -46,6 +63,7 @@ const CustomerTable = ({
           <thead>
             <tr className="border-b border-gray-200">
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('customer')}</th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('behaviourScore')}</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('status')}</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('verification')}</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingStats')}</th>
@@ -62,6 +80,11 @@ const CustomerTable = ({
                     <div className="font-medium text-gray-900 text-sm">{customer.name}</div>
                     <div className="text-sm text-gray-500">{customer.email}</div>
                     <div className="text-xs text-gray-400">{customer.phone}</div>
+                  </div>
+                </td>
+                <td className="py-4 px-6">
+                  <div>
+                    <div className="font-medium text-gray-900 text-sm">{customer.behaviourScore}</div>
                   </div>
                 </td>
                 <td className="py-4 px-6">
@@ -120,37 +143,33 @@ const CustomerTable = ({
                 </td> */}
                 <td className="py-4 px-6">
                   <div className="flex items-center space-x-2">
-                    <button
+                    {/* <button
                       onClick={() => onViewCustomer(customer)}
                       className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                     >
                       {t('view')}
-                    </button>
-                    <button
+                    </button> */}
+                    {/* <button
                       onClick={() => onEditCustomer(customer)}
                       className="text-gray-600 hover:text-gray-700 text-sm font-medium"
                     >
                       {t('edit')}
+                    </button> */}
+                    <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                      {t('message')}
                     </button>
-                    {customer.status === 'active' ? (
-                      <button
-                        onClick={() => onSuspendCustomer(customer)}
-                        className="text-red-600 hover:text-red-700 text-sm font-medium"
-                      >
-                        {t('suspend')}
-                      </button>
-                    ) : customer.status === 'suspended' ? (
-                      <button
-                        onClick={() => onActivateCustomer(customer)}
-                        className="text-green-600 hover:text-green-700 text-sm font-medium"
-                      >
-                        {t('activate')}
-                      </button>
-                    ) : (
-                      <button className="text-green-600 hover:text-green-700 text-sm font-medium">
-                        {t('message')}
-                      </button>
-                    )}
+                    <button
+                      onClick={() => handleReportUser(customer)}
+                      className="text-orange-600 hover:text-orange-700 text-sm font-medium"
+                    >
+                      {t('reportUser')}
+                    </button>
+                    <button
+                      onClick={() => onSuspendCustomer(customer)}
+                      className="text-red-600 hover:text-red-700 text-sm font-medium"
+                    >
+                      {t('suspend')}
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -168,6 +187,14 @@ const CustomerTable = ({
           onPageChange={onPageChange}
         />
       )}
+
+      {/* Report User Modal */}
+      <ReportUserModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        customer={selectedCustomer}
+        onReportSuccess={handleReportSuccess}
+      />
     </div>
   );
 };

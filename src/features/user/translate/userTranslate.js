@@ -143,6 +143,14 @@ export const userTranslate = {
       enterTitle: "Enter Title",
       enterContent: "Enter Content",
       enterFeedback: "Enter Feedback",
+      //Notification
+      notifications: "Notifications",
+      noNotificationsFound: "No Notifications Found",
+      searchNotifications: "Search Notifications",
+      notificationDeletedSuccessfully: "Notification Deleted Successfully",
+      failedToDeleteNotification: "Failed To Delete Notification",
+      confirmDeleteMessage: "Confirm Delete Message",
+      confirmDelete: "Confirm Delete",
     }
   },
   vi: {
@@ -297,6 +305,15 @@ export const userTranslate = {
       enterTitle: "Nhập tiêu đề",
       enterContent: "Nhập nội dung",
       enterFeedback: "Nhập nhận xét",
+
+      //Notification
+      notifications: "Thông báo",
+      noNotificationsFound: "Không tìm thấy thông báo",
+      searchNotifications: "Tìm thông báo",
+      notificationDeletedSuccessfully: "Xóa thông báo thành công",
+      failedToDeleteNotification: "Thất bại khi xóa thông báo",
+      confirmDeleteMessage: "Xác nhận xóa tin nhắn",
+      confirmDelete: "Xác nhận xóa",
     }
   }
 };

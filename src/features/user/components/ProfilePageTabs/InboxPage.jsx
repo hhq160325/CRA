@@ -137,6 +137,24 @@ const InboxPage = () => {
   const [sendingResponse, setSendingResponse] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
   const [loadingChatHistory, setLoadingChatHistory] = useState(false);
+  const [deletingMessage, setDeletingMessage] = useState(false);
+
+  const handleDirectDelete = async (id) => {
+    try {
+      setDeletingMessage(true);
+      
+      // Call the DELETE_INQUIRY API endpoint directly
+      await axiosInstance.delete(INQUIRY_ENDPOINTS.DELETE_INQUIRY(id));
+      
+      // Remove the message from local state after successful deletion
+      setMessages(prev => prev.filter(m => m.id !== id));
+    } catch (err) {
+      console.error('Error deleting inquiry:', err);
+      alert(err.response?.data?.message || 'Failed to delete message. Please try again.');
+    } finally {
+      setDeletingMessage(false);
+    }
+  };
 
   const requestDelete = (id) => {
     const msg = messages.find(m => m.id === id);
@@ -144,10 +162,25 @@ const InboxPage = () => {
     setConfirmTitle(msg ? `“${msg.subject}”` : 'this message');
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (confirmDeleteId == null) return;
-    setMessages(prev => prev.filter(m => m.id !== confirmDeleteId));
-    setConfirmDeleteId(null);
+    
+    try {
+      setDeletingMessage(true);
+      
+      // Call the DELETE_INQUIRY API endpoint
+      await axiosInstance.delete(INQUIRY_ENDPOINTS.DELETE_INQUIRY(confirmDeleteId));
+      
+      // Remove the message from local state after successful deletion
+      setMessages(prev => prev.filter(m => m.id !== confirmDeleteId));
+      setConfirmDeleteId(null);
+      setConfirmTitle('');
+    } catch (err) {
+      console.error('Error deleting inquiry:', err);
+      alert(err.response?.data?.message || 'Failed to delete message. Please try again.');
+    } finally {
+      setDeletingMessage(false);
+    }
   };
 
   const markAllAsRead = () => setMessages(prev => prev.map(m => ({ ...m, read: true })));
@@ -311,7 +344,7 @@ const InboxPage = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">{t('inbox')}</h2>
-          <button onClick={markAllAsRead} className="text-sm px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">{t('markAllAsRead')}</button>
+          {/* <button onClick={markAllAsRead} className="text-sm px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">{t('markAllAsRead')}</button> */}
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm p-4 border border-gray-100">
@@ -320,7 +353,7 @@ const InboxPage = () => {
               <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               <input value={query} onChange={e => { setQuery(e.target.value); setPage(1); }} placeholder={t('searchMessages')} className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
             </div>
-            <select value={tag} onChange={e => { setTag(e.target.value); setPage(1); }} className="px-3 py-2 border border-gray-300 rounded-lg">
+            {/* <select value={tag} onChange={e => { setTag(e.target.value); setPage(1); }} className="px-3 py-2 border border-gray-300 rounded-lg">
               <option value="all">{t('allTags')}</option>
               <option value="booking">{t('bookingTag')}</option>
               <option value="billing">{t('billingTag')}</option>
@@ -330,7 +363,7 @@ const InboxPage = () => {
             <label className="inline-flex items-center gap-2 text-sm text-gray-700">
               <input type="checkbox" checked={onlyUnread} onChange={e => { setOnlyUnread(e.target.checked); setPage(1); }} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
               {t('onlyUnread')}
-            </label>
+            </label> */}
           </div>
         </div>
 
@@ -350,9 +383,9 @@ const InboxPage = () => {
                 <div className="text-xs text-gray-400 mt-1">{m.sender} • {formatDateTime(m.date)}</div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <button onClick={() => toggleRead(m.id)} className="px-2 py-1 text-xs rounded border border-gray-300 text-gray-700 hover:bg-gray-50">{m.read ? t('markUnread') : t('markRead')}</button>
-                <button onClick={() => openResponseModal(m)} className="px-2 py-1 text-xs rounded border border-blue-300 text-blue-600 hover:bg-blue-50">{t('response') || 'Response'}</button>
-                <button onClick={() => requestDelete(m.id)} className="px-2 py-1 text-xs rounded border border-red-300 text-red-600 hover:bg-red-50">{t('delete')}</button>
+                {/* <button onClick={() => toggleRead(m.id)} className="px-2 py-1 text-xs rounded border border-gray-300 text-gray-700 hover:bg-gray-50">{m.read ? t('markUnread') : t('markRead')}</button>
+                <button onClick={() => openResponseModal(m)} className="px-2 py-1 text-xs rounded border border-blue-300 text-blue-600 hover:bg-blue-50">{t('response') || 'Response'}</button> */}
+                <button onClick={() => handleDirectDelete(m.id)} disabled={deletingMessage} className="px-2 py-1 text-xs rounded border border-red-300 text-red-600 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed">{deletingMessage ? (t('deleting') || 'Deleting...') : (t('delete') || 'Delete')}</button>
               </div>
             </div>
           ))}

@@ -139,7 +139,7 @@ export const PAYMENT_ENDPOINTS = {
   GET_PAYMENT_BY_ID: (paymentId) => `${API_CONFIG.ALTER_URL}/Payment/GetPaymentById/${paymentId}`,
   CREATE_PAYMENT: `${API_CONFIG.ALTER_URL}/Payment/CreatePayment`,
   CREATE_ADDITIONAL_PAYMENT: `${API_CONFIG.ALTER_URL}/CreateAdditionalPayment`,
-  PATCH_BOOKING_PAYMENT_STATUS: `${API_CONFIG.ALTER_URL}/UpdatePayment/Booking/PaymentOrderCode`
+  PATCH_BOOKING_PAYMENT_STATUS: `${API_CONFIG.ALTER_URL}/UpdatePayment/Booking/WithoutBookingConfirmed`
 };
 
 export const PAYMENT_API_CONFIG = {
@@ -178,7 +178,8 @@ export const INQUIRY_ENDPOINTS = {
   CREATE_INQUIRY: `${API_CONFIG.BASE_URL}/Inquiry/initial`,
   GET_INQUIRY: (userId) => `${API_CONFIG.BASE_URL}/Inquiry/${userId}`,
   ANSWER_INQUIRY: `${API_CONFIG.BASE_URL}/Inquiry/answer`,
-  CHAT_LOG_HISTORY: (senderId, receiverId) => `${API_CONFIG.BASE_URL}/Inquiry/chatLog?senderId=${senderId}&receiverId=${receiverId}`
+  CHAT_LOG_HISTORY: (senderId, receiverId) => `${API_CONFIG.BASE_URL}/Inquiry/chatLog?senderId=${senderId}&receiverId=${receiverId}`,
+  DELETE_INQUIRY: (id) => `${API_CONFIG.ALTER_URL}/api/Inquiry/${id}`,
 };
 
 export const INQUIRY_API_CONFIG = {
@@ -188,10 +189,11 @@ export const INQUIRY_API_CONFIG = {
   },
 };
 
-// Report Car
+// Reporr
 export const REPORT_CAR_ENDPOINTS = {
   CREATE_REPORT_CAR: `${API_CONFIG.BASE_URL}/Inquiry/initial`,
   GET_REPORT_CAR: `${API_CONFIG.BASE_URL}/Report`,
+  CREATE_REPORT_USER:`${API_CONFIG.BASE_URL}/Report/reportedUser`,
 };
 
 export const REPORT_CAR_API_CONFIG = {
@@ -210,6 +212,19 @@ export const AUDIT_LOG_ENDPOINTS = {
 };
 
 export const AUDIT_LOG_API_CONFIG = {
+  timeout: API_CONFIG.TIMEOUT,
+  headers: API_CONFIG.HEADERS,
+};
+
+// Notification
+export const NOTIFICATION_ENDPOINTS = {
+  GET_NOTIFICATION: `${API_CONFIG.ALTER_URL}/AllNotif`,
+  PATCH_NOTIFICATION_MARK_AS_READ: (id) => `${API_CONFIG.ALTER_URL}/MarkAsRead/${id}`,
+  GET_NOTIFICATION_BY_USER_ID: (userId ) => `${API_CONFIG.ALTER_URL}/UserNotif/${userId}`,
+  DELETE_NOTIFICATION: (id) => `${API_CONFIG.ALTER_URL}/DeleteNotif/${id}`,
+};
+
+export const NOTIFICATION_API_CONFIG = {
   timeout: API_CONFIG.TIMEOUT,
   headers: API_CONFIG.HEADERS,
 };

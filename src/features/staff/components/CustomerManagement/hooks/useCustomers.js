@@ -51,15 +51,21 @@ export const useCustomers = () => {
       const driverLicenseMap = new Map();
       if (driverLicensesResponse.data && driverLicensesResponse.data.view && Array.isArray(driverLicensesResponse.data.view)) {
         driverLicensesResponse.data.view.forEach(license => {
-          let verificationStatus = 'pending';
+          let verificationStatus = 'Pending';
           if (license.status) {
             const status = license.status.toLowerCase();
-            if (status === 'approved') {
-              verificationStatus = 'verified';
-            } else if (status === 'denied' || status === 'rejected') {
-              verificationStatus = 'rejected';
+            if (status === 'autoapproved' || status === 'approved') {
+              verificationStatus = 'AutoApproved';
+            } else if (status === 'pending') {
+              verificationStatus = 'Pending';
+            } else if (status === 'manualapproved') {
+              verificationStatus = 'ManualApproved';
+            } else if (status === 'needmanualcheck') {
+              verificationStatus = 'NeedManualCheck';
+            } else if (status === 'rejected' || status === 'denied') {
+              verificationStatus = 'Rejected';
             } else {
-              verificationStatus = 'pending';
+              verificationStatus = 'Pending';
             }
           }
           driverLicenseMap.set(license.userId, verificationStatus);
@@ -107,12 +113,13 @@ export const useCustomers = () => {
       // Transform API data to match component structure
       const transformedCustomers = customerUsers.map(user => {
         const licenseVerification = driverLicenseMap.get(user.id);
-        const verificationStatus = licenseVerification || (user.isVerified ? 'verified' : 'pending');
+        const verificationStatus = licenseVerification || (user.isVerified ? 'AutoApproved' : 'Pending');
         const bookingStats = bookingStatsMap.get(user.id) || {
           totalBookings: 0,
           totalSpent: 0,
           lastBooking: null
         };
+        // console.log("transformedCustomers",customerUsers);
         
         return {
           id: user.id,
@@ -129,6 +136,7 @@ export const useCustomers = () => {
           role: user.role || 'Customer',
           address: user.address || 'N/A',
           avatarUrl: user.avatarUrl || null,
+          behaviourScore: user.behaviourScore || 0,
         };
       });
 

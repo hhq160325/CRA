@@ -119,7 +119,7 @@ const DayView = ({ events, currentDate }) => {
                   <div
                     key={firstEvent.id}
                     onClick={() => dispatch(openEventModal(firstEvent))}
-                    className="absolute left-2 right-2 cursor-pointer z-10 flex flex-col"
+                    className="absolute left-2 right-2 cursor-pointer z-10 flex flex-col overflow-hidden"
                     style={{ top: `${top}px`, height: `${height}px` }}
                   >
                     <EventCard event={firstEvent} />
@@ -134,13 +134,13 @@ const DayView = ({ events, currentDate }) => {
                 renderedElements.push(
                   <div
                     key={`${timeKey}-group`}
-                    className="absolute left-2 right-2 z-10"
+                    className="absolute left-2 right-2 z-10 overflow-hidden"
                     style={{ top: `${top}px`, height: `${totalHeight}px` }}
                   >
                     <div 
                       onClick={() => dispatch(openEventModal(firstEvent))}
-                      className="cursor-pointer"
-                      style={{ height: `${eventCardHeight}px`, overflow: 'hidden' }}
+                      className="cursor-pointer overflow-hidden"
+                      style={{ height: `${eventCardHeight}px` }}
                     >
                       <EventCard event={firstEvent} compact />
                     </div>
@@ -149,7 +149,7 @@ const DayView = ({ events, currentDate }) => {
                         e.stopPropagation();
                         dispatch(openDayEventsModal(timeEvents));
                       }}
-                      className="text-xs text-blue-600 hover:text-blue-800 hover:underline px-2 py-0.5 bg-blue-50 rounded border border-blue-200 w-full text-left transition-colors"
+                      className="text-xs text-blue-600 hover:text-blue-800 hover:underline px-2 py-0.5 bg-blue-50 rounded border border-blue-200 w-full text-left transition-colors truncate"
                       style={{ height: `${buttonHeight}px`, fontSize: '10px', lineHeight: '1' }}
                     >
                       +{timeEvents.length - 1} more at {timeKey}

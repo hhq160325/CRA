@@ -30,7 +30,7 @@ const CalendarView = () => {
     loading: false,
     isEventModalOpen: false,
     searchQuery: '',
-    filters: { status: 'all', car: 'all' }
+    filters: { status: 'all', car: 'all', bookingNumber: '' }
   });
 
   useEffect(() => {
@@ -69,10 +69,16 @@ const CalendarView = () => {
       event.pickupPlace?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.dropoffPlace?.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesStatus = filters.status === 'all' || event.status === filters.status;
+    const matchesBookingNumber = !filters.bookingNumber || 
+      event.bookingId?.toString().toLowerCase().includes(filters.bookingNumber.toLowerCase()) ||
+      event.bookingNumber?.toString().toLowerCase().includes(filters.bookingNumber.toLowerCase());
+    
+    const matchesStatus = filters.status === 'all' || 
+      event.status?.toLowerCase() === filters.status.toLowerCase();
+    
     const matchesCar = filters.car === 'all' || event.carName === filters.car || event.car === filters.car;
     
-    return matchesSearch && matchesStatus && matchesCar;
+    return matchesSearch && matchesBookingNumber && matchesStatus && matchesCar;
   });
 
   const renderView = () => {

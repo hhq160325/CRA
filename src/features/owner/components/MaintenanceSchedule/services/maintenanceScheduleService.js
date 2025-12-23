@@ -66,23 +66,6 @@ export const maintenanceScheduleService = (carSchedulesData, t) => {
         });
       });
     } else {
-      // Car is inactive but has no schedule data
-      formattedSchedules.push({
-        id: idCounter++,
-        carId: car.id,
-        carName: car.model || t('maintenanceSchedule.unknownCarModel'),
-        carModel: car.year?.toString() || 'N/A',
-        licensePlate: car.licensePlate || 'N/A',
-        lastMaintenanceDate: 'N/A',
-        nextMaintenanceDate: 'N/A',
-        mileageAtLastService: car.mileage || 0,
-        currentMileage: car.mileage || 0,
-        maintenanceType: t('maintenanceSchedule.needsMaintenance'),
-        status: 'due',
-        daysUntil: 0,
-        priority: 'high',
-        scheduleId: null
-      });
     }
   });
 

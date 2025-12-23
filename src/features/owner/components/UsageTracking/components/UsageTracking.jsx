@@ -61,7 +61,7 @@ const UsageTracking = () => {
 
             // Calculate rental statistics (exclude canceled bookings)
             const activeBookings = bookings.filter(b =>
-              b.status && b.status.toLowerCase() !== 'canceled' && b.status.toLowerCase() !== 'cancelled'
+              b.status && b.status.toLowerCase() !== 'canceled' && b.status.toLowerCase() !== 'cancelled' && b.status.toLowerCase() !== 'confirmed'
             );
             const totalRentals = activeBookings.length;
             const totalDaysRented = activeBookings.reduce((sum, booking) => {

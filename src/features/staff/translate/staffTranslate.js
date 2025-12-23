@@ -310,6 +310,13 @@ export const staffTranslate = {
       sortByBehaviourScore: "Sort By Behaviour Score",
       lowestToHighest: "Lowest To Highest",
       highestToLowest: "Highest To Lowest",
+
+      //regdoc
+      areYouSureReject: "Are You Sure Reject",
+      rejectRegistrationDocument: "Reject Registration Document",
+      failedToApproveRegistrationDocument: "Failed To Approve Registration Document",
+      registrationDocumentApprovedSuccessfully: "Registration Document Approved Successfully",
+      denied: "Denied",
     }
   },
   vi: {
@@ -622,6 +629,12 @@ export const staffTranslate = {
       sortByBehaviourScore: "Sắp xếp theo điểm hành vi",
       lowestToHighest: "Từ cao nhất đến thấp nhất",
       highestToLowest: "Từ thấp nhất đến cao nhất",
+      //regdoc
+      areYouSureReject: "Bạn có chắc chắn từ chối xác thực",
+      rejectRegistrationDocument: "Từ chối xác thực",
+      failedToApproveRegistrationDocument: "Thất bại khi xác thực",
+      registrationDocumentApprovedSuccessfully: "Xác thực thành công",
+      denied: "Từ chối",
     }
   }
 };

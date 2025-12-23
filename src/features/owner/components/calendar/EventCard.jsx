@@ -19,14 +19,15 @@ const EventCard = ({ event, compact = false, onClick, date }) => {
   // Use bookingStatus if available, otherwise fall back to status
   const displayStatus = event.bookingStatus || event.status;
   const statusColor = getStatusColor(displayStatus);
-
+  console.log(event);
+  
   const formatTime = (date) => {
     if (!date) return '';
     const d = date instanceof Date ? date : new Date(date);
-    return d.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
+    return d.toLocaleTimeString('en-US', {
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: true 
+      hour12: true
     });
   };
 
@@ -56,29 +57,42 @@ const EventCard = ({ event, compact = false, onClick, date }) => {
     return (
       <div
         onClick={onClick}
-        className={`text-xs px-2 py-1 rounded border ${statusColor} cursor-pointer hover:opacity-80 truncate`}
-        title={event.title}
+        className={`text-xs px-2 py-1 rounded border ${statusColor} cursor-pointer hover:opacity-80 truncate overflow-hidden`}
+        title={`${formatTime(event.start)} • ${event.title}`}
       >
-        {formatTime(event.start)} • {event.title}
+        <span className="truncate block">
+          {formatTime(event.start)} • {event.title}
+        </span>
       </div>
     );
   }
 
+  // return (
+  //   <div
+  //     onClick={onClick}
+  //     className={`p-3 rounded-lg border ${statusColor} cursor-pointer hover:shadow-md transition-shadow overflow-hidden`}
+  //   >
+  //     <div className="font-semibold text-sm mb-1 truncate" title={event.title}>{event.title}</div>
+  //     <div className="text-xs text-gray-600 truncate">
+  //       {formatTime(event.start)} - {formatTime(event.end)}
+  //     </div>
+  //     {(event.carName || event.car) && (
+  //       <div className="text-xs text-gray-500 mt-1 truncate" title={event.carName || event.car}>{t('car')}: {event.carName || event.car}</div>
+  //     )}
+  //     <div className={`text-xs mt-2 px-2 py-1 rounded inline-block ${statusColor} truncate`}>
+  //       {t(displayStatus?.toLowerCase())}
+  //     </div>
+  //   </div>
+  // );
   return (
     <div
       onClick={onClick}
-      className={`p-3 rounded-lg border ${statusColor} cursor-pointer hover:shadow-md transition-shadow`}
+      className={`text-xs px-2 py-1 rounded border ${statusColor} cursor-pointer hover:opacity-80 truncate overflow-hidden`}
+      title={`${formatTime(event.start)} • ${event.title}`}
     >
-      <div className="font-semibold text-sm mb-1">{event.title}</div>
-      <div className="text-xs text-gray-600">
-        {formatTime(event.start)} - {formatTime(event.end)}
-      </div>
-      {(event.carName || event.car) && (
-        <div className="text-xs text-gray-500 mt-1">{t('car')}: {event.carName || event.car}</div>
-      )}
-      <div className={`text-xs mt-2 px-2 py-1 rounded inline-block ${statusColor}`}>
-        {t(displayStatus?.toLowerCase())}
-      </div>
+      <span className="truncate block">
+        {formatTime(event.start)} • {event.title}
+      </span>
     </div>
   );
 };

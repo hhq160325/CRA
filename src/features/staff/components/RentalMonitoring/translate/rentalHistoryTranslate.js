@@ -6,7 +6,7 @@ export const rentalHistoryTranslate = {
       "rentalHistory.title": "Rental History",
       "rentalHistory.subtitle": "Browse rental history, filter by car and date",
       "rentalHistory.exportReport": "Export Report",
-      "rentalHistory.searchPlaceholder": "Search by booking ID, customer or car",
+      "rentalHistory.searchPlaceholder": "Search by invoice code, customer or car",
       "rentalHistory.allCars": "All Cars",
       "rentalHistory.allStatuses": "All Statuses",
       "rentalHistory.allBookingFeeStatuses": "All Booking Fee Statuses",
@@ -84,6 +84,9 @@ export const rentalHistoryTranslate = {
       "rentalHistory.cannotPrintCancelled": "Cannot print receipt for cancelled booking",
       "rentalHistory.cannotExportCancelled": "Cannot export PDF for cancelled booking",
       "rentalHistory.dailyRate": "Daily rate",
+      "rentalHistory.showingResults": "Showing {{filtered}} of {{total}} results",
+      "rentalHistory.noDataToExport": "No data available to export",
+      "rentalHistory.exportTooltip": "Export filtered rental data to CSV",
     }
   },
   vi: {
@@ -93,7 +96,7 @@ export const rentalHistoryTranslate = {
       "rentalHistory.title": "Lịch sử thuê xe",
       "rentalHistory.subtitle": "Duyệt lịch sử thuê xe, lọc theo xe và ngày tháng",
       "rentalHistory.exportReport": "Xuất báo cáo",
-      "rentalHistory.searchPlaceholder": "Tìm kiếm theo mã đặt xe, khách hàng hoặc xe",
+      "rentalHistory.searchPlaceholder": "Tìm kiếm theo mã invoice, khách hàng hoặc xe",
       "rentalHistory.allCars": "Tất cả xe",
       "rentalHistory.allStatuses": "Tất cả trạng thái",
       "rentalHistory.allBookingFeeStatuses": "Tất cả trạng thái phí đặt cọc",
@@ -171,6 +174,9 @@ export const rentalHistoryTranslate = {
       "rentalHistory.cannotPrintCancelled": "Không thể in hóa đơn cho đặt xe đã hủy",
       "rentalHistory.cannotExportCancelled": "Không thể xuất PDF cho đặt xe đã hủy",
       "rentalHistory.dailyRate": "Giá thuê hàng ngày",
+      "rentalHistory.showingResults": "Hiển thị {{filtered}} trong tổng số {{total}} kết quả",
+      "rentalHistory.noDataToExport": "Không có dữ liệu để xuất",
+      "rentalHistory.exportTooltip": "Xuất dữ liệu thuê xe đã lọc ra CSV",
     }
   }
 };

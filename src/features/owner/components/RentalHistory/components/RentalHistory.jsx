@@ -95,7 +95,10 @@ const RentalHistory = () => {
   return (
     <>
       <div className="p-8 space-y-6 min-h-full bg-gray-50">
-        <RentalHistoryHeader />
+        <RentalHistoryHeader 
+          filteredRentals={filteredRentals}
+          totalRentals={rentalHistory.length}
+        />
         
         <RentalHistoryFilters
           searchTerm={searchTerm}

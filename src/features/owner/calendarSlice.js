@@ -237,7 +237,7 @@ const calendarSlice = createSlice({
           
           return {
             id: booking.id,
-            title: `Booking ${booking.id} - ${carName}`,
+            title: `${booking.bookingNumber || `Booking ${booking.id}`} - ${carName}`,
             start: booking.pickupTime ? new Date(booking.pickupTime) : new Date(),
             end: booking.dropoffTime ? new Date(booking.dropoffTime) : new Date(),
             allDay: false,
@@ -245,6 +245,8 @@ const calendarSlice = createSlice({
             bookingId: booking.id,
             status: booking.status,
             notes: booking.notes,
+            bookingNumber: booking.bookingNumber,
+            createDate: booking.createDate,
             // Car details
             carId: car.id,
             carName: carName,

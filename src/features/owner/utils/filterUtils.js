@@ -1,15 +1,8 @@
 /**
  * Utility functions for filtering data in owner components
- * Pure functions with no React dependencies for easy testing and reuse
  */
 
-/**
- * Filter items by search term across multiple fields
- * @param {Object} item - The item to check
- * @param {string} searchTerm - The search term
- * @param {string[]} searchFields - Array of field names to search in
- * @returns {boolean}
- */
+/* Filter items by search term across multiple fields */
 export const filterBySearch = (item, searchTerm, searchFields) => {
   if (!searchTerm) return true;
   
@@ -21,13 +14,7 @@ export const filterBySearch = (item, searchTerm, searchFields) => {
   });
 };
 
-/**
- * Filter by a single field value
- * @param {Object} item - The item to check
- * @param {string} filterValue - The filter value ('all' means no filter)
- * @param {string} fieldName - The field name to check
- * @returns {boolean}
- */
+/* Filter by a single field value */
 export const filterByField = (item, filterValue, fieldName) => {
   if (filterValue === 'all') return true;
   return item[fieldName] === filterValue;
@@ -36,13 +23,7 @@ export const filterByField = (item, filterValue, fieldName) => {
 /**
  * Filter by date range - Option 3: Strict Range (Both Start AND End)
  * Shows only rentals where BOTH start AND end dates fall within the selected range
- * @param {Object} item - The item to check
- * @param {string|null} startDate - Filter start date
- * @param {string|null} endDate - Filter end date
- * @param {string} itemStartField - Field name for item's start date
- * @param {string} itemEndField - Field name for item's end date
- * @returns {boolean}
- */
+ **/
 export const filterByDateRange = (item, startDate, endDate, itemStartField, itemEndField) => {
   // If no date filters, include all
   if (!startDate && !endDate) return true;
@@ -75,12 +56,7 @@ export const filterByDateRange = (item, startDate, endDate, itemStartField, item
   return true;
 };
 
-/**
- * Combined filter for rental/booking data
- * @param {Object} item - The rental/booking item
- * @param {Object} filters - Filter configuration object
- * @returns {boolean}
- */
+/* Combined filter for rental/booking data */
 export const filterRentalData = (item, filters) => {
   const {
     searchTerm = '',
@@ -108,12 +84,7 @@ export const filterRentalData = (item, filters) => {
          matchesDateRange;
 };
 
-/**
- * Combined filter for car usage data
- * @param {Object} car - The car item
- * @param {Object} filters - Filter configuration object
- * @returns {boolean}
- */
+/* Combined filter for car usage data */
 export const filterCarUsageData = (car, filters) => {
   const {
     searchTerm = '',
@@ -131,12 +102,7 @@ export const filterCarUsageData = (car, filters) => {
   return matchesSearch && matchesBrand && matchesModel && matchesStatus;
 };
 
-/**
- * Simple booking filter (for BookingManagement)
- * @param {Object} booking - The booking item
- * @param {Object} filters - Filter configuration object
- * @returns {boolean}
- */
+/* Simple booking filter (for BookingManagement) */
 export const filterBookingData = (booking, filters) => {
   const {
     searchTerm = '',
@@ -150,13 +116,7 @@ export const filterBookingData = (booking, filters) => {
   return matchesSearch && matchesStatus;
 };
 
-/**
- * Filter by date period (week, month, quarter)
- * @param {Object} item - The item to check
- * @param {string} dateFilter - The date filter ('all', 'week', 'month', 'quarter')
- * @param {string} dateField - The field name containing the date
- * @returns {boolean}
- */
+/* Filter by date period (week, month, quarter) */
 export const filterByDatePeriod = (item, dateFilter, dateField) => {
   if (dateFilter === 'all') return true;
   
@@ -175,12 +135,19 @@ export const filterByDatePeriod = (item, dateFilter, dateField) => {
   }
 };
 
-/**
- * Combined filter for payment data
- * @param {Object} payment - The payment item
- * @param {Object} filters - Filter configuration object
- * @returns {boolean}
- */
+/* Filter by specific date */
+export const filterBySpecificDate = (item, dateFilter, dateField) => {
+  if (!dateFilter) return true;
+  
+  const itemDate = item[dateField];
+  if (!itemDate) return false;
+  
+  // Extract date part only (YYYY-MM-DD) from the item date
+  const itemDateOnly = itemDate.split('T')[0]; // Handle ISO format
+  return itemDateOnly === dateFilter;
+};
+
+/* Combined filter for payment data */
 export const filterPaymentData = (payment, filters) => {
   const {
     searchTerm = '',
@@ -188,14 +155,16 @@ export const filterPaymentData = (payment, filters) => {
     statusFilter = 'all',
     typeFilter = 'all',
     paymentMethodFilter = 'all',
-    dateFilter = 'all',
+    createDateFilter = '',
+    updateDateFilter = '',
   } = filters;
 
   const matchesSearch = filterBySearch(payment, searchTerm, searchFields);
   const matchesStatus = filterByField(payment, statusFilter, 'status');
   const matchesType = filterByField(payment, typeFilter, 'type');
   const matchesPaymentMethod = filterByField(payment, paymentMethodFilter, 'paymentMethod');
-  const matchesDate = filterByDatePeriod(payment, dateFilter, 'date');
+  const matchesCreateDate = filterBySpecificDate(payment, createDateFilter, 'dateCreate');
+  const matchesUpdateDate = filterBySpecificDate(payment, updateDateFilter, 'dateUpdate');
 
-  return matchesSearch && matchesStatus && matchesType && matchesPaymentMethod && matchesDate;
+  return matchesSearch && matchesStatus && matchesType && matchesPaymentMethod && matchesCreateDate && matchesUpdateDate;
 };

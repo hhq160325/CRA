@@ -8,7 +8,7 @@ export const useCarRegisDocs = () => {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState('no-upload');
   const [currentPage, setCurrentPage] = useState(1);
   const [showTooltip, setShowTooltip] = useState(null);
   const [uploadingCarId, setUploadingCarId] = useState(null);
@@ -57,7 +57,9 @@ export const useCarRegisDocs = () => {
   const filteredCars = cars.filter(car => {
     if (filter === 'all') return true;
     if (filter === 'pending') return car.status === 'Pending';
-    if (filter === 'approved') return car.status === 'Active';
+    if (filter === 'approved') return car.status === 'Approved';
+    if (filter === 'denied') return car.status === 'Denied';
+    if (filter === 'no-upload') return car.status === 'No Upload';
     return true;
   });
 

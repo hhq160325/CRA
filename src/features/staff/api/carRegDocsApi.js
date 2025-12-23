@@ -71,3 +71,24 @@ export const approveRegDoc = async (approvalData) => {
     throw error;
   }
 };
+
+export const rejectRegDoc = async (rejectionData) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.patch(
+      `${CAR_ENDPOINTS.APPROVE_REG_DOC}?isApproved=false`,
+      rejectionData,
+      {
+        headers: {
+          ...CAR_API_CONFIG.headers,
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('CarRegDocsAPI - Error rejecting registration document:', error);
+    throw error;
+  }
+};

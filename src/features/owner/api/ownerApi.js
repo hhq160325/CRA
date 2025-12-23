@@ -36,6 +36,12 @@ export const getAllCars = async () => {
   return response.data;
 };
 
+/* Get all registration documents */
+export const getAllRegDocs = async () => {
+  const response = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_REG_DOCS);
+  return response.data;
+};
+
 // ============================================
 // PAYMENTS API
 // ============================================

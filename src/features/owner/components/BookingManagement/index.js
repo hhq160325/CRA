@@ -15,6 +15,7 @@ export { useBookingFilters } from './hooks/useBookingFilters';
 export { transformBookingData } from './utils/dataTransform';
 export { filterBookingData } from './utils/filterUtils';
 export { getStatusBadge } from './utils/statusUtils';
+export * from './utils/exportUtils';
 
 // API
 export * from './api/bookingApi';

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { getAllRegDocs, getAllUsers, getAllCars, approveRegDoc } from '../../../api/carRegDocsApi';
+import { getAllRegDocs, getAllUsers, getAllCars, approveRegDoc, rejectRegDoc } from '../../../api/carRegDocsApi';
 import Pagination from '../../../../../shared/components/Pagination';
 import { filterRegDocs, getStatusBadgeClasses } from '../../../staff-util/staffFilter';
 
@@ -13,7 +13,9 @@ const RegDocsApproved = () => {
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [approving, setApproving] = useState(false);
+  const [rejecting, setRejecting] = useState(false);
   const [confirmDoc, setConfirmDoc] = useState(null);
+  const [rejectDoc, setRejectDoc] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -125,6 +127,10 @@ const RegDocsApproved = () => {
     setConfirmDoc(doc);
   };
 
+  const handleRejectClick = (doc) => {
+    setRejectDoc(doc);
+  };
+
   const handleConfirmApprove = async () => {
     if (!confirmDoc) return;
 
@@ -159,6 +165,42 @@ const RegDocsApproved = () => {
 
   const handleCancelApprove = () => {
     setConfirmDoc(null);
+  };
+
+  const handleConfirmReject = async () => {
+    if (!rejectDoc) return;
+
+    try {
+      setRejecting(true);
+      const rejectionData = {
+        userId: rejectDoc.userId,
+        carId: rejectDoc.carId,
+        email: rejectDoc.email || 'string',
+        licensePlate: rejectDoc.licensePlate || 'string'
+      };
+
+      await rejectRegDoc(rejectionData);
+      
+      // Refresh the list after rejection
+      await fetchRegDocs();
+      
+      // Close modal if it's open
+      if (selectedDoc?.carId === rejectDoc.carId) {
+        setSelectedDoc(null);
+      }
+      
+      toast.success(t('registrationDocumentRejectedSuccessfully'));
+    } catch (err) {
+      console.error('Error rejecting document:', err);
+      toast.error(err.response?.data?.message || t('failedToRejectRegistrationDocument'));
+    } finally {
+      setRejecting(false);
+      setRejectDoc(null);
+    }
+  };
+
+  const handleCancelReject = () => {
+    setRejectDoc(null);
   };
 
   const handlePageChange = (pageNumber) => {
@@ -346,13 +388,22 @@ const RegDocsApproved = () => {
                             {t('view')}
                           </button>
                           {doc.status?.toLowerCase() === 'pending' && (
-                            <button
-                              onClick={() => handleApproveClick(doc)}
-                              disabled={approving}
-                              className="text-green-600 hover:text-green-700 text-sm font-medium disabled:text-gray-400 disabled:cursor-not-allowed"
-                            >
-                              {t('approve')}
-                            </button>
+                            <>
+                              <button
+                                onClick={() => handleApproveClick(doc)}
+                                disabled={approving || rejecting}
+                                className="text-green-600 hover:text-green-700 text-sm font-medium disabled:text-gray-400 disabled:cursor-not-allowed"
+                              >
+                                {t('approve')}
+                              </button>
+                              <button
+                                onClick={() => handleRejectClick(doc)}
+                                disabled={approving || rejecting}
+                                className="text-red-600 hover:text-red-700 text-sm font-medium disabled:text-gray-400 disabled:cursor-not-allowed"
+                              >
+                                {t('reject')}
+                              </button>
+                            </>
                           )}
                         </div>
                       </td>
@@ -420,13 +471,22 @@ const RegDocsApproved = () => {
                   <label className="text-sm font-medium text-gray-700 block mb-2">{t('actions')}</label>
                   <div className="flex items-center space-x-2">
                     {selectedDoc.status?.toLowerCase() === 'pending' ? (
-                      <button
-                        onClick={() => handleApproveClick(selectedDoc)}
-                        disabled={approving}
-                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
-                      >
-                        {approving ? t('approving') : t('approve')}
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleApproveClick(selectedDoc)}
+                          disabled={approving || rejecting}
+                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        >
+                          {approving ? t('approving') : t('approve')}
+                        </button>
+                        <button
+                          onClick={() => handleRejectClick(selectedDoc)}
+                          disabled={approving || rejecting}
+                          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        >
+                          {rejecting ? t('rejecting') : t('reject')}
+                        </button>
+                      </>
                     ) : selectedDoc.status?.toLowerCase() === 'approved' ? (
                       <button
                         disabled
@@ -434,12 +494,12 @@ const RegDocsApproved = () => {
                       >
                         ✓ {t('approved')}
                       </button>
-                    ) : selectedDoc.status?.toLowerCase() === 'rejected' ? (
+                    ) : selectedDoc.status?.toLowerCase() === 'denied' ? (
                       <button
                         disabled
                         className="px-4 py-2 bg-red-100 text-red-800 rounded-lg cursor-not-allowed text-sm font-medium"
                       >
-                        ✗ {t('rejected')}
+                        ✗ {t('denied')}
                       </button>
                     ) : null}
                   </div>
@@ -488,8 +548,15 @@ const RegDocsApproved = () => {
                     {t('cancel')}
                   </button>
                   <button
+                    onClick={() => handleRejectClick(selectedDoc)}
+                    disabled={approving || rejecting}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  >
+                    {rejecting ? t('rejecting') : t('reject')}
+                  </button>
+                  <button
                     onClick={() => handleApproveClick(selectedDoc)}
-                    disabled={approving}
+                    disabled={approving || rejecting}
                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
                     {approving ? t('approving') : t('approve')}
@@ -548,6 +615,58 @@ const RegDocsApproved = () => {
                 className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {approving ? t('approving') : t('confirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Reject Confirmation Modal */}
+      {rejectDoc && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl">
+            <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            
+            <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
+              {t('rejectRegistrationDocument')}
+            </h3>
+            
+            <p className="text-sm text-gray-600 text-center mb-6">
+              {t('areYouSureReject')}
+            </p>
+
+            <div className="bg-gray-50 rounded-lg p-3 mb-6 text-xs">
+              <div className="flex justify-between mb-1">
+                <span className="text-gray-500">{t('user')}:</span>
+                <span className="text-gray-900 font-medium">{rejectDoc.userFullName}</span>
+              </div>
+              <div className="flex justify-between mb-1">
+                <span className="text-gray-500">{t('car')}:</span>
+                <span className="text-gray-900 font-medium">{rejectDoc.carManufacturer} {rejectDoc.carModel}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">{t('carId')}:</span>
+                <span className="text-gray-900 font-medium">{rejectDoc.carId?.substring(0, 12)}...</span>
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={handleCancelReject}
+                disabled={rejecting}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {t('cancel')}
+              </button>
+              <button
+                onClick={handleConfirmReject}
+                disabled={rejecting}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {rejecting ? t('rejecting') : t('confirm')}
               </button>
             </div>
           </div>

@@ -10,11 +10,11 @@ const EmptyState = ({ filter }) => {
       </svg>
       <h3 className="text-lg font-medium text-gray-900 mb-2">{t('carRegisDocs.noCarsFound')}</h3>
       <p className="text-gray-600">
-        {filter === 'all'
-          ? t('carRegisDocs.noRegisteredCars')
-          : filter === 'pending' 
-            ? t('carRegisDocs.noPendingCars', { status: t('carRegisDocs.pending') })
-            : t('carRegisDocs.noApprovedCars', { status: t('carRegisDocs.approved') })}
+        {filter === 'all' && t('carRegisDocs.noRegisteredCars')}
+        {filter === 'no-upload' && t('carRegisDocs.noUploadCars')}
+        {filter === 'pending' && t('carRegisDocs.noPendingCars', { status: t('carRegisDocs.pending') })}
+        {filter === 'approved' && t('carRegisDocs.noApprovedCars', { status: 'approved' })}
+        {filter === 'denied' && t('carRegisDocs.noDeniedCars')}
       </p>
     </div>
   );

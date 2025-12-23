@@ -75,7 +75,7 @@ const EventModal = () => {
               <div className="flex items-center justify-between pb-4 border-b border-gray-200">
                 <div>
                   <p className="text-sm text-gray-500">{t('bookingId') || 'Booking ID'}</p>
-                  <p className="text-lg font-semibold">{selectedEvent.bookingId}</p>
+                  <p className="text-lg font-semibold">{selectedEvent.bookingNumber}</p>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${getBookingStatusColor(selectedEvent.bookingStatus)}`}>
                   {selectedEvent.bookingStatus?.toUpperCase()}

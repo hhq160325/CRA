@@ -4,7 +4,7 @@ import { getUserIdFromToken } from '../../../../user/api';
 import { filterPaymentData } from '../../../utils/filterUtils';
 import DropdownTemplate from '../../../../../shared/components/DropdownTemplate';
 import Pagination from '../../../../../shared/components/Pagination';
-import { paymentTypeOptions, getPaymentMethodOptions, paymentStatusOptions, dateFilterOptions } from '../../../ownerUtils/dropdownOptions';
+import { paymentTypeOptions, getPaymentMethodOptions, paymentStatusOptions } from '../../../ownerUtils/dropdownOptions';
 import { fetchOwnerPaymentsData } from '../../../api/ownerApi';
 import { sortByLatest } from '../../../../../shared/utils/SortByLatest';
 import { convertToVietnamTime } from '../../../../../shared/utils/CheckUTC';
@@ -15,7 +15,8 @@ const Payments = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all'); // all, booking_fee, rental_fee
   const [paymentMethodFilter, setPaymentMethodFilter] = useState('all');
-  const [dateFilter, setDateFilter] = useState('all');
+  const [createDateFilter, setCreateDateFilter] = useState('');
+  const [updateDateFilter, setUpdateDateFilter] = useState('');
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [payments, setPayments] = useState([]);
@@ -309,14 +310,15 @@ ${t('payments.receiptSeparator')}
     return payments.filter(payment =>
       filterPaymentData(payment, {
         searchTerm,
-        searchFields: ['transactionId', 'bookingId', 'description'],
+        searchFields: ['transactionId'],
         statusFilter,
         typeFilter,
         paymentMethodFilter,
-        dateFilter,
+        createDateFilter,
+        updateDateFilter,
       })
     );
-  }, [payments, searchTerm, statusFilter, typeFilter, paymentMethodFilter, dateFilter]);
+  }, [payments, searchTerm, statusFilter, typeFilter, paymentMethodFilter, createDateFilter, updateDateFilter]);
 
   // Paginate filtered payments
   const paginatedPayments = useMemo(() => {
@@ -328,7 +330,7 @@ ${t('payments.receiptSeparator')}
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, statusFilter, typeFilter, paymentMethodFilter, dateFilter]);
+  }, [searchTerm, statusFilter, typeFilter, paymentMethodFilter, createDateFilter, updateDateFilter]);
 
   // Calculate statistics
   // const totalReceived = payments.filter(p => p.status === 'paid' || p.status === 'completed' || p.status === 'success').reduce((sum, p) => sum + p.amount, 0);
@@ -486,13 +488,24 @@ ${t('payments.receiptSeparator')}
                 // searchPlaceholder="Tìm trạng thái..."
                 className="min-w-[160px]"
               />
-              <DropdownTemplate
-                value={dateFilter}
-                onChange={(option) => setDateFilter(option.value)}
-                options={dateFilterOptions}
-                placeholder={t('payments.allDates')}
-                className="min-w-[160px]"
-              />
+              <div className="relative min-w-[160px] flex items-center">
+                <label className="block text-xs text-gray-600 mb-1">{t('payments.createDate')}</label>
+                <input
+                  type="date"
+                  value={createDateFilter}
+                  onChange={(e) => setCreateDateFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
+              </div>
+              <div className="relative min-w-[160px] flex items-center">
+                <label className="block text-xs text-gray-600 mb-1">{t('payments.updateDate')}</label>
+                <input
+                  type="date"
+                  value={updateDateFilter}
+                  onChange={(e) => setUpdateDateFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
+              </div>
             </div>
             <div className="text-sm text-gray-600">
               {t('payments.showingResults', { filtered: filteredPayments.length, total: payments.length })}

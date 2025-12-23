@@ -12,8 +12,9 @@ export const ownerTranslations = {
       "carRegisDocs.noRegisteredCars": "You haven't registered any cars yet.",
       "carRegisDocs.noPendingCars": "No cars found {{status}}.",
       "carRegisDocs.noApprovedCars": "No {{status}} cars found.",
+      "carRegisDocs.noUploadCars": "No cars without uploaded documents found.",
+      "carRegisDocs.noDeniedCars": "No denied cars found.",
       "carRegisDocs.pending": "pending approval",
-      "carRegisDocs.approved": "approved",
       "carRegisDocs.licensePlate": "License Plate",
       "carRegisDocs.seats": "Seats",
       "carRegisDocs.yearOfManufacture": "Year of Manufacture",
@@ -36,7 +37,12 @@ export const ownerTranslations = {
       "carRegisDocs.page": "Page",
       "carRegisDocs.loadingError": "Failed to load cars. Please try again.",
       "carRegisDocs.uploadError": "Failed to upload documents. Please try again.",
-      "carRegisDocs.fuelConsumptionUnit": "L/100km"
+      "carRegisDocs.fuelConsumptionUnit": "L/100km",
+      "carRegisDocs.statusNoUpload": "Not Upload Reg Doc",
+      "carRegisDocs.statusDenied":"Denied",
+      "carRegisDocs.noUpload": "No Upload Reg Doc ({{count}})",
+      "carRegisDocs.denied":"Denied ({{count}})",
+      "carRegisDocs.noDocumentsUploaded": "No documents uploaded"
     }
   },
   vi: {
@@ -51,8 +57,9 @@ export const ownerTranslations = {
       "carRegisDocs.noRegisteredCars": "Bạn chưa đăng ký xe nào.",
       "carRegisDocs.noPendingCars": "Không tìm thấy xe {{status}} nào.",
       "carRegisDocs.noApprovedCars": "Không tìm thấy xe {{status}} nào.",
+      "carRegisDocs.noUploadCars": "Không tìm thấy xe nào chưa tải lên tài liệu.",
+      "carRegisDocs.noDeniedCars": "Không tìm thấy xe nào bị từ chối.",
       "carRegisDocs.pending": "chờ duyệt",
-      "carRegisDocs.approved": "đã duyệt",
       "carRegisDocs.licensePlate": "Biển số xe",
       "carRegisDocs.seats": "Số ghế",
       "carRegisDocs.yearOfManufacture": "Năm sản xuất",
@@ -75,7 +82,12 @@ export const ownerTranslations = {
       "carRegisDocs.page": "Trang",
       "carRegisDocs.loadingError": "Không thể tải danh sách xe. Vui lòng thử lại.",
       "carRegisDocs.uploadError": "Không thể tải tài liệu lên. Vui lòng thử lại.",
-      "carRegisDocs.fuelConsumptionUnit": "L/100km"
+      "carRegisDocs.fuelConsumptionUnit": "L/100km",
+      "carRegisDocs.statusNoUpload": "Chưa tải lên giấy tờ",
+      "carRegisDocs.statusDenied": "Bị từ chối",
+      "carRegisDocs.noUpload": "Chưa tải lên giấy tờ ({{count}})",
+      "carRegisDocs.denied": "Bị từ chối ({{count}})",
+      "carRegisDocs.noDocumentsUploaded": "Chưa tải lên tài liệu nào"
     }
   }
 };

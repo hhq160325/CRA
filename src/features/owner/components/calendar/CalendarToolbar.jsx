@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import DropdownTemplate from '../../../../shared/components/DropdownTemplate';
 
 const CalendarToolbar = ({
   currentView,
@@ -21,11 +22,10 @@ const CalendarToolbar = ({
   ];
 
   const statusOptions = [
-    { value: 'all', label: t('status') },
-    { value: 'active', label: t('active') },
-    { value: 'pending', label: t('pending') },
-    { value: 'completed', label: t('completed') },
-    { value: 'cancelled', label: t('cancelled') },
+    { id: 'all', value: 'all', label: t('allStatus') },
+    { id: 'pending', value: 'pending', label: t('pending') },
+    { id: 'confirmed', value: 'confirmed', label: t('confirmed') },
+    { id: 'completed', value: 'completed', label: t('completed') },
   ];
 
   const formatDate = (date) => {
@@ -156,15 +156,26 @@ const CalendarToolbar = ({
           />
         </div>
 
-        <select
+        {/* <div className="relative min-w-[200px]">
+          <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+          </svg>
+          <input
+            type="text"
+            placeholder={t('searchByBookingNumber')}
+            onChange={(e) => onFilterChange('bookingNumber', e.target.value)}
+            value={filters.bookingNumber || ''}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div> */}
+
+        <DropdownTemplate
           value={filters.status}
-          onChange={(e) => onFilterChange('status', e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          {statusOptions.map(opt => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
+          onChange={(option) => onFilterChange('status', option.value)}
+          options={statusOptions}
+          placeholder={t('selectStatus')}
+          className="min-w-[150px]"
+        />
 
         {/* <button
           onClick={handleNewEvent}

@@ -112,7 +112,7 @@ const RentalHistoryFilters = ({
         </div>
 
         {/* Date Range Filter */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center pt-2 border-t border-gray-100">
+        {/* <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center pt-2 border-t border-gray-100">
           <label className="text-sm font-medium text-gray-700 whitespace-nowrap">{t('rentalHistory.customDateRange')}</label>
           <div className="flex flex-col sm:flex-row gap-3 flex-1">
             <div className="flex items-center gap-2">
@@ -142,7 +142,7 @@ const RentalHistoryFilters = ({
               </button>
             )}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

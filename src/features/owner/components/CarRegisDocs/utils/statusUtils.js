@@ -11,6 +11,22 @@ export const getStatusBadgeConfig = (status, t) => {
       text: 'text-yellow-800',
       label: t('carRegisDocs.statusPending')
     },
+    'Approved': {
+      bg: 'bg-green-100',
+      text: 'text-green-800',
+      label: t('carRegisDocs.statusApproved')
+    },
+    'Denied': {
+      bg: 'bg-red-100',
+      text: 'text-red-800',
+      label: t('carRegisDocs.statusDenied')
+    },
+    'No Upload': {
+      bg: 'bg-gray-100',
+      text: 'text-gray-800',
+      label: t('carRegisDocs.statusNoUpload')
+    },
+    // Legacy status mappings for backward compatibility
     'Active': {
       bg: 'bg-green-100',
       text: 'text-green-800',

@@ -44,7 +44,6 @@ export const transformBookingData = (allBookings, t) => {
         minute: '2-digit',
         hour12: false
       }),
-      // Keep original booking data for modal operations
       originalBooking: booking
     };
   });

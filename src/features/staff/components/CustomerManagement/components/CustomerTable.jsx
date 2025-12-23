@@ -66,7 +66,7 @@ const CustomerTable = ({
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('behaviourScore')}</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('status')}</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('verification')}</th>
-              <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingStats')}</th>
+              {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('bookingStats')}</th> */}
               {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('totalSpent')}</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('lastBooking')}</th> */}
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('actions')}</th>
@@ -97,7 +97,7 @@ const CustomerTable = ({
                     {customer.verificationStatus}
                   </span>
                 </td>
-                <td className="py-4 px-6">
+                {/* <td className="py-4 px-6">
                   <div className="text-sm">
                     <div className="font-medium text-gray-900">
                       {customer.totalBookings} {t('bookings') || 'bookings'}
@@ -106,7 +106,7 @@ const CustomerTable = ({
                       {customer.totalBookings > 0 ? t('activeCustomer') || 'Active customer' : t('noBookings') || 'No bookings yet'}
                     </div>
                   </div>
-                </td>
+                </td> */}
                 {/* <td className="py-4 px-6">
                   <div className="text-sm">
                     <div className="font-medium text-gray-900">

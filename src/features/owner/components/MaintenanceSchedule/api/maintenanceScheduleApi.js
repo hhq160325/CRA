@@ -7,7 +7,7 @@ export const fetchUserCars = async () => {
   const currentUserId = getUserIdFromToken();
   const response = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS);
   const allCars = response.data || [];
-  
+
   // Filter cars owned by current user and with Inactive status (in maintenance)
   return allCars.filter(car =>
     car.owner.id === currentUserId && car.status?.toLowerCase() === 'inactive'
@@ -18,7 +18,14 @@ export const fetchUserCars = async () => {
 export const fetchCarSchedules = async (carId) => {
   try {
     const response = await axiosInstance.get(SCHEDULE_ENDPOINTS.GET_CAR_SCHEDULES(carId));
-    return response.data || [];
+    console.log("fetchCarSchedules", response.data);
+    const allSchedules = response.data || [];
+    
+    // Filter to show only maintenance schedules
+    return allSchedules.filter(schedule => 
+      schedule.scheduleType === "Maintenance"
+    );
+
   } catch (err) {
     console.error(`Error fetching schedule for car ${carId}:`, err);
     return [];

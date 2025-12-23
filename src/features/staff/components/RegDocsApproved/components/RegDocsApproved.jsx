@@ -84,8 +84,16 @@ const RegDocsApproved = () => {
       setRegDocs(transformedData);
       setError(null);
     } catch (err) {
-      setError(err.message || 'Failed to fetch registration documents');
-      console.error('Error fetching registration documents:', err);
+      // Check if it's a 404 error (no documents found) vs actual error
+      if (err.response?.status === 404 || err.message?.includes('404')) {
+        // 404 means no documents exist, not an error - show empty state
+        setRegDocs([]);
+        setError(null);
+      } else {
+        // Actual error occurred
+        setError(err.message || 'Failed to fetch registration documents');
+        console.error('Error fetching registration documents:', err);
+      }
     } finally {
       setLoading(false);
     }

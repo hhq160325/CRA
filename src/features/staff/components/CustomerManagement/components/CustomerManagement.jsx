@@ -25,7 +25,7 @@ const CustomerManagement = () => {
 
   // Custom hooks
   const { customers, loading, error } = useCustomers();
-  const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, filteredCustomers } = useCustomerFilters(customers);
+  const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, sortByScore, setSortByScore, filteredCustomers } = useCustomerFilters(customers);
   const { selectedCustomer, modalType, isModalOpen, openModal, closeModal, changeModalType } = useCustomerModal();
 
   // Customer actions
@@ -79,6 +79,8 @@ const CustomerManagement = () => {
         setSearchTerm={setSearchTerm}
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
+        sortByScore={sortByScore}
+        setSortByScore={setSortByScore}
         filteredCount={filteredCustomers.length}
         totalCount={customers.length}
       />

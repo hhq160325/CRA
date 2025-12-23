@@ -47,6 +47,7 @@ export const paymentStatusOptions = [
   { id: 'all', value: 'all', label: 'All Status' },
   { id: 'completed', value: 'completed', label: 'Completed' },
   { id: 'paid', value: 'paid', label: 'Paid' },
+  { id: 'success', value: 'success', label: 'Success' },
   { id: 'pending', value: 'pending', label: 'Pending' },
   { id: 'cancelled', value: 'cancelled', label: 'Cancelled' }
 ];

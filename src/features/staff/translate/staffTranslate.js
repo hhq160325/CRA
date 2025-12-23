@@ -285,7 +285,7 @@ export const staffTranslate = {
       close: "Close",
       more: "more",
       allEvents: "All Events",
-      
+
       //Create Parlot
       selectCarOwner: "Select Car Owner",
       noCarOwnersFound: "No Car Owners Found",
@@ -307,6 +307,9 @@ export const staffTranslate = {
       enterReportTitle: "Enter Report Title",
       enterReportContent: "Enter Report Content",
       submitReport: "Submit Report",
+      sortByBehaviourScore: "Sort By Behaviour Score",
+      lowestToHighest: "Lowest To Highest",
+      highestToLowest: "Highest To Lowest",
     }
   },
   vi: {
@@ -616,6 +619,9 @@ export const staffTranslate = {
       enterReportTitle: "Nhập tiêu đề báo cáo",
       enterReportContent: "Nhập nội dung báo cáo",
       submitReport: "Gửi báo cáo",
+      sortByBehaviourScore: "Sắp xếp theo điểm hành vi",
+      lowestToHighest: "Từ cao nhất đến thấp nhất",
+      highestToLowest: "Từ thấp nhất đến cao nhất",
     }
   }
 };

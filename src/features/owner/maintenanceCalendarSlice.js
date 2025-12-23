@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { axiosInstance } from '../../shared/utils/axiosInstance';
-import { SCHEDULE_ENDPOINTS, PAYMENT_ENDPOINTS, INVOICE_ENDPOINTS, CAR_ENDPOINTS } from '../../config/api';
+import { SCHEDULE_ENDPOINTS, CAR_ENDPOINTS } from '../../config/api';
 import { decodeJWT } from '../auth/utils';
+import { maintenanceScheduleService } from './components/MaintenanceSchedule/services/maintenanceScheduleService';
 
 // Helper function to get user ID from token
 const getUserIdFromToken = () => {
@@ -15,143 +16,80 @@ const getUserIdFromToken = () => {
   return decoded.sub || decoded.userId || decoded.id || decoded.nameid || null;
 };
 
-// Helper function to fetch all payments and create a lookup map
-const fetchAllPayments = async () => {
-  try {
-    const response = await axiosInstance.get(PAYMENT_ENDPOINTS.GET_ALL_PAYMENTS);
-    const payments = response.data || [];
-    
-    // Create a map of invoiceId -> payment for quick lookup
-    const paymentMap = {};
-    payments.forEach(payment => {
-      if (payment.invoiceId) {
-        paymentMap[payment.invoiceId] = payment;
-      }
-    });
-    
-    return paymentMap;
-  } catch (error) {
-    console.error('Error fetching payments:', error);
-    return {};
-  }
-};
-
-// Helper function to fetch invoice details
-const fetchInvoiceDetails = async (invoiceId) => {
-  try {
-    if (!invoiceId) return null;
-    const response = await axiosInstance.get(INVOICE_ENDPOINTS.GET_INVOICE_BY_ID(invoiceId));
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching invoice ${invoiceId}:`, error);
-    return null;
-  }
-};
-
 // Async thunks
-export const fetchUserBookings = createAsyncThunk(
-  'calendar/fetchUserBookings',
+export const fetchMaintenanceSchedules = createAsyncThunk(
+  'calendar/fetchMaintenanceSchedules',
   async (_, { rejectWithValue }) => {
     try {
+      console.log('🔄 Starting fetchMaintenanceSchedules...');
+      
       const userId = getUserIdFromToken();
+      console.log('👤 User ID:', userId);
+      
       if (!userId) {
-        console.warn('No user ID found in token');
+        console.warn('❌ No user ID found in token');
         return [];
       }
 
-      // Fetch all cars and payments in parallel
-      const [carsResponse, paymentMap] = await Promise.all([
-        axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS),
-        fetchAllPayments()
-      ]);
-      
+      // Fetch all cars
+      console.log('🚗 Fetching all cars...');
+      const carsResponse = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS);
       const allCars = carsResponse.data || [];
+      console.log('🚗 All cars:', allCars.length);
       
-      // Filter for inactive cars (cars with maintenance schedules)
-      const inactiveCars = allCars.filter(car => car.status === 'Inactive');
+      // Filter cars owned by current user and with Inactive status (in maintenance)
+      const inactiveCars = allCars.filter(car =>
+        car.owner.id === userId && car.status?.toLowerCase() === 'inactive'
+      );
+      console.log('🔧 Inactive cars for user:', inactiveCars.length);
       
       if (inactiveCars.length === 0) {
-        console.log('No inactive cars found');
+        console.log('❌ No inactive cars found');
         return [];
       }
 
       // Fetch schedules for all inactive cars
-      const schedulePromises = inactiveCars.map(car => 
-        axiosInstance.get(SCHEDULE_ENDPOINTS.GET_CAR_SCHEDULES(car.id))
-          .then(response => response.data || [])
-          .catch(error => {
-            console.error(`Error fetching schedules for car ${car.id}:`, error);
-            return [];
-          })
-      );
-
-      const scheduleArrays = await Promise.all(schedulePromises);
-      const schedules = scheduleArrays.flat();
-
-      // Fetch invoice details and match with payments
-      const schedulesWithDetails = await Promise.all(
-        schedules.map(async (schedule) => {
-          const booking = schedule.booking || {};
-          let invoiceData = null;
-          let paymentData = null;
+      console.log('📅 Fetching schedules for inactive cars...');
+      const schedulePromises = inactiveCars.map(async (car) => {
+        try {
+          const response = await axiosInstance.get(SCHEDULE_ENDPOINTS.GET_CAR_SCHEDULES(car.id));
+          const allSchedules = response.data || [];
+          console.log(`📅 Car ${car.id} schedules:`, allSchedules.length);
           
-          if (booking.invoiceId) {
-            // Fetch invoice details
-            invoiceData = await fetchInvoiceDetails(booking.invoiceId);
-            // Get payment data from the map
-            paymentData = paymentMap[booking.invoiceId];
-          }
+          // Filter to show only maintenance schedules
+          const maintenanceSchedules = allSchedules.filter(schedule => 
+            schedule.scheduleType === "Maintenance"
+          );
+          console.log(`🔧 Car ${car.id} maintenance schedules:`, maintenanceSchedules.length);
           
-          return {
-            ...schedule,
-            invoice: invoiceData,
-            payment: paymentData,
-          };
-        })
-      );
-
-      return schedulesWithDetails;
+          return { car, schedules: maintenanceSchedules };
+        } catch (err) {
+          console.error(`❌ Error fetching schedule for car ${car.id}:`, err);
+          return { car, schedules: [] };
+        }
+      });
+      
+      const carSchedulesData = await Promise.all(schedulePromises);
+      console.log('📊 Car schedules data:', carSchedulesData);
+      
+      // Use the maintenanceScheduleService to format the data
+      const t = (key) => {
+        const translations = {
+          'maintenanceSchedule.unknownCarModel': 'Unknown Car Model',
+          'maintenanceSchedule.needsMaintenance': 'Needs Maintenance'
+        };
+        return translations[key] || key;
+      };
+      
+      const formattedSchedules = maintenanceScheduleService(carSchedulesData, t);
+      console.log('✅ Formatted schedules:', formattedSchedules);
+      
+      return formattedSchedules;
     } catch (error) {
-      console.error('Error fetching schedules:', error);
+      console.error('❌ Error fetching schedules:', error);
       if (error.response?.status === 404) {
         return [];
       }
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
-);
-
-export const createBookingEvent = createAsyncThunk(
-  'calendar/createBookingEvent',
-  async (eventData, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.post('/bookings', eventData);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
-);
-
-export const updateBookingEvent = createAsyncThunk(
-  'calendar/updateBookingEvent',
-  async ({ id, updates }, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.put(`/bookings/${id}`, updates);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
-);
-
-export const deleteBookingEvent = createAsyncThunk(
-  'calendar/deleteBookingEvent',
-  async (id, { rejectWithValue }) => {
-    try {
-      await axiosInstance.delete(`/bookings/${id}`);
-      return id;
-    } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
@@ -233,107 +171,71 @@ const calendarSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchUserBookings.pending, (state) => {
+      .addCase(fetchMaintenanceSchedules.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchUserBookings.fulfilled, (state, action) => {
+      .addCase(fetchMaintenanceSchedules.fulfilled, (state, action) => {
         state.loading = false;
-        // Transform schedule data to calendar events
+        // Transform maintenance schedule data to calendar events
         state.events = (action.payload || []).map(schedule => {
-          const car = schedule.car || {};
-          const booking = schedule.booking || {};
-          const invoice = schedule.invoice || {};
-          const payment = schedule.payment || {};
-          const carName = `${car.manufacturer || ''} ${car.model || ''}`.trim() || 'Unknown Car';
+          // Handle date creation more carefully
+          let startDate, endDate;
+          
+          if (schedule.startDateMaintenanceDate !== 'N/A' && schedule.pickupTime !== 'N/A') {
+            startDate = new Date(`${schedule.startDateMaintenanceDate}T${schedule.pickupTime}:00`);
+          } else if (schedule.startDateMaintenanceDate !== 'N/A') {
+            startDate = new Date(`${schedule.startDateMaintenanceDate}T09:00:00`);
+          } else {
+            startDate = new Date();
+          }
+          
+          if (schedule.endDateMaintenanceDate !== 'N/A' && schedule.returnTime !== 'N/A') {
+            endDate = new Date(`${schedule.endDateMaintenanceDate}T${schedule.returnTime}:00`);
+          } else if (schedule.endDateMaintenanceDate !== 'N/A') {
+            endDate = new Date(`${schedule.endDateMaintenanceDate}T17:00:00`);
+          } else {
+            endDate = new Date();
+          }
+          
+          console.log('📅 Creating calendar event:', {
+            title: `${schedule.scheduleTitle || schedule.maintenanceType} - ${schedule.carName}`,
+            start: startDate,
+            end: endDate,
+            status: schedule.status
+          });
           
           return {
-            id: schedule.id,
-            title: `${schedule.title} - ${carName}`,
-            start: schedule.startDate ? new Date(schedule.startDate) : new Date(),
-            end: schedule.endDate ? new Date(schedule.endDate) : new Date(),
+            id: schedule.scheduleId || schedule.id,
+            title: `${schedule.scheduleTitle || schedule.maintenanceType} - ${schedule.carName}`,
+            start: startDate,
+            end: endDate,
             allDay: false,
             // Store full schedule details for modal display
-            scheduleId: schedule.id,
-            scheduleType: schedule.scheduleType,
+            scheduleId: schedule.scheduleId,
+            scheduleTitle: schedule.scheduleTitle,
+            scheduleType: schedule.maintenanceType,
             priority: schedule.priority,
-            isBlocking: schedule.isBlocking,
             status: schedule.status,
-            notes: schedule.note,
+            daysUntil: schedule.daysUntil,
             // Car details
-            carId: car.id,
-            carName: carName,
-            licensePlate: car.licensePlate,
-            seats: car.seats,
-            transmission: car.transmission,
-            fuelType: car.fuelType,
-            // Booking details
-            bookingId: booking.id,
-            pickupPlace: booking.pickupPlace,
-            dropoffPlace: booking.dropoffPlace,
-            pickupTime: booking.pickupTime,
-            dropoffTime: booking.dropoffTime,
-            bookingStatus: booking.status,
-            invoiceId: booking.invoiceId,
-            invoiceNo: booking.invoiceNo,
-            // Invoice/Payment details
-            totalAmount: invoice.totalAmount || 0,
-            carRentPrice: invoice.carRentPrice || 0,
-            bookingFee: invoice.bookingFee || 0,
-            // Payment status from PayOS
-            paymentStatus: payment.status || 'pending',
-            paymentMethod: payment.paymentMethod,
-            paymentDate: payment.paymentDate,
+            carId: schedule.carId,
+            carName: schedule.carName,
+            carModel: schedule.carModel,
+            licensePlate: schedule.licensePlate,
+            currentMileage: schedule.currentMileage,
+            mileageAtLastService: schedule.mileageAtLastService,
+            // Maintenance details
+            startDateMaintenanceDate: schedule.startDateMaintenanceDate,
+            endDateMaintenanceDate: schedule.endDateMaintenanceDate,
+            pickupTime: schedule.pickupTime,
+            returnTime: schedule.returnTime,
           };
         });
       })
-      .addCase(fetchUserBookings.rejected, (state, action) => {
+      .addCase(fetchMaintenanceSchedules.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
-      .addCase(createBookingEvent.fulfilled, (state, action) => {
-        const booking = action.payload;
-        const startDate = booking.startDate || booking.start;
-        const endDate = booking.endDate || booking.end;
-        
-        state.events.push({
-          id: booking.id,
-          title: `${booking.car || 'Car'} - ${booking.bookingId || booking.id}`,
-          start: new Date(startDate ? `${startDate}T09:00` : Date.now()),
-          end: new Date(endDate ? `${endDate}T17:00` : Date.now()),
-          allDay: false,
-          status: booking.status || 'pending',
-          car: booking.car || '',
-          customer: booking.customer || '',
-          carOwner: booking.carOwner || '',
-          amount: booking.totalAmount || booking.amount || 0,
-          paymentStatus: booking.paymentStatus || 'pending',
-          notes: booking.notes || '',
-          bookingId: booking.bookingId || booking.id,
-        });
-      })
-      .addCase(updateBookingEvent.fulfilled, (state, action) => {
-        const updated = action.payload;
-        const index = state.events.findIndex(e => e.id === updated.id);
-        if (index !== -1) {
-          const startDate = updated.startDate || updated.start;
-          const endDate = updated.endDate || updated.end;
-          
-          state.events[index] = {
-            ...state.events[index],
-            title: `${updated.car || 'Car'} - ${updated.bookingId || updated.id}`,
-            start: new Date(startDate ? `${startDate}T09:00` : state.events[index].start),
-            end: new Date(endDate ? `${endDate}T17:00` : state.events[index].end),
-            status: updated.status || state.events[index].status,
-            car: updated.car || state.events[index].car,
-            amount: updated.totalAmount || updated.amount || state.events[index].amount,
-            paymentStatus: updated.paymentStatus || state.events[index].paymentStatus,
-            notes: updated.notes || state.events[index].notes,
-          };
-        }
-      })
-      .addCase(deleteBookingEvent.fulfilled, (state, action) => {
-        state.events = state.events.filter(e => e.id !== action.payload);
       });
   },
 });

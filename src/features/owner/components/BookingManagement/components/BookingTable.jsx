@@ -73,7 +73,7 @@ const BookingTable = ({ bookings, onBookingUpdate }) => {
             {bookings.map((booking) => (
               <tr key={booking.id} className="hover:bg-gray-50">
                 <td className="py-4 px-6">
-                  <div className="font-medium text-gray-900 text-sm">{booking.bookingId}</div>
+                  <div className="font-medium text-gray-900 text-sm">{booking.bookingNumber}</div>
                 </td>
                 <td className="py-4 px-6">
                   <div className="font-medium text-gray-900 text-sm">{booking.carName}</div>
@@ -122,7 +122,7 @@ const BookingTable = ({ bookings, onBookingUpdate }) => {
                   })()}
                 </td>
                 <td className="py-4 px-6">
-                  {(booking.status === 'Confirmed' || booking.status === 'checkedIn') && (
+                  {(booking.status === 'Confirmed' || booking.status === 'Completed') && (
                     <button
                       onClick={() => handleExtendRent(booking)}
                       className="text-green-600 hover:text-green-700 text-sm font-medium"

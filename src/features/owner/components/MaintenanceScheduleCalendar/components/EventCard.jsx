@@ -3,28 +3,29 @@ import { useTranslation } from 'react-i18next';
 
 const getStatusColor = (status) => {
   const colors = {
+    // Maintenance schedule statuses
+    upcoming: 'bg-blue-100 text-blue-800 border-blue-300',
+    due: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    'in maintenance': 'bg-purple-100 text-purple-800 border-purple-300',
+    inMaintenance: 'bg-purple-100 text-purple-800 border-purple-300',
+    overdue: 'bg-red-100 text-red-800 border-red-300',
+    completed: 'bg-green-100 text-green-800 border-green-300',
+    // Legacy booking statuses (fallback)
     Active: 'bg-blue-100 text-blue-800 border-blue-300',
     Pending: 'bg-yellow-100 text-yellow-800 border-yellow-300',
     Confirmed: 'bg-green-100 text-green-800 border-green-300',
     Completed: 'bg-purple-100 text-purple-800 border-purple-300',
     Cancelled: 'bg-red-100 text-red-800 border-red-300',
     Rejected: 'bg-gray-100 text-gray-800 border-gray-300',
-    // Lowercase versions for fallback
-    active: 'bg-blue-100 text-blue-800 border-blue-300',
-    pending: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-    confirmed: 'bg-green-100 text-green-800 border-green-300',
-    completed: 'bg-purple-100 text-purple-800 border-purple-300',
-    cancelled: 'bg-red-100 text-red-800 border-red-300',
-    rejected: 'bg-gray-100 text-gray-800 border-gray-300',
-    overdue: 'bg-red-100 text-red-800 border-red-300',
   };
-  return colors[status] || colors.pending;
+  return colors[status] || colors.upcoming;
 };
 
 const EventCard = ({ event, compact = false, onClick, date }) => {
   const { t } = useTranslation();
-  // Use bookingStatus if available, otherwise fall back to status
-  const displayStatus = event.bookingStatus || event.status;
+  
+  // For maintenance schedules, use the status directly
+  const displayStatus = event.status || 'upcoming';
   const statusColor = getStatusColor(displayStatus);
 
   const formatTime = (date) => {
@@ -35,6 +36,14 @@ const EventCard = ({ event, compact = false, onClick, date }) => {
       minute: '2-digit',
       hour12: true 
     });
+  };
+
+  // Format status for display
+  const formatStatus = (status) => {
+    if (status === 'inMaintenance' || status === 'in maintenance') {
+      return 'In Maintenance';
+    }
+    return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
   // const getEventType = () => {
@@ -80,11 +89,18 @@ const EventCard = ({ event, compact = false, onClick, date }) => {
       <div className="text-xs text-gray-600">
         {formatTime(event.start)} - {formatTime(event.end)}
       </div>
-      {(event.carName || event.car) && (
-        <div className="text-xs text-gray-500 mt-1">{t('car')}: {event.carName || event.car}</div>
+      {event.carName && (
+        <div className="text-xs text-gray-500 mt-1">
+          {t('car') || 'Car'}: {event.carName}
+        </div>
+      )}
+      {event.scheduleType && (
+        <div className="text-xs text-gray-500 mt-1">
+          {t('type') || 'Type'}: {event.scheduleType}
+        </div>
       )}
       <div className={`text-xs mt-2 px-2 py-1 rounded inline-block ${statusColor}`}>
-        {t(displayStatus)}
+        {formatStatus(displayStatus)}
       </div>
     </div>
   );

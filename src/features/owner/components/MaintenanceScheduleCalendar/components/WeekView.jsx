@@ -1,10 +1,7 @@
 import React, { useMemo } from 'react';
-import { useDispatch } from 'react-redux';
-import { openEventModal } from '../../../maintenanceCalendarSlice';
 import EventCard from './EventCard';
 
-const WeekView = ({ events, currentDate }) => {
-  const dispatch = useDispatch();
+const WeekView = ({ events, currentDate, onEventClick }) => {
 
   const weekDays = useMemo(() => {
     const date = currentDate instanceof Date ? currentDate : new Date(currentDate);
@@ -23,11 +20,30 @@ const WeekView = ({ events, currentDate }) => {
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
   const getEventsForDate = (date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    // Use local date string to avoid timezone issues
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    
     return events.filter(event => {
-      if (!event.start) return false;
-      const eventStart = (event.start instanceof Date ? event.start : new Date(event.start)).toISOString().split('T')[0];
-      return dateStr === eventStart;
+      if (!event.start || !event.end) return false;
+      
+      // Get local date strings for event start and end
+      const startDate = event.start instanceof Date ? event.start : new Date(event.start);
+      const startYear = startDate.getFullYear();
+      const startMonth = String(startDate.getMonth() + 1).padStart(2, '0');
+      const startDay = String(startDate.getDate()).padStart(2, '0');
+      const eventStart = `${startYear}-${startMonth}-${startDay}`;
+      
+      const endDate = event.end instanceof Date ? event.end : new Date(event.end);
+      const endYear = endDate.getFullYear();
+      const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+      const endDay = String(endDate.getDate()).padStart(2, '0');
+      const eventEnd = `${endYear}-${endMonth}-${endDay}`;
+      
+      // For maintenance schedules, show on all days between start and end (inclusive)
+      return dateStr >= eventStart && dateStr <= eventEnd;
     });
   };
 
@@ -88,7 +104,7 @@ const WeekView = ({ events, currentDate }) => {
                   return (
                     <div
                       key={event.id}
-                      onClick={() => dispatch(openEventModal(event))}
+                      onClick={() => onEventClick(event)}
                       className="absolute left-1 right-1 cursor-pointer z-10"
                       style={{ top: `${top}px`, height: `${height}px` }}
                     >

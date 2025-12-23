@@ -102,13 +102,13 @@ const Register = ({ onSwitchToLogin }) => {
       const result = await dispatch(registerUser(userData)).unwrap();
       console.log('Registration Result:', result);
 
-      // Log email being sent to OTP page
-      console.log('Navigating to OTP verification with email:', formData.email);
+      // Log phone number being sent to OTP page
+      console.log('Navigating to OTP verification with phone:', formData.phoneNumber);
 
-      // Navigate to OTP verification with email (without auto login)
+      // Navigate to OTP verification with phone number (without auto login)
       navigate('/otp-verify', {
         state: {
-          email: formData.email,
+          phoneNumber: formData.phoneNumber,
           fromRegistration: true
         }
       });

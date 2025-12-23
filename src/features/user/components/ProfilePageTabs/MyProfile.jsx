@@ -40,7 +40,7 @@ const MyProfile = () => {
   const [avatarPreview, setAvatarPreview] = useState(null); // Store preview URL
 
   const [isEditing, setIsEditing] = useState(false);
-  
+
   const [dialogs, setDialogs] = useState({
     profile: false,
     phone: false,
@@ -53,7 +53,7 @@ const MyProfile = () => {
       try {
         setLoading(true);
         const data = await getUserById();
-        
+
         // Map API response to component state
         setUserInfo({
           name: data.username || 'N/A',
@@ -128,10 +128,10 @@ const MyProfile = () => {
   // Helper function to convert date from DD/MM/YYYY to YYYY/MM/DD
   const convertDateToApiFormat = (dateString) => {
     if (!dateString || dateString.trim() === '') return '';
-    
+
     const parts = dateString.split('/');
     if (parts.length !== 3) return dateString; // Return original if not in expected format
-    
+
     const [day, month, year] = parts;
     return `${year}/${month}/${day}`;
   };
@@ -139,10 +139,10 @@ const MyProfile = () => {
   // Helper function to convert date from YYYY/MM/DD to DD/MM/YYYY
   const convertDateFromApiFormat = (dateString) => {
     if (!dateString || dateString.trim() === '') return '';
-    
+
     const parts = dateString.split('/');
     if (parts.length !== 3) return dateString; // Return original if not in expected format
-    
+
     const [year, month, day] = parts;
     return `${day}/${month}/${year}`;
   };
@@ -151,7 +151,7 @@ const MyProfile = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       let updatedData;
 
       // Step 1: Upload avatar if a new file was selected
@@ -160,7 +160,7 @@ const MyProfile = () => {
         try {
           const avatarResponse = await uploadAvatar(avatarFile);
           updatedData = avatarResponse; // API returns full user object with new avatar URL
-          
+
           // Clear avatar file and preview after successful upload
           setAvatarFile(null);
           setAvatarPreview(null);
@@ -178,7 +178,7 @@ const MyProfile = () => {
 
       // Step 2: Update other user info
       const genderValue = userInfo.gender === 'Male' ? 1 : userInfo.gender === 'Female' ? 2 : 3;
-      
+
       const updateData = {
         username: userInfo.username,
         password: userInfo.password || undefined,
@@ -192,7 +192,7 @@ const MyProfile = () => {
       };
 
       await updateUserInfo(updateData);
-      
+
       // Step 3: Refetch user data to ensure sync
       const finalData = await getUserById();
       setUserInfo({
@@ -218,7 +218,7 @@ const MyProfile = () => {
         username: finalData.username,
         imageAvatar: finalData.imageAvatar
       });
-      
+
       dispatch(updateUserData({
         username: finalData.username,
         imageAvatar: finalData.imageAvatar
@@ -238,11 +238,11 @@ const MyProfile = () => {
   const handleCancel = async () => {
     try {
       setIsEditing(false);
-      
+
       // Clear avatar file and preview
       setAvatarFile(null);
       setAvatarPreview(null);
-      
+
       // Refetch user data to reset changes
       const data = await getUserById();
       setUserInfo({
@@ -260,7 +260,7 @@ const MyProfile = () => {
         isGoogle: data.isGoogle,
         address: data.address || '',
         status: data.status || '',
-        
+
       });
     } catch (err) {
       console.error('Failed to refetch user data:', err);
@@ -317,7 +317,7 @@ const MyProfile = () => {
       // Use formattedAddress from location service
       // Format: [houseNumber road], [ward], [city]
       const formattedAddress = address.formattedAddress || '';
-      
+
       setUserInfo(prev => ({
         ...prev,
         address: formattedAddress
@@ -369,7 +369,7 @@ const MyProfile = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 lg:mb-8">
           <h1 className="hidden lg:block text-2xl font-semibold text-gray-900">{t('accountInformation')}</h1>
           <h1 className="lg:hidden text-xl font-semibold text-gray-900 mb-4 sm:mb-0">{t('accountInformation')}</h1>
-          
+
           {!isEditing ? (
             <button
               onClick={toggleEditMode}
@@ -497,37 +497,6 @@ const MyProfile = () => {
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('phoneNumber')}</label>
-              {isEditing ? (
-                <input
-                  type="tel"
-                  value={userInfo.phoneNumber}
-                  onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-0 "
-                  placeholder={t('enterPhoneNumber')}
-                />
-              ) : (
-                <div className="flex items-center justify-between">
-                  {userInfo.phoneNumber ? (
-                    <span className="text-gray-900 break-all">{userInfo.phoneNumber}</span>
-                  ) : (
-                    <span className="text-red-500 text-sm">{t('addPhoneNumber')}</span>
-                  )}
-                  {!isEditing && (
-                    <button
-                      onClick={() => handleEdit('phoneNumber')}
-                      className="text-blue-600 hover:text-blue-700 ml-2 flex-shrink-0"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('address')}</label>
               {isEditing ? (
                 <div className="relative">
@@ -545,25 +514,25 @@ const MyProfile = () => {
                     className="absolute right-2 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-700 disabled:text-gray-400 disabled:cursor-not-allowed"
                     title={t('useCurrentLocation') || 'Use current location'}
                   >
-                    <svg 
+                    <svg
                       className={`w-5 h-5 ${locationLoading ? 'animate-spin' : ''}`}
-                      fill="none" 
-                      stroke="currentColor" 
+                      fill="none"
+                      stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
                       {locationLoading ? (
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                         />
                       ) : (
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" 
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                         />
                       )}
                     </svg>
@@ -592,15 +561,29 @@ const MyProfile = () => {
                 />
               </div>
             )} */}
-
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('phoneNumber')}</label>
+              <div className="flex items-center space-x-2">
+                <span className="text-gray-900 break-all">{userInfo.phoneNumber}</span>
+                {userInfo.status === 'Active' && (
+                  <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded flex items-center space-x-1">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    <span>{t('verified') || 'Verified'}</span>
+                  </span>
+                )}
+              </div>
+            </div>
+            {/* Email */}
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('email')}</label>
               <div className="flex items-center justify-between">
                 <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 min-w-0 flex-1">
                   <span className="text-gray-900 break-all">{userInfo.email}</span>
-                  <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded self-start">{t('verified')}</span>
+                  {/* <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded self-start">{t('verified')}</span> */}
                 </div>
-                {!isEditing && (
+                {/* {!isEditing && (
                   <button
                     onClick={() => handleEdit('email')}
                     className="text-blue-600 hover:text-blue-700 ml-2 flex-shrink-0"
@@ -609,7 +592,7 @@ const MyProfile = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                     </svg>
                   </button>
-                )}
+                )} */}
               </div>
             </div>
 

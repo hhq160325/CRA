@@ -11,6 +11,7 @@ export const maintenanceScheduleTranslate = {
       "maintenanceSchedule.allStatuses": "All Statuses",
       "maintenanceSchedule.overdue": "Overdue",
       "maintenanceSchedule.due": "Due",
+      "maintenanceSchedule.inMaintenance": "In Maintenance",
       "maintenanceSchedule.upcoming": "Upcoming",
       "maintenanceSchedule.completed": "Completed",
       "maintenanceSchedule.showingResults": "Showing {{filtered}} of {{total}} vehicles",
@@ -64,6 +65,9 @@ export const maintenanceScheduleTranslate = {
       "maintenanceSchedule.noResultsFound": "No Results Found",
       "maintenanceSchedule.noResultsFoundMessage": "No maintenance schedules match your current search criteria. Try adjusting your filters.",
       "maintenanceSchedule.clearFilters": "Clear Filters",
+      "maintenanceSchedule.startDays": "Start Days",
+      "maintenanceSchedule.endDays": "End Days",
+      "maintenanceSchedule.scheduleTitle": "Content",
     }
   },
   vi: {
@@ -77,6 +81,7 @@ export const maintenanceScheduleTranslate = {
       "maintenanceSchedule.allStatuses": "Tất Cả Trạng Thái",
       "maintenanceSchedule.overdue": "Quá Hạn",
       "maintenanceSchedule.due": "Đến Hạn",
+      "maintenanceSchedule.inMaintenance": "Đang Bảo Dưỡng",
       "maintenanceSchedule.upcoming": "Sắp Tới",
       "maintenanceSchedule.completed": "Hoàn Thành",
       "maintenanceSchedule.showingResults": "Hiển thị {{filtered}} trong tổng số {{total}} xe",
@@ -130,6 +135,9 @@ export const maintenanceScheduleTranslate = {
       "maintenanceSchedule.noResultsFound": "Không Tìm Thấy Kết Quả",
       "maintenanceSchedule.noResultsFoundMessage": "Không có lịch bảo dưỡng nào phù hợp với tiêu chí tìm kiếm hiện tại. Hãy thử điều chỉnh bộ lọc.",
       "maintenanceSchedule.clearFilters": "Xóa Bộ Lọc",
+      "maintenanceSchedule.startDays": "Ngày bắt đầu",
+      "maintenanceSchedule.endDays": "Ngày kết thúc",
+      "maintenanceSchedule.scheduleTitle": "Nội dung",
     }
   }
 };

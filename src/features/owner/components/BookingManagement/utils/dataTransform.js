@@ -19,7 +19,8 @@ export const transformBookingData = (allBookings, t) => {
 
     return {
       id: booking.id,
-      bookingId: booking.bookingNumber || 'N/A',
+      bookingId: booking.id || 'N/A',
+      bookingNumber: booking.bookingNumber || 'N/A',
       carId: booking.car?.id || booking.carId || 'N/A',
       carName: booking.car?.manufacturer && booking.car?.model ? `${booking.car.manufacturer} ${booking.car.model}` : t('bookingManagement.unknownCar'),
       licensePlate: booking.car?.licensePlate || t('bookingManagement.notAvailable'),

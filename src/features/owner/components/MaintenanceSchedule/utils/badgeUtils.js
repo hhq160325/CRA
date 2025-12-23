@@ -5,6 +5,8 @@ export const getStatusBadge = (status) => {
       return `${baseClasses} bg-blue-100 text-blue-800`;
     case 'due':
       return `${baseClasses} bg-yellow-100 text-yellow-800`;
+    case 'inMaintenance':
+      return `${baseClasses} bg-purple-100 text-purple-800`;
     case 'overdue':
       return `${baseClasses} bg-red-100 text-red-800`;
     case 'completed':

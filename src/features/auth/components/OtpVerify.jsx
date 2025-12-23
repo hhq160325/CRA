@@ -15,16 +15,16 @@ const OtpVerify = () => {
   
   const { isLoading: authLoading, error } = useSelector((state) => state.auth);
   
-  // Get email from navigation state or redirect if not available
-  const email = location.state?.email;
+  // Get phone number from navigation state or redirect if not available
+  const phoneNumber = location.state?.phoneNumber;
 
   useEffect(() => {
-    if (!email) {
-      toast.error('Email not found. Please try again.');
+    if (!phoneNumber) {
+      toast.error('Phone number not found. Please try again.');
       navigate(-1); // Go back to previous page (could be register or forgot-password)
       return;
     }
-  }, [email, navigate]);
+  }, [phoneNumber, navigate]);
 
   // Countdown timer
   useEffect(() => {
@@ -75,7 +75,7 @@ const OtpVerify = () => {
       const { AUTH_ENDPOINTS, AUTH_API_CONFIG } = await import('../../../config/api');
       
       // Make API call to verify OTP using query parameters
-      const verifyUrl = `${AUTH_ENDPOINTS.OTP_VERIFY}?email=${encodeURIComponent(email)}&OTPCode=${encodeURIComponent(otpCode)}`;
+      const verifyUrl = `${AUTH_ENDPOINTS.OTP_VERIFY}?phone=${encodeURIComponent(phoneNumber)}&OTPCode=${encodeURIComponent(otpCode)}`;
       
       const response = await fetch(verifyUrl, {
         method: 'POST',
@@ -103,7 +103,7 @@ const OtpVerify = () => {
           
           // Prepare user object
           const user = {
-            email: email,
+            phoneNumber: phoneNumber,
             username: decoded?.name || decoded?.username,
             roleId: roleId
           };
@@ -153,7 +153,7 @@ const OtpVerify = () => {
             navigate('/login');
           } else {
             // Forgot password flow - redirect to reset password
-            navigate('/reset-password', { state: { email, otpVerified: true } });
+            navigate('/reset-password', { state: { phoneNumber, otpVerified: true } });
           }
         }
       } else {
@@ -175,7 +175,7 @@ const OtpVerify = () => {
       const { AUTH_ENDPOINTS, AUTH_API_CONFIG } = await import('../../../config/api');
       
       // Make API call to resend OTP using query parameters
-      const resendUrl = `${AUTH_ENDPOINTS.OTP_RESEND}?email=${encodeURIComponent(email)}`;
+      const resendUrl = `${AUTH_ENDPOINTS.OTP_RESEND}?phone=${encodeURIComponent(phoneNumber)}`;
       
       const response = await fetch(resendUrl, {
         method: 'GET',
@@ -207,7 +207,7 @@ const OtpVerify = () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  if (!email) {
+  if (!phoneNumber) {
     return null; // Will redirect in useEffect
   }
 
@@ -224,7 +224,7 @@ const OtpVerify = () => {
           </h2>
           <p className="text-gray-600 text-center mb-6">
             We've sent a 6-digit code to{' '}
-            <span className="font-medium text-blue-600">{email}</span>
+            <span className="font-medium text-blue-600">{phoneNumber}</span>
           </p>
         </div>
 

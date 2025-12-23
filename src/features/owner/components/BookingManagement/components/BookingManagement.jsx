@@ -3,6 +3,7 @@ import { useBookingData } from '../hooks/useBookingData';
 import { useBookingFilters } from '../hooks/useBookingFilters';
 import LoadingState from './LoadingState';
 import ErrorState from './ErrorState';
+import NotFoundState from './NotFoundState';
 import BookingFilters from './BookingFilters';
 import BookingTable from './BookingTable';
 import Pagination from '../../../../../shared/components/Pagination';
@@ -58,16 +59,27 @@ const BookingManagement = () => {
             totalCount={bookings.length}
           />
 
-          {/* Bookings Table */}
-          <BookingTable bookings={paginatedBookings} />
-
-          {/* Pagination */}
-          <Pagination
-            currentPage={currentPage}
-            totalItems={filteredBookings.length}
-            itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
-          />
+          {/* Bookings Table or Not Found State */}
+          {filteredBookings.length === 0 && (searchTerm || statusFilter !== 'all') ? (
+            <NotFoundState 
+              message={t('bookingManagement.noBookingsFound')}
+              description={t('bookingManagement.noBookingsMatchingFilters')}
+            />
+          ) : (
+            <>
+              <BookingTable bookings={paginatedBookings} />
+              
+              {/* Pagination */}
+              {filteredBookings.length > 0 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalItems={filteredBookings.length}
+                  itemsPerPage={itemsPerPage}
+                  onPageChange={setCurrentPage}
+                />
+              )}
+            </>
+          )}
         </>
       )}
     </div>

@@ -281,8 +281,21 @@ ${t('payments.receiptSeparator')}
 
   // Get unique payment methods for filter dropdown
   const uniquePaymentMethods = useMemo(() => {
-    const methods = [...new Set(payments.map(p => p.paymentMethod).filter(Boolean))];
-    return methods.sort();
+    const methodsMap = new Map();
+    
+    payments.forEach(payment => {
+      if (payment.paymentMethod) {
+        const normalizedMethod = payment.paymentMethod.trim();
+        const lowerCaseKey = normalizedMethod.toLowerCase();
+        
+        // Keep the first occurrence of each payment method (case-insensitive)
+        if (!methodsMap.has(lowerCaseKey)) {
+          methodsMap.set(lowerCaseKey, normalizedMethod);
+        }
+      }
+    });
+    
+    return Array.from(methodsMap.values()).sort();
   }, [payments]);
 
   // Generate payment method options from unique methods
@@ -460,8 +473,8 @@ ${t('payments.receiptSeparator')}
                 onChange={(option) => setPaymentMethodFilter(option.value)}
                 options={paymentMethodOptions}
                 placeholder={t('payments.allPaymentMethods')}
-                searchable={paymentMethodOptions.length > 5}
-                searchPlaceholder="Tìm phương thức thanh toán..."
+                // searchable={paymentMethodOptions.length > 5}
+                // searchPlaceholder="Tìm phương thức thanh toán..."
                 className="min-w-[200px]"
               />
               <DropdownTemplate
@@ -469,8 +482,8 @@ ${t('payments.receiptSeparator')}
                 onChange={(option) => setStatusFilter(option.value)}
                 options={paymentStatusOptions}
                 placeholder={t('payments.allStatuses')}
-                searchable
-                searchPlaceholder="Tìm trạng thái..."
+                // searchable
+                // searchPlaceholder="Tìm trạng thái..."
                 className="min-w-[160px]"
               />
               <DropdownTemplate

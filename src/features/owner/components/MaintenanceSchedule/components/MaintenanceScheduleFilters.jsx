@@ -34,6 +34,7 @@ const MaintenanceScheduleFilters = ({
             <option value="all">{t('maintenanceSchedule.allStatuses')}</option>
             <option value="overdue">{t('maintenanceSchedule.overdue')}</option>
             <option value="due">{t('maintenanceSchedule.due')}</option>
+            <option value="inMaintenance">{t('maintenanceSchedule.inMaintenance')}</option>
             <option value="upcoming">{t('maintenanceSchedule.upcoming')}</option>
             <option value="completed">{t('maintenanceSchedule.completed')}</option>
           </select>

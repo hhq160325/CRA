@@ -1,11 +1,8 @@
 import React, { useMemo } from 'react';
-import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { openEventModal } from '../../../maintenanceCalendarSlice';
 import EventCard from './EventCard';
 
-const AgendaView = ({ events, currentDate }) => {
-  const dispatch = useDispatch();
+const AgendaView = ({ events, currentDate, onEventClick }) => {
   const { t } = useTranslation();
 
   const groupedEvents = useMemo(() => {
@@ -87,7 +84,7 @@ const AgendaView = ({ events, currentDate }) => {
               {dayEvents.map((event, idx) => (
                 <div
                   key={`${event.id}-${event.eventType || idx}`}
-                  onClick={() => dispatch(openEventModal(event))}
+                  onClick={() => onEventClick(event)}
                   className="cursor-pointer"
                 >
                   <div className="flex items-start gap-2">

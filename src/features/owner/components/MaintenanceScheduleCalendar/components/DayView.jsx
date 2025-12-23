@@ -1,10 +1,7 @@
 import React, { useMemo } from 'react';
-import { useDispatch } from 'react-redux';
-import { openEventModal } from '../../../maintenanceCalendarSlice';
 import EventCard from './EventCard';
 
-const DayView = ({ events, currentDate }) => {
-  const dispatch = useDispatch();
+const DayView = ({ events, currentDate, onEventClick }) => {
 
   const day = useMemo(() => {
     return currentDate instanceof Date ? currentDate : new Date(currentDate);
@@ -13,11 +10,30 @@ const DayView = ({ events, currentDate }) => {
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
   const getEventsForDate = () => {
-    const dateStr = day.toISOString().split('T')[0];
+    // Use local date string to avoid timezone issues
+    const year = day.getFullYear();
+    const month = String(day.getMonth() + 1).padStart(2, '0');
+    const dayNum = String(day.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${dayNum}`;
+    
     return events.filter(event => {
-      if (!event.start) return false;
-      const eventStart = (event.start instanceof Date ? event.start : new Date(event.start)).toISOString().split('T')[0];
-      return dateStr === eventStart;
+      if (!event.start || !event.end) return false;
+      
+      // Get local date strings for event start and end
+      const startDate = event.start instanceof Date ? event.start : new Date(event.start);
+      const startYear = startDate.getFullYear();
+      const startMonth = String(startDate.getMonth() + 1).padStart(2, '0');
+      const startDay = String(startDate.getDate()).padStart(2, '0');
+      const eventStart = `${startYear}-${startMonth}-${startDay}`;
+      
+      const endDate = event.end instanceof Date ? event.end : new Date(event.end);
+      const endYear = endDate.getFullYear();
+      const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+      const endDay = String(endDate.getDate()).padStart(2, '0');
+      const eventEnd = `${endYear}-${endMonth}-${endDay}`;
+      
+      // For maintenance schedules, show on all days between start and end (inclusive)
+      return dateStr >= eventStart && dateStr <= eventEnd;
     });
   };
 
@@ -73,7 +89,7 @@ const DayView = ({ events, currentDate }) => {
             return (
               <div
                 key={event.id}
-                onClick={() => dispatch(openEventModal(event))}
+                onClick={() => onEventClick(event)}
                 className="absolute left-2 right-2 cursor-pointer z-10"
                 style={{ top: `${top}px`, height: `${height}px` }}
               >

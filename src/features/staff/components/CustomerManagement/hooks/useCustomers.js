@@ -140,7 +140,10 @@ export const useCustomers = () => {
         };
       });
 
-      setCustomers(transformedCustomers);
+      // Sort customers by behaviourScore from highest to lowest
+      const sortedCustomers = transformedCustomers.sort((a, b) => b.behaviourScore - a.behaviourScore);
+      
+      setCustomers(sortedCustomers);
       setError(null);
     } catch (err) {
       console.error('Error fetching customers:', err);

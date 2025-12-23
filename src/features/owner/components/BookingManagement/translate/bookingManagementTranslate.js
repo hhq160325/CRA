@@ -47,7 +47,11 @@ export const bookingManagementTranslations = {
       // Data Labels
       "bookingManagement.unknownCar": "Unknown Vehicle",
       "bookingManagement.unknownCustomer": "Unknown Customer",
-      "bookingManagement.notAvailable": "N/A"
+      "bookingManagement.notAvailable": "N/A",
+      
+      // Not Found State
+      "bookingManagement.noBookingsFound": "No Bookings Found",
+      "bookingManagement.noBookingsMatchingFilters": "No bookings match your current search or filter criteria. Try adjusting your filters."
     }
   },
   vi: {
@@ -98,7 +102,11 @@ export const bookingManagementTranslations = {
       // Data Labels
       "bookingManagement.unknownCar": "Xe không xác định",
       "bookingManagement.unknownCustomer": "Khách hàng không xác định",
-      "bookingManagement.notAvailable": "Không có"
+      "bookingManagement.notAvailable": "Không có",
+      
+      // Not Found State
+      "bookingManagement.noBookingsFound": "Không tìm thấy đặt xe",
+      "bookingManagement.noBookingsMatchingFilters": "Không có đặt xe nào phù hợp với tiêu chí tìm kiếm hoặc bộ lọc hiện tại. Hãy thử điều chỉnh bộ lọc của bạn."
     }
   }
 };

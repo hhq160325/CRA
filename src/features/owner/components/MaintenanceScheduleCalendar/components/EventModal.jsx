@@ -1,12 +1,8 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { closeEventModal } from '../../../maintenanceCalendarSlice';
 
-const EventModal = () => {
-  const dispatch = useDispatch();
+const EventModal = ({ selectedEvent, isEventModalOpen, onClose }) => {
   const { t } = useTranslation();
-  const { selectedEvent, isEventModalOpen } = useSelector(state => state.calendar || {});
 
   // Format date and time for display
   const formatDateTime = (dateTime) => {
@@ -21,6 +17,8 @@ const EventModal = () => {
     });
   };
 
+  console.log("selectedEvent",selectedEvent);
+  
   // const formatCurrency = (amount) => {
   //   return new Intl.NumberFormat('en-US', {
   //     style: 'currency',
@@ -30,30 +28,32 @@ const EventModal = () => {
 
   const getStatusColor = (status) => {
     const colors = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      active: 'bg-blue-100 text-blue-800',
+      upcoming: 'bg-blue-100 text-blue-800',
+      due: 'bg-yellow-100 text-yellow-800',
+      'in maintenance': 'bg-purple-100 text-purple-800',
+      inMaintenance: 'bg-purple-100 text-purple-800',
+      overdue: 'bg-red-100 text-red-800',
       completed: 'bg-green-100 text-green-800',
-      cancelled: 'bg-red-100 text-red-800',
     };
     return colors[status?.toLowerCase()] || 'bg-gray-100 text-gray-800';
   };
 
   const getPriorityLabel = (priority) => {
     const labels = {
-      1: 'High',
-      2: 'Medium',
-      3: 'Low',
+      high: 'High',
+      medium: 'Medium',
+      low: 'Low',
     };
-    return labels[priority] || 'Normal';
+    return labels[priority?.toLowerCase()] || 'Normal';
   };
 
   const getPriorityColor = (priority) => {
     const colors = {
-      1: 'bg-red-100 text-red-800',
-      2: 'bg-yellow-100 text-yellow-800',
-      3: 'bg-green-100 text-green-800',
+      high: 'bg-red-100 text-red-800',
+      medium: 'bg-yellow-100 text-yellow-800',
+      low: 'bg-green-100 text-green-800',
     };
-    return colors[priority] || 'bg-gray-100 text-gray-800';
+    return colors[priority?.toLowerCase()] || 'bg-gray-100 text-gray-800';
   };
 
   if (!isEventModalOpen) return null;
@@ -67,7 +67,7 @@ const EventModal = () => {
               {t('maintenanceDetails') || 'Maintenance Details'}
             </h2>
             <button
-              onClick={() => dispatch(closeEventModal())}
+              onClick={onClose}
               className="text-gray-400 hover:text-gray-600"
               aria-label="Close"
             >
@@ -82,9 +82,9 @@ const EventModal = () => {
               {/* Schedule Title and Status */}
               <div className="pb-4 border-b border-gray-200">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-lg font-semibold text-gray-900">{selectedEvent.title}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{selectedEvent.scheduleTitle || selectedEvent.title}</h3>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedEvent.status)}`}>
-                    {selectedEvent.status?.toUpperCase()}
+                    {selectedEvent.status === 'inMaintenance' ? 'IN MAINTENANCE' : selectedEvent.status?.toUpperCase()}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -94,9 +94,11 @@ const EventModal = () => {
                   <span className="px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-800">
                     {selectedEvent.scheduleType}
                   </span>
-                  {selectedEvent.isBlocking && (
-                    <span className="px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800">
-                      Blocking
+                  {selectedEvent.daysUntil !== undefined && (
+                    <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                      {selectedEvent.daysUntil > 0 ? `${selectedEvent.daysUntil} days until` : 
+                       selectedEvent.daysUntil === 0 ? 'Today' : 
+                       `${Math.abs(selectedEvent.daysUntil)} days overdue`}
                     </span>
                   )}
                 </div>
@@ -106,32 +108,45 @@ const EventModal = () => {
               <div>
                 <p className="text-sm text-gray-500 mb-1">{t('car') || 'Car'}</p>
                 <p className="text-base font-medium">{selectedEvent.carName || 'N/A'}</p>
-                {selectedEvent.licensePlate && (
-                  <p className="text-sm text-gray-600">{t('licensePlate') || 'License Plate'}: {selectedEvent.licensePlate}</p>
-                )}
+                <div className="grid grid-cols-2 gap-4 mt-2 text-sm">
+                  {selectedEvent.licensePlate && (
+                    <div>
+                      <p className="text-gray-600">{t('licensePlate') || 'License Plate'}</p>
+                      <p className="font-medium">{selectedEvent.licensePlate}</p>
+                    </div>
+                  )}
+                  {selectedEvent.carModel && (
+                    <div>
+                      <p className="text-gray-600">{t('year') || 'Year'}</p>
+                      <p className="font-medium">{selectedEvent.carModel}</p>
+                    </div>
+                  )}
+                  {selectedEvent.currentMileage && (
+                    <div>
+                      <p className="text-gray-600">{t('currentMileage') || 'Current Mileage'}</p>
+                      <p className="font-medium">{selectedEvent.currentMileage.toLocaleString()} km</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Schedule Time */}
               <div className="bg-blue-50 p-4 rounded-lg">
                 <p className="text-sm font-medium text-blue-900 mb-2">{t('scheduleTime') || 'Schedule Time'}</p>
-                <div className="space-y-2">
-                  <div className="flex items-start">
-                    <svg className="w-5 h-5 text-blue-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <div>
-                      <p className="text-sm text-gray-600">{t('startTime') || 'Start Time'}</p>
-                      <p className="text-base">{formatDateTime(selectedEvent.start)}</p>
-                    </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-600">{t('startDate') || 'Start Date'}</p>
+                    <p className="text-base font-medium">{selectedEvent.startDateMaintenanceDate || 'N/A'}</p>
+                    {selectedEvent.pickupTime && selectedEvent.pickupTime !== 'N/A' && (
+                      <p className="text-sm text-gray-600">{selectedEvent.pickupTime}</p>
+                    )}
                   </div>
-                  <div className="flex items-start">
-                    <svg className="w-5 h-5 text-blue-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <div>
-                      <p className="text-sm text-gray-600">{t('endTime') || 'End Time'}</p>
-                      <p className="text-base">{formatDateTime(selectedEvent.end)}</p>
-                    </div>
+                  <div>
+                    <p className="text-sm text-gray-600">{t('endDate') || 'End Date'}</p>
+                    <p className="text-base font-medium">{selectedEvent.endDateMaintenanceDate || 'N/A'}</p>
+                    {selectedEvent.returnTime && selectedEvent.returnTime !== 'N/A' && (
+                      <p className="text-sm text-gray-600">{selectedEvent.returnTime}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -148,7 +163,7 @@ const EventModal = () => {
               <div className="flex justify-end pt-4 border-t border-gray-200">
                 <button
                   type="button"
-                  onClick={() => dispatch(closeEventModal())}
+                  onClick={onClose}
                   className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   {t('close') || 'Close'}

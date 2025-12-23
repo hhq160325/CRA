@@ -12,6 +12,7 @@ const MaintenanceDetailsModal = ({
   const { t } = useTranslation();
 
   if (!isOpen || !selectedCar) return null;
+  console.log("selectedCar", selectedCar);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -39,22 +40,26 @@ const MaintenanceDetailsModal = ({
               <p className="text-sm text-gray-600">{t('maintenanceSchedule.licensePlate')}</p>
               <p className="font-medium text-gray-900">{selectedCar.licensePlate}</p>
             </div>
-            <div>
+            {/* <div>
               <p className="text-sm text-gray-600">{t('maintenanceSchedule.currentMileage')}</p>
               <p className="font-medium text-gray-900">{selectedCar.currentMileage.toLocaleString()} km</p>
+            </div> */}
+            <div>
+              <p className="text-sm text-gray-600">{t('maintenanceSchedule.startDays')}</p>
+              <p className="font-medium text-gray-900">{selectedCar.startDateMaintenanceDate}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">{t('maintenanceSchedule.endDays')}</p>
+              <p className="font-medium text-gray-900">{selectedCar.endDateMaintenanceDate}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">{t('maintenanceSchedule.maintenanceType')}</p>
               <p className="font-medium text-gray-900">{selectedCar.maintenanceType}</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-600">{t('maintenanceSchedule.lastMaintenanceDate')}</p>
-              <p className="font-medium text-gray-900">{selectedCar.lastMaintenanceDate}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">{t('maintenanceSchedule.nextMaintenanceDate')}</p>
-              <p className="font-medium text-gray-900">{selectedCar.nextMaintenanceDate}</p>
-            </div>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">{t('maintenanceSchedule.scheduleTitle')}</p>
+            <p className="whitespace-pre-line text-wrap">{selectedCar.scheduleTitle}</p>
           </div>
           <div className="pt-4 border-t border-gray-200">
             <div className="flex items-center space-x-4">

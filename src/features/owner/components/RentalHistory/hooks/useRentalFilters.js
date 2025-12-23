@@ -67,7 +67,7 @@ export const useRentalFilters = (rentalHistory) => {
       const matchesSearch = rental.bookingId.toLowerCase().includes(searchTerm.toLowerCase()) ||
         rental.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
         rental.carName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        rental.licensePlate.toLowerCase().includes(searchTerm.toLowerCase());
+        rental.licensePlate.toLowerCase().includes(searchTerm.toLowerCase())
       const matchesStatus = statusFilter === 'all' || rental.status === statusFilter;
       const matchesCar = carFilter === 'all' || rental.carName === carFilter;
       const matchesBookingFeeStatus = bookingFeeStatusFilter === 'all' ||

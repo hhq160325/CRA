@@ -1,11 +1,8 @@
 import React, { useMemo } from 'react';
-import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { openEventModal, openDayEventsModal } from '../../../maintenanceCalendarSlice';
 import EventCard from './EventCard';
 
-const MonthView = ({ events, currentDate }) => {
-  const dispatch = useDispatch();
+const MonthView = ({ events, currentDate, onEventClick }) => {
   const { t } = useTranslation();
 
   const monthMatrix = useMemo(() => {
@@ -36,7 +33,7 @@ const MonthView = ({ events, currentDate }) => {
     const day = String(date.getDate()).padStart(2, '0');
     const dateStr = `${year}-${month}-${day}`;
     
-    return events.filter(event => {
+    const dayEvents = events.filter(event => {
       if (!event.start || !event.end) return false;
       
       // Get local date strings for event start and end
@@ -52,9 +49,11 @@ const MonthView = ({ events, currentDate }) => {
       const endDay = String(endDate.getDate()).padStart(2, '0');
       const eventEnd = `${endYear}-${endMonth}-${endDay}`;
       
-      // Only show event on pickup date (start) and dropoff date (end)
-      return dateStr === eventStart || dateStr === eventEnd;
+      // For maintenance schedules, show on all days between start and end (inclusive)
+      return dateStr >= eventStart && dateStr <= eventEnd;
     });
+    
+    return dayEvents;
   };
 
   const isToday = (date) => {
@@ -74,12 +73,12 @@ const MonthView = ({ events, currentDate }) => {
     }
     // If there's only one event, open it directly
     if (dayEvents.length === 1) {
-      dispatch(openEventModal(dayEvents[0]));
+      onEventClick(dayEvents[0]);
     }
     // If multiple events, could show a list or just do nothing
     // For now, open the first event
     if (dayEvents.length > 1) {
-      dispatch(openEventModal(dayEvents[0]));
+      onEventClick(dayEvents[0]);
     }
   };
 
@@ -123,7 +122,7 @@ const MonthView = ({ events, currentDate }) => {
                     compact
                     onClick={(e) => {
                       e.stopPropagation();
-                      dispatch(openEventModal(event));
+                      onEventClick(event);
                     }}
                   />
                 ))}
@@ -131,7 +130,8 @@ const MonthView = ({ events, currentDate }) => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      dispatch(openDayEventsModal(dayEvents));
+                      // For now, just open the first event when there are many
+                      onEventClick(dayEvents[0]);
                     }}
                     className="text-xs text-blue-600 hover:text-blue-800 hover:underline px-1 w-full text-left transition-colors"
                   >

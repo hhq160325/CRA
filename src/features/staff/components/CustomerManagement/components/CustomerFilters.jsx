@@ -1,14 +1,40 @@
 import { useTranslation } from 'react-i18next';
+import DropdownTemplate from '../../../../../shared/components/DropdownTemplate';
 
 const CustomerFilters = ({
   searchTerm,
   setSearchTerm,
   statusFilter,
   setStatusFilter,
+  sortByScore,
+  setSortByScore,
   filteredCount,
   totalCount
 }) => {
   const { t } = useTranslation();
+
+  // Status filter options
+  const statusOptions = [
+    { id: 'all', value: 'all', label: t('allStatus') || 'All Status' },
+    { id: 'active', value: 'active', label: t('active') || 'Active' },
+    { id: 'pending', value: 'pending', label: t('pending') || 'Pending' },
+    { id: 'suspended', value: 'suspended', label: t('suspended') || 'Suspended' }
+  ];
+
+  // Sort by score options
+  const sortOptions = [
+    { id: 'default', value: 'default', label: t('sortByBehaviourScore') || 'Sort by Behaviour Score' },
+    { id: 'highest', value: 'highest', label: t('highestToLowest') || 'Highest to Lowest' },
+    { id: 'lowest', value: 'lowest', label: t('lowestToHighest') || 'Lowest to Highest' }
+  ];
+
+  const handleStatusChange = (option) => {
+    setStatusFilter(option.value);
+  };
+
+  const handleSortChange = (option) => {
+    setSortByScore(option.value);
+  };
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
@@ -26,16 +52,20 @@ const CustomerFilters = ({
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          <select
+          <DropdownTemplate
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="all">{t('allStatus')}</option>
-            <option value="active">{t('active')}</option>
-            <option value="pending">{t('pending')}</option>
-            <option value="suspended">{t('suspended')}</option>
-          </select>
+            onChange={handleStatusChange}
+            options={statusOptions}
+            placeholder={t('selectStatus') || 'Select Status'}
+            className="min-w-[150px]"
+          />
+          <DropdownTemplate
+            value={sortByScore}
+            onChange={handleSortChange}
+            options={sortOptions}
+            placeholder={t('sortByScore') || 'Sort by Score'}
+            className="min-w-[200px]"
+          />
         </div>
         <div className="text-sm text-gray-600">
           {t('showing')} {filteredCount} {t('of')} {totalCount} {t('customers')}

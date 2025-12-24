@@ -21,12 +21,7 @@ const CalendarToolbar = ({
     { id: 'agenda', label: t('agenda') },
   ];
 
-  const statusOptions = [
-    { id: 'all', value: 'all', label: t('allStatus') },
-    { id: 'pending', value: 'pending', label: t('pending') },
-    { id: 'confirmed', value: 'confirmed', label: t('confirmed') },
-    { id: 'completed', value: 'completed', label: t('completed') },
-  ];
+  // Removed statusOptions since calendar only shows Active maintenance schedules
 
   const formatDate = (date) => {
     const d = date instanceof Date ? date : new Date(date);
@@ -150,7 +145,7 @@ const CalendarToolbar = ({
           </svg>
           <input
             type="text"
-            placeholder={t('searchBookings')}
+            placeholder={t('maintenanceSchedule.searchPlaceholder') || 'Search by car name, license plate or ID'}
             onChange={(e) => onSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
@@ -169,13 +164,7 @@ const CalendarToolbar = ({
           />
         </div> */}
 
-        <DropdownTemplate
-          value={filters.status}
-          onChange={(option) => onFilterChange('status', option.value)}
-          options={statusOptions}
-          placeholder={t('selectStatus')}
-          className="min-w-[150px]"
-        />
+        {/* Removed status filter since calendar only shows Active maintenance schedules */}
 
         {/* <button
           onClick={handleNewEvent}

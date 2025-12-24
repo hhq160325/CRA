@@ -74,9 +74,15 @@ const MaintenanceDetailsModal = ({
             >
               {t('maintenanceSchedule.scheduleMaintenance')}
             </button>
-            {(selectedCar.status === 'due' || selectedCar.status === 'overdue') && (
+            {(selectedCar.status === 'due' || selectedCar.status === 'overdue' || selectedCar.status === 'Active') && (
               <button
-                onClick={() => onMarkCompleted(selectedCar.id)}
+                onClick={() => {
+                  console.log('=== MODAL MARK AS COMPLETED BUTTON CLICKED ===');
+                  console.log('selectedCar.scheduleId:', selectedCar.scheduleId);
+                  console.log('selectedCar full object:', selectedCar);
+                  console.log('Calling onMarkCompleted...');
+                  onMarkCompleted(selectedCar.scheduleId);
+                }}
                 className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
               >
                 {t('maintenanceSchedule.markAsCompleted')}

@@ -12,8 +12,10 @@ export const maintenanceScheduleTranslate = {
       "maintenanceSchedule.overdue": "Overdue",
       "maintenanceSchedule.due": "Due",
       "maintenanceSchedule.inMaintenance": "In Maintenance",
+      "maintenanceSchedule.Active": "In Maintenance", // API status for active maintenance
       "maintenanceSchedule.upcoming": "Upcoming",
       "maintenanceSchedule.completed": "Completed",
+      "maintenanceSchedule.Completed": "Completed", // API status for completed maintenance
       "maintenanceSchedule.showingResults": "Showing {{filtered}} of {{total}} vehicles",
       "maintenanceSchedule.carInfo": "Car Information",
       "maintenanceSchedule.maintenanceDate": "Maintenance Date",
@@ -62,6 +64,8 @@ export const maintenanceScheduleTranslate = {
       "maintenanceSchedule.tryAgain": "Try Again",
       "maintenanceSchedule.noMaintenanceCars": "No Maintenance Cars Found",
       "maintenanceSchedule.noMaintenanceCarsMessage": "There are currently no cars scheduled for maintenance. All your vehicles are up to date!",
+      "maintenanceSchedule.noMaintenanceSchedules": "No Maintenance Schedules Found",
+      "maintenanceSchedule.noMaintenanceSchedulesMessage": "There are currently no maintenance schedules for your vehicles. All your cars are up to date!",
       "maintenanceSchedule.noResultsFound": "No Results Found",
       "maintenanceSchedule.noResultsFoundMessage": "No maintenance schedules match your current search criteria. Try adjusting your filters.",
       "maintenanceSchedule.clearFilters": "Clear Filters",
@@ -82,8 +86,10 @@ export const maintenanceScheduleTranslate = {
       "maintenanceSchedule.overdue": "Quá Hạn",
       "maintenanceSchedule.due": "Đến Hạn",
       "maintenanceSchedule.inMaintenance": "Đang Bảo Dưỡng",
+      "maintenanceSchedule.Active": "Đang Bảo Dưỡng", // API status for active maintenance
       "maintenanceSchedule.upcoming": "Sắp Tới",
       "maintenanceSchedule.completed": "Hoàn Thành",
+      "maintenanceSchedule.Completed": "Hoàn Thành", // API status for completed maintenance
       "maintenanceSchedule.showingResults": "Hiển thị {{filtered}} trong tổng số {{total}} xe",
       "maintenanceSchedule.carInfo": "Thông Tin Xe",
       "maintenanceSchedule.maintenanceDate": "Ngày Bảo Dưỡng",
@@ -132,6 +138,8 @@ export const maintenanceScheduleTranslate = {
       "maintenanceSchedule.tryAgain": "Thử Lại",
       "maintenanceSchedule.noMaintenanceCars": "Không Có Xe Bảo Dưỡng",
       "maintenanceSchedule.noMaintenanceCarsMessage": "Hiện tại không có xe nào được lên lịch bảo dưỡng. Tất cả xe của bạn đều đã được cập nhật!",
+      "maintenanceSchedule.noMaintenanceSchedules": "Không Có Lịch Bảo Dưỡng",
+      "maintenanceSchedule.noMaintenanceSchedulesMessage": "Hiện tại không có lịch bảo dưỡng nào cho các xe của bạn. Tất cả xe đều đã được cập nhật!",
       "maintenanceSchedule.noResultsFound": "Không Tìm Thấy Kết Quả",
       "maintenanceSchedule.noResultsFoundMessage": "Không có lịch bảo dưỡng nào phù hợp với tiêu chí tìm kiếm hiện tại. Hãy thử điều chỉnh bộ lọc.",
       "maintenanceSchedule.clearFilters": "Xóa Bộ Lọc",

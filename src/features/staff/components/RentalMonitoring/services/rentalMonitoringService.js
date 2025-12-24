@@ -1,5 +1,6 @@
 import { getUserIdFromToken } from '../../../../user/api';
 import { rentalMonitoringApi } from '../api/rentalMonitoringApi';
+import { convertToVietnamTime } from '../../../../../shared/utils/CheckUTC';
 
 export const rentalMonitoringService = {
   /* Fetch all required data for rental history */
@@ -92,7 +93,14 @@ export const rentalMonitoringService = {
   processInvoices(invoices, lookupMaps, bookingMap, t) {
     const { carMap, userMap, paymentMap } = lookupMaps;
 
-    return invoices.map((invoice, index) => {
+    // Sort invoices by createDate (latest first) using UTC conversion
+    const sortedInvoices = invoices.sort((a, b) => {
+      const dateA = convertToVietnamTime(a.createDate || a.issueDate);
+      const dateB = convertToVietnamTime(b.createDate || b.issueDate);
+      return dateB - dateA; // Latest first
+    });
+
+    return sortedInvoices.map((invoice, index) => {
       const user = userMap[invoice.customerId] || {};
       const paymentsForInvoice = paymentMap[invoice.id] || [];
       const booking = bookingMap[invoice.id] || null;
@@ -175,9 +183,9 @@ export const rentalMonitoringService = {
 
       const car = carId ? (carMap[carId] || {}) : {};
 
-      // Calculate dates from invoice
-      const issueDate = new Date(invoice.issueDate);
-      const dueDate = new Date(invoice.dueDate);
+      // Calculate dates from invoice using Vietnam time conversion
+      const issueDate = convertToVietnamTime(invoice.issueDate);
+      const dueDate = convertToVietnamTime(invoice.dueDate);
       const calculatedDuration = Math.ceil((dueDate - issueDate) / (1000 * 60 * 60 * 24));
 
       // Get rental duration - prioritize "Car Rental After returned" quantity, then calculated duration

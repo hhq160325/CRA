@@ -126,7 +126,7 @@ export const userTranslate = {
       expiryDate: "Expiry Date",
       issueDate: "Issue Date",
       noExpiry: "No Expiry",
-
+      uploadlicenseNeedManualCheck:"Need Manual Check",
       //Feedback
       leaveFeedback: "Leave Feedback",
       feedback: "Feedback",
@@ -281,6 +281,7 @@ export const userTranslate = {
       expiryDate: "Ngày Hết Hạn",
       issueDate: "Ngày Cấp",
       noExpiry: "Không thời hạn",
+      uploadlicenseNeedManualCheck:"Cần nhân viên kiểm tra",
       //InboxPage
       messageDetails: "Thông báo",
       messageInformation: "Thông tin người gửi",

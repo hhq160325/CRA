@@ -31,6 +31,7 @@ export const driverLicenseApproveTranslate = {
       // Status text
       "statusApproved": "Approved",
       "statusPending": "Pending Confirmation",
+      "statusNeedManualCheck": "Need Manual Check",
       "statusRejected": "Rejected",
 
       // Modal content
@@ -83,6 +84,7 @@ export const driverLicenseApproveTranslate = {
       // Status text
       "statusApproved": "Chấp Thuận",
       "statusPending": "Chờ Xác Nhận",
+      "statusNeedManualCheck": "Cần Kiểm Tra Thủ Công",
       "statusRejected": "Từ Chối",
 
       // Modal content

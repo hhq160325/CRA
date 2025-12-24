@@ -8,10 +8,9 @@ export const fetchUserCars = async () => {
   const response = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS);
   const allCars = response.data || [];
 
-  // Filter cars owned by current user and with Inactive status (in maintenance)
-  return allCars.filter(car =>
-    car.owner.id === currentUserId && car.status?.toLowerCase() === 'inactive'
-  );
+  // Return all cars owned by current user (not just inactive ones)
+  // We'll filter for maintenance schedules at the schedule level
+  return allCars.filter(car => car.owner.id === currentUserId);
 };
 
 /* Fetch schedules for a specific car */
@@ -40,6 +39,35 @@ export const fetchMultipleCarSchedules = async (cars) => {
   });
 
   return Promise.all(schedulePromises);
+};
+
+/* Mark a maintenance schedule as completed */
+export const markScheduleAsCompleted = async (scheduleId) => {
+  try {
+    console.log('=== MARK AS COMPLETED API CALL ===');
+    console.log('Schedule ID:', scheduleId);
+    console.log('Schedule ID type:', typeof scheduleId);
+    
+    const endpoint = SCHEDULE_ENDPOINTS.PATCH_CAR_SCHEDULES(scheduleId);
+    console.log('API Endpoint:', endpoint);
+    
+    console.log('Making PATCH request to mark schedule as completed...');
+    const response = await axiosInstance.patch(endpoint);
+    
+    console.log('API Response Status:', response.status);
+    console.log('API Response Data:', response.data);
+    console.log('=== MARK AS COMPLETED SUCCESS ===');
+    
+    return response.data;
+  } catch (err) {
+    console.error('=== MARK AS COMPLETED ERROR ===');
+    console.error(`Error marking schedule ${scheduleId} as completed:`, err);
+    console.error('Error response:', err.response?.data);
+    console.error('Error status:', err.response?.status);
+    console.error('Error message:', err.message);
+    console.error('=== END ERROR ===');
+    throw err;
+  }
 };
 
 /* Main function to fetch all maintenance schedules for the current user */

@@ -4,7 +4,7 @@ import { BOOKING_ENDPOINTS, BOOKING_API_CONFIG, USER_ENDPOINTS, CAR_ENDPOINTS, R
 // Get all bookings with user and car details
 export const getAllBookings = async () => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('jwtToken');
     
     // Fetch all data in parallel
     const [bookingsResponse, carsResponse, usersResponse] = await Promise.all([
@@ -108,7 +108,7 @@ export const getAllBookings = async () => {
 // Get all car reports with user and car details
 export const getAllReports = async () => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('jwtToken');
     
     // Fetch all data in parallel
     const [reportsResponse, carsResponse, usersResponse] = await Promise.all([

@@ -85,7 +85,6 @@ const AppRouter = () => {
         <Route path="rental_monitoring" element={<RentalMonitoring />} />
         <Route path="reg_docs" element={<RegDocsApproved />} />
         <Route path="driver_license_approve" element={<DriverLicenseApprove />} />
-        <Route path="report_car" element={<ReportCarMonitoring />} />
       </Route>
 
       {/* Car Owner (Manager) Routes */}
@@ -105,6 +104,7 @@ const AppRouter = () => {
         <Route path="register_car/step2" element={<RegisterCarStep2 />} />
         <Route path="register_car/step3" element={<RegisterCarStep3 />} />
         <Route path="maps" element={<Maps />} />
+        <Route path="report_car" element={<ReportCarMonitoring />} />
       </Route>
     </Routes>
   );

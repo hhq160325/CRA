@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import { getStatusBadge, getStatusText } from '../utils/driverLicenseUtils';
 
 const DriverLicenseModal = ({
@@ -64,11 +65,12 @@ const DriverLicenseModal = ({
                                     {t('actions') || 'Actions'}
                                 </label>
                                 <div className="flex items-center space-x-2">
-                                    {selectedLicense.status === 'active' ? (
+                                    {(selectedLicense.status === 'active' || selectedLicense.status === 'needmanualcheck') ? (
                                         <>
                                             <button
                                                 onClick={() => {
                                                     handleApprove(selectedLicense.id, driverLicenses, t);
+                                                    toast.success(t('licenseApprovedSuccessfully') || 'License approved successfully');
                                                     onClose();
                                                 }}
                                                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
@@ -78,6 +80,7 @@ const DriverLicenseModal = ({
                                             <button
                                                 onClick={() => {
                                                     handleReject(selectedLicense.id, 'Rejected by staff', driverLicenses, t);
+                                                    toast.success(t('licenseRejectedSuccessfully') || 'License rejected successfully');
                                                     onClose();
                                                 }}
                                                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"

@@ -17,8 +17,8 @@ const EventModal = ({ selectedEvent, isEventModalOpen, onClose }) => {
     });
   };
 
-  console.log("selectedEvent",selectedEvent);
-  
+  console.log("selectedEvent", selectedEvent);
+
   // const formatCurrency = (amount) => {
   //   return new Intl.NumberFormat('en-US', {
   //     style: 'currency',
@@ -28,12 +28,12 @@ const EventModal = ({ selectedEvent, isEventModalOpen, onClose }) => {
 
   const getStatusColor = (status) => {
     const colors = {
-      upcoming: 'bg-blue-100 text-blue-800',
-      due: 'bg-yellow-100 text-yellow-800',
-      'in maintenance': 'bg-purple-100 text-purple-800',
-      inMaintenance: 'bg-purple-100 text-purple-800',
-      overdue: 'bg-red-100 text-red-800',
-      completed: 'bg-green-100 text-green-800',
+      upcoming: 'bg-blue-100 text-blue-800 border-blue-300',
+      due: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+      'in maintenance': 'bg-purple-100 text-purple-800 border-purple-300',
+      inMaintenance: 'bg-purple-100 text-purple-800 border-purple-300',
+      overdue: 'bg-red-100 text-red-800 border-red-300',
+      completed: 'bg-green-100 text-green-800 border-green-300',
     };
     return colors[status?.toLowerCase()] || 'bg-gray-100 text-gray-800';
   };
@@ -96,9 +96,9 @@ const EventModal = ({ selectedEvent, isEventModalOpen, onClose }) => {
                   </span>
                   {selectedEvent.daysUntil !== undefined && (
                     <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                      {selectedEvent.daysUntil > 0 ? `${selectedEvent.daysUntil} days until` : 
-                       selectedEvent.daysUntil === 0 ? 'Today' : 
-                       `${Math.abs(selectedEvent.daysUntil)} days overdue`}
+                      {selectedEvent.daysUntil > 0 ? `${selectedEvent.daysUntil} days until` :
+                        selectedEvent.daysUntil === 0 ? 'Today' :
+                          `${Math.abs(selectedEvent.daysUntil)} days overdue`}
                     </span>
                   )}
                 </div>

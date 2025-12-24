@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { getAllRegDocs, getAllUsers, getAllCars, approveRegDoc, rejectRegDoc } from '../../../api/carRegDocsApi';
 import Pagination from '../../../../../shared/components/Pagination';
 import { filterRegDocs, getStatusBadgeClasses } from '../../../staff-util/staffFilter';
+import { sortByLatest } from '../../../../../shared/utils/SortByLatest';
 
 const RegDocsApproved = () => {
   const { t } = useTranslation();
@@ -82,8 +83,12 @@ const RegDocsApproved = () => {
           carManufacturer: car?.manufacturer || 'N/A',
         };
       });
+      
+      // Sort by latest submitted date (createDate)
+      const sortedData = sortByLatest(transformedData, 'createDate');
+      
       // console.log("transformedData",transformedData);
-      setRegDocs(transformedData);
+      setRegDocs(sortedData);
       setError(null);
     } catch (err) {
       // Check if it's a 404 error (no documents found) vs actual error

@@ -50,17 +50,17 @@ const UploadDriver = () => {
 
   // Update verification status when license status changes
   useEffect(() => {
-    if (licenseStatus === 'AutoApproved' || licenseStatus === 'Approved') {
+    if (licenseStatus === 'AutoApproved' || licenseStatus === 'Approved' || licenseStatus === 'ManualApproved') {
       dispatch(updateVerificationStatus(true));
       // Only fetch images if not already loaded from user.isVerified check
       if (!licenseImages.front) {
         fetchDriverLicenseImages();
       }
-    } else if (licenseStatus === 'Denied') {
+    } else if (licenseStatus === 'Denied' || licenseStatus === 'Rejected') {
       dispatch(updateVerificationStatus(false));
       fetchDriverLicenseImages();
     }
-    // For 'Pending' status, the verification status is not change
+    // For 'Pending' and 'NeedManualCheck' status, the verification status is not changed
   }, [licenseStatus, dispatch]);
 
   const fetchDriverLicenseStatus = async () => {
@@ -87,14 +87,14 @@ const UploadDriver = () => {
       const userLicense = licenses.find(license => license.userId === userId);
 
       if (userLicense) {
-        // Handle both 'Approved' and 'AutoApproved' statuses
-        if (userLicense.status === 'Approved' || userLicense.status === 'AutoApproved') {
+        // Handle both 'Approved', 'AutoApproved', and 'ManualApproved' statuses
+        if (userLicense.status === 'Approved' || userLicense.status === 'AutoApproved' || userLicense.status === 'ManualApproved') {
           setLicenseStatus(userLicense.status);
           dispatch(updateVerificationStatus(true));
         } else {
           setLicenseStatus(userLicense.status);
-          // For other statuses (Pending, Denied), don't update verification
-          if (userLicense.status === 'Denied') {
+          // For other statuses (Pending, NeedManualCheck, Denied, Rejected), don't update verification
+          if (userLicense.status === 'Denied' || userLicense.status === 'Rejected') {
             dispatch(updateVerificationStatus(false));
           }
         }
@@ -191,6 +191,11 @@ const UploadDriver = () => {
         text: 'text-yellow-800',
         label: t('uploadlicensepending')
       },
+      'NeedManualCheck': {
+        bg: 'bg-yellow-100',
+        text: 'text-yellow-800',
+        label: t('uploadlicenseNeedManualCheck') || 'Need Manual Check'
+      },
       'AutoApproved': {
         bg: 'bg-green-100',
         text: 'text-green-800',
@@ -201,7 +206,17 @@ const UploadDriver = () => {
         text: 'text-green-800',
         label: t('uploadlicenseapproved')
       },
+      'ManualApproved': {
+        bg: 'bg-green-100',
+        text: 'text-green-800',
+        label: t('uploadlicenseapproved')
+      },
       'Denied': {
+        bg: 'bg-red-100',
+        text: 'text-red-800',
+        label: t('uploadlicensedenied')
+      },
+      'Rejected': {
         bg: 'bg-red-100',
         text: 'text-red-800',
         label: t('uploadlicensedenied')
@@ -325,7 +340,7 @@ const UploadDriver = () => {
         <h2 className="text-2xl font-semibold text-gray-900 mb-2 flex items-center">
           {t('updateDriverLicense')}
           {getStatusBadge()}
-          {((licenseStatus === 'AutoApproved' || licenseStatus === 'Approved') || user?.isVerified) && (
+          {((licenseStatus === 'AutoApproved' || licenseStatus === 'Approved' || licenseStatus === 'ManualApproved') || user?.isVerified) && (
             <button
               onClick={handleEditModeToggle}
               className="ml-3 px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -338,7 +353,7 @@ const UploadDriver = () => {
           {t('uploadDriverLicenseDescription')}
         </p>
         {/* Upload Areas or Display Images */}
-        {((licenseStatus === 'AutoApproved' || licenseStatus === 'Approved') || user?.isVerified) && !editMode ? (
+        {((licenseStatus === 'AutoApproved' || licenseStatus === 'Approved' || licenseStatus === 'ManualApproved') || user?.isVerified) && !editMode ? (
           /* Display uploaded images for approved/denied licenses */
           <div>
             {loadingImages ? (
@@ -498,8 +513,8 @@ const UploadDriver = () => {
         <div className="flex gap-3">
           <button
             onClick={handleUpload}
-            disabled={!frontFile || uploading || (((licenseStatus === 'AutoApproved' || licenseStatus === 'Approved') || user?.isVerified) && !editMode)}
-            className={`flex-1 px-6 py-2 rounded-lg font-medium transition-colors ${!frontFile || uploading || ((licenseStatus === 'AutoApproved' || licenseStatus === 'Denied') && !editMode)
+            disabled={!frontFile || uploading || (((licenseStatus === 'AutoApproved' || licenseStatus === 'Approved' || licenseStatus === 'ManualApproved') || user?.isVerified) && !editMode)}
+            className={`flex-1 px-6 py-2 rounded-lg font-medium transition-colors ${!frontFile || uploading || ((licenseStatus === 'AutoApproved' || licenseStatus === 'Approved' || licenseStatus === 'ManualApproved' || licenseStatus === 'Denied' || licenseStatus === 'Rejected') && !editMode)
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
               : 'bg-blue-600 text-white hover:bg-blue-700'
               }`}

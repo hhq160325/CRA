@@ -20,10 +20,10 @@ const NoMaintenanceCars = () => {
           />
         </svg>
         <h3 className="text-xl font-semibold text-blue-900 mb-2">
-          {t('maintenanceSchedule.noMaintenanceCars')}
+          {t('maintenanceSchedule.noMaintenanceSchedules')}
         </h3>
         <p className="text-blue-700 max-w-md mx-auto">
-          {t('maintenanceSchedule.noMaintenanceCarsMessage')}
+          {t('maintenanceSchedule.noMaintenanceSchedulesMessage')}
         </p>
       </div>
     </div>

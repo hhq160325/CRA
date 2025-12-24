@@ -24,7 +24,7 @@ const CalendarView = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filters, setFilters] = useState({ status: 'all', car: 'all' });
+  const [filters, setFilters] = useState({ car: 'all' }); // Removed status filter since only showing Active
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
 
@@ -74,8 +74,11 @@ const CalendarView = () => {
       // Process and format the data using the same service
       const formattedSchedules = maintenanceScheduleService(carSchedulesData, t);
       
+      // Filter to only show schedules with status "Active" (in maintenance)
+      const activeSchedules = formattedSchedules.filter(schedule => schedule.status === 'Active');
+      
       // Transform to calendar events
-      const calendarEvents = transformToCalendarEvents(formattedSchedules);
+      const calendarEvents = transformToCalendarEvents(activeSchedules);
       
       setEvents(calendarEvents);
     } catch (err) {
@@ -142,7 +145,7 @@ const CalendarView = () => {
     closeEventModal();
   };
 
-  // Filter events based on search and filters
+  // Filter events based on search and filters (status is always Active)
   const filteredEvents = events.filter(event => {
     const matchesSearch = !searchQuery || 
       event.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -150,10 +153,11 @@ const CalendarView = () => {
       event.scheduleTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.licensePlate?.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesStatus = filters.status === 'all' || event.status === filters.status;
+    // Only show Active schedules (already filtered in fetchMaintenanceSchedules)
+    // Remove status filter since we only show Active schedules
     const matchesCar = filters.car === 'all' || event.carName === filters.car;
     
-    return matchesSearch && matchesStatus && matchesCar;
+    return matchesSearch && matchesCar;
   });
 
   const renderView = () => {

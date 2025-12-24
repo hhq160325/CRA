@@ -90,6 +90,13 @@ export const rentalHistoryTranslate = {
       "rentalHistory.exportTooltip": "Export filtered rental data to CSV",
       "rentalHistory.hideDetails": "Hide Details",
       "rentalHistory.showDetails": "Show Details",
+      "rentalHistory.exporting": "Exporting...",
+      "rentalHistory.exportFailed": "Export failed. Please try again.",
+      "rentalHistory.licensePlate": "License Plate",
+      "rentalHistory.customerEmail": "Customer Email",
+      "rentalHistory.customerPhone": "Customer Phone",
+      "rentalHistory.pickupDate": "Pickup Date",
+      "rentalHistory.totalAmount": "Total Amount",
     }
   },
   vi: {
@@ -183,6 +190,13 @@ export const rentalHistoryTranslate = {
       "rentalHistory.exportTooltip": "Xuất dữ liệu thuê xe đã lọc ra CSV",
       "rentalHistory.hideDetails": "Ẩn chi tiết",
       "rentalHistory.showDetails": "Hiển thị chi tiết",
+      "rentalHistory.exporting": "Đang xuất...",
+      "rentalHistory.exportFailed": "Xuất thất bại. Vui lòng thử lại.",
+      "rentalHistory.licensePlate": "Biển số xe",
+      "rentalHistory.customerEmail": "Email khách hàng",
+      "rentalHistory.customerPhone": "Số điện thoại khách hàng",
+      "rentalHistory.pickupDate": "Ngày nhận xe",
+      "rentalHistory.totalAmount": "Tổng số tiền",
     }
   }
 };

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { getAllRegDocs, getAllUsers, getAllCars, approveRegDoc, rejectRegDoc } from '../../../api/carRegDocsApi';
 import Pagination from '../../../../../shared/components/Pagination';
+import DropdownTemplate from '../../../../../shared/components/DropdownTemplate';
 import { filterRegDocs, getStatusBadgeClasses } from '../../../staff-util/staffFilter';
 import { sortByLatest } from '../../../../../shared/utils/SortByLatest';
 
@@ -219,6 +220,19 @@ const RegDocsApproved = () => {
     status: statusFilter
   });
 
+  // Status filter options
+  const statusOptions = [
+    { id: 'all', value: 'all', label: t('allStatus') },
+    { id: 'pending', value: 'pending', label: t('pending') },
+    { id: 'approved', value: 'approved', label: t('approved') },
+    { id: 'denied', value: 'denied', label: t('denied') }
+  ];
+
+  const handleStatusFilterChange = (option) => {
+    setStatusFilter(option.value);
+    setCurrentPage(1); // Reset to first page when filter changes
+  };
+
   // Pagination calculations
   const totalPages = Math.ceil(filteredDocs.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -262,9 +276,9 @@ const RegDocsApproved = () => {
             <p className="text-gray-600">{t('reviewAndApproveCarRegistrationDocuments')}</p>
           </div>
           <div className="flex space-x-3">
-            <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+            {/* <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
               {t('exportReport')}
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -284,16 +298,13 @@ const RegDocsApproved = () => {
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-              <select
+              <DropdownTemplate
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">{t('allStatus')}</option>
-                <option value="pending">{t('pending')}</option>
-                <option value="approved">{t('approved')}</option>
-                <option value="rejected">{t('rejected')}</option>
-              </select>
+                onChange={handleStatusFilterChange}
+                options={statusOptions}
+                placeholder={t('allStatus')}
+                className="min-w-[150px]"
+              />
             </div>
             <div className="text-sm text-gray-600">
               {t('showing')} {filteredDocs.length} {t('of')} {regDocs.length} {t('documents')}

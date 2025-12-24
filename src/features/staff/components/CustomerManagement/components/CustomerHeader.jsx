@@ -10,12 +10,12 @@ const CustomerHeader = () => {
         <p className="text-gray-600">{t('viewAndManageCustomers')}</p>
       </div>
       <div className="flex space-x-3">
-        <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+        {/* <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
           {t('exportData')}
         </button>
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
           {t('sendBulkMessage')}
-        </button>
+        </button> */}
       </div>
     </div>
   );

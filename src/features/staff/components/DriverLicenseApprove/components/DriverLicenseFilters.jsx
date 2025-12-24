@@ -42,8 +42,9 @@ const DriverLicenseFilters = ({
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="all">{t('allStatus') || 'All Status'}</option>
-            <option value="pending">{t('pending') || 'Pending'}</option>
-            <option value="approved">{t('approved') || 'Approved'}</option>
+            <option value="autoapproved">{t('autoApproved') || 'Auto Approved'}</option>
+            <option value="manualapproved">{t('manualApproved') || 'Manual Approved'}</option>
+            <option value="needmanualcheck">{t('needManualCheck') || 'Need Manual Check'}</option>
             <option value="rejected">{t('rejected') || 'Rejected'}</option>
           </select>
         </div>

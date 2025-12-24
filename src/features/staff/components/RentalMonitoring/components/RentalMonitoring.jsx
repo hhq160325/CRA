@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import RentalDetailsModal from './RentalDetailsModal';
 import ExtendedBooking from './ExtendedBooking';
 import RentalHistoryHeader from './RentalMonitoringHeader';
@@ -8,12 +9,16 @@ import LoadingState from './LoadingState';
 import ErrorState from './ErrorState';
 import { useRentalMonitoring } from '../hooks/useRentalMonitoring';
 import { useRentalFilters } from '../hooks/useRentalFilters';
-import { getStatusBadge, getPaymentBadge } from '../utils/rentalUtils';
+import { getStatusBadge, getPaymentBadge, useTranslateStatus } from '../utils/rentalUtils';
+import { exportFilteredToCSV } from '../utils/csvExport';
 
 const RentalMonitoring = () => {
+  const { t } = useTranslation();
+  const translateStatus = useTranslateStatus();
   const [selectedRental, setSelectedRental] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isExtendModalOpen, setIsExtendModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const itemsPerPage = 10;
 
   // Custom hooks
@@ -78,6 +83,19 @@ const RentalMonitoring = () => {
     fetchRentalHistory();
   };
 
+  // CSV Export handler
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      await exportFilteredToCSV(filteredRentals, t, translateStatus);
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert(t('rentalHistory.exportFailed'));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   // Pagination calculations
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -95,7 +113,10 @@ const RentalMonitoring = () => {
   return (
     <>
       <div className="p-8 space-y-6 min-h-full bg-gray-50">
-        <RentalHistoryHeader />
+        <RentalHistoryHeader 
+          onExport={handleExport}
+          isExporting={isExporting}
+        />
         
         <RentalHistoryFilters
           searchTerm={searchTerm}

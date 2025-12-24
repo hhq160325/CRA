@@ -28,7 +28,7 @@ const BookingMonitoring = () => {
   return (
     <>
       <div className="p-8 space-y-6 min-h-full bg-gray-50">
-        <BookingHeader />
+        <BookingHeader filteredBookings={filterProps.filteredBookings} />
 
         <BookingFilters
           {...filterProps}

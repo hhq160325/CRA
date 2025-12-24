@@ -6,7 +6,7 @@ import { selectIsAuthenticated, selectUser } from '../../features/auth/authSlice
 import { axiosInstance } from '../utils/axiosInstance';
 import { NOTIFICATION_ENDPOINTS } from '../../config/api';
 import { tokenUtils } from '../../features/auth/utils';
-import Modal from './Modal';
+import FilterModal from '../../features/search/components/FilterModal';
 
 const NavBar = () => {
     const { t, i18n } = useTranslation();
@@ -394,88 +394,17 @@ const NavBar = () => {
             </nav>
 
             {/* Filter Modal */}
-            <Modal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)}>
-                <div className="p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('filters')}</h3>
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('carName')}</label>
-                            <input
-                                type="text"
-                                value={filterName}
-                                onChange={(e) => setFilterName(e.target.value)}
-                                placeholder={t('carNamePlaceholder')}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('minPrice')}</label>
-                                <input type="number" placeholder="$0" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('maxPrice')}</label>
-                                <input type="number" placeholder="$500" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('fuelType')}</label>
-                                <select
-                                    value={filterFuel}
-                                    onChange={(e) => setFilterFuel(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                >
-                                    <option value="">{t('any')}</option>
-                                    <option value="electric">{t('electric')}</option>
-                                    <option value="hybrid">{t('hybrid')}</option>
-                                    <option value="gasoline">{t('gasoline')}</option>
-                                    <option value="diesel">{t('diesel')}</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('seats')}</label>
-                                <select
-                                    value={filterSeats}
-                                    onChange={(e) => setFilterSeats(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                >
-                                    <option value="">{t('any')}</option>
-                                    <option value="2">2</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                    <option value="6">6</option>
-                                    <option value="7">7+</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="mt-6 flex items-center justify-end gap-3">
-                        <button
-                            type="button"
-                            onClick={() => setIsFilterOpen(false)}
-                            className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
-                        >
-                            {t('cancel')}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                const params = new URLSearchParams();
-                                const q = (filterName || searchQuery).trim();
-                                if (q) params.set('q', q);
-                                if (filterFuel) params.set('fuel', filterFuel);
-                                if (filterSeats) params.set('seats', filterSeats);
-                                setIsFilterOpen(false);
-                                navigate(`/search?${params.toString()}`);
-                            }}
-                            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-                        >
-                            {t('apply')}
-                        </button>
-                    </div>
-                </div>
-            </Modal>
+            <FilterModal
+                isOpen={isFilterOpen}
+                onClose={() => setIsFilterOpen(false)}
+                searchQuery={searchQuery}
+                filterName={filterName}
+                setFilterName={setFilterName}
+                filterFuel={filterFuel}
+                setFilterFuel={setFilterFuel}
+                filterSeats={filterSeats}
+                setFilterSeats={setFilterSeats}
+            />
         </>
     );
 };

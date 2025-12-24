@@ -108,7 +108,10 @@ export const rentalHistoryService = {
       const rentalFeePayment = paymentsForInvoice.find(p => p.item?.toLowerCase().includes('rental fee'));
       const bookingFeePayment = paymentsForInvoice.find(p => p.item?.toLowerCase().includes('booking fee'));
       const bookingExtensionFeePayment = paymentsForInvoice.find(p => p.item?.toLowerCase().includes('booking extension'));
-      const additionalFeePayment = paymentsForInvoice.find(p => p.item?.toLowerCase().includes('additional fee'));
+      
+      // Handle multiple additional fees
+      const additionalFeePayments = paymentsForInvoice.filter(p => p.item?.toLowerCase().includes('additional fee'));
+      const additionalFeePayment = additionalFeePayments[0]; // Keep first one for backward compatibility
 
       // Calculate total paid amount from all payments
       const allPaymentsTotal = paymentsForInvoice.reduce((sum, p) => sum + (p.paidAmount || 0), 0);
@@ -116,26 +119,81 @@ export const rentalHistoryService = {
       // Determine separate payment statuses for booking fee and rental fee
       const bookingFeeStatus = bookingFeePayment?.status ? bookingFeePayment.status.toLowerCase() : 'pending';
       const rentalFeeStatus = rentalFeePayment?.status ? rentalFeePayment.status.toLowerCase() : 'pending';
-      const additionalFeeStatus = additionalFeePayment?.status ? additionalFeePayment.status.toLowerCase() : 'pending';
+      
+      // Handle multiple additional fees - check if all are paid/success
+      const additionalFeeStatuses = additionalFeePayments.map(p => p.status?.toLowerCase() || 'pending');
+      const uniqueStatuses = [...new Set(additionalFeeStatuses)];
+      
+      // Only consider non-cancelled and non-pending fees for "all paid" check
+      const nonCancelledPendingFees = additionalFeePayments.filter(p => {
+        const status = p.status?.toLowerCase() || 'pending';
+        return status !== 'cancelled' && status !== 'pending';
+      });
+      const allAdditionalFeesPaid = nonCancelledPendingFees.length > 0 && 
+        nonCancelledPendingFees.every(p => {
+          const status = p.status?.toLowerCase() || 'pending';
+          return status === 'paid' || status === 'success';
+        });
+      
+      // If there are multiple different statuses, show them; otherwise use the logic for single status
+      let additionalFeeStatus;
+      if (uniqueStatuses.length > 1) {
+        // Multiple different statuses - show the most relevant one (success > paid > pending > cancelled)
+        const statusPriority = { 'success': 4, 'paid': 3, 'pending': 2, 'cancelled': 1 };
+        additionalFeeStatus = uniqueStatuses.reduce((prev, current) => 
+          (statusPriority[current] || 0) > (statusPriority[prev] || 0) ? current : prev
+        );
+      } else {
+        additionalFeeStatus = additionalFeePayments.length > 0 ? 
+          (allAdditionalFeesPaid ? 'paid' : uniqueStatuses[0] || 'pending') : 'pending';
+      }
+      
       const extendBookingFeeStatus = bookingExtensionFeePayment?.status ? bookingExtensionFeePayment.status.toLowerCase() : 'pending';
       // Calculate total paid amount based on payment statuses
       let totalPaidAmount = 0;
+      
+      // Calculate total additional fees paid - only count successful payments
+      const totalAdditionalFeesPaid = additionalFeePayments.reduce((sum, p) => {
+        const status = p.status?.toLowerCase() || 'pending';
+        // Only count if status is success or paid, exclude cancelled and pending
+        if (status === 'success' || status === 'paid') {
+          return sum + (p.paidAmount || 0);
+        }
+        return sum;
+      }, 0);
 
       // If booking fee is paid and rental fee is pending, only count booking fee
       if (bookingFeeStatus === 'success' && rentalFeeStatus === 'pending') {
-        totalPaidAmount = (bookingFeePayment?.paidAmount || 0) + (additionalFeePayment?.paidAmount || 0) + (bookingExtensionFeePayment?.paidAmount || 0);
+        totalPaidAmount = (bookingFeePayment?.paidAmount || 0) + totalAdditionalFeesPaid + (bookingExtensionFeePayment?.paidAmount || 0);
       } else {
         // Otherwise, count all payments
         totalPaidAmount = allPaymentsTotal;
       }
 
-      const totalPaidAmountShow = (bookingFeePayment?.paidAmount || 0) + (rentalFeePayment?.paidAmount || 0) + (additionalFeePayment?.paidAmount || 0) + (bookingExtensionFeePayment?.paidAmount || 0);
+      const totalPaidAmountShow = (bookingFeePayment?.paidAmount || 0) + (rentalFeePayment?.paidAmount || 0) + totalAdditionalFeesPaid + (bookingExtensionFeePayment?.paidAmount || 0);
 
       // Get payment methods for each payment type
       const bookingFeePaymentMethod = bookingFeePayment?.paymentMethod || t('rentalHistory.noPaymentMethod');
       const rentalFeePaymentMethod = rentalFeePayment?.paymentMethod || t('rentalHistory.noPaymentMethod');
       const bookingExtensionFeePaymentMethod  = bookingExtensionFeePayment?.paymentMethod || t('rentalHistory.noPaymentMethod');
-      const additionalFeePaymentMethod = additionalFeePayment?.paymentMethod || t('rentalHistory.noPaymentMethod');
+      
+      // Handle multiple additional fee payment methods
+      const additionalFeePaymentMethods = additionalFeePayments.map(p => p.paymentMethod).filter(Boolean);
+      let additionalFeePaymentMethod = t('rentalHistory.noPaymentMethod');
+      
+      if (additionalFeePaymentMethods.length > 0) {
+        // Check if all payment methods are the same
+        const uniqueMethods = [...new Set(additionalFeePaymentMethods)];
+        if (uniqueMethods.length === 1) {
+          // All methods are the same, show method with count
+          additionalFeePaymentMethod = additionalFeePaymentMethods.length > 1 ? 
+            `${uniqueMethods[0]} x${additionalFeePaymentMethods.length}` : 
+            uniqueMethods[0];
+        } else {
+          // Different methods, show all separated by commas
+          additionalFeePaymentMethod = additionalFeePaymentMethods.join(', ');
+        }
+      }
 
       // Check booking status for invoice item selection
       const bookingStatusRaw = booking?.status?.toLowerCase();
@@ -158,8 +216,6 @@ export const rentalHistoryService = {
       // Always get daily rate from "Car Rental After returned" item
       const carRentalAfterReturnedItem = invoice.invoiceItems?.find(item => item.item === 'Car Rental After returned');
       const dailyRate = carRentalAfterReturnedItem?.unitPrice || 0;
-      // Get remaining after return cars
-      const remainingPayment = carRentalAfterReturnedItem?.total || 0;
 
       const car = carId ? (carMap[carId] || {}) : {};
 
@@ -183,6 +239,37 @@ export const rentalHistoryService = {
       const hasExtendBookingFee = invoice.invoiceItems?.some(item =>
         item.item?.toLowerCase().includes('booking extension')
       ) || bookingExtensionFeePayment;
+
+      // Calculate remaining payment based on unpaid fees from invoice items
+      let remainingPayment = 0;
+      
+      // Get fee amounts from invoice items
+      const bookingFeeItem = invoice.invoiceItems?.find(item => item.item?.toLowerCase().includes('booking fee'));
+      const rentalFeeItem = invoice.invoiceItems?.find(item => item.item === 'Car Rental After returned');
+      const additionalFeeItems = invoice.invoiceItems?.filter(item => item.item?.toLowerCase().includes('additional fee')) || [];
+      const extendBookingFeeItems = invoice.invoiceItems?.filter(item => item.item?.toLowerCase().includes('booking extension')) || [];
+      
+      // Add unpaid booking fee
+      if (bookingFeeStatus !== 'paid' && bookingFeeStatus !== 'success' && bookingFeeItem) {
+        remainingPayment += (bookingFeeItem.total || 0);
+      }
+      
+      // Add unpaid rental fee
+      if (rentalFeeStatus !== 'paid' && rentalFeeStatus !== 'success' && rentalFeeItem) {
+        remainingPayment += (rentalFeeItem.total || 0);
+      }
+      
+      // Add unpaid additional fees
+      if (hasAdditionalFee && additionalFeeStatus !== 'paid' && additionalFeeStatus !== 'success') {
+        const additionalFeeTotal = additionalFeeItems.reduce((sum, item) => sum + (item.total || 0), 0);
+        remainingPayment += additionalFeeTotal;
+      }
+      
+      // Add unpaid extend booking fees
+      if (hasExtendBookingFee && extendBookingFeeStatus !== 'paid' && extendBookingFeeStatus !== 'success') {
+        const extendBookingFeeTotal = extendBookingFeeItems.reduce((sum, item) => sum + (item.total || 0), 0);
+        remainingPayment += extendBookingFeeTotal;
+      }
 
       return {
         id: index + 1,
@@ -208,11 +295,20 @@ export const rentalHistoryService = {
         extendBookingFeeStatus: extendBookingFeeStatus,
         hasAdditionalFee: hasAdditionalFee,
         hasExtendBookingFee: hasExtendBookingFee,
+        additionalFeeCount: additionalFeePayments.length,
+        additionalFeeHasMultipleStatuses: uniqueStatuses.length > 1,
+        additionalFeeUniqueStatuses: uniqueStatuses,
+        additionalFeeDetails: additionalFeePayments.map(payment => ({
+          amount: payment.paidAmount || 0,
+          status: payment.status?.toLowerCase() || 'pending',
+          paymentMethod: payment.paymentMethod || t('rentalHistory.noPaymentMethod'),
+          item: payment.item || 'Additional Fee'
+        })),
         status: bookingStatus,
         // Payment details from PayOS
         bookingFeePaid: bookingFeePayment?.paidAmount || 0,
         rentalFeePaid: rentalFeePayment?.paidAmount || 0,
-        additionalFeePaid: additionalFeePayment?.paidAmount || 0,
+        additionalFeePaid: totalAdditionalFeesPaid,
         extendBookingFeePaid: bookingExtensionFeePayment?.paidAmount || 0,
         totalPaidAmount: bookingStatus === 'cancelled' ? (bookingFeePayment?.paidAmount || 0) : totalPaidAmount,
         totalPaidAmountShow: totalPaidAmountShow,

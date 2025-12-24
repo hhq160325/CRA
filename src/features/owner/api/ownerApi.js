@@ -52,6 +52,12 @@ export const getAllInvoices = async () => {
   return response.data;
 };
 
+/* Get invoices by vendor ID */
+export const getInvoicesByVendorId = async (vendorId) => {
+  const response = await axiosInstance.get(INVOICE_ENDPOINTS.GET_INVOICE_BY_VENDOR_ID(vendorId));
+  return response.data;
+};
+
 /* Get all payments */
 export const getAllPayments = async () => {
   const response = await axiosInstance.get(INVOICE_ENDPOINTS.GET_ALL);

@@ -449,7 +449,7 @@ const MyProfile = () => {
 
           {/* Profile Information */}
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('dateOfBirth')}</label>
               {isEditing ? (
                 <input
@@ -462,7 +462,7 @@ const MyProfile = () => {
               ) : (
                 <div className="text-gray-900">{userInfo.dateOfBirth}</div>
               )}
-            </div>
+            </div> */}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('gender')}</label>

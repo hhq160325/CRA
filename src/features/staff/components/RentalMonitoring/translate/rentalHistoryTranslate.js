@@ -37,6 +37,7 @@ export const rentalHistoryTranslate = {
       "rentalHistory.bookingStatus": "Booking Status",
       "rentalHistory.actions": "Actions",
       "rentalHistory.viewDetails": "View Details",
+      "rentalHistory.extend": "Extend",
       "rentalHistory.noRentalHistory": "No rental history found",
       "rentalHistory.loadingRentalHistory": "Loading rental history...",
       "rentalHistory.errorLoadingRentalHistory": "Unable to load rental history. Please try again later.",
@@ -87,6 +88,8 @@ export const rentalHistoryTranslate = {
       "rentalHistory.showingResults": "Showing {{filtered}} of {{total}} results",
       "rentalHistory.noDataToExport": "No data available to export",
       "rentalHistory.exportTooltip": "Export filtered rental data to CSV",
+      "rentalHistory.hideDetails": "Hide Details",
+      "rentalHistory.showDetails": "Show Details",
     }
   },
   vi: {
@@ -127,6 +130,7 @@ export const rentalHistoryTranslate = {
       "rentalHistory.bookingStatus": "Trạng thái đặt xe",
       "rentalHistory.actions": "Thao tác",
       "rentalHistory.viewDetails": "Xem chi tiết",
+      "rentalHistory.extend": "Gia hạn",
       "rentalHistory.noRentalHistory": "Không tìm thấy lịch sử thuê xe",
       "rentalHistory.loadingRentalHistory": "Đang tải lịch sử thuê xe...",
       "rentalHistory.errorLoadingRentalHistory": "Không thể tải lịch sử thuê xe. Vui lòng thử lại sau.",
@@ -177,6 +181,8 @@ export const rentalHistoryTranslate = {
       "rentalHistory.showingResults": "Hiển thị {{filtered}} trong tổng số {{total}} kết quả",
       "rentalHistory.noDataToExport": "Không có dữ liệu để xuất",
       "rentalHistory.exportTooltip": "Xuất dữ liệu thuê xe đã lọc ra CSV",
+      "rentalHistory.hideDetails": "Ẩn chi tiết",
+      "rentalHistory.showDetails": "Hiển thị chi tiết",
     }
   }
 };

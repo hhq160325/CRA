@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import { axiosInstance } from '../../../../shared/utils/axiosInstance';
 import { INQUIRY_ENDPOINTS } from '../../../../config/api';
 import { tokenUtils } from '../../../auth/utils';
@@ -148,9 +149,10 @@ const InboxPage = () => {
       
       // Remove the message from local state after successful deletion
       setMessages(prev => prev.filter(m => m.id !== id));
+      toast.success(t('messageDeletedSuccessfully') || 'Message deleted successfully');
     } catch (err) {
       console.error('Error deleting inquiry:', err);
-      alert(err.response?.data?.message || 'Failed to delete message. Please try again.');
+      toast.error(err.response?.data?.message || t('failedToDeleteMessage') || 'Failed to delete message. Please try again.');
     } finally {
       setDeletingMessage(false);
     }
@@ -175,9 +177,10 @@ const InboxPage = () => {
       setMessages(prev => prev.filter(m => m.id !== confirmDeleteId));
       setConfirmDeleteId(null);
       setConfirmTitle('');
+      toast.success(t('messageDeletedSuccessfully') || 'Message deleted successfully');
     } catch (err) {
       console.error('Error deleting inquiry:', err);
-      alert(err.response?.data?.message || 'Failed to delete message. Please try again.');
+      toast.error(err.response?.data?.message || t('failedToDeleteMessage') || 'Failed to delete message. Please try again.');
     } finally {
       setDeletingMessage(false);
     }
@@ -265,9 +268,11 @@ const InboxPage = () => {
       // Refresh chat history to show the new message
       //currentUserId
       await fetchChatHistory(selectedMessage.senderId, selectedMessage.receiverId);
+      
+      toast.success(t('responseSentSuccessfully') || 'Response sent successfully');
     } catch (err) {
       console.error('Error sending response:', err);
-      alert(err.response?.data?.message || 'Failed to send response. Please try again.');
+      toast.error(err.response?.data?.message || t('failedToSendResponse') || 'Failed to send response. Please try again.');
     } finally {
       setSendingResponse(false);
     }

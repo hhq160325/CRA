@@ -51,8 +51,13 @@ const UsageTracking = () => {
 
         const allCars = await getAllCars();
 
-        // Filter cars by current owner ID
-        const cars = allCars.filter(car => car.owner.id === currentOwnerId);
+        // Filter cars by current owner ID and exclude Denied/Pending status
+        const cars = allCars.filter(car => 
+          car.owner.id === currentOwnerId && 
+          car.status && 
+          car.status.toLowerCase() !== 'denied' && 
+          car.status.toLowerCase() !== 'pending'
+        );
 
         // Fetch bookings for each car in parallel
         const carsWithBookings = await Promise.all(

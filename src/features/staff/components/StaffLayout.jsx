@@ -23,7 +23,7 @@ const StaffLayout = () => {
                 </svg>
                 {t('dashboard')}
               </Link>
-              <Link
+              {/* <Link
                 to="/staff/car_owners"
                 className={`flex items-center px-3 py-2 rounded-lg ${isActive('/staff/car_owners') ? 'text-white bg-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
               >
@@ -31,7 +31,7 @@ const StaffLayout = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
                 {t('carOwnerAccounts')}
-              </Link>
+              </Link> */}
               <Link
                 to="/staff/bookings"
                 className={`flex items-center px-3 py-2 rounded-lg ${isActive('/staff/bookings') ? 'text-white bg-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
@@ -68,7 +68,7 @@ const StaffLayout = () => {
                 </svg>
                 {t('customerAccounts')}
               </Link>
-              <Link
+              {/* <Link
                 to="/staff/notifications"
                 className={`flex items-center px-3 py-2 rounded-lg ${isActive('/staff/notifications') ? 'text-white bg-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
               >
@@ -76,7 +76,7 @@ const StaffLayout = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4.828 7l2.828 2.828L5.828 12l-2.828-2.828L4.828 7zM9 11H1m22 6l-3-3m-3 3l3-3M8 21l4-7h7l-4 7H8z" />
                 </svg>
                 {t('sendNotifications')}
-              </Link>
+              </Link> */}
               <Link
                 to="/staff/parklot_create"
                 className={`flex items-center px-3 py-2 rounded-lg ${isActive('/staff/parklot_create') ? 'text-white bg-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
@@ -94,6 +94,12 @@ const StaffLayout = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 {t('registrationDocuments')}
+              </Link>
+              <Link to="/staff/maps" className={`flex items-center px-3 py-2 rounded-lg ${isActive('/staff/maps') ? 'text-white bg-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                {t('maps')}
               </Link>
               <Link
                 to="/staff/driver_license_approve"

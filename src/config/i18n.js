@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next';
 import { ownerTranslations } from '../features/owner/components/CarRegisDocs/translate/carRegisDocsTranslate'
 import { bookingManagementTranslations } from '../features/owner/components/BookingManagement/translate/bookingManagementTranslate'
 import { rentalHistoryTranslate } from '../features/owner/components//RentalHistory/translate/rentalHistoryTranslate'
+import { rentalHistoryTranslate as staffRentalHistoryTranslate } from '../features/staff/components/RentalMonitoring/translate/rentalHistoryTranslate'
 import { maintenanceScheduleTranslate } from '../features/owner/components/MaintenanceSchedule/translate/maintenanceScheduleTranslate';
 import { inquiriesTranslate } from '../features/owner/components/Inquiries/translate/inquiriesTranslate'
 import { commonTranslate } from '../shared/translate/commonTranslate'
@@ -54,6 +55,9 @@ const resources = {
 
       // Rental History Component
       ...rentalHistoryTranslate.en.translation,
+      
+      // Staff Rental History Component
+      ...staffRentalHistoryTranslate.en.translation,
       // Inquiries Component
       ...inquiriesTranslate.en.translation,
       // Booking Management Component
@@ -106,6 +110,9 @@ const resources = {
 
       // Rental History Component
       ...rentalHistoryTranslate.vi.translation,
+
+      // Staff Rental History Component
+      ...staffRentalHistoryTranslate.vi.translation,
 
       // Inquiries Component
       ...inquiriesTranslate.vi.translation,

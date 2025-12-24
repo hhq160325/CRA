@@ -4,7 +4,7 @@ export const paymentOwnerTranslate = {
       // Payments Component
       "payments.title": "Payments",
       "payments.subtitle": "View payment history and export receipts",
-      "payments.exportAllReceipts": "Export All Receipts",
+      "payments.exportAllReceipts": "Export All Payment",
       "payments.totalReceived": "Total Received",
       "payments.paymentsPending": "Payments Pending",
       "payments.bookingFee": "Booking Fee",

@@ -175,7 +175,9 @@ export const commonTranslate = {
       //Time-Picker
       invalidTimeFormat: "Invalid Time Format",
       timeFormatHint: "Time Format Hint: 09:00, 10:59, 12:00",
-
+      searchResults: "Search Results",
+      clearAll: "Clear All",
+      activeFilters: "Active Filters",
       // Maintenance Scheduling Modal
       "maintenanceModal.title": "Schedule Maintenance",
       "maintenanceModal.car": "Car",
@@ -379,6 +381,9 @@ export const commonTranslate = {
       noPaymentHistory: "Không có lịch sử giao dịch",
       maintenanceCalendar: "Lịch bảo trì",
 
+      searchResults: "Kết quả tìm kiếm",
+      clearAll: "Xóa tất cả",
+      activeFilters: "Bộ lọc đang hoạt động",
       // Maintenance Scheduling Modal
       "maintenanceModal.title": "Lên lịch bảo dưỡng",
       "maintenanceModal.car": "Xe",

@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { RegisterCar, RegisterCarStep2, RegisterCarStep3, CarDetail, CarDetailRev, CarRental } from '../features/cars';
 import { ProfilePage } from '../features/user';
 import { PaymentPage, PaymentSuccess, PaymentCancel } from '../features/payment';
-import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring, StaffManagement, StaffLog, CarHandover } from '../features/admin';
+import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring, StaffManagement, StaffLog, CarHandover, CreateStaffAcc } from '../features/admin';
 import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter, ParklotCreate, RegDocsApproved, DriverLicenseApprove, ReportCarMonitoring } from '../features/staff';
 import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments, CarRegisDocs, Maps } from '../features/owner';
 import { AuthPage, GoogleCallback, ForgotPassword, ResetPassword } from '../features/auth';
@@ -72,6 +72,7 @@ const AppRouter = () => {
         <Route path="staff_management" element={<StaffManagement />} />
         <Route path="staff_log" element={<StaffLog />} />
         <Route path="car_handover" element={<CarHandover />} />
+        <Route path="create_staff" element={<CreateStaffAcc />} />
       </Route>
 
       {/* Staff Routes - Only accessible by Staff role */}
@@ -85,6 +86,7 @@ const AppRouter = () => {
         <Route path="rental_monitoring" element={<RentalMonitoring />} />
         <Route path="reg_docs" element={<RegDocsApproved />} />
         <Route path="driver_license_approve" element={<DriverLicenseApprove />} />
+        <Route path="maps" element={<Maps />} />
       </Route>
 
       {/* Car Owner (Manager) Routes */}
@@ -103,7 +105,6 @@ const AppRouter = () => {
         <Route path="register_car" element={<RegisterCar />} />
         <Route path="register_car/step2" element={<RegisterCarStep2 />} />
         <Route path="register_car/step3" element={<RegisterCarStep3 />} />
-        <Route path="maps" element={<Maps />} />
         <Route path="report_car" element={<ReportCarMonitoring />} />
       </Route>
     </Routes>

@@ -376,12 +376,12 @@ const RegisterCar = () => {
 
                     {/* Action Buttons */}
                     <div className="flex gap-4">
-                        <button
+                        {/* <button
                             onClick={handleReturn}
                             className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
                         >
                             {t('return')}
-                        </button>
+                        </button> */}
                         <button
                             onClick={handleNext}
                             className="flex-1 px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 font-medium"

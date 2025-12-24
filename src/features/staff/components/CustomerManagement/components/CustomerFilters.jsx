@@ -16,9 +16,9 @@ const CustomerFilters = ({
   // Status filter options
   const statusOptions = [
     { id: 'all', value: 'all', label: t('allStatus') || 'All Status' },
-    { id: 'active', value: 'active', label: t('active') || 'Active' },
-    { id: 'pending', value: 'pending', label: t('pending') || 'Pending' },
-    { id: 'suspended', value: 'suspended', label: t('suspended') || 'Suspended' }
+    { id: 'active', value: 'Active', label: t('active') || 'Active' },
+    { id: 'pending', value: 'Pending', label: t('pending') || 'Pending' },
+    { id: 'closed', value: 'Closed', label: t('suspended') || 'Suspended' }
   ];
 
   // Sort by score options

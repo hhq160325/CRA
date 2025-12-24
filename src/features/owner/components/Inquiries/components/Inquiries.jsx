@@ -57,9 +57,9 @@ const Inquiries = () => {
             <p className="text-gray-600">{t('inquiries.subtitle')}</p>
           </div>
           <div className="flex space-x-3">
-            <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+            {/* <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
               {t('inquiries.exportReport')}
-            </button>
+            </button> */}
           </div>
         </div>
 

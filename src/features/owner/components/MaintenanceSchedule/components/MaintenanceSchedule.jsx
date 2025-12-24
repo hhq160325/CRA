@@ -133,7 +133,10 @@ const MaintenanceSchedule = () => {
   return (
     <>
       <div className="p-8 space-y-6 min-h-full bg-gray-50">
-        <MaintenanceScheduleHeader />
+        <MaintenanceScheduleHeader 
+          filteredSchedules={filteredSchedules}
+          totalSchedules={maintenanceSchedules.length}
+        />
         
         <MaintenanceScheduleFilters
           searchTerm={searchTerm}

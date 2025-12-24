@@ -73,7 +73,7 @@ const BookingTable = ({
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('amount')}</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('status')}</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('paymentStatus')}</th>
-              <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('actions')}</th>
+              {/* <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('actions')}</th> */}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -121,7 +121,7 @@ const BookingTable = ({
                     {getPaymentStatusText(booking.paymentStatus, t)}
                   </span>
                 </td>
-                <td className="py-4 px-6">
+                {/* <td className="py-4 px-6">
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => onOpenModal(booking, 'view')}
@@ -152,7 +152,7 @@ const BookingTable = ({
                       </button>
                     )}
                   </div>
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>

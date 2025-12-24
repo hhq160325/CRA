@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { exportReceiptToPDF, printReceipt } from '../../../ownerUtils/ExportReceiptToPDF';
 import { useTranslation } from 'react-i18next';
 import { getStatusBadge, getPaymentBadge, useTranslateStatus, formatVND } from '../utils/rentalUtils';
 const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymentBadge, onExtendBooking }) => {
     const { t } = useTranslation();
     const translateStatus = useTranslateStatus();
+    const [showAdditionalFeeDetails, setShowAdditionalFeeDetails] = useState(false);
   if (!isOpen || !rental) return null;
 
   return (
@@ -103,7 +105,7 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
                 <div>
                   <p className="text-xs text-gray-600 mb-1">{t('rentalHistory.totalBill')}</p>
                   <p className="text-lg font-bold text-green-600">
-                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.totalPaidAmount)}
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rental.totalPaidAmountShow)}
                   </p>
                 </div>
                 <div>
@@ -194,14 +196,69 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600">{t('rentalHistory.status')}:</span>
-                        <span className={getPaymentBadge(rental.additionalFeeStatus)}>
-                          {rental.additionalFeeStatus}
-                        </span>
+                        <div className="flex flex-col items-end space-y-1">
+                          {/* Show multiple statuses if they exist, otherwise show single status */}
+                          {rental.additionalFeeHasMultipleStatuses ? (
+                            rental.additionalFeeUniqueStatuses.map((status, index) => (
+                              <span key={index} className={getPaymentBadge(status)}>
+                                {translateStatus(status)}
+                              </span>
+                            ))
+                          ) : (
+                            <span className={getPaymentBadge(rental.additionalFeeStatus)}>
+                              {translateStatus(rental.additionalFeeStatus)}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">{t('rentalHistory.method')}:</span>
                         <span className="font-medium text-gray-900">{rental.additionalFeePaymentMethod}</span>
                       </div>
+                      
+                      {/* Show details button if there are multiple fees or statuses */}
+                      {(rental.additionalFeeCount > 1 || rental.additionalFeeHasMultipleStatuses) && (
+                        <div className="pt-2 border-t border-gray-200">
+                          <button
+                            onClick={() => setShowAdditionalFeeDetails(!showAdditionalFeeDetails)}
+                            className="text-blue-600 hover:text-blue-700 text-xs underline"
+                          >
+                            {showAdditionalFeeDetails 
+                              ? t('rentalHistory.hideDetails') 
+                              : rental.additionalFeeHasMultipleStatuses 
+                                ? t('rentalHistory.showDetails')
+                                : `${t('rentalHistory.showDetails')} (${rental.additionalFeeCount})`
+                            }
+                          </button>
+                        </div>
+                      )}
+                      
+                      {/* Show individual additional fee details when expanded */}
+                      {showAdditionalFeeDetails && rental.additionalFeeDetails && (
+                        <div className="mt-3 space-y-3 border-t border-gray-200 pt-3">
+                          <h5 className="font-medium text-gray-800 text-xs">{t('rentalHistory.individualPayments')}:</h5>
+                          {rental.additionalFeeDetails.map((fee, index) => (
+                            <div key={index} className="bg-gray-50 rounded p-3 space-y-2">
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs font-medium text-gray-700">{fee.item}</span>
+                                <span className={`text-xs ${getPaymentBadge(fee.status)}`}>
+                                  {translateStatus(fee.status)}
+                                </span>
+                              </div>
+                              <div className="flex justify-between text-xs">
+                                <span className="text-gray-600">{t('rentalHistory.amount')}:</span>
+                                <span className="font-semibold text-gray-900">
+                                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fee.amount)}
+                                </span>
+                              </div>
+                              <div className="flex justify-between text-xs">
+                                <span className="text-gray-600">{t('rentalHistory.method')}:</span>
+                                <span className="text-gray-700">{fee.paymentMethod}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

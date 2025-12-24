@@ -111,3 +111,44 @@ export const uploadAvatar = async (imageFile) => {
     throw error;
   }
 };
+
+// Send OTP for phone number verification
+export const sendPhoneVerificationOTP = async (phoneNumber) => {
+  try {
+    const { USER_ENDPOINTS } = await import("../../config/api");
+    
+    const response = await axiosInstance.post(
+      `${USER_ENDPOINTS.RESET_RESET_PHONE_VERIFY}?phone=${encodeURIComponent(phoneNumber)}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error sending phone verification OTP:", error);
+    throw error;
+  }
+};
+
+// Verify OTP and change phone number
+export const verifyPhoneAndChange = async (phoneNumber, otpCode) => {
+  try {
+    const userId = getUserIdFromToken();
+    if (!userId) {
+      throw new Error("User ID not found in token");
+    }
+
+    const { USER_ENDPOINTS } = await import("../../config/api");
+    
+    const payload = {
+      userId: userId,
+      newPhoneNumber: phoneNumber
+    };
+
+    const response = await axiosInstance.post(
+      `${USER_ENDPOINTS.RESET_RESET_PHONE}?phone=${encodeURIComponent(phoneNumber)}&OTPCode=${encodeURIComponent(otpCode)}`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error verifying OTP and changing phone number:", error);
+    throw error;
+  }
+};

@@ -95,14 +95,14 @@ const RentalHistoryTable = ({
                       {translateStatus(rental.bookingFeeStatus)}
                     </span>
                     <div className="text-xs text-gray-500 mt-1">{formatVND(rental.bookingFeePaid)}</div>
-                    <div className="text-xs text-gray-400 mt-0.5">{rental.bookingFeePaymentMethod}</div>
+                    {/* <div className="text-xs text-gray-400 mt-0.5">{rental.bookingFeePaymentMethod}</div> */}
                   </td>
                   <td className="py-4 px-6">
                     <span className={getPaymentBadge(rental.rentalFeeStatus)}>
                       {translateStatus(rental.rentalFeeStatus)}
                     </span>
                     <div className="text-xs text-gray-500 mt-1">{formatVND(rental.rentalFeePaid)}</div>
-                    <div className="text-xs text-gray-400 mt-0.5">{rental.rentalFeePaymentMethod}</div>
+                    {/* <div className="text-xs text-gray-400 mt-0.5">{rental.rentalFeePaymentMethod}</div> */}
                   </td>
                   <td className="py-4 px-6">
                     {rental.hasAdditionalFee ? (
@@ -123,7 +123,7 @@ const RentalHistoryTable = ({
                         )}
                         
                         <div className="text-xs text-gray-500 mt-1">{formatVND(rental.additionalFeePaid)}</div>
-                        <div className="text-xs text-gray-400 mt-0.5">{rental.additionalFeePaymentMethod}</div>
+                        {/* <div className="text-xs text-gray-400 mt-0.5">{rental.additionalFeePaymentMethod}</div> */}
                         
                         {/* Show button if there are multiple additional fees OR multiple statuses */}
                         {(rental.additionalFeeCount > 1 || rental.additionalFeeHasMultipleStatuses) && (
@@ -152,7 +152,7 @@ const RentalHistoryTable = ({
                                   </span>
                                 </div>
                                 <div className="text-gray-500">{formatVND(fee.amount)}</div>
-                                <div className="text-gray-400">{fee.paymentMethod}</div>
+                                {/* <div className="text-gray-400">{fee.paymentMethod}</div> */}
                               </div>
                             ))}
                           </div>
@@ -169,7 +169,7 @@ const RentalHistoryTable = ({
                           {translateStatus(rental.extendBookingFeeStatus)}
                         </span>
                         <div className="text-xs text-gray-500 mt-1">{formatVND(rental.extendBookingFeePaid)}</div>
-                        <div className="text-xs text-gray-400 mt-0.5">{rental.extendBookingFeePaymentMethod}</div>
+                        {/* <div className="text-xs text-gray-400 mt-0.5">{rental.extendBookingFeePaymentMethod}</div> */}
                       </>
                     ) : (
                       <span className="text-xs text-gray-400">N/A</span>

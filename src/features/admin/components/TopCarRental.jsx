@@ -1,46 +1,80 @@
-import { useSelector } from 'react-redux';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { fetchAllAdminData } from '../adminapi/adminAPI';
 
 const TopCarRental = () => {
   const { t } = useTranslation();
-  const { carManufacturerStats, totalBookings } = useSelector(state => state.admin || {});
+  const [chartData, setChartData] = useState([]);
+  const [totalBookings, setTotalBookings] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  // Sample data for top 5 car manufacturers and models chosen in bookings
-  const chartData = [
-    { 
-      name: 'Toyota Camry', 
-      value: carManufacturerStats?.toyotaCamry || 2847,
-      manufacturer: 'Toyota',
-      color: '#1E40AF'
-    },
-    { 
-      name: 'Honda Civic', 
-      value: carManufacturerStats?.hondaCivic || 2156,
-      manufacturer: 'Honda',
-      color: '#3B82F6'
-    },
-    { 
-      name: 'BMW X5', 
-      value: carManufacturerStats?.bmwX5 || 1923,
-      manufacturer: 'BMW',
-      color: '#60A5FA'
-    },
-    { 
-      name: 'Mercedes C-Class', 
-      value: carManufacturerStats?.mercedesCClass || 1687,
-      manufacturer: 'Mercedes',
-      color: '#93C5FD'
-    },
-    { 
-      name: 'Audi A4', 
-      value: carManufacturerStats?.audiA4 || 1234,
-      manufacturer: 'Audi',
-      color: '#DBEAFE'
-    }
-  ];
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const { cars, bookings } = await fetchAllAdminData();
+
+        // Calculate manufacturer statistics from actual data
+        const manufacturerStats = {};
+        const carModelStats = {};
+
+        bookings.forEach(booking => {
+          const car = cars.find(c => c.id === booking.carId);
+          if (car && car.manufacturer) {
+            const manufacturer = car.manufacturer;
+            const carName = `${car.manufacturer} ${car.model}`;
+            
+            // Count by manufacturer
+            manufacturerStats[manufacturer] = (manufacturerStats[manufacturer] || 0) + 1;
+            
+            // Count by specific car model
+            carModelStats[carName] = (carModelStats[carName] || 0) + 1;
+          }
+        });
+
+        // Convert to array and sort by booking count (top 5 car models)
+        const sortedCarModels = Object.entries(carModelStats)
+          .sort(([,a], [,b]) => b - a)
+          .slice(0, 5)
+          .map(([carName, count], index) => {
+            const manufacturer = carName.split(' ')[0]; // Extract manufacturer from car name
+            return {
+              name: carName,
+              value: count,
+              manufacturer: manufacturer,
+              color: COLORS[index % COLORS.length]
+            };
+          });
+
+        setChartData(sortedCarModels);
+        setTotalBookings(bookings.length);
+      } catch (err) {
+        console.error('Error loading car rental data:', err);
+        // Fallback to sample data if API fails
+        setChartData([
+          { name: 'No Data', value: 1, manufacturer: 'Unknown', color: '#9CA3AF' }
+        ]);
+        setTotalBookings(0);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const COLORS = ['#1E40AF', '#3B82F6', '#60A5FA', '#93C5FD', '#DBEAFE'];
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-gray-500">{t('loading')}...</div>
+        </div>
+      </div>
+    );
+  }
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
@@ -102,7 +136,7 @@ const TopCarRental = () => {
                 paddingAngle={2}
                 dataKey="value"
               >
-                {chartData.map((entry, index) => (
+                {chartData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
@@ -114,7 +148,7 @@ const TopCarRental = () => {
         {/* Total Bookings Display */}
         <div className="text-center mb-6">
           <div className="text-3xl font-bold text-gray-900">
-            {totalBookings?.toLocaleString() || '9,847'}
+            {totalBookings?.toLocaleString() || '0'}
           </div>
           <div className="text-sm text-gray-500">{t('totalBookings')}</div>
         </div>

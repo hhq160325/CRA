@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { getAllInvoices } from '../../../api/ownerApi';
+import { axiosInstance } from '../../../../../shared/utils/axiosInstance';
+import { PAYMENT_ENDPOINTS } from '../../../../../config/api';
 import { getUserIdFromToken } from '../../../../user/api';
 import { convertToVietnamTime } from '../../../../../shared/utils/CheckUTC';
 
-// Helper function to get filtered invoices based on period
-const getFilteredInvoices = (invoices, period) => {
+// Helper function to get filtered payments based on period and status
+const getFilteredInvoices = (payments, period) => {
   const today = new Date();
   let startDate;
 
@@ -26,17 +27,25 @@ const getFilteredInvoices = (invoices, period) => {
       startDate.setDate(today.getDate() - 7);
   }
 
-  const completedInvoices = invoices.filter(invoice => {
-    const isCompleted = invoice.status === "Completed";
-    const vietnamDate = convertToVietnamTime(invoice.createDate);
-    const isWithinPeriod = vietnamDate >= startDate;
-    return isCompleted && isWithinPeriod;
+  // Filter payments with "Success" or "Paid" status and within the time period
+  const completedInvoices = payments.filter(invoice => {
+    // Check if payment status is "Success" or "Paid" (case insensitive)
+    const status = invoice.status?.toLowerCase();
+    const isCompleted = status === 'success' || status === 'paid';
+    
+    if (!isCompleted) return false;
+
+    // Check if payment is within the time period
+    const invoiceDate = convertToVietnamTime(invoice.createDate || invoice.createdDate);
+    const isWithinPeriod = invoiceDate >= startDate;
+    
+    return isWithinPeriod;
   });
 
   return { startDate, completedInvoices };
 };
 
-// Helper function to generate breakdown data based on period
+// Helper function to generate breakdown data based on period using completed payments
 const generateBreakdownData = (completedInvoices, period) => {
   const today = new Date();
   const breakdown = [];
@@ -51,13 +60,13 @@ const generateBreakdownData = (completedInvoices, period) => {
         vietnamNow.setUTCDate(vietnamNow.getUTCDate() - i);
         vietnamNow.setUTCHours(0, 0, 0, 0);
         
-        const dayInvoices = completedInvoices.filter(invoice => {
-          const vietnamDate = convertToVietnamTime(invoice.createDate);
+        const dayInvoices = completedInvoices.filter(payment => {
+          const vietnamDate = convertToVietnamTime(payment.createDate || payment.createdDate);
           vietnamDate.setUTCHours(0, 0, 0, 0);
           return vietnamDate.getTime() === vietnamNow.getTime();
         });
         
-        const dayTotal = dayInvoices.reduce((sum, invoice) => sum + (invoice.grandTotal || 0), 0);
+        const dayTotal = dayInvoices.reduce((sum, payment) => sum + (payment.paidAmount || 0), 0);
         const dayName = days[vietnamNow.getUTCDay() === 0 ? 6 : vietnamNow.getUTCDay() - 1];
         
         breakdown.push({
@@ -78,12 +87,12 @@ const generateBreakdownData = (completedInvoices, period) => {
         const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
         const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
         
-        const monthInvoices = completedInvoices.filter(invoice => {
-          const vietnamDate = convertToVietnamTime(invoice.createDate);
+        const monthInvoices = completedInvoices.filter(payment => {
+          const vietnamDate = convertToVietnamTime(payment.createDate || payment.createdDate);
           return vietnamDate >= monthStart && vietnamDate <= monthEnd;
         });
         
-        const monthTotal = monthInvoices.reduce((sum, invoice) => sum + (invoice.grandTotal || 0), 0);
+        const monthTotal = monthInvoices.reduce((sum, payment) => sum + (payment.paidAmount || 0), 0);
         const monthName = months[date.getMonth()];
         
         breakdown.push({
@@ -102,12 +111,12 @@ const generateBreakdownData = (completedInvoices, period) => {
         const yearStart = new Date(year, 0, 1);
         const yearEnd = new Date(year, 11, 31, 23, 59, 59);
         
-        const yearInvoices = completedInvoices.filter(invoice => {
-          const vietnamDate = convertToVietnamTime(invoice.createDate);
+        const yearInvoices = completedInvoices.filter(payment => {
+          const vietnamDate = convertToVietnamTime(payment.createDate || payment.createdDate);
           return vietnamDate >= yearStart && vietnamDate <= yearEnd;
         });
         
-        const yearTotal = yearInvoices.reduce((sum, invoice) => sum + (invoice.grandTotal || 0), 0);
+        const yearTotal = yearInvoices.reduce((sum, payment) => sum + (payment.paidAmount || 0), 0);
         
         breakdown.push({
           name: year.toString(),
@@ -141,34 +150,27 @@ export const useDashboardPaymentData = (period = '7days') => {
       setPaymentLoading(true);
       const currentUserId = getUserIdFromToken();
 
-      // Fetch invoices data
-      const allInvoices = await getAllInvoices();
-      const invoices = allInvoices.filter(invoice => invoice.vendorId === currentUserId);
+      if (!currentUserId) {
+        console.error('User not authenticated');
+        return;
+      }
 
-      // Filter completed invoices based on selected period
-      const { startDate, completedInvoices } = getFilteredInvoices(invoices, period);
-
-      const totalReceived = completedInvoices.reduce((sum, invoice) => sum + (invoice.grandTotal || 0), 0);
-      // console.log("totalReceived", totalReceived);
+      // Fetch payments for the current vendor only
+      const response = await axiosInstance.get(PAYMENT_ENDPOINTS.GET_PAYMENT_BY_VENDOR_ID(currentUserId));
+      const vendorPayments = response.data;
       
-      // Generate breakdown data based on period
+      // Filter payments with "Success" or "Paid" status and within the time period
+      const { completedInvoices } = getFilteredInvoices(vendorPayments, period);
+
+      console.log("completedInvoices", completedInvoices);
+      
+      // Calculate total received from completed payments using paidAmount
+      const totalReceived = completedInvoices.reduce((sum, invoice) => sum + (invoice.paidAmount || 0), 0);
+      
+      // Generate breakdown data based on period using completed payments
       const breakdown = generateBreakdownData(completedInvoices, period);
-      // console.log("breakdown", breakdown);
       
       setChartData(breakdown);
-
-      // Temporarily commented out - only counting completed invoices for now
-      // const pendingPayments = invoices.filter(invoice => 
-      //   invoice.status === "Pending"
-      // ).reduce((sum, invoice) => sum + (invoice.grandTotal || 0), 0);
-
-      // const bookingFeeTotal = completedInvoices.filter(invoice =>
-      //   invoice.item?.toLowerCase().includes('booking')
-      // ).reduce((sum, invoice) => sum + (invoice.grandTotal || 0), 0);
-
-      // const rentalFeeTotal = completedInvoices.filter(invoice =>
-      //   !invoice.item?.toLowerCase().includes('booking')
-      // ).reduce((sum, invoice) => sum + (invoice.grandTotal || 0), 0);
 
       setPaymentStats({
         totalReceived,

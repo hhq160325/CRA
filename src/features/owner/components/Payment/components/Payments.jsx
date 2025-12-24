@@ -585,12 +585,12 @@ ${t('payments.receiptSeparator')}
                           >
                             {t('payments.viewDetails')}
                           </button>
-                          <button
+                          {/* <button
                             onClick={() => handleExportReceipt(payment)}
                             className="text-green-600 hover:text-green-700 text-sm font-medium"
                           >
                             {t('payments.exportReceipt')}
-                          </button>
+                          </button> */}
                         </div>
                       </td>
                     </tr>
@@ -710,7 +710,7 @@ ${t('payments.receiptSeparator')}
                 >
                   {t('payments.close')}
                 </button>
-                <button
+                {/* <button
                   onClick={() => {
                     handleExportReceipt(selectedPayment);
                     closeModal();
@@ -718,7 +718,7 @@ ${t('payments.receiptSeparator')}
                   className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
                 >
                   {t('payments.exportReceipt')}
-                </button>
+                </button> */}
               </div>
             </div>
           </div>

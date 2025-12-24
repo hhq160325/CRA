@@ -76,7 +76,10 @@ export const staffTranslate = {
       suspendAccountDescription: "'s account? This will prevent them from accessing their account and listing new cars.",
       accountDetails: "Account Details:",
       suspendAccount: "Suspend Account",
-      suspended: "Suspended",
+      suspended: "Closed",
+      noDataToExport: "No Data To Export",
+      exportSuccessful: "Export Successful",
+      exportFailed: "Export Failed",
 
       // Customer Modal
       customerDetails: "Car Customer Details",
@@ -98,7 +101,8 @@ export const staffTranslate = {
       noIssues: "No issues",
       verified: "Verified",
       rejected: "Rejected",
-
+      customerSuspendedSuccessfully: "Customer suspended successfully!",
+      failedToSuspendCustomer: "Failed to suspend customer",
       // Staff Components
       bookingMonitoring: "Booking Monitoring",
       monitorAndManageBookings: "Monitor and manage all booking activities",
@@ -318,7 +322,10 @@ export const staffTranslate = {
       registrationDocumentApprovedSuccessfully: "Registration Document Approved Successfully",
       denied: "Denied",
       //needmanualcheck
-      statusNeedManualCheck:"Need Manual Check"
+      statusNeedManualCheck: "Need Manual Check",
+      behaviourScore: "Behaviour Score",
+      tryAdjustingFilters: "Try Adjusting Filters",
+      noCustomersFound: "No Customers Found",
     }
   },
   vi: {
@@ -638,7 +645,16 @@ export const staffTranslate = {
       registrationDocumentApprovedSuccessfully: "Xác thực thành công",
       denied: "Từ chối",
       //needmanualcheck:"Need Manual Check"
-      statusNeedManualCheck:"Cần kiểm tra lại"
+      statusNeedManualCheck: "Cần kiểm tra lại",
+
+      customerSuspendedSuccessfully: "Khách hàng đã bị ban thành công!",
+      failedToSuspendCustomer: "Không thể ban khách hàng",
+      behaviourScore: "Điểm hành vi",
+      tryAdjustingFilters: "Thử điều chỉnh bộ lọc",
+      noCustomersFound: "Không tìm thấy khách hàng",
+      noDataToExport: "Không có dữ liệu để Export",
+      exportSuccessful: "Export thành công",
+      exportFailed: "Export thất bại",
     }
   }
 };

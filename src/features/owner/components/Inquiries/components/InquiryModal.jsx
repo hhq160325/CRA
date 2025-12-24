@@ -115,9 +115,9 @@ const InquiryModal = ({ inquiry, isOpen, onClose, onUpdate }) => {
             <div className="bg-white rounded p-3">
               <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">{inquiry.message}</p>
             </div>
-            <div className="mt-3 text-sm text-gray-600 break-words">
+            {/* <div className="mt-3 text-sm text-gray-600 break-words">
               <span className="font-medium">{t('inquiries.car')}:</span> {inquiry.carName} ({inquiry.carId})
-            </div>
+            </div> */}
           </div>
 
           {/* Previous Response */}

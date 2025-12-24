@@ -19,6 +19,7 @@ export const AUTH_ENDPOINTS = {
   GOOGLE_CALLBACK: `${API_CONFIG.BASE_URL}/Authen/google-callback`,
   OTP_VERIFY: `${API_CONFIG.BASE_URL}/Authen/SignUp/verify`,
   OTP_RESEND: `${API_CONFIG.BASE_URL}/Authen/otp/resend`,
+  CREATE_STAFF: `${API_CONFIG.BASE_URL}/Authen/CreateStaff`,
   // FORGOT_PASSWORD: `${API_CONFIG.BASE_URL}/auth/forgot-password`,
   // RESET_PASSWORD: `${API_CONFIG.BASE_URL}/auth/reset-password`,
   // VERIFY_TOKEN: `${API_CONFIG.BASE_URL}/auth/verify-token`,
@@ -129,6 +130,7 @@ export const INVOICE_ENDPOINTS = {
   GET_ALL_INVOICES: `${API_CONFIG.BASE_URL}/Invoice/AllInvoices`,
   GET_ALL: `${API_CONFIG.ALTER_URL}/Invoice/All`,
   GET_INVOICE_BY_ID: (invoiceId) => `${API_CONFIG.ALTER_URL}/${invoiceId}`,
+  GET_INVOICE_BY_VENDOR_ID: (vendorId) => `${API_CONFIG.BASE_URL}/Invoice/AllInvoicesToVendor/${vendorId}`
 };
 
 export const INVOICE_API_CONFIG = {
@@ -143,7 +145,8 @@ export const PAYMENT_ENDPOINTS = {
   GET_PAYMENT_BY_ID: (paymentId) => `${API_CONFIG.ALTER_URL}/Payment/GetPaymentById/${paymentId}`,
   CREATE_PAYMENT: `${API_CONFIG.ALTER_URL}/Payment/CreatePayment`,
   CREATE_ADDITIONAL_PAYMENT: `${API_CONFIG.ALTER_URL}/CreateAdditionalPayment`,
-  PATCH_BOOKING_PAYMENT_STATUS: `${API_CONFIG.ALTER_URL}/UpdatePayment/Booking/WithoutBookingConfirmed`
+  PATCH_BOOKING_PAYMENT_STATUS: `${API_CONFIG.ALTER_URL}/UpdatePayment/Booking/WithoutBookingConfirmed`,
+  GET_PAYMENT_BY_VENDOR_ID: (vendorId) => `${API_CONFIG.ALTER_URL}/Vendor/${vendorId}`,
 };
 
 export const PAYMENT_API_CONFIG = {

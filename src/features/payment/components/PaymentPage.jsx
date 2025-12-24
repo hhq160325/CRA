@@ -520,7 +520,7 @@ const PaymentPage = () => {
                                 <span className="text-sm text-gray-500">{t('step')} 3</span>
                             </div>
                             {/* Cash */}
-                            <div className="mb-6">
+                            {/* <div className="mb-6">
                                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-4">
                                     <div className="flex items-center">
                                         <input
@@ -566,7 +566,7 @@ const PaymentPage = () => {
                                         </div>
                                     </div>
                                 )}
-                            </div>
+                            </div> */}
 
                             {/* QR Payment */}
                             <div>

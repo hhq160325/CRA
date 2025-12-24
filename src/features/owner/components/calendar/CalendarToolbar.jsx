@@ -21,16 +21,21 @@ const CalendarToolbar = ({
     { id: 'agenda', label: t('agenda') },
   ];
 
-  // Removed statusOptions since calendar only shows Active maintenance schedules
+  const statusOptions = [
+    { id: 'all', value: 'all', label: t('allStatuses') || 'All Statuses' },
+    { id: 'confirmed', value: 'Confirmed', label: t('confirmed') || 'Confirmed' },
+    { id: 'completed', value: 'Completed', label: t('completed') || 'Completed' },
+    { id: 'cancelled', value: 'Cancelled', label: t('cancelled') || 'Cancelled' },
+  ];
 
   const formatDate = (date) => {
     const d = date instanceof Date ? date : new Date(date);
     const locale = t('locale');
-    const options = { 
-      month: 'long', 
+    const options = {
+      month: 'long',
       year: 'numeric',
     };
-    
+
     if (currentView === 'week') {
       const weekStart = new Date(d);
       weekStart.setDate(d.getDate() - ((d.getDay() + 6) % 7));
@@ -38,15 +43,15 @@ const CalendarToolbar = ({
       weekEnd.setDate(weekStart.getDate() + 6);
       return `${weekStart.toLocaleDateString(locale, { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' })}`;
     }
-    
+
     if (currentView === 'day') {
-      return d.toLocaleDateString(locale, { 
-        month: 'long', 
+      return d.toLocaleDateString(locale, {
+        month: 'long',
         day: 'numeric',
         year: 'numeric',
       });
     }
-    
+
     return d.toLocaleDateString(locale, options);
   };
 
@@ -95,11 +100,10 @@ const CalendarToolbar = ({
             <button
               key={btn.id}
               onClick={() => onViewChange(btn.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                currentView === btn.id
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentView === btn.id
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                }`}
             >
               {btn.label}
             </button>
@@ -164,7 +168,13 @@ const CalendarToolbar = ({
           />
         </div> */}
 
-        {/* Removed status filter since calendar only shows Active maintenance schedules */}
+        <DropdownTemplate
+          value={filters.status}
+          onChange={(option) => onFilterChange('status', option.value)}
+          options={statusOptions}
+          placeholder={t('allStatuses') || 'All Statuses'}
+          className="min-w-[200px]"
+        />
 
         {/* <button
           onClick={handleNewEvent}

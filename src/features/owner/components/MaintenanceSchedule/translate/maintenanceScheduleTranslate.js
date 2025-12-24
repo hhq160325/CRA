@@ -72,6 +72,8 @@ export const maintenanceScheduleTranslate = {
       "maintenanceSchedule.startDays": "Start Days",
       "maintenanceSchedule.endDays": "End Days",
       "maintenanceSchedule.scheduleTitle": "Content",
+      "maintenanceSchedule.noDataToExport": "No data available to export",
+      "maintenanceSchedule.exportTooltip": "Export filtered maintenance schedule data to CSV",
     }
   },
   vi: {
@@ -146,6 +148,8 @@ export const maintenanceScheduleTranslate = {
       "maintenanceSchedule.startDays": "Ngày bắt đầu",
       "maintenanceSchedule.endDays": "Ngày kết thúc",
       "maintenanceSchedule.scheduleTitle": "Nội dung",
+      "maintenanceSchedule.noDataToExport": "Không có dữ liệu để xuất",
+      "maintenanceSchedule.exportTooltip": "Xuất dữ liệu lịch bảo dưỡng đã lọc ra CSV",
     }
   }
 };

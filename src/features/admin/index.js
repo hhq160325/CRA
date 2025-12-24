@@ -9,4 +9,5 @@ export { default as RecentTransaction } from './components/RecentTransaction';
 export { default as StaffManagement } from './components/StaffManagement/components/StaffManagement'
 export { default as StaffLog } from './components/StaffLog/components/StaffLog'
 export { default as CarHandover } from './components/CarHandover/components/CarHandover'
+export { default as CreateStaffAcc } from './components/CreateStaffAcc'
 export { adminSlice } from './adminSlice';

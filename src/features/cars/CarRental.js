@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
 import CarCard from './CarCard';
 import CarFilters from './CarFilters';
 import { fetchAllCars } from './carsSlice';
@@ -8,8 +9,20 @@ import { fetchAllCars } from './carsSlice';
 const CarRental = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { cars, loading, error } = useSelector((state) => state.cars);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Parse URL parameters
+  const urlParams = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return {
+      q: params.get('q') || '',
+      fuel: params.get('fuel') || '',
+      seats: params.get('seats') || ''
+    };
+  }, [location.search]);
 
   useEffect(() => {
     dispatch(fetchAllCars());
@@ -145,7 +158,32 @@ const CarRental = () => {
   // Memoize filtered cars to prevent unnecessary re-renders
   const filteredCars = useMemo(() => {
     return displayCars.filter(car => {
-      // If no filters selected, show all cars
+      // Apply URL parameter filters first
+      const searchQuery = urlParams.q.toLowerCase();
+      const fuelFilter = urlParams.fuel.toLowerCase();
+      const seatsFilter = urlParams.seats;
+
+      // Check URL parameter matches - updated for API data structure
+      const matchesSearch = !searchQuery || 
+                           car.model?.toLowerCase().includes(searchQuery) ||
+                           car.manufacturer?.toLowerCase().includes(searchQuery) ||
+                           car.name?.toLowerCase().includes(searchQuery) ||
+                           car.brand?.toLowerCase().includes(searchQuery);
+      
+      const matchesUrlFuel = !fuelFilter || 
+                            car.fuelType?.toLowerCase().includes(fuelFilter) ||
+                            car.fuel?.toLowerCase().includes(fuelFilter);
+      
+      const matchesUrlSeats = !seatsFilter || 
+                             car.seats?.toString() === seatsFilter ||
+                             (typeof car.capacity === 'string' && car.capacity.includes(seatsFilter));
+
+      // If URL parameters don't match, exclude the car
+      if (!matchesSearch || !matchesUrlFuel || !matchesUrlSeats) {
+        return false;
+      }
+
+      // Then apply sidebar filters
       const hasFilters = filters.brands.length > 0 ||
                          filters.carTypes.length > 0 ||
                          filters.fuelTypes.length > 0 || 
@@ -155,9 +193,9 @@ const CarRental = () => {
       
       if (!hasFilters) return true;
 
-      // Check if car matches selected filters
+      // Check if car matches selected sidebar filters - updated for API data structure
       const matchesBrand = filters.brands.length === 0 || 
-                           filters.brands.includes(car.manufacturer || car.brand || car.name?.split(' ')[0]);
+                           filters.brands.includes(car.manufacturer || car.brand || car.model?.split(' ')[0]);
       const matchesCarType = filters.carTypes.length === 0 || 
                              filters.carTypes.includes(car.carType || car.type);
       const matchesFuelType = filters.fuelTypes.length === 0 || 
@@ -168,11 +206,11 @@ const CarRental = () => {
                            filters.seats.includes(car.seats) ||
                            (typeof car.capacity === 'string' && filters.seats.some(s => car.capacity.includes(s.toString())));
       const matchesYear = filters.years.length === 0 || 
-                          filters.years.includes(car.yearOfManufacture);
+                          filters.years.includes(car.yearofManufacture || car.yearOfManufacture);
 
       return matchesBrand && matchesCarType && matchesFuelType && matchesTransmission && matchesSeats && matchesYear;
     });
-  }, [displayCars, filters]);
+  }, [displayCars, filters, urlParams]);
 
   const handleFilterChange = useCallback((newFilters) => {
     setFilters(newFilters);
@@ -212,6 +250,68 @@ const CarRental = () => {
 
           {/* Main Content */}
           <div className="flex-1">
+            {/* Active URL Filters Display */}
+            {(urlParams.q || urlParams.fuel || urlParams.seats) && (
+              <div className="mb-6 bg-white rounded-xl p-4 shadow-sm border">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold text-gray-900">{t('activeFilters') || 'Active Filters'}</h3>
+                  <button
+                    onClick={() => navigate('/cars')}
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    {t('clearAll') || 'Clear All'}
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {urlParams.q && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                      {t('search') || 'Search'}: "{urlParams.q}"
+                      <button
+                        onClick={() => {
+                          const params = new URLSearchParams(location.search);
+                          params.delete('q');
+                          navigate(`/cars?${params.toString()}`);
+                        }}
+                        className="ml-2 text-blue-600 hover:text-blue-800"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  {urlParams.fuel && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                      {t('fuel') || 'Fuel'}: {urlParams.fuel}
+                      <button
+                        onClick={() => {
+                          const params = new URLSearchParams(location.search);
+                          params.delete('fuel');
+                          navigate(`/cars?${params.toString()}`);
+                        }}
+                        className="ml-2 text-green-600 hover:text-green-800"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  {urlParams.seats && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800">
+                      {t('seats') || 'Seats'}: {urlParams.seats}
+                      <button
+                        onClick={() => {
+                          const params = new URLSearchParams(location.search);
+                          params.delete('seats');
+                          navigate(`/cars?${params.toString()}`);
+                        }}
+                        className="ml-2 text-purple-600 hover:text-purple-800"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Car Grid */}
             {loading && displayCars.length === 0 ? (
               <div className="text-center py-12">
@@ -229,11 +329,34 @@ const CarRental = () => {
                 <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <h3 className="mt-2 text-sm font-medium text-gray-900">{t('noCarsFound') || 'No cars found'}</h3>
-                <p className="mt-1 text-sm text-gray-500">{t('tryAdjustingFilters') || 'Try adjusting your filters'}</p>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">
+                  {urlParams.q || urlParams.fuel || urlParams.seats 
+                    ? (t('noMatchingCars') || 'No cars match your search criteria')
+                    : (t('noCarsFound') || 'No cars found')
+                  }
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  {urlParams.q || urlParams.fuel || urlParams.seats
+                    ? (t('tryDifferentFilters') || 'Try different search terms or filters')
+                    : (t('tryAdjustingFilters') || 'Try adjusting your filters')
+                  }
+                </p>
               </div>
             ) : (
               <>
+                {/* Results header */}
+                {(urlParams.q || urlParams.fuel || urlParams.seats) && (
+                  <div className="mb-6">
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      {t('searchResults') || 'Search Results'}
+                    </h2>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {t('showing') || 'Showing'} {filteredCars.length} {filteredCars.length === 1 ? (t('car') || 'car') : (t('cars') || 'cars')}
+                      {urlParams.q && ` ${t('for') || 'for'} "${urlParams.q}"`}
+                    </p>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 lg:mb-12">
                   {filteredCars.map((car) => (
                     <CarCard 

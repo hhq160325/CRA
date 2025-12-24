@@ -9,8 +9,20 @@ export const filterBookingData = (booking, { searchTerm, statusFilter }) => {
     booking.bookingNumber.toLowerCase().includes(searchTerm.toLowerCase())
 
   // Handle status filtering for specific status values
-  const matchesStatus = statusFilter === 'all' ||
-    booking.status?.toLowerCase() === statusFilter?.toLowerCase();
+  // Handle both "cancelled" and "canceled" variations
+  const normalizedBookingStatus = booking.status?.toLowerCase();
+  const normalizedFilterStatus = statusFilter?.toLowerCase();
+  
+  let matchesStatus = statusFilter === 'all';
+  
+  if (!matchesStatus) {
+    if (normalizedFilterStatus === 'cancelled' || normalizedFilterStatus === 'canceled') {
+      // Match both cancelled and canceled variations
+      matchesStatus = normalizedBookingStatus === 'cancelled' || normalizedBookingStatus === 'canceled';
+    } else {
+      matchesStatus = normalizedBookingStatus === normalizedFilterStatus;
+    }
+  }
   return matchesSearch && matchesStatus;
 };
 

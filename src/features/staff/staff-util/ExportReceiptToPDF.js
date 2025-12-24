@@ -149,19 +149,40 @@ export const exportReceiptToPDF = (rental, options = {}) => {
   yPosition += 5; // Reduced spacing
   
   if (isCompleted) {
-    // Final Payment Receipt - Show Rental Fee (85%)
-    const rentalFeePaid = rental.rentalFeePaid || 0;
+    // Final Payment Receipt - Show only paid/success fees
+    const tableData = [];
+    
+    // Add booking fee if paid/success
+    if (rental.bookingFeePaid > 0 && (rental.bookingFeeStatus === 'paid' || rental.bookingFeeStatus === 'success')) {
+      tableData.push(['Booking Fee Payment', `${rental.bookingFeePaid.toLocaleString()} VND`]);
+    }
+    
+    // Add rental fee if paid/success
+    if (rental.rentalFeePaid > 0 && (rental.rentalFeeStatus === 'paid' || rental.rentalFeeStatus === 'success')) {
+      tableData.push(['Rental Fee Payment', `${rental.rentalFeePaid.toLocaleString()} VND`]);
+    }
+    
+    // Add additional fees if they exist and are paid/success
+    if (rental.hasAdditionalFee && rental.additionalFeePaid > 0 && 
+        (rental.additionalFeeStatus === 'paid' || rental.additionalFeeStatus === 'success')) {
+      tableData.push(['Additional Fee Payment', `${rental.additionalFeePaid.toLocaleString()} VND`]);
+    }
+    
+    // Add extend booking fees if they exist and are paid/success
+    if (rental.hasExtendBookingFee && rental.extendBookingFeePaid > 0 && 
+        (rental.extendBookingFeeStatus === 'paid' || rental.extendBookingFeeStatus === 'success')) {
+      tableData.push(['Extend Booking Fee Payment', `${rental.extendBookingFeePaid.toLocaleString()} VND`]);
+    }
+    
+    // Use the pre-calculated totalPaidAmount from rental data
+    const totalPaid = rental.totalPaidAmount || 0;
     
     autoTable(doc, {
       startY: yPosition,
       head: [['Description', 'Amount']],
-      body: [
-        ['Rental Fee Payment (85%)', `${rentalFeePaid.toLocaleString()} VND`],
-        ['Payment Status', (rental.rentalFeeStatus || 'N/A').toUpperCase()],
-        ['Payment Method', rental.rentalFeePaymentMethod || 'N/A'],
-      ],
+      body: tableData,
       foot: [
-        ['Total Paid:', `${rentalFeePaid.toLocaleString()} VND`],
+        ['Total Paid:', `${totalPaid.toLocaleString()} VND`],
       ],
       theme: 'striped',
       headStyles: { fillColor: [66, 139, 202], textColor: 255, fontStyle: 'bold', fontSize: 9 },
@@ -171,19 +192,48 @@ export const exportReceiptToPDF = (rental, options = {}) => {
       styles: { cellPadding: 3 }, // Reduced padding
     });
   } else if (isConfirmed) {
-    // Booking Fee Receipt - Show Booking Fee (15%)
-    const bookingFeePaid = rental.bookingFeePaid || 0;
+    // Booking Fee Receipt - Show only paid/success fees
+    const tableData = [];
+    
+    // Add booking fee if paid/success
+    if (rental.bookingFeePaid > 0 && (rental.bookingFeeStatus === 'paid' || rental.bookingFeeStatus === 'success')) {
+      tableData.push(['Booking Fee Payment', `${rental.bookingFeePaid.toLocaleString()} VND`]);
+      // tableData.push(['Booking Fee Status', (rental.bookingFeeStatus || 'N/A').toUpperCase()]);
+      // tableData.push(['Booking Fee Method', rental.bookingFeePaymentMethod || 'N/A']);
+    }
+    
+    // Add rental fee if paid/success
+    if (rental.rentalFeePaid > 0 && (rental.rentalFeeStatus === 'paid' || rental.rentalFeeStatus === 'success')) {
+      tableData.push(['Rental Fee Payment', `${rental.rentalFeePaid.toLocaleString()} VND`]);
+      // tableData.push(['Rental Fee Status', (rental.rentalFeeStatus || 'N/A').toUpperCase()]);
+      // tableData.push(['Rental Fee Method', rental.rentalFeePaymentMethod || 'N/A']);
+    }
+    
+    // Add additional fees if they exist and are paid/success
+    if (rental.hasAdditionalFee && rental.additionalFeePaid > 0 && 
+        (rental.additionalFeeStatus === 'paid' || rental.additionalFeeStatus === 'success')) {
+      tableData.push(['Additional Fee Payment', `${rental.additionalFeePaid.toLocaleString()} VND`]);
+      // tableData.push(['Additional Fee Status', (rental.additionalFeeStatus || 'N/A').toUpperCase()]);
+      // tableData.push(['Additional Fee Method', rental.additionalFeePaymentMethod || 'N/A']);
+    }
+    
+    // Add extend booking fees if they exist and are paid/success
+    if (rental.hasExtendBookingFee && rental.extendBookingFeePaid > 0 && 
+        (rental.extendBookingFeeStatus === 'paid' || rental.extendBookingFeeStatus === 'success')) {
+      tableData.push(['Extend Booking Fee Payment', `${rental.extendBookingFeePaid.toLocaleString()} VND`]);
+      // tableData.push(['Extend Booking Fee Status', (rental.extendBookingFeeStatus || 'N/A').toUpperCase()]);
+      // tableData.push(['Extend Booking Fee Method', rental.bookingExtensionFeePaymentMethod || 'N/A']);
+    }
+    
+    // Use the pre-calculated totalPaidAmount from rental data
+    const totalPaid = rental.totalPaidAmount || 0;
     
     autoTable(doc, {
       startY: yPosition,
       head: [['Description', 'Amount']],
-      body: [
-        ['Booking Fee Payment (15%)', `${bookingFeePaid.toLocaleString()} VND`],
-        ['Payment Status', (rental.bookingFeeStatus || 'N/A').toUpperCase()],
-        ['Payment Method', rental.bookingFeePaymentMethod || 'N/A'],
-      ],
+      body: tableData,
       foot: [
-        ['Paid Now:', `${bookingFeePaid.toLocaleString()} VND`],
+        ['Paid Now:', `${totalPaid.toLocaleString()} VND`],
       ],
       theme: 'striped',
       headStyles: { fillColor: [66, 139, 202], textColor: 255, fontStyle: 'bold', fontSize: 9 },
@@ -193,18 +243,42 @@ export const exportReceiptToPDF = (rental, options = {}) => {
       styles: { cellPadding: 3 }, // Reduced padding
     });
   } else {
-    // Default Receipt - TEMPORARILY COMMENTED OUT RATE CALCULATION
-    // const dailyRate = rental.dailyRate || 0;
-    // const duration = rental.duration || 0;
-    const totalPaid = rental.totalPaidAmount || 0;
+    // Default Receipt - Show only paid/success fees
+    const tableData = [];
+    // Use the pre-calculated totalPaidAmount from rental data
+    let totalPaid = rental.totalPaidAmount || 0;
+    
+    // Add booking fee if paid/success
+    if (rental.bookingFeePaid > 0 && (rental.bookingFeeStatus === 'paid' || rental.bookingFeeStatus === 'success')) {
+      tableData.push(['Booking Fee Payment', `${rental.bookingFeePaid.toLocaleString()} VND`]);
+    }
+    
+    // Add rental fee if paid/success
+    if (rental.rentalFeePaid > 0 && (rental.rentalFeeStatus === 'paid' || rental.rentalFeeStatus === 'success')) {
+      tableData.push(['Rental Fee Payment', `${rental.rentalFeePaid.toLocaleString()} VND`]);
+    }
+    
+    // Add additional fees if they exist and are paid/success
+    if (rental.hasAdditionalFee && rental.additionalFeePaid > 0 && 
+        (rental.additionalFeeStatus === 'paid' || rental.additionalFeeStatus === 'success')) {
+      tableData.push(['Additional Fee Payment', `${rental.additionalFeePaid.toLocaleString()} VND`]);
+    }
+    
+    // Add extend booking fees if they exist and are paid/success
+    if (rental.hasExtendBookingFee && rental.extendBookingFeePaid > 0 && 
+        (rental.extendBookingFeeStatus === 'paid' || rental.extendBookingFeeStatus === 'success')) {
+      tableData.push(['Extend Booking Fee Payment', `${rental.extendBookingFeePaid.toLocaleString()} VND`]);
+    }
+    
+    // If no paid fees, show a message
+    if (tableData.length === 0) {
+      tableData.push(['No Paid Fees', 'N/A']);
+    }
     
     autoTable(doc, {
       startY: yPosition,
       head: [['Description', 'Amount']],
-      body: [
-        ['Payment Amount', `${totalPaid.toLocaleString()} VND`],
-        ['Payment Status', (rental.bookingFeeStatus || rental.rentalFeeStatus || 'N/A').toUpperCase()],
-      ],
+      body: tableData,
       foot: [
         ['Total Amount:', `${totalPaid.toLocaleString()} VND`],
       ],
@@ -229,13 +303,36 @@ export const exportReceiptToPDF = (rental, options = {}) => {
   doc.setFont('helvetica', 'normal');
 
   const paymentInfo = [
-    ['Payment Type:', isCompleted ? 'Final Payment (85%)' : isConfirmed ? 'Booking Fee (15%)' : 'Payment'],
-    ['Booking Fee Status:', (rental.bookingFeeStatus || 'N/A').toUpperCase()],
-    ['Rental Fee Status:', (rental.rentalFeeStatus || 'N/A').toUpperCase()],
-    ['Booking Fee Method:', rental.bookingFeePaymentMethod || 'N/A'],
-    ['Rental Fee Method:', rental.rentalFeePaymentMethod || 'N/A'],
-    ['Total Paid Amount:', `${(rental.totalPaidAmount || 0).toLocaleString()} VND`],
+    ['Payment Type:', isCompleted ? 'Final Payment' : isConfirmed ? 'Booking Fee' : 'Payment'],
   ];
+
+  // Only add fee information if the fee is paid/success
+  if (rental.bookingFeeStatus === 'paid' || rental.bookingFeeStatus === 'success') {
+    paymentInfo.push(['Booking Fee Status:', (rental.bookingFeeStatus || 'N/A').toUpperCase()]);
+    // paymentInfo.push(['Booking Fee Method:', rental.bookingFeePaymentMethod || 'N/A']);
+  }
+
+  if (rental.rentalFeeStatus === 'paid' || rental.rentalFeeStatus === 'success') {
+    paymentInfo.push(['Rental Fee Status:', (rental.rentalFeeStatus || 'N/A').toUpperCase()]);
+    // paymentInfo.push(['Rental Fee Method:', rental.rentalFeePaymentMethod || 'N/A']);
+  }
+
+  // Add additional fee information only if it exists and is paid/success
+  if (rental.hasAdditionalFee && (rental.additionalFeeStatus === 'paid' || rental.additionalFeeStatus === 'success')) {
+    paymentInfo.push(['Additional Fee Status:', (rental.additionalFeeStatus || 'N/A').toUpperCase()]);
+    // paymentInfo.push(['Additional Fee Method:', rental.additionalFeePaymentMethod || 'N/A']);
+  }
+
+  // Add extend booking fee information only if it exists and is paid/success
+  if (rental.hasExtendBookingFee && (rental.extendBookingFeeStatus === 'paid' || rental.extendBookingFeeStatus === 'success')) {
+    paymentInfo.push(['Extend Booking Fee Status:', (rental.extendBookingFeeStatus || 'N/A').toUpperCase()]);
+    // paymentInfo.push(['Extend Booking Fee Method:', rental.bookingExtensionFeePaymentMethod || 'N/A']);
+  }
+
+  // Use the pre-calculated totalPaidAmount from rental data
+  const totalPaidAmount = rental.totalPaidAmount || 0;
+
+  paymentInfo.push(['Total Paid Amount:', `${totalPaidAmount.toLocaleString()} VND`]);
 
   if (isConfirmed && rental.remainingPayment > 0) {
     paymentInfo.push(['Remaining Balance:', `${rental.remainingPayment.toLocaleString()} VND (Due at checkout)`]);
@@ -492,23 +589,35 @@ export const printReceipt = (rental, options = {}) => {
           </tr>
         </thead>
         <tbody>
+          ${(rental.bookingFeePaid > 0 && (rental.bookingFeeStatus === 'paid' || rental.bookingFeeStatus === 'success')) ? `
           <tr>
-            <td>Rental Fee Payment (85%)</td>
+            <td>Booking Fee Payment</td>
+            <td>${(rental.bookingFeePaid || 0).toLocaleString()} VND</td>
+          </tr>
+          ` : ''}
+          ${(rental.rentalFeePaid > 0 && (rental.rentalFeeStatus === 'paid' || rental.rentalFeeStatus === 'success')) ? `
+          <tr>
+            <td>Rental Fee Payment</td>
             <td>${(rental.rentalFeePaid || 0).toLocaleString()} VND</td>
           </tr>
+          ` : ''}
+          ${(rental.hasAdditionalFee && rental.additionalFeePaid > 0 && (rental.additionalFeeStatus === 'paid' || rental.additionalFeeStatus === 'success')) ? `
           <tr>
-            <td>Payment Status</td>
-            <td>${(rental.rentalFeeStatus || 'N/A').toUpperCase()}</td>
+            <td>Additional Fee Payment</td>
+            <td>${(rental.additionalFeePaid || 0).toLocaleString()} VND</td>
           </tr>
+          ` : ''}
+          ${(rental.hasExtendBookingFee && rental.extendBookingFeePaid > 0 && (rental.extendBookingFeeStatus === 'paid' || rental.extendBookingFeeStatus === 'success')) ? `
           <tr>
-            <td>Payment Method</td>
-            <td>${rental.rentalFeePaymentMethod || 'N/A'}</td>
+            <td>Extend Booking Fee Payment</td>
+            <td>${(rental.extendBookingFeePaid || 0).toLocaleString()} VND</td>
           </tr>
+          ` : ''}
         </tbody>
         <tfoot>
           <tr>
             <td style="text-align: right; background-color: #228b22; color: white;">Total Paid:</td>
-            <td style="background-color: #228b22; color: white;">${(rental.rentalFeePaid || 0).toLocaleString()} VND</td>
+            <td style="background-color: #228b22; color: white;">${(rental.totalPaidAmount || 0).toLocaleString()} VND</td>
           </tr>
         </tfoot>
       </table>
@@ -521,23 +630,35 @@ export const printReceipt = (rental, options = {}) => {
           </tr>
         </thead>
         <tbody>
+          ${(rental.bookingFeePaid > 0 && (rental.bookingFeeStatus === 'paid' || rental.bookingFeeStatus === 'success')) ? `
           <tr>
-            <td>Booking Fee Payment (15%)</td>
+            <td>Booking Fee Payment</td>
             <td>${(rental.bookingFeePaid || 0).toLocaleString()} VND</td>
           </tr>
+          ` : ''}
+          ${(rental.rentalFeePaid > 0 && (rental.rentalFeeStatus === 'paid' || rental.rentalFeeStatus === 'success')) ? `
           <tr>
-            <td>Payment Status</td>
-            <td>${(rental.bookingFeeStatus || 'N/A').toUpperCase()}</td>
+            <td>Rental Fee Payment</td>
+            <td>${(rental.rentalFeePaid || 0).toLocaleString()} VND</td>
           </tr>
+          ` : ''}
+          ${(rental.hasAdditionalFee && rental.additionalFeePaid > 0 && (rental.additionalFeeStatus === 'paid' || rental.additionalFeeStatus === 'success')) ? `
           <tr>
-            <td>Payment Method</td>
-            <td>${rental.bookingFeePaymentMethod || 'N/A'}</td>
+            <td>Additional Fee Payment</td>
+            <td>${(rental.additionalFeePaid || 0).toLocaleString()} VND</td>
           </tr>
+          ` : ''}
+          ${(rental.hasExtendBookingFee && rental.extendBookingFeePaid > 0 && (rental.extendBookingFeeStatus === 'paid' || rental.extendBookingFeeStatus === 'success')) ? `
+          <tr>
+            <td>Extend Booking Fee Payment</td>
+            <td>${(rental.extendBookingFeePaid || 0).toLocaleString()} VND</td>
+          </tr>
+          ` : ''}
         </tbody>
         <tfoot>
           <tr>
-            <td style="text-align: right; background-color: #228b22; color: white;">Paid Now:</td>
-            <td style="background-color: #228b22; color: white;">${(rental.bookingFeePaid || 0).toLocaleString()} VND</td>
+            <td style="text-align: right; background-color: #228b22; color: white;">Total Paid:</td>
+            <td style="background-color: #228b22; color: white;">${(rental.totalPaidAmount || 0).toLocaleString()} VND</td>
           </tr>
         </tfoot>
       </table>
@@ -550,14 +671,42 @@ export const printReceipt = (rental, options = {}) => {
           </tr>
         </thead>
         <tbody>
+          ${(rental.bookingFeePaid > 0 && (rental.bookingFeeStatus === 'paid' || rental.bookingFeeStatus === 'success')) ? `
           <tr>
-            <td>Payment Amount</td>
-            <td>${(rental.totalPaidAmount || 0).toLocaleString()} VND</td>
+            <td>Booking Fee Payment</td>
+            <td>${(rental.bookingFeePaid || 0).toLocaleString()} VND</td>
           </tr>
+          ` : ''}
+          ${(rental.rentalFeePaid > 0 && (rental.rentalFeeStatus === 'paid' || rental.rentalFeeStatus === 'success')) ? `
           <tr>
-            <td>Payment Status</td>
-            <td>${(rental.bookingFeeStatus || rental.rentalFeeStatus || 'N/A').toUpperCase()}</td>
+            <td>Rental Fee Payment</td>
+            <td>${(rental.rentalFeePaid || 0).toLocaleString()} VND</td>
           </tr>
+          ` : ''}
+          ${(rental.hasAdditionalFee && rental.additionalFeePaid > 0 && (rental.additionalFeeStatus === 'paid' || rental.additionalFeeStatus === 'success')) ? `
+          <tr>
+            <td>Additional Fee Payment</td>
+            <td>${(rental.additionalFeePaid || 0).toLocaleString()} VND</td>
+          </tr>
+          ` : ''}
+          ${(rental.hasExtendBookingFee && rental.extendBookingFeePaid > 0 && (rental.extendBookingFeeStatus === 'paid' || rental.extendBookingFeeStatus === 'success')) ? `
+          <tr>
+            <td>Extend Booking Fee Payment</td>
+            <td>${(rental.extendBookingFeePaid || 0).toLocaleString()} VND</td>
+          </tr>
+          ` : ''}
+          ${(() => {
+            let hasPaidFees = false;
+            if (rental.bookingFeeStatus === 'paid' || rental.bookingFeeStatus === 'success') hasPaidFees = true;
+            if (rental.rentalFeeStatus === 'paid' || rental.rentalFeeStatus === 'success') hasPaidFees = true;
+            if (rental.hasAdditionalFee && (rental.additionalFeeStatus === 'paid' || rental.additionalFeeStatus === 'success')) hasPaidFees = true;
+            if (rental.hasExtendBookingFee && (rental.extendBookingFeeStatus === 'paid' || rental.extendBookingFeeStatus === 'success')) hasPaidFees = true;
+            
+            if (!hasPaidFees) {
+              return '<tr><td>No Paid Fees</td><td>N/A</td></tr>';
+            }
+            return '';
+          })()}
         </tbody>
         <tfoot>
           <tr>
@@ -572,24 +721,32 @@ export const printReceipt = (rental, options = {}) => {
         <div class="section-title">Payment Information</div>
         <div class="info-row">
           <div class="info-label">Payment Type:</div>
-          <div class="info-value">${isCompleted ? 'Final Payment (85%)' : isConfirmed ? 'Booking Fee (15%)' : 'Payment'}</div>
+          <div class="info-value">${isCompleted ? 'Final Payment' : isConfirmed ? 'Booking Fee' : 'Payment'}</div>
         </div>
+        ${(rental.bookingFeeStatus === 'paid' || rental.bookingFeeStatus === 'success') ? `
         <div class="info-row">
           <div class="info-label">Booking Fee Status:</div>
           <div class="info-value">${(rental.bookingFeeStatus || 'N/A').toUpperCase()}</div>
         </div>
+        ` : ''}
+        ${(rental.rentalFeeStatus === 'paid' || rental.rentalFeeStatus === 'success') ? `
         <div class="info-row">
           <div class="info-label">Rental Fee Status:</div>
           <div class="info-value">${(rental.rentalFeeStatus || 'N/A').toUpperCase()}</div>
         </div>
+        ` : ''}
+        ${(rental.hasAdditionalFee && (rental.additionalFeeStatus === 'paid' || rental.additionalFeeStatus === 'success')) ? `
         <div class="info-row">
-          <div class="info-label">Booking Fee Method:</div>
-          <div class="info-value">${rental.bookingFeePaymentMethod || 'N/A'}</div>
+          <div class="info-label">Additional Fee Status:</div>
+          <div class="info-value">${(rental.additionalFeeStatus || 'N/A').toUpperCase()}</div>
         </div>
+        ` : ''}
+        ${(rental.hasExtendBookingFee && (rental.extendBookingFeeStatus === 'paid' || rental.extendBookingFeeStatus === 'success')) ? `
         <div class="info-row">
-          <div class="info-label">Rental Fee Method:</div>
-          <div class="info-value">${rental.rentalFeePaymentMethod || 'N/A'}</div>
+          <div class="info-label">Extend Booking Fee Status:</div>
+          <div class="info-value">${(rental.extendBookingFeeStatus || 'N/A').toUpperCase()}</div>
         </div>
+        ` : ''}
         <div class="info-row">
           <div class="info-label">Total Paid Amount:</div>
           <div class="info-value">${(rental.totalPaidAmount || 0).toLocaleString()} VND</div>

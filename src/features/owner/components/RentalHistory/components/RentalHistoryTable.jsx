@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getStatusBadge, getPaymentBadge, useTranslateStatus, formatVND } from '../utils/rentalUtils';
 import Pagination from '../../../../../shared/components/Pagination';
@@ -13,6 +14,18 @@ const RentalHistoryTable = ({
 }) => {
   const { t } = useTranslation();
   const translateStatus = useTranslateStatus();
+  const [expandedAdditionalFees, setExpandedAdditionalFees] = useState(new Set());
+  
+  const toggleAdditionalFees = (rentalId) => {
+    const newExpanded = new Set(expandedAdditionalFees);
+    if (newExpanded.has(rentalId)) {
+      newExpanded.delete(rentalId);
+    } else {
+      newExpanded.add(rentalId);
+    }
+    setExpandedAdditionalFees(newExpanded);
+  };
+  
   console.log(paginatedRentals);
   
   return (
@@ -93,13 +106,58 @@ const RentalHistoryTable = ({
                   </td>
                   <td className="py-4 px-6">
                     {rental.hasAdditionalFee ? (
-                      <>
-                        <span className={getPaymentBadge(rental.additionalFeeStatus)}>
-                          {translateStatus(rental.additionalFeeStatus)}
-                        </span>
+                      <div>
+                        {/* Show multiple statuses if they exist, otherwise show single status */}
+                        {rental.additionalFeeHasMultipleStatuses ? (
+                          <div className="space-y-1">
+                            {rental.additionalFeeUniqueStatuses.map((status, index) => (
+                              <span key={index} className={`block ${getPaymentBadge(status)}`}>
+                                {translateStatus(status)}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className={getPaymentBadge(rental.additionalFeeStatus)}>
+                            {translateStatus(rental.additionalFeeStatus)}
+                          </span>
+                        )}
+                        
                         <div className="text-xs text-gray-500 mt-1">{formatVND(rental.additionalFeePaid)}</div>
                         <div className="text-xs text-gray-400 mt-0.5">{rental.additionalFeePaymentMethod}</div>
-                      </>
+                        
+                        {/* Show button if there are multiple additional fees OR multiple statuses */}
+                        {(rental.additionalFeeCount > 1 || rental.additionalFeeHasMultipleStatuses) && (
+                          <button
+                            onClick={() => toggleAdditionalFees(rental.id)}
+                            className="text-xs text-blue-600 hover:text-blue-700 mt-1 underline"
+                          >
+                            {expandedAdditionalFees.has(rental.id) 
+                              ? t('rentalHistory.hideDetails') 
+                              : rental.additionalFeeHasMultipleStatuses 
+                                ? t('rentalHistory.showDetails')
+                                : `${t('rentalHistory.showDetails')} (${rental.additionalFeeCount})`
+                            }
+                          </button>
+                        )}
+                        
+                        {/* Show individual additional fee details when expanded */}
+                        {expandedAdditionalFees.has(rental.id) && rental.additionalFeeDetails && (
+                          <div className="mt-2 space-y-1 border-t pt-2">
+                            {rental.additionalFeeDetails.map((fee, index) => (
+                              <div key={index} className="text-xs">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-600">{fee.item}</span>
+                                  <span className={`px-1.5 py-0.5 rounded text-xs ${getPaymentBadge(fee.status).split(' ').slice(1).join(' ')}`}>
+                                    {translateStatus(fee.status)}
+                                  </span>
+                                </div>
+                                <div className="text-gray-500">{formatVND(fee.amount)}</div>
+                                <div className="text-gray-400">{fee.paymentMethod}</div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     ) : (
                       <span className="text-xs text-gray-400">N/A</span>
                     )}

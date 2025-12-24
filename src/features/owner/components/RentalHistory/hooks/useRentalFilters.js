@@ -25,7 +25,7 @@ export const useRentalFilters = (rentalHistory) => {
     { id: 'all', value: 'all', label: t('rentalHistory.allCars') },
     ...uniqueCars.map(car => ({ id: car, value: car, label: car }))
   ], [uniqueCars, t]);
-
+  
   const statusOptions = useMemo(() => [
     { id: 'all', value: 'all', label: t('rentalHistory.allStatuses') },
     { id: 'confirmed', value: 'confirmed', label: t('rentalHistory.confirmed') },
@@ -36,28 +36,28 @@ export const useRentalFilters = (rentalHistory) => {
 
   const bookingFeeStatusOptions = useMemo(() => [
     { id: 'all', value: 'all', label: t('rentalHistory.allBookingFeeStatuses') },
-    { id: 'success', value: 'success', label: t('rentalHistory.paid') },
+    { id: 'paid', value: 'paid', label: t('rentalHistory.paid') },
     { id: 'pending', value: 'pending', label: t('rentalHistory.pending') },
     { id: 'cancelled', value: 'cancelled', label: t('rentalHistory.cancelled') }
   ], [t]);
 
   const rentalFeeStatusOptions = useMemo(() => [
     { id: 'all', value: 'all', label: t('rentalHistory.allRentalFeeStatuses') },
-    { id: 'success', value: 'success', label: t('rentalHistory.paid') },
+    { id: 'paid', value: 'paid', label: t('rentalHistory.paid') },
     { id: 'pending', value: 'pending', label: t('rentalHistory.pending') },
     { id: 'cancelled', value: 'cancelled', label: t('rentalHistory.cancelled') }
   ], [t]);
 
   const additionalFeeStatusOptions = useMemo(() => [
     { id: 'all', value: 'all', label: t('rentalHistory.allAdditionalFeeStatuses') },
-    { id: 'success', value: 'success', label: t('rentalHistory.paid') },
+    { id: 'paid', value: 'paid', label: t('rentalHistory.paid') },
     { id: 'pending', value: 'pending', label: t('rentalHistory.pending') },
     { id: 'cancelled', value: 'cancelled', label: t('rentalHistory.cancelled') }
   ], [t]);
 
   const extendBookingFeeStatusOptions = useMemo(() => [
     { id: 'all', value: 'all', label: t('rentalHistory.allExtendBookingFeeStatuses') },
-    { id: 'success', value: 'success', label: t('rentalHistory.paid') },
+    { id: 'paid', value: 'paid', label: t('rentalHistory.paid') },
     { id: 'pending', value: 'pending', label: t('rentalHistory.pending') },
     { id: 'cancelled', value: 'cancelled', label: t('rentalHistory.cancelled') }
   ], [t]);
@@ -71,14 +71,27 @@ export const useRentalFilters = (rentalHistory) => {
         (rental.invoiceNo && rental.invoiceNo.toLowerCase().includes(searchTerm.toLowerCase()))
       const matchesStatus = statusFilter === 'all' || rental.status === statusFilter;
       const matchesCar = carFilter === 'all' || rental.carName === carFilter;
-      const matchesBookingFeeStatus = bookingFeeStatusFilter === 'all' ||
-        rental.bookingFeeStatus === bookingFeeStatusFilter;
-      const matchesRentalFeeStatus = rentalFeeStatusFilter === 'all' ||
-        rental.rentalFeeStatus === rentalFeeStatusFilter;
-      const matchesAdditionalFeeStatus = additionalFeeStatusFilter === 'all' ||
-        rental.additionalFeeStatus === additionalFeeStatusFilter;
-      const matchesExtendBookingFeeStatus = extendBookingFeeStatusFilter === 'all' ||
-        rental.extendBookingFeeStatus === extendBookingFeeStatusFilter;
+      
+      // Helper function to check if status matches filter (handles success/paid and cancelled/canceled)
+      const statusMatches = (actualStatus, filterStatus, hasFee) => {
+        if (filterStatus === 'all') return true;
+        
+        // If filtering by a specific status but the fee doesn't exist, don't show it
+        if (!hasFee) return false;
+        
+        if (filterStatus === 'paid') {
+          return actualStatus === 'paid' || actualStatus === 'success';
+        }
+        if (filterStatus === 'cancelled') {
+          return actualStatus === 'cancelled' || actualStatus === 'canceled';
+        }
+        return actualStatus === filterStatus;
+      };
+      
+      const matchesBookingFeeStatus = statusMatches(rental.bookingFeeStatus, bookingFeeStatusFilter, true); // Booking fee always exists
+      const matchesRentalFeeStatus = statusMatches(rental.rentalFeeStatus, rentalFeeStatusFilter, true); // Rental fee always exists
+      const matchesAdditionalFeeStatus = statusMatches(rental.additionalFeeStatus, additionalFeeStatusFilter, rental.hasAdditionalFee);
+      const matchesExtendBookingFeeStatus = statusMatches(rental.extendBookingFeeStatus, extendBookingFeeStatusFilter, rental.hasExtendBookingFee);
 
       // Custom date range filter (when startDate or endDate is set)
       let matchesDateRange = true;

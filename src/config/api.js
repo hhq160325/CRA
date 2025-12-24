@@ -1,10 +1,12 @@
 // Central API configuration
+const token = localStorage.getItem('jwtToken');
 //https://localhost:7269/api
 export const API_CONFIG = {
   BASE_URL: process.env.REACT_APP_API_URL || "https://localhost:7184/api",
   ALTER_URL: process.env.REACT_APP_API_ALTER_URL || "https://localhost:7184", //For PayOSAllPayments
   TIMEOUT: 10000,
   HEADERS: {
+    'Authorization': `Bearer ${token}`,
     "Content-Type": "application/json",
   },
 };
@@ -88,6 +90,7 @@ export const CAR_ENDPOINTS = {
 export const CAR_API_CONFIG = {
   timeout: API_CONFIG.TIMEOUT,
   headers: {
+    'Authorization': `Bearer ${token}`,
     'Content-Type': 'multipart/form-data',
   },
 };
@@ -112,7 +115,8 @@ export const BOOKING_API_CONFIG = {
 export const SCHEDULE_ENDPOINTS = {
   GET_USER_SCHEDULES: (userId) => `${API_CONFIG.BASE_URL}/Schedule/user/${userId}`,
   GET_CAR_SCHEDULES: (carId) => `${API_CONFIG.BASE_URL}/Schedule/car/${carId}`,
-  CREATE_CAR_SCHEDULES: `${API_CONFIG.BASE_URL}/Schedule/maintenance`
+  CREATE_CAR_SCHEDULES: `${API_CONFIG.BASE_URL}/Schedule/maintenance`,
+  PATCH_CAR_SCHEDULES: (scheduleId) => `${API_CONFIG.BASE_URL}/Schedule/statusChange/${scheduleId}?isCompleted=true`,
 };
 
 export const SCHEDULE_API_CONFIG = {
@@ -168,6 +172,7 @@ export const FEEDBACK_ENDPOINTS = {
 export const FEEDBACK_API_CONFIG = {
   timeout: API_CONFIG.TIMEOUT,
   headers: {
+    'Authorization': `Bearer ${token}`,
     'Content-Type': 'multipart/form-data',
   },
 
@@ -185,13 +190,14 @@ export const INQUIRY_ENDPOINTS = {
 export const INQUIRY_API_CONFIG = {
   timeout: API_CONFIG.TIMEOUT,
   headers: {
+    'Authorization': `Bearer ${token}`,
     'Content-Type': 'multipart/form-data',
   },
 };
 
 // Reporr
 export const REPORT_CAR_ENDPOINTS = {
-  CREATE_REPORT_CAR: `${API_CONFIG.BASE_URL}/Inquiry/initial`,
+  CREATE_REPORT_CAR: `${API_CONFIG.BASE_URL}/Report/reportedCar`,
   GET_REPORT_CAR: `${API_CONFIG.BASE_URL}/Report`,
   CREATE_REPORT_USER:`${API_CONFIG.BASE_URL}/Report/reportedUser`,
 };
@@ -199,6 +205,7 @@ export const REPORT_CAR_ENDPOINTS = {
 export const REPORT_CAR_API_CONFIG = {
   timeout: API_CONFIG.TIMEOUT,
   headers: {
+    'Authorization': `Bearer ${token}`,
     'Content-Type': 'multipart/form-data',
   },
 };

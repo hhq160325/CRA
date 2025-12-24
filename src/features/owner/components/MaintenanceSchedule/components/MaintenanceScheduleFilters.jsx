@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import DropdownTemplate from '../../../../../shared/components/DropdownTemplate';
 
 const MaintenanceScheduleFilters = ({
   searchTerm,
@@ -9,6 +10,20 @@ const MaintenanceScheduleFilters = ({
   totalCount
 }) => {
   const { t } = useTranslation();
+
+  // Status filter options
+  const statusOptions = [
+    { id: 'all', value: 'all', label: t('maintenanceSchedule.allStatuses') },
+    { id: 'overdue', value: 'overdue', label: t('maintenanceSchedule.overdue') },
+    { id: 'due', value: 'due', label: t('maintenanceSchedule.due') },
+    { id: 'Active', value: 'Active', label: t('maintenanceSchedule.Active') },
+    { id: 'upcoming', value: 'upcoming', label: t('maintenanceSchedule.upcoming') },
+    { id: 'Completed', value: 'Completed', label: t('maintenanceSchedule.Completed') }
+  ];
+
+  const handleStatusChange = (option) => {
+    setStatusFilter(option.value);
+  };
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
@@ -26,18 +41,13 @@ const MaintenanceScheduleFilters = ({
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          <select
+          <DropdownTemplate
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="all">{t('maintenanceSchedule.allStatuses')}</option>
-            <option value="overdue">{t('maintenanceSchedule.overdue')}</option>
-            <option value="due">{t('maintenanceSchedule.due')}</option>
-            <option value="inMaintenance">{t('maintenanceSchedule.inMaintenance')}</option>
-            <option value="upcoming">{t('maintenanceSchedule.upcoming')}</option>
-            <option value="completed">{t('maintenanceSchedule.completed')}</option>
-          </select>
+            onChange={handleStatusChange}
+            options={statusOptions}
+            placeholder={t('maintenanceSchedule.allStatuses')}
+            className="min-w-[200px]"
+          />
         </div>
         <div className="text-sm text-gray-600">
           {t('maintenanceSchedule.showingResults', {

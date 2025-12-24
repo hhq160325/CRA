@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import Pagination from '../../../../../shared/components/Pagination';
 import { getStatusBadge, getStatusText } from '../utils/driverLicenseUtils';
 
@@ -110,16 +111,22 @@ const DriverLicenseTable = ({
                     >
                       {t('viewDetails') || 'View Details'}
                     </button>
-                    {license.status === 'active' && (
+                    {(license.status === 'active' || license.status === 'needmanualcheck') && (
                       <>
                         <button
-                          onClick={() => handleApprove(license.id, driverLicenses, t)}
+                          onClick={() => {
+                            handleApprove(license.id, driverLicenses, t);
+                            toast.success(t('licenseApprovedSuccessfully') || 'License approved successfully');
+                          }}
                           className="text-green-600 hover:text-green-700 text-sm font-medium"
                         >
                           {t('approve') || 'Approve'}
                         </button>
                         <button
-                          onClick={() => handleReject(license.id, 'Rejected by staff', driverLicenses, t)}
+                          onClick={() => {
+                            handleReject(license.id, 'Rejected by staff', driverLicenses, t);
+                            toast.success(t('licenseRejectedSuccessfully') || 'License rejected successfully');
+                          }}
                           className="text-red-600 hover:text-red-700 text-sm font-medium"
                         >
                           {t('reject') || 'Reject'}

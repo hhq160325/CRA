@@ -70,9 +70,15 @@ const MaintenanceScheduleTable = ({
                     >
                       {t('maintenanceSchedule.view')}
                     </button>
-                    {schedule.status === 'due' || schedule.status === 'overdue' ? (
+                    {(schedule.status === 'due' || schedule.status === 'overdue' || schedule.status === 'Active') ? (
                       <button
-                        onClick={() => onMarkCompleted(schedule.id)}
+                        onClick={() => {
+                          console.log('=== TABLE MARK AS COMPLETED BUTTON CLICKED ===');
+                          console.log('schedule.scheduleId:', schedule.scheduleId);
+                          console.log('schedule full object:', schedule);
+                          console.log('Calling onMarkCompleted...');
+                          onMarkCompleted(schedule.scheduleId);
+                        }}
                         className="text-orange-600 hover:text-orange-700 text-sm font-medium"
                       >
                         {t('maintenanceSchedule.complete')}

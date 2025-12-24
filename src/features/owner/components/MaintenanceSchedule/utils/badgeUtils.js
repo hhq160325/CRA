@@ -7,9 +7,13 @@ export const getStatusBadge = (status) => {
       return `${baseClasses} bg-yellow-100 text-yellow-800`;
     case 'inMaintenance':
       return `${baseClasses} bg-purple-100 text-purple-800`;
+    case 'Active': // API status for in maintenance
+      return `${baseClasses} bg-purple-100 text-purple-800`;
     case 'overdue':
       return `${baseClasses} bg-red-100 text-red-800`;
     case 'completed':
+      return `${baseClasses} bg-green-100 text-green-800`;
+    case 'Completed': // API status for completed maintenance
       return `${baseClasses} bg-green-100 text-green-800`;
     default:
       return `${baseClasses} bg-gray-100 text-gray-800`;

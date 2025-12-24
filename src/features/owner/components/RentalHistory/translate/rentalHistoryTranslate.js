@@ -4,6 +4,7 @@ export const rentalHistoryTranslate = {
     translation: {
       // Rental History Component
       "rentalHistory.title": "Rental History",
+      "rentalHistory.alterTitle": "Rental Monitoring",
       "rentalHistory.subtitle": "Browse rental history, filter by car and date",
       "rentalHistory.exportReport": "Export Report",
       "rentalHistory.searchPlaceholder": "Search by invoice code, customer or car",
@@ -96,6 +97,7 @@ export const rentalHistoryTranslate = {
 
       // Rental History Component
       "rentalHistory.title": "Lịch sử thuê xe",
+      "rentalHistory.alterTitle": "Giám sát lịch sử thuê xe",
       "rentalHistory.subtitle": "Duyệt lịch sử thuê xe, lọc theo xe và ngày tháng",
       "rentalHistory.exportReport": "Xuất báo cáo",
       "rentalHistory.searchPlaceholder": "Tìm kiếm theo mã invoice, khách hàng hoặc xe",

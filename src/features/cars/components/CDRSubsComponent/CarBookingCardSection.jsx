@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { selectUser } from '../../../auth/authSlice';
 import { useVerificationStatus } from '../../../auth/hooks/useVerificationStatus';
 import VerificationModal from '../VerificationModal';
+import ReportCarModal from '../ReportCarModal';
 
 const CarBookingCardSection = ({
   id,
@@ -31,6 +32,7 @@ const CarBookingCardSection = ({
   const user = useSelector(selectUser);
   const { isVerified, hasVerificationStatus, refreshVerificationStatus } = useVerificationStatus();
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   // Fetch verification status if not available
   useEffect(() => {
@@ -245,7 +247,7 @@ const CarBookingCardSection = ({
                 setShowVerificationModal(true);
                 return;
               }
-              
+
               // If verified, proceed to payment
               navigate('/payment', {
                 state: {
@@ -325,12 +327,45 @@ const CarBookingCardSection = ({
             </div>
           </div>
         </div>
+
+        {/* Report Button */}
+        <button 
+          onClick={() => setShowReportModal(true)}
+          className="w-full mt-5 py-2 border border-gray-300 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors"
+        >
+          <span><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none">
+            <rect width="24" height="24" fill="white" />
+            <g filter="url(#filter0_d_15_295)">
+              <path d="M4.5 21V16M4.5 16V6.5C5.5 5.5 7 5 8.5 5C11.5 5 13.5 7.5 17.5 5.5V15.5C13.5 17.5 11.5 14.5 8.5 14.5C7.5 14.5 5.5 15 4.5 16Z" stroke="#000000" strokeLinecap="round" strokeLinejoin="round" />
+            </g>
+            <defs>
+              <filter id="filter0_d_15_295" x="3" y="4.5" width="16" height="19" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix" />
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+                <feOffset dy="1" />
+                <feGaussianBlur stdDeviation="0.5" />
+                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0" />
+                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_15_295" />
+                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_15_295" result="shape" />
+              </filter>
+            </defs>
+          </svg></span>
+          <span>{t('report')}</span>
+        </button>
       </div>
 
       {/* Verification Modal */}
       <VerificationModal
         isOpen={showVerificationModal}
         onClose={() => setShowVerificationModal(false)}
+      />
+
+      {/* Report Car Modal */}
+      <ReportCarModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        carId={id}
+        carName={carName}
       />
     </div>
   );

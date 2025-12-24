@@ -163,6 +163,14 @@ export const carTranslate = {
       friday: "F",
       saturday: "S",
       sunday: "S",
+      //report
+      report: "Report",
+      reportingCar: "Reporting Car",
+      reportContent: "Report Content",
+      reportTitle: "Report Title",
+      describeIssue: "Describe Issue",
+      reportSubmittedSuccessfully: "Report submitted successfully",
+      failedToSubmitReport: "Failed to submit report",
     }
   },
   vi: {
@@ -327,6 +335,14 @@ export const carTranslate = {
       friday: "T6",
       saturday: "T7",
       sunday: "CN",
+      //report
+      report: "Báo cáo xe",
+      reportingCar: "Báo cáo xe",
+      reportContent: "Nội dung báo cáo",
+      reportTitle: "Tiêu đề báo cáo",
+      describeIssue: "Mô tả vấn đề gặp phải",
+      reportSubmittedSuccessfully: "Gửi báo cáo thành công",
+      failedToSubmitReport: "Gửi báo cáo thất bại",
     }
   }
 };

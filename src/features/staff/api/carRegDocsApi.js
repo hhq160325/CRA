@@ -3,7 +3,7 @@ import { CAR_ENDPOINTS, CAR_API_CONFIG, USER_ENDPOINTS, USER_API_CONFIG } from '
 
 export const getAllRegDocs = async () => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('jwtToken');
     const response = await axios.get(CAR_ENDPOINTS.GET_ALL_REG_DOCS, {
       headers: {
         ...CAR_API_CONFIG.headers,
@@ -20,7 +20,7 @@ export const getAllRegDocs = async () => {
 
 export const getAllUsers = async () => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('jwtToken');
     const response = await axios.get(USER_ENDPOINTS.GET_ALL_USERS, {
       headers: {
         ...USER_API_CONFIG.headers,
@@ -36,7 +36,7 @@ export const getAllUsers = async () => {
 
 export const getAllCars = async () => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('jwtToken');
     const response = await axios.get(CAR_ENDPOINTS.GET_ALL_CARS, {
       headers: {
         ...CAR_API_CONFIG.headers,
@@ -53,7 +53,7 @@ export const getAllCars = async () => {
 
 export const approveRegDoc = async (approvalData) => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('jwtToken');
     const response = await axios.patch(
       `${CAR_ENDPOINTS.APPROVE_REG_DOC}?isApproved=true`,
       approvalData,
@@ -74,7 +74,7 @@ export const approveRegDoc = async (approvalData) => {
 
 export const rejectRegDoc = async (rejectionData) => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('jwtToken');
     const response = await axios.patch(
       `${CAR_ENDPOINTS.APPROVE_REG_DOC}?isApproved=false`,
       rejectionData,

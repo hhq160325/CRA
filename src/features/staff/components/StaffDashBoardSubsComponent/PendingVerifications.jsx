@@ -67,6 +67,7 @@ const PendingVerifications = () => {
         // Get user and car details
         const user = usersMap.get(doc.userId);
         const car = carsMap.get(doc.carId);
+        console.log("doc",doc);
         
         return {
           ...doc,
@@ -87,23 +88,23 @@ const PendingVerifications = () => {
       const approvedCars = transformedData.filter(doc => doc.status === 'Approved').length;
       
       // Cars with Rejected registration documents
-      const rejectedCars = transformedData.filter(doc => doc.status === 'Rejected').length;
+      const rejectedCars = transformedData.filter(doc => doc.status === 'Denied').length;
       
       // Cars with Active registration documents (means Pending approval)
-      const pendingApprovalCars = transformedData.filter(doc => doc.status === 'Active').length;
+      const pendingApprovalCars = transformedData.filter(doc => doc.status === 'Pending').length;
       
       // Cars that don't have any registration documents yet (also considered pending)
       const carsWithRegDocs = new Set(transformedData.map(doc => doc.carId));
       const carsWithoutRegDocs = totalCars - carsWithRegDocs.size;
       
       // Total pending cars = cars with Active status + cars without reg docs
-      const totalPendingCars = pendingApprovalCars + carsWithoutRegDocs;
+      // const totalPendingCars = pendingApprovalCars + carsWithoutRegDocs;
       
       setCarStats({
         totalCars,
         approvedCars,
         rejectedCars,
-        pendingCars: totalPendingCars
+        pendingCars: pendingApprovalCars
       });
       
       setError(null);
@@ -114,6 +115,70 @@ const PendingVerifications = () => {
       setLoading(false);
     }
   };
+
+  // Status data configuration
+  const statusData = [
+    {
+      title: t('totalCars') || 'Total Cars',
+      value: carStats.totalCars,
+      bgColor: 'bg-blue-50',
+      borderColor: 'border-blue-500',
+      textColor: 'text-blue-700',
+      valueColor: 'text-blue-600',
+      iconBg: 'bg-blue-100',
+      iconColor: 'text-blue-600',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+      ),
+    },
+    {
+      title: t('approved') || 'Approved',
+      value: carStats.approvedCars,
+      bgColor: 'bg-green-50',
+      borderColor: 'border-green-500',
+      textColor: 'text-green-700',
+      valueColor: 'text-green-600',
+      iconBg: 'bg-green-100',
+      iconColor: 'text-green-600',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+    {
+      title: t('pending') || 'Pending',
+      value: carStats.pendingCars,
+      bgColor: 'bg-yellow-50',
+      borderColor: 'border-yellow-500',
+      textColor: 'text-yellow-700',
+      valueColor: 'text-yellow-600',
+      iconBg: 'bg-yellow-100',
+      iconColor: 'text-yellow-600',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+    {
+      title: t('denied') || 'Denied',
+      value: carStats.rejectedCars,
+      bgColor: 'bg-red-50',
+      borderColor: 'border-red-500',
+      textColor: 'text-red-700',
+      valueColor: 'text-red-600',
+      iconBg: 'bg-red-100',
+      iconColor: 'text-red-600',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      ),
+    },
+  ];
 
   // Data for pie chart
   const pieData = [
@@ -183,35 +248,22 @@ const PendingVerifications = () => {
 
       <div className="space-y-6">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 gap-3">
-          <div className="p-3 border border-gray-200 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-lg font-bold text-gray-900">{carStats.totalCars.toLocaleString()}</p>
-                <p className="text-sm text-gray-600">{t('totalCars') || 'Total Cars'}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {statusData.map((status, index) => (
+            <div key={index} className={`${status.bgColor} rounded-lg p-4 border-l-4 ${status.borderColor}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-sm ${status.textColor}`}>{status.title}</p>
+                  <p className={`text-2xl font-bold ${status.valueColor}`}>{status.value.toLocaleString()}</p>
+                </div>
+                <div className={`${status.iconBg} rounded-full p-3`}>
+                  <div className={status.iconColor}>
+                    {status.icon}
+                  </div>
+                </div>
               </div>
-              <div className="p-2 bg-blue-50 rounded-lg">
-                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
             </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2">
-            <div className="p-2 bg-green-50 border border-green-200 rounded-lg text-center">
-              <p className="text-sm font-bold text-green-900">{carStats.approvedCars}</p>
-              <p className="text-xs text-green-700">{t('approved') || 'Approved'}</p>
-            </div>
-            <div className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
-              <p className="text-sm font-bold text-yellow-900">{carStats.pendingCars}</p>
-              <p className="text-xs text-yellow-700">{t('pending') || 'Pending'}</p>
-            </div>
-            <div className="p-2 bg-red-50 border border-red-200 rounded-lg text-center">
-              <p className="text-sm font-bold text-red-900">{carStats.rejectedCars}</p>
-              <p className="text-xs text-red-700">{t('rejected') || 'Rejected'}</p>
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Pie Chart */}

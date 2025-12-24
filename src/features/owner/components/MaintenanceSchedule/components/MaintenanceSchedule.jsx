@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useMaintenanceSchedule } from '../hooks/useMaintenanceSchedule';
+import { markScheduleAsCompleted } from '../api/maintenanceScheduleApi';
 import { getStatusBadge, getPriorityBadge } from '../utils/badgeUtils';
 import MaintenanceScheduleHeader from './MaintenanceScheduleHeader';
 import MaintenanceScheduleFilters from './MaintenanceScheduleFilters';
@@ -37,10 +38,29 @@ const MaintenanceSchedule = () => {
     setSelectedCar(null);
   };
 
-  const handleMarkCompleted = (id) => {
-    // Handle mark as completed logic
-    console.log('Marking maintenance as completed for car:', id);
-    handleCloseModal();
+  const handleMarkCompleted = async (scheduleId) => {
+    try {
+      // console.log('=== HANDLE MARK COMPLETED CLICKED ===');
+      // console.log('Schedule ID received:', scheduleId);
+      // console.log('Schedule ID type:', typeof scheduleId);
+      // console.log('Selected car data:', selectedCar);
+      // console.log('Calling markScheduleAsCompleted API...');
+      
+      await markScheduleAsCompleted(scheduleId);
+      
+      console.log('API call successful, refreshing data...');
+      // Refresh the data after successful completion
+      await refetch();
+      
+      // Close the modal
+      handleCloseModal();
+      
+      console.log('Maintenance marked as completed successfully');
+    } catch (error) {
+      // console.error('=== ERROR IN HANDLE MARK COMPLETED ===');
+      // console.error('Error marking maintenance as completed:', error);
+      // console.error('=== END HANDLE ERROR ===');
+    }
   };
 
   const handleScheduleMaintenance = (schedule) => {
@@ -105,7 +125,7 @@ const MaintenanceSchedule = () => {
     return <ErrorState error={error} onRetry={refetch} />;
   }
 
-  // No maintenance cars state
+  // No maintenance schedules state
   if (maintenanceSchedules.length === 0) {
     return <NoMaintenanceCars />;
   }

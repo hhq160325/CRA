@@ -1,4 +1,5 @@
 import { convertToVietnamTime } from '../../../../../shared/utils/CheckUTC';
+import { sortByOldest } from '../../../../../shared/utils/SortByLatest';
 
 /**
  * Process and format maintenance schedule data
@@ -28,20 +29,36 @@ export const maintenanceScheduleService = (carSchedulesData, t) => {
         // Calculate days until maintenance
         const daysUntil = Math.ceil((startDateOnly - vietnamToday) / (1000 * 60 * 60 * 24));
 
-        // Determine status based on dates
-        let status = 'upcoming';
+        // Use the actual status from the API
+        // API statuses: "Active" (in maintenance), "Completed" (completed maintenance)
+        let status = schedule.status || 'upcoming';
         let priority = 'low';
 
-        if (vietnamToday > endDateOnly) {
-          status = 'overdue';
+        // Map API status to display status if needed, or use API status directly
+        if (schedule.status === 'Active') {
+          status = 'Active'; // In maintenance
           priority = 'high';
-        } else if (vietnamToday >= startDateOnly && vietnamToday <= endDateOnly) {
-          status = 'inMaintenance';
-          priority = 'high';
-        } else if (daysUntil <= 7) {
-          priority = 'high';
-        } else if (daysUntil <= 14) {
-          priority = 'medium';
+        } else if (schedule.status === 'Completed') {
+          status = 'Completed'; // Completed maintenance
+          priority = 'low';
+        } else {
+          // For schedules without API status, calculate based on dates
+          if (vietnamToday > endDateOnly) {
+            status = 'overdue';
+            priority = 'high';
+          } else if (vietnamToday >= startDateOnly && vietnamToday <= endDateOnly) {
+            status = 'due';
+            priority = 'high';
+          } else if (daysUntil <= 7) {
+            status = 'upcoming';
+            priority = 'high';
+          } else if (daysUntil <= 14) {
+            status = 'upcoming';
+            priority = 'medium';
+          } else {
+            status = 'upcoming';
+            priority = 'low';
+          }
         }
         console.log("carSchedulesData",carSchedulesData);
         
@@ -62,12 +79,16 @@ export const maintenanceScheduleService = (carSchedulesData, t) => {
           status: status,
           daysUntil: daysUntil,
           priority: priority,
-          scheduleId: schedule.id
+          scheduleId: schedule.id,
+          startDate: schedule.startDate // Keep original startDate for sorting
         });
       });
     } else {
     }
   });
 
-  return formattedSchedules;
+  // Sort schedules by startDate (earliest first - most urgent maintenance first) using the utility function
+  const sortedSchedules = sortByOldest(formattedSchedules, 'startDate');
+
+  return sortedSchedules;
 };

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { PAYMENT_ENDPOINTS, PAYMENT_API_CONFIG } from '../../../config/api';
 export const getAllPayments = async () => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('jwtToken');
     const response = await axios.get(PAYMENT_ENDPOINTS.GET_ALL_PAYMENTS, {
       headers: {
         ...PAYMENT_API_CONFIG.headers,

@@ -7,7 +7,7 @@ export const tokenUtils = {
     if (typeof window === 'undefined') return;
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
-    
+    localStorage.setItem("jwtToken", accessToken);
     // Store user data excluding isVerified (keep isVerified only in Redux state)
     const { isVerified, ...userWithoutVerification } = user || {};
     localStorage.setItem("user", JSON.stringify(userWithoutVerification));
@@ -29,6 +29,7 @@ export const tokenUtils = {
     if (typeof window === 'undefined') return;
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+    localStorage.removeItem("jwtToken");
     localStorage.removeItem("user");
     localStorage.removeItem("userAvatar");
     localStorage.removeItem("userName");

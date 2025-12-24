@@ -10,7 +10,7 @@ export const useDriverLicenseActions = (setDriverLicenses) => {
         return;
       }
 
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('jwtToken');
       const requestBody = {
         userId: license.userId,
         email: license.email
@@ -25,10 +25,10 @@ export const useDriverLicenseActions = (setDriverLicenses) => {
 
       // Remove the approved license from the list
       setDriverLicenses(prev => prev.filter(l => l.id !== licenseId));
-      alert(t('licenseApprovedSuccessfully') || 'License approved successfully');
+      // alert(t('licenseApprovedSuccessfully') || 'License approved successfully');
     } catch (error) {
       console.error('Failed to approve license:', error);
-      alert(t('failedToApproveLicense') || 'Failed to approve license. Please try again.');
+      // alert(t('failedToApproveLicense') || 'Failed to approve license. Please try again.');
     }
   };
 
@@ -40,7 +40,7 @@ export const useDriverLicenseActions = (setDriverLicenses) => {
         return;
       }
 
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('jwtToken');
       const requestBody = {
         userId: license.userId,
         email: license.email
@@ -55,10 +55,10 @@ export const useDriverLicenseActions = (setDriverLicenses) => {
 
       // Remove the rejected license from the list
       setDriverLicenses(prev => prev.filter(l => l.id !== licenseId));
-      alert(t('licenseRejectedSuccessfully') || 'License rejected successfully');
+      // alert(t('licenseRejectedSuccessfully') || 'License rejected successfully');
     } catch (error) {
       console.error('Failed to reject license:', error);
-      alert(t('failedToRejectLicense') || 'Failed to reject license. Please try again.');
+      // alert(t('failedToRejectLicense') || 'Failed to reject license. Please try again.');
     }
   };
 

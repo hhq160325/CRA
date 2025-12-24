@@ -152,7 +152,7 @@ export const ownerTranslate = {
       pendingApproval: "Pending Approval",
       rejected: "Rejected",
       topCarManufacturers: "Top Car Manufacturers",
-      ownerDashboardOverview: "Overview of your car rental business",
+      ownerDashboardOverview: "Overview of car rental business",
       loadingDashboard: "Loading dashboard...",
       carStatusSummary: "Car Status Summary",
       registrationDocumentStatus: "Registration Document Status",
@@ -166,6 +166,7 @@ export const ownerTranslate = {
       confirmedBookings: "Confirmed",
       completedBookings: "Completed",
       cancelledBookings: "Cancelled",
+      searchMaintenance:"Search maintenance schedule by license"
     }
   },
   vi: {
@@ -257,7 +258,7 @@ export const ownerTranslate = {
       undo: "Hoàn tác",
 
       // Owner Dashboard specific translations
-      ownerDashboardOverview: "Tổng quan về quản lý xe",
+      ownerDashboardOverview: "Tổng quan về quản lý cho thuê xe",
       loadingDashboard: "Đang tải bảng điều khiển...",
       carStatusSummary: "Tóm tắt trạng thái xe",
       registrationDocumentStatus: "Trạng thái giấy đăng ký",
@@ -267,7 +268,7 @@ export const ownerTranslate = {
       noBookingData: "Không có dữ liệu đặt phòng",
       bookingsText: "đặt phòng",
       maps:"Bản đồ",
-
+      searchMaintenance:"Tìm lịch bảo trì với biển số xe",
 
       //The Rest II
       paymentHistory: "Lịch sử giao dịch",

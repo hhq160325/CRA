@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { setLoading, setError } from '../../../staffSlice';
 import axios from 'axios';
 import { USER_ENDPOINTS, USER_API_CONFIG } from '../../../../../config/api';
+import { sortByLatest } from '../../../../../shared/utils/SortByLatest';
 
 export const useDriverLicenseData = () => {
   const dispatch = useDispatch();
@@ -12,7 +13,7 @@ export const useDriverLicenseData = () => {
     const fetchDriverLicensesAndUsers = async () => {
       dispatch(setLoading({ section: 'driverLicenses', loading: true }));
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('jwtToken');
 
         // Fetch both driver licenses and users in parallel
         const [licensesResponse, usersResponse] = await Promise.all([
@@ -78,12 +79,8 @@ export const useDriverLicenseData = () => {
           };
         });
 
-        // Sort by createDate (latest first)
-        const sortedData = transformedData.sort((a, b) => {
-          const dateA = a.createDate ? new Date(a.createDate) : new Date(0);
-          const dateB = b.createDate ? new Date(b.createDate) : new Date(0);
-          return dateB - dateA;
-        });
+        // Sort by createDate (latest first) using shared utility
+        const sortedData = sortByLatest(transformedData, 'createDate');
 
         setDriverLicenses(sortedData);
       } catch (error) {

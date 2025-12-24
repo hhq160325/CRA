@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import axios from 'axios';
 import { getAllBookings } from '../../api/bookingApi';
 import { formatPriceWithCurrency } from '../../../../shared/utils/priceFormatter';
+import { INVOICE_ENDPOINTS } from '../../../../config/api';
 
 const DashboardMetrics = () => {
   const { t } = useTranslation();
@@ -18,9 +20,11 @@ const DashboardMetrics = () => {
     const fetchMetrics = async () => {
       try {
         setLoading(true);
+        
+        // Fetch bookings for booking metrics
         const bookings = await getAllBookings();
         
-        // Calculate metrics from bookings
+        // Calculate booking metrics
         const totalBookings = bookings.length;
         const confirmedBookings = bookings.filter(b => 
           String(b.status).toLowerCase() === 'confirmed'
@@ -31,9 +35,34 @@ const DashboardMetrics = () => {
         const canceledBookings = bookings.filter(b => 
           String(b.status).toLowerCase() === 'cancelled'
         ).length;
-        const totalRevenue = bookings
-          .filter(b => String(b.status).toLowerCase() !== 'cancelled')
-          .reduce((sum, b) => sum + (b.totalPrice || b.totalAmount || 0), 0);
+
+        // Fetch invoices for revenue calculation
+        let totalRevenue = 0;
+        try {
+          const token = localStorage.getItem("jwtToken");
+          const invoiceResponse = await axios.get(INVOICE_ENDPOINTS.GET_ALL, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          const invoices = invoiceResponse.data;
+          
+          // Calculate total revenue from invoices with Success or Paid status
+          totalRevenue = invoices
+            .filter(invoice => {
+              const status = String(invoice.status || '').toLowerCase();
+              return status === 'success' || status === 'paid';
+            })
+            .reduce((sum, invoice) => sum + (invoice.paidAmount || invoice.amount || 0), 0);
+        } catch (invoiceError) {
+          console.error('Failed to fetch invoices for revenue calculation:', invoiceError);
+          // Fallback to booking-based revenue calculation
+          totalRevenue = bookings
+            .filter(b => String(b.status).toLowerCase() !== 'cancelled')
+            .reduce((sum, b) => sum + (b.totalPrice || b.totalAmount || 0), 0);
+        }
 
         setMetrics({
           totalBookings,

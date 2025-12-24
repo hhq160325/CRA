@@ -142,7 +142,7 @@ export const staffTranslate = {
       tier: "Tier",
       none: "None",
 
-      platformOverview: "Platform Overview",
+      platformOverview: "System Overview",
 
       notificationCenter: "Notification Center",
       sendSystemWideNotifications: "Send system-wide notifications to users",
@@ -317,6 +317,8 @@ export const staffTranslate = {
       failedToApproveRegistrationDocument: "Failed To Approve Registration Document",
       registrationDocumentApprovedSuccessfully: "Registration Document Approved Successfully",
       denied: "Denied",
+      //needmanualcheck
+      statusNeedManualCheck:"Need Manual Check"
     }
   },
   vi: {
@@ -635,6 +637,8 @@ export const staffTranslate = {
       failedToApproveRegistrationDocument: "Thất bại khi xác thực",
       registrationDocumentApprovedSuccessfully: "Xác thực thành công",
       denied: "Từ chối",
+      //needmanualcheck:"Need Manual Check"
+      statusNeedManualCheck:"Cần kiểm tra lại"
     }
   }
 };

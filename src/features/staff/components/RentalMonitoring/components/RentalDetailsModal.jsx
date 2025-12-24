@@ -172,10 +172,10 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
                         {rental.bookingFeeStatus}
                       </span>
                     </div>
-                    <div className="flex justify-between">
+                    {/* <div className="flex justify-between">
                       <span className="text-gray-600">{t('rentalHistory.method')}:</span>
                       <span className="font-medium text-gray-900">{rental.bookingFeePaymentMethod}</span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
@@ -200,10 +200,10 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
                         {rental.rentalFeeStatus}
                       </span>
                     </div>
-                    <div className="flex justify-between">
+                    {/* <div className="flex justify-between">
                       <span className="text-gray-600">{t('rentalHistory.method')}:</span>
                       <span className="font-medium text-gray-900">{rental.rentalFeePaymentMethod}</span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
@@ -229,10 +229,10 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
                           {rental.additionalFeeStatus}
                         </span>
                       </div>
-                      <div className="flex justify-between">
+                      {/* <div className="flex justify-between">
                         <span className="text-gray-600">{t('rentalHistory.method')}:</span>
                         <span className="font-medium text-gray-900">{rental.additionalFeePaymentMethod}</span>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 )}
@@ -259,10 +259,10 @@ const RentalDetailsModal = ({ isOpen, rental, onClose, getStatusBadge, getPaymen
                           {rental.extendBookingFeeStatus}
                         </span>
                       </div>
-                      <div className="flex justify-between">
+                      {/* <div className="flex justify-between">
                         <span className="text-gray-600">{t('rentalHistory.method')}:</span>
                         <span className="font-medium text-gray-900">{rental.extendBookingFeePaymentMethod}</span>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 )}

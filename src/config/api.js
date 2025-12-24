@@ -46,6 +46,10 @@ export const USER_ENDPOINTS = {
   //For reset password
   RESET_PASSWORD_VERIFY: `${API_CONFIG.BASE_URL}/User/reset-password/verify`,
   RESET_PASSWORD: `${API_CONFIG.BASE_URL}/User/reset-password`,
+  //
+  RESET_RESET_PHONE_VERIFY: `${API_CONFIG.BASE_URL}/User/change-phoneNo/verify`,
+  RESET_RESET_PHONE: `${API_CONFIG.BASE_URL}/User/change-phoneNo`,
+
 };
 
 export const USER_API_CONFIG = {
@@ -202,7 +206,7 @@ export const INQUIRY_API_CONFIG = {
 export const REPORT_CAR_ENDPOINTS = {
   CREATE_REPORT_CAR: `${API_CONFIG.BASE_URL}/Report/reportedCar`,
   GET_REPORT_CAR: `${API_CONFIG.BASE_URL}/Report`,
-  CREATE_REPORT_USER:`${API_CONFIG.BASE_URL}/Report/reportedUser`,
+  CREATE_REPORT_USER: `${API_CONFIG.BASE_URL}/Report/reportedUser`,
 };
 
 export const REPORT_CAR_API_CONFIG = {
@@ -230,7 +234,7 @@ export const AUDIT_LOG_API_CONFIG = {
 export const NOTIFICATION_ENDPOINTS = {
   GET_NOTIFICATION: `${API_CONFIG.ALTER_URL}/AllNotif`,
   PATCH_NOTIFICATION_MARK_AS_READ: (id) => `${API_CONFIG.ALTER_URL}/MarkAsRead/${id}`,
-  GET_NOTIFICATION_BY_USER_ID: (userId ) => `${API_CONFIG.ALTER_URL}/UserNotif/${userId}`,
+  GET_NOTIFICATION_BY_USER_ID: (userId) => `${API_CONFIG.ALTER_URL}/UserNotif/${userId}`,
   DELETE_NOTIFICATION: (id) => `${API_CONFIG.ALTER_URL}/DeleteNotif/${id}`,
 };
 

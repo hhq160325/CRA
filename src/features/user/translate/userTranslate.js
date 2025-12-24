@@ -96,6 +96,29 @@ export const userTranslate = {
       verifyEmailDescription: "Verify your email to enhance account security and receive important notifications.",
       sendVerificationEmail: "Send verification email",
 
+      // Password update messages
+      pleaseEnterBothPasswords: "Please enter both passwords",
+      passwordsDoNotMatch: "Passwords do not match",
+      passwordTooShort: "Password must be at least 6 characters long",
+      passwordUpdatedSuccessfully: "Password updated successfully",
+      passwordUpdateFailed: "Failed to update password",
+      networkError: "Network error. Please try again.",
+      updating: "Updating...",
+
+      // OTP related messages
+      emailRequired: "Email is required",
+      otpSentSuccessfully: "OTP sent to your email successfully",
+      otpSendFailed: "Failed to send OTP",
+      otpRequired: "OTP code is required",
+      otpCode: "OTP Code",
+      enterOTP: "Enter OTP code",
+      enterEmail: "Enter your email",
+      otpWillBeSent: "An OTP will be sent to your email for verification",
+      sendOTP: "Send OTP",
+      sending: "Sending...",
+      back: "Back",
+      enterOTPSentToEmail: "Enter the OTP sent to",
+
       // Profile - Sidebar
       myProfile: "My Profile",
       "Rental History": "Rental History",
@@ -126,7 +149,7 @@ export const userTranslate = {
       expiryDate: "Expiry Date",
       issueDate: "Issue Date",
       noExpiry: "No Expiry",
-      uploadlicenseNeedManualCheck:"Need Manual Check",
+      uploadlicenseNeedManualCheck: "Need Manual Check",
       //Feedback
       leaveFeedback: "Leave Feedback",
       feedback: "Feedback",
@@ -151,6 +174,8 @@ export const userTranslate = {
       failedToDeleteNotification: "Failed To Delete Notification",
       confirmDeleteMessage: "Confirm Delete Message",
       confirmDelete: "Confirm Delete",
+      updatePhoneNumber: "Update Phone Number",
+      verifyPhoneNumber: "Verify Phone Number",
     }
   },
   vi: {
@@ -251,6 +276,29 @@ export const userTranslate = {
       verifyEmailDescription: "Xác minh email của bạn để tăng cường bảo mật tài khoản và nhận thông báo quan trọng.",
       sendVerificationEmail: "Gửi email xác minh",
 
+      // Password update messages
+      pleaseEnterBothPasswords: "Vui lòng nhập cả hai mật khẩu",
+      passwordsDoNotMatch: "Mật khẩu không khớp",
+      passwordTooShort: "Mật khẩu phải có ít nhất 6 ký tự",
+      passwordUpdatedSuccessfully: "Cập nhật mật khẩu thành công",
+      passwordUpdateFailed: "Không thể cập nhật mật khẩu",
+      networkError: "Lỗi mạng. Vui lòng thử lại.",
+      updating: "Đang cập nhật...",
+
+      // OTP related messages
+      emailRequired: "Email là bắt buộc",
+      otpSentSuccessfully: "OTP đã được gửi đến email của bạn",
+      otpSendFailed: "Không thể gửi OTP",
+      otpRequired: "Mã OTP là bắt buộc",
+      otpCode: "Mã OTP",
+      enterOTP: "Nhập mã OTP",
+      enterEmail: "Nhập email của bạn",
+      otpWillBeSent: "Mã OTP sẽ được gửi đến email của bạn để xác minh",
+      sendOTP: "Gửi OTP",
+      sending: "Đang gửi...",
+      back: "Quay lại",
+      enterOTPSentToEmail: "Nhập OTP đã gửi đến",
+
       // Profile - Sidebar
       myProfile: "Hồ Sơ Của Tôi",
       "Rental History": "Lịch Sử Thuê Xe",
@@ -281,7 +329,7 @@ export const userTranslate = {
       expiryDate: "Ngày Hết Hạn",
       issueDate: "Ngày Cấp",
       noExpiry: "Không thời hạn",
-      uploadlicenseNeedManualCheck:"Cần nhân viên kiểm tra",
+      uploadlicenseNeedManualCheck: "Cần nhân viên kiểm tra",
       //InboxPage
       messageDetails: "Thông báo",
       messageInformation: "Thông tin người gửi",
@@ -315,6 +363,8 @@ export const userTranslate = {
       failedToDeleteNotification: "Thất bại khi xóa thông báo",
       confirmDeleteMessage: "Xác nhận xóa tin nhắn",
       confirmDelete: "Xác nhận xóa",
+      updatePhoneNumber: "Cập nhập số điện thoại",
+      verifyPhoneNumber: "Xác thực số điện thoại",
     }
   }
 };

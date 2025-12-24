@@ -6,7 +6,7 @@ import UpdateProfileDialog from './MyProfileDialog/UpdateProfileDialog';
 import UpdatePhoneDialog from './MyProfileDialog/UpdatePhoneDialog';
 import UpdateEmailDialog from './MyProfileDialog/UpdateEmailDialog';
 import UploadDriver from '../UploadDriver';
-import { getUserById, updateUserInfo, uploadAvatar } from '../../../user/api';
+import { getUserById, updateUserInfo, uploadAvatar, sendPhoneVerificationOTP, verifyPhoneAndChange } from '../../../user/api';
 import { updateUserData } from '../../../auth/authSlice';
 import { tokenUtils } from '../../../auth/utils';
 import { useLocation } from '../../../location/useLocation';
@@ -107,11 +107,24 @@ const MyProfile = () => {
     }));
   };
 
-  const handlePhoneUpdate = (phoneNumber) => {
-    setUserInfo(prev => ({
-      ...prev,
-      phoneNumber
-    }));
+  const handlePhoneUpdate = async (phoneNumber) => {
+    try {
+      // Update local state immediately
+      setUserInfo(prev => ({
+        ...prev,
+        phoneNumber
+      }));
+
+      // Optionally refresh user data from server to ensure sync
+      const updatedData = await getUserById();
+      setUserInfo(prev => ({
+        ...prev,
+        phoneNumber: updatedData.phoneNumber || phoneNumber
+      }));
+    } catch (error) {
+      console.error('Error refreshing user data after phone update:', error);
+      // Keep the local update even if refresh fails
+    }
   };
 
   const handleEmailUpdate = (email) => {
@@ -563,15 +576,27 @@ const MyProfile = () => {
             )} */}
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('phoneNumber')}</label>
-              <div className="flex items-center space-x-2">
-                <span className="text-gray-900 break-all">{userInfo.phoneNumber || 'N/A'}</span>
-                {userInfo.phoneNumber && userInfo.status === 'Active' && (
-                  <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded flex items-center space-x-1">
-                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2 min-w-0 flex-1">
+                  <span className="text-gray-900 break-all">{userInfo.phoneNumber || 'N/A'}</span>
+                  {userInfo.phoneNumber && userInfo.status === 'Active' && (
+                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded flex items-center space-x-1">
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      <span>{t('verified') || 'Verified'}</span>
+                    </span>
+                  )}
+                </div>
+                {!isEditing && (
+                  <button
+                    onClick={() => handleEdit('phoneNumber')}
+                    className="text-blue-600 hover:text-blue-700 ml-2 flex-shrink-0"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                     </svg>
-                    <span>{t('verified') || 'Verified'}</span>
-                  </span>
+                  </button>
                 )}
               </div>
             </div>

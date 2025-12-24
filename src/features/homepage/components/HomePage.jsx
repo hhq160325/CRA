@@ -158,11 +158,11 @@ const HomePage = () => {
             </div>
 
             {/* Search Button */}
-            <div className='flex items-end md:items-center md:ml-3'>
+            {/* <div className='flex items-end md:items-center md:ml-3'>
               <button className='w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium text-sm whitespace-nowrap'>
                 {t('search')}
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
 

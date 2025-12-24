@@ -93,12 +93,6 @@ const Maps = () => {
               <span style="color: #6B7280; margin-left: 4px;">${parkLot.contactNum}</span>
             </div>
           ` : ''}
-          ${parkLot.notes ? `
-            <div>
-              <strong style="color: #374151;">Notes:</strong>
-              <p style="margin: 2px 0; color: #6B7280; font-size: 14px;">${parkLot.notes}</p>
-            </div>
-          ` : ''}
         </div>
       `;
 
@@ -136,7 +130,7 @@ const Maps = () => {
 
         const map = new trackasiagl.Map({
           container: mapContainer.current,
-          style: 'https://maps.track-asia.com/styles/v2/streets.json?key=471b2d9cb08af55e44917643393061dc12',
+          style: 'https://maps.track-asia.com/styles/v2/streets.json?key=public',
           center: [106.694945, 10.769034],
           zoom: 11
         });

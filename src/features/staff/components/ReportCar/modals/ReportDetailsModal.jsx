@@ -216,7 +216,7 @@ const ReportDetailsModal = ({
             Close
           </button>
           
-          {selectedReport.status === 'Active' && (
+          {/* {selectedReport.status === 'Active' && (
             <button
               onClick={handleRecallCar}
               disabled={isRecalling}
@@ -224,7 +224,7 @@ const ReportDetailsModal = ({
             >
               {isRecalling ? 'Recalling...' : 'Recall Car'}
             </button>
-          )}
+          )} */}
         </div>
       </div>
     </div>

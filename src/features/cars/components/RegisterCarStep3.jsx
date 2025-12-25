@@ -104,11 +104,7 @@ const RegisterCarStep3 = () => {
             console.error('Error details:', err.response?.data);
 
             // Show more detailed error message
-            const errorMessage = err.response?.data?.message
-                // || err.response?.data?.Medias
-                // || err.response?.data?.title
-                // || err.message
-                || t('failedToUploadPhotos');
+            const errorMessage = t('failedToUploadPhotos');
             setError(errorMessage);
         } finally {
             setUploading(false);

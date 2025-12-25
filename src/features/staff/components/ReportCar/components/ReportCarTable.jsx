@@ -131,12 +131,12 @@ const ReportCarTable = ({
                     >
                       {t('view')}
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => onOpenModal(reportCar, 'edit')}
                       className="text-gray-600 hover:text-gray-700 text-sm font-medium"
                     >
                       {t('edit')}
-                    </button>
+                    </button> */}
                     {/* {reportCar.status === 'overdue' && (
                       <button
                         onClick={() => onOpenModal(reportCar, 'resolve')}

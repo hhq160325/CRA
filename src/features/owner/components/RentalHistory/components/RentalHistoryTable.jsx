@@ -188,14 +188,14 @@ const RentalHistoryTable = ({
                       >
                         {t('rentalHistory.viewDetails')}
                       </button>
-                      {(rental.status === 'confirmed' || rental.status === 'checkedIn') && (
+                      {/* {(rental.status === 'confirmed' || rental.status === 'checkedIn') && (
                         <button
                           onClick={() => onExtendBooking(rental)}
                           className="text-green-600 hover:text-green-700 text-sm font-medium"
                         >
                           {t('rentalHistory.extend')}
                         </button>
-                      )}
+                      )} */}
                     </div>
                   </td>
                 </tr>

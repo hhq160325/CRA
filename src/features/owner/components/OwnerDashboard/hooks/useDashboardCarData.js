@@ -107,7 +107,7 @@ export const useDashboardCarData = () => {
         inactive: 0,
         reserved: 0
       });
-      console.log("carStatusData", carStatusData);
+      // console.log("carStatusData", carStatusData);
       
       // Calculate registration document status using the merged data
       const regDocStatusData = carsWithRegStatus.reduce((acc, car) => {

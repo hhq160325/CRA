@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { formatPrice } from '../../../../../shared/utils/priceFormatter';
 
-const StatsCards = ({ stats }) => {
+const StatsCards = ({ stats, paymentStats }) => {
   const { t } = useTranslation();
 console.log("stats",stats);
 

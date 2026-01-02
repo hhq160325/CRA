@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-import { getAllUsers } from '../../../admin/adminapi/adminAPI';
+import { getAllUsers } from '../../../../admin/adminapi/adminAPI';
 
 const CustomerAccountOverview = () => {
   const { t } = useTranslation();

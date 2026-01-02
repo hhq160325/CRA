@@ -9,7 +9,7 @@ const PaymentSummary = () => {
   
   // Use the hook with the selected period
   const { paymentStats, chartData, paymentLoading } = useDashboardPaymentData(selectedPeriod);
-
+console.log("paymentStats",paymentStats);
   const formatVND = (amount) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',

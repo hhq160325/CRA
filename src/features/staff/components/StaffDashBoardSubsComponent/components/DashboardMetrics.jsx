@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
-import { getAllBookings } from '../../api/bookingApi';
-import { formatPriceWithCurrency } from '../../../../shared/utils/priceFormatter';
-import { INVOICE_ENDPOINTS } from '../../../../config/api';
+import { getAllBookings } from '../../../api/bookingApi';
+import { formatPriceWithCurrency } from '../../../../../shared/utils/priceFormatter';
+import { INVOICE_ENDPOINTS } from '../../../../../config/api';
 
 const DashboardMetrics = () => {
   const { t } = useTranslation();

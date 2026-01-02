@@ -71,6 +71,7 @@ export const STAFF_API_CONFIG = {
 // Park Lot endpoints
 export const PARKLOT_ENDPOINTS = {
   GET_ALL: `${API_CONFIG.BASE_URL}/ParkLot`,
+  GET_PAYMENT_BY_PARKING_ID: (parkingId) => `${API_CONFIG.ALTER_URL}/Parking/${parkingId}/Payments`,
 };
 
 export const PARKLOT_API_CONFIG = {

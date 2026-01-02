@@ -181,8 +181,6 @@ export const useDashboardData = () => {
   
   // Use the separate car data hook
   const { carStats, carLoading, ownerCars, manufacturerMap, refetchCarData, updateTopManufacturers } = useDashboardCarData();
-  
-  // Note: Trending data is now handled separately in TrendingCar component
 
   const fetchDashboardData = async () => {
     try {

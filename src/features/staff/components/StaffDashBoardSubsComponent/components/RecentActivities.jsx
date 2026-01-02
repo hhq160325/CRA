@@ -1,9 +1,9 @@
 
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
-import { axiosInstance } from '../../../../shared/utils/axiosInstance';
-import { BOOKING_ENDPOINTS, USER_ENDPOINTS } from '../../../../config/api';
-import { getAllRegDocs, getAllUsers, getAllCars } from '../../api/carRegDocsApi';
+import { axiosInstance } from '../../../../../shared/utils/axiosInstance';
+import { BOOKING_ENDPOINTS, USER_ENDPOINTS } from '../../../../../config/api';
+import { getAllRegDocs, getAllUsers, getAllCars } from '../../../api/carRegDocsApi';
 
 const RecentActivities = () => {
   const { t } = useTranslation();

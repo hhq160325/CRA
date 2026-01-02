@@ -159,15 +159,21 @@ export const useDashboardPaymentData = (period = '7days') => {
       const response = await axiosInstance.get(PAYMENT_ENDPOINTS.GET_PAYMENT_BY_VENDOR_ID(currentUserId));
       const vendorPayments = response.data;
       
-      // Filter payments with "Success" or "Paid" status and within the time period
+      // Get all completed payments for all-time stats
+      const allCompletedInvoices = vendorPayments.filter(invoice => {
+        const status = invoice.status?.toLowerCase();
+        return status === 'success' || status === 'paid';
+      });
+
+      // Filter payments with "Success" or "Paid" status and within the time period for chart data
       const { completedInvoices } = getFilteredInvoices(vendorPayments, period);
 
       console.log("completedInvoices", completedInvoices);
       
-      // Calculate total received from completed payments using paidAmount
-      const totalReceived = completedInvoices.reduce((sum, invoice) => sum + (invoice.paidAmount || 0), 0);
+      // Calculate total received from ALL completed payments (all-time stats)
+      const totalReceived = allCompletedInvoices.reduce((sum, invoice) => sum + (invoice.paidAmount || 0), 0);
       
-      // Generate breakdown data based on period using completed payments
+      // Generate breakdown data based on period using filtered completed payments
       const breakdown = generateBreakdownData(completedInvoices, period);
       
       setChartData(breakdown);

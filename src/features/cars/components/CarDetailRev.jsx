@@ -217,6 +217,7 @@ const CarDetailRev = () => {
           setRentalDates(dates);
           setShowDateTimePicker(false);
         }}
+        dailyPrice={dailyPrice}
       />
 
       {/* Car Gallery Modal */}

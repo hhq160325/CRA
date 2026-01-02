@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { vietnamHolidays2026 } from '../../utils/vietnamHolidays2026';
 const RENTAL_DATES_KEY = 'rentalDates';
 
 // Custom Time Dropdown Component
@@ -108,7 +109,7 @@ const TimeDropdown = ({ label, value, onChange, options, disabledTimes = [] }) =
   );
 };
 
-const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
+const DateAndTimePicker = ({ isOpen, onClose, onConfirm, dailyPrice = 0 }) => {
   const { t } = useTranslation();
   const currentDate = new Date();
   const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth()); // Current month (0-indexed)
@@ -125,16 +126,15 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
       selectedDate.month === now.getMonth() &&
       selectedDate.year === now.getFullYear();
 
-    if (!isToday) return '06:00'; // Default time for future dates
+    if (!isToday) return '06:00';
 
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
 
-    // If current time is past the hour, use next hour
     const nextHour = currentMinute > 0 ? currentHour + 1 : currentHour;
 
-    // Ensure we don't go past 23:00
-    const validHour = Math.min(nextHour, 23);
+    // Ensure the time is within business hours (6:00-22:00)
+    const validHour = Math.max(6, Math.min(nextHour, 22));
 
     return `${validHour.toString().padStart(2, '0')}:00`;
   };
@@ -148,7 +148,6 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
         if (parsed.selectedPickupDate) {
           setSelectedPickupDate(parsed.selectedPickupDate);
 
-          // Validate and update pickup time if it's today and time has passed
           const now = new Date();
           const isToday = parsed.selectedPickupDate.day === now.getDate() &&
             parsed.selectedPickupDate.month === now.getMonth() &&
@@ -161,7 +160,6 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
             const cutoffHour = currentMinute > 0 ? currentHour + 1 : currentHour;
 
             if (savedHour < cutoffHour) {
-              // Saved time is no longer valid, update to next available time
               const nextAvailableTime = getNextAvailablePickupTime(parsed.selectedPickupDate);
               setPickupTime(nextAvailableTime);
             } else {
@@ -364,12 +362,96 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
     return dateToCheck < currentDate || dateToCheck > maxDate;
   };
 
+  const isVietnameseHoliday = (day, month, year) => {
+    return vietnamHolidays2026.some(holiday => 
+      holiday.day === day && holiday.month === month && holiday.year === year
+    );
+  };
+
+  const getHolidayName = (day, month, year) => {
+    const holiday = vietnamHolidays2026.find(holiday => 
+      holiday.day === day && holiday.month === month && holiday.year === year
+    );
+    return holiday ? holiday.name : null;
+  };
+
+  // Check if any date in the rental period is a holiday
+  const hasHolidayInRange = () => {
+    if (!selectedPickupDate || !selectedDropoffDate) return false;
+
+    const pickupDate = new Date(selectedPickupDate.year, selectedPickupDate.month, selectedPickupDate.day);
+    const dropoffDate = new Date(selectedDropoffDate.year, selectedDropoffDate.month, selectedDropoffDate.day);
+    
+    // Check each day in the range
+    for (let d = new Date(pickupDate); d < dropoffDate; d.setDate(d.getDate() + 1)) {
+      if (isVietnameseHoliday(d.getDate(), d.getMonth(), d.getFullYear())) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Count holiday days in the rental period
+  const countHolidayDays = () => {
+    if (!selectedPickupDate || !selectedDropoffDate) return 0;
+
+    const pickupDate = new Date(selectedPickupDate.year, selectedPickupDate.month, selectedPickupDate.day);
+    const dropoffDate = new Date(selectedDropoffDate.year, selectedDropoffDate.month, selectedDropoffDate.day);
+    let holidayCount = 0;
+    
+    // Check each day in the range
+    for (let d = new Date(pickupDate); d < dropoffDate; d.setDate(d.getDate() + 1)) {
+      if (isVietnameseHoliday(d.getDate(), d.getMonth(), d.getFullYear())) {
+        holidayCount++;
+      }
+    }
+    return holidayCount;
+  };
+
+  // Calculate total price with holiday surcharge applied only to holiday days
+  const calculateTotalPrice = () => {
+    if (!dailyPrice || calculateDuration() === 0) return 0;
+    
+    const totalDays = calculateDuration();
+    const holidayDays = countHolidayDays();
+    const normalDays = totalDays - holidayDays;
+    
+    // Calculate price: normal days at regular price + holiday days at 20% surcharge
+    const normalDaysPrice = normalDays * dailyPrice;
+    const holidayDaysPrice = holidayDays * dailyPrice * 1.2;
+    
+    return Math.round(normalDaysPrice + holidayDaysPrice);
+  };
+
   const calculateDuration = () => {
-    if (selectedPickupDate && selectedDropoffDate) {
-      const pickupTimestamp = new Date(selectedPickupDate.year, selectedPickupDate.month, selectedPickupDate.day).getTime();
-      const dropoffTimestamp = new Date(selectedDropoffDate.year, selectedDropoffDate.month, selectedDropoffDate.day).getTime();
-      const diffTime = Math.abs(dropoffTimestamp - pickupTimestamp);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    if (selectedPickupDate && selectedDropoffDate && pickupTime && dropoffTime) {
+      // Create full datetime objects including time
+      const pickupDateTime = new Date(
+        selectedPickupDate.year, 
+        selectedPickupDate.month, 
+        selectedPickupDate.day,
+        parseInt(pickupTime.split(':')[0]), // hour
+        parseInt(pickupTime.split(':')[1]) || 0 // minute
+      );
+      
+      const dropoffDateTime = new Date(
+        selectedDropoffDate.year, 
+        selectedDropoffDate.month, 
+        selectedDropoffDate.day,
+        parseInt(dropoffTime.split(':')[0]), // hour
+        parseInt(dropoffTime.split(':')[1]) || 0 // minute
+      );
+      
+      const diffTime = Math.abs(dropoffDateTime.getTime() - pickupDateTime.getTime());
+      const diffHours = diffTime / (1000 * 60 * 60); // Convert to hours
+      
+      // If less than 24 hours, count as 1 day
+      if (diffHours < 24) {
+        return 1;
+      }
+      
+      // For 24+ hours, calculate days based on total hours
+      const diffDays = Math.ceil(diffHours / 24);
       return diffDays;
     }
     return 0;
@@ -377,25 +459,35 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
 
   // Get disabled times for pickup based on current date/time
   const getDisabledPickupTimes = () => {
-    if (!selectedPickupDate) return [];
+    const disabledTimes = [];
+
+    // Always disable times outside 6:00-22:00 range for pickup
+    for (let i = 0; i < 6; i++) {
+      disabledTimes.push(`${i.toString().padStart(2, '0')}:00`);
+    }
+    for (let i = 23; i < 24; i++) {
+      disabledTimes.push(`${i.toString().padStart(2, '0')}:00`);
+    }
+
+    if (!selectedPickupDate) return disabledTimes;
 
     const now = new Date();
     const isToday = selectedPickupDate.day === now.getDate() &&
       selectedPickupDate.month === now.getMonth() &&
       selectedPickupDate.year === now.getFullYear();
 
-    if (!isToday) return [];
+    if (isToday) {
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      // If current time is past the hour (e.g., 14:30), disable that hour too
+      const cutoffHour = currentMinute > 0 ? currentHour + 1 : currentHour;
 
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
-    const disabledTimes = [];
-
-    // Disable all times before current time
-    // If current time is past the hour (e.g., 14:30), disable that hour too
-    const cutoffHour = currentMinute > 0 ? currentHour + 1 : currentHour;
-
-    for (let i = 0; i < cutoffHour; i++) {
-      disabledTimes.push(`${i.toString().padStart(2, '0')}:00`);
+      // Disable all times before current time (but only within the 6-22 range)
+      for (let i = 6; i < Math.min(cutoffHour, 23); i++) {
+        if (!disabledTimes.includes(`${i.toString().padStart(2, '0')}:00`)) {
+          disabledTimes.push(`${i.toString().padStart(2, '0')}:00`);
+        }
+      }
     }
 
     return disabledTimes;
@@ -403,20 +495,31 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
 
   // Get disabled times for dropoff based on pickup time and date
   const getDisabledDropoffTimes = () => {
-    if (!selectedDropoffDate || !selectedPickupDate) return [];
+    const disabledTimes = [];
+
+    // Always disable times outside 6:00-22:00 range for dropoff
+    for (let i = 0; i < 6; i++) {
+      disabledTimes.push(`${i.toString().padStart(2, '0')}:00`);
+    }
+    for (let i = 23; i < 24; i++) {
+      disabledTimes.push(`${i.toString().padStart(2, '0')}:00`);
+    }
+
+    if (!selectedDropoffDate || !selectedPickupDate) return disabledTimes;
 
     const isSameDay = selectedPickupDate.day === selectedDropoffDate.day &&
       selectedPickupDate.month === selectedDropoffDate.month &&
       selectedPickupDate.year === selectedDropoffDate.year;
 
-    if (!isSameDay) return [];
-
-    // If same day, disable times before or equal to pickup time
-    const pickupHour = parseInt(pickupTime.split(':')[0]);
-    const disabledTimes = [];
-
-    for (let i = 0; i <= pickupHour; i++) {
-      disabledTimes.push(`${i.toString().padStart(2, '0')}:00`);
+    if (isSameDay) {
+      // If same day, also disable times before or equal to pickup time
+      const pickupHour = parseInt(pickupTime.split(':')[0]);
+      
+      for (let i = 6; i <= pickupHour; i++) {
+        if (!disabledTimes.includes(`${i.toString().padStart(2, '0')}:00`)) {
+          disabledTimes.push(`${i.toString().padStart(2, '0')}:00`);
+        }
+      }
     }
 
     return disabledTimes;
@@ -507,7 +610,8 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
                       <button
                         onClick={() => handleDateClick(day, selectedMonth, selectedYear)}
                         disabled={isDateDisabled(day, selectedMonth, selectedYear)}
-                        className={`w-full h-full flex flex-col items-center justify-center text-sm transition-colors rounded ${isDateSelected(day, selectedMonth, selectedYear)
+                        title={getHolidayName(day, selectedMonth, selectedYear) || ''}
+                        className={`w-full h-full flex flex-col items-center justify-center text-sm transition-colors rounded relative ${isDateSelected(day, selectedMonth, selectedYear)
                             ? 'bg-blue-500 text-white font-semibold'
                             : isDateInRange(day, selectedMonth, selectedYear)
                               ? 'bg-blue-100 text-gray-900'
@@ -517,6 +621,9 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
                           }`}
                       >
                         <span>{day}</span>
+                        {isVietnameseHoliday(day, selectedMonth, selectedYear) && (
+                          <div className="absolute bottom-0.5 right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                        )}
                       </button>
                     ) : (
                       <div></div>
@@ -559,7 +666,8 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
                       <button
                         onClick={() => handleDateClick(day, nextMonth, nextMonthYear)}
                         disabled={isDateDisabled(day, nextMonth, nextMonthYear)}
-                        className={`w-full h-full flex flex-col items-center justify-center text-sm transition-colors rounded ${isDateSelected(day, nextMonth, nextMonthYear)
+                        title={getHolidayName(day, nextMonth, nextMonthYear) || ''}
+                        className={`w-full h-full flex flex-col items-center justify-center text-sm transition-colors rounded relative ${isDateSelected(day, nextMonth, nextMonthYear)
                             ? 'bg-blue-500 text-white font-semibold'
                             : isDateInRange(day, nextMonth, nextMonthYear)
                               ? 'bg-blue-100 text-gray-900'
@@ -569,6 +677,9 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
                           }`}
                       >
                         <span>{day}</span>
+                        {isVietnameseHoliday(day, nextMonth, nextMonthYear) && (
+                          <div className="absolute bottom-0.5 right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                        )}
                       </button>
                     ) : (
                       <div></div>
@@ -576,6 +687,15 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+
+          {/* Holiday Legend */}
+          <div className="mt-4 flex items-center justify-center gap-4 text-xs text-gray-600">
+            <div className="flex items-center gap-1">
+              <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+              <span>{t('vietnameseHoliday') || 'Vietnamese Holiday'}</span>
+              <span className="text-red-500 ml-1">(+20%)</span>
             </div>
           </div>
 
@@ -642,6 +762,32 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm }) => {
                   </button>
                 )}
               </div>
+              {/* Pricing Information */}
+              {calculateDuration() > 0 && dailyPrice > 0 && (
+                <div className="text-xs text-gray-600 mt-1">
+                  <div className="flex items-center gap-1">
+                    <span>{t('estimatedPrice') || 'Estimated Price'}:</span>
+                    <span className="font-semibold text-green-600">
+                      {calculateTotalPrice().toLocaleString('vi-VN')}₫
+                    </span>
+                  </div>
+                  {hasHolidayInRange() && (
+                    <div className="text-xs mt-0.5 space-y-0.5">
+                      <div className="flex justify-between text-gray-500">
+                        <span>{t('normalDays') || 'Normal days'}: {calculateDuration() - countHolidayDays()}</span>
+                        <span>{((calculateDuration() - countHolidayDays()) * dailyPrice).toLocaleString('vi-VN')}₫</span>
+                      </div>
+                      <div className="flex justify-between text-red-500">
+                        <span>{t('holidayDays') || 'Holiday days'}: {countHolidayDays()}</span>
+                        <span>{(countHolidayDays() * dailyPrice * 1.2).toLocaleString('vi-VN')}₫</span>
+                      </div>
+                      <div className="text-xs text-red-500">
+                        {t('holidayPricingNotice') || 'Holiday pricing applies to selected dates'}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <button
               onClick={handleConfirm}

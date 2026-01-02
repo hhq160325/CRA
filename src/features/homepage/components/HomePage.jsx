@@ -197,6 +197,7 @@ const HomePage = () => {
             setDropoffTime(dateTimeData.dropoffTime);
             setRentalDuration(dateTimeData.duration);
           }}
+          dailyPrice={0}
         />
 
         {/* Popular Cars Section */}

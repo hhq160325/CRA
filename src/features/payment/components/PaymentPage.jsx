@@ -509,6 +509,7 @@ const PaymentPage = () => {
                                     setDropoffTime(dateTimeData.dropoffTime);
                                     setRentalDuration(dateTimeData.duration);
                                 }}
+                                dailyPrice={carData.carPrice}
                             />
                         </div>
 

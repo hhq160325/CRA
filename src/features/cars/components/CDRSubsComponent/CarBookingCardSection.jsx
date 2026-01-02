@@ -34,6 +34,71 @@ const CarBookingCardSection = ({
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
 
+  // Vietnam holidays 2026
+  const vietnamHolidays2026 = [
+    // New Year's Day
+    { day: 1, month: 0, year: 2026, name: 'New Year\'s Day' },
+    
+    // Tet - Lunar New Year (February 16-21, 2026)
+    { day: 16, month: 1, year: 2026, name: 'Vietnamese New Year\'s Eve' },
+    { day: 17, month: 1, year: 2026, name: 'Vietnamese New Year' },
+    { day: 18, month: 1, year: 2026, name: 'Tet Holiday' },
+    { day: 19, month: 1, year: 2026, name: 'Tet Holiday' },
+    { day: 20, month: 1, year: 2026, name: 'Tet Holiday' },
+    { day: 21, month: 1, year: 2026, name: 'Tet Holiday' },
+    
+    // Hung Kings' Commemoration Day (April 26-27, 2026)
+    { day: 26, month: 3, year: 2026, name: 'Hung Kings Festival' },
+    { day: 27, month: 3, year: 2026, name: 'Day off for Hung Kings Festival' },
+    
+    // Reunification Day & International Labor Day (April 30 - May 1, 2026)
+    { day: 30, month: 3, year: 2026, name: 'Liberation Day/Reunification Day' },
+    { day: 1, month: 4, year: 2026, name: 'International Labor Day' },
+    
+    // National Day (August 31 - September 2, 2026)
+    { day: 31, month: 7, year: 2026, name: 'Independence Day Holiday' },
+    { day: 1, month: 8, year: 2026, name: 'Independence Day Holiday' },
+    { day: 2, month: 8, year: 2026, name: 'Independence Day' }
+  ];
+
+  const isVietnameseHoliday = (day, month, year) => {
+    return vietnamHolidays2026.some(holiday => 
+      holiday.day === day && holiday.month === month && holiday.year === year
+    );
+  };
+
+  // Count holiday days in the rental period
+  const countHolidayDays = () => {
+    if (!rentalDates.selectedPickupDate || !rentalDates.selectedDropoffDate) return 0;
+
+    const pickupDate = new Date(rentalDates.selectedPickupDate.year, rentalDates.selectedPickupDate.month, rentalDates.selectedPickupDate.day);
+    const dropoffDate = new Date(rentalDates.selectedDropoffDate.year, rentalDates.selectedDropoffDate.month, rentalDates.selectedDropoffDate.day);
+    let holidayCount = 0;
+    
+    // Check each day in the range
+    for (let d = new Date(pickupDate); d < dropoffDate; d.setDate(d.getDate() + 1)) {
+      if (isVietnameseHoliday(d.getDate(), d.getMonth(), d.getFullYear())) {
+        holidayCount++;
+      }
+    }
+    return holidayCount;
+  };
+
+  // Calculate total price with holiday surcharge applied only to holiday days
+  const calculateTotalPriceWithHolidays = () => {
+    if (!dailyPrice || !rentalDates.duration) return dailyPrice * rentalDates.duration;
+    
+    const totalDays = rentalDates.duration;
+    const holidayDays = countHolidayDays();
+    const normalDays = totalDays - holidayDays;
+    
+    // Calculate price: normal days at regular price + holiday days at 20% surcharge
+    const normalDaysPrice = normalDays * dailyPrice;
+    const holidayDaysPrice = holidayDays * dailyPrice * 1.2;
+    
+    return Math.round(normalDaysPrice + holidayDaysPrice);
+  };
+
   // Fetch verification status if not available
   useEffect(() => {
     if (user && !hasVerificationStatus) {
@@ -44,10 +109,11 @@ const CarBookingCardSection = ({
   // Save total price with delivery to localStorage whenever values change
   useEffect(() => {
     if (!loadingRate && dailyPrice && rentalDates.duration) {
-      const totalPriceDelivery = Math.round(dailyPrice * rentalDates.duration * 0.15 + (deliveryLocation ? deliveryFee : 0));
+      const totalPriceWithHolidays = calculateTotalPriceWithHolidays();
+      const totalPriceDelivery = Math.round(totalPriceWithHolidays * 0.15 + (deliveryLocation ? deliveryFee : 0));
       localStorage.setItem('totalPriceDelivery', totalPriceDelivery.toString());
     }
-  }, [dailyPrice, rentalDates.duration, deliveryLocation, deliveryFee, loadingRate]);
+  }, [dailyPrice, rentalDates.duration, rentalDates.selectedPickupDate, rentalDates.selectedDropoffDate, deliveryLocation, deliveryFee, loadingRate]);
   return (
     <div className="lg:col-span-1">
       <div className="bg-white rounded-lg p-6 sticky top-4">
@@ -191,10 +257,24 @@ const CarBookingCardSection = ({
               {loadingRate ? (
                 <span>...</span>
               ) : (
-                <span>{(dailyPrice * rentalDates.duration).toLocaleString('vi-VN')}₫</span>
+                <span>{calculateTotalPriceWithHolidays().toLocaleString('vi-VN')}₫</span>
               )}
             </span>
           </div>
+
+          {/* Holiday breakdown if applicable */}
+          {countHolidayDays() > 0 && !loadingRate && (
+            <div className="text-xs text-gray-500 ml-4 space-y-1">
+              <div className="flex justify-between">
+                <span>• {t('normalDays')}: {rentalDates.duration - countHolidayDays()}</span>
+                <span>{((rentalDates.duration - countHolidayDays()) * dailyPrice).toLocaleString('vi-VN')}₫</span>
+              </div>
+              <div className="flex justify-between text-red-500">
+                <span>• {t('holidayDays')}: {countHolidayDays()} (+20%)</span>
+                <span>{(countHolidayDays() * dailyPrice * 1.2).toLocaleString('vi-VN')}₫</span>
+              </div>
+            </div>
+          )}
 
           {deliveryLocation && (
             <div className="flex justify-between text-sm">
@@ -215,7 +295,7 @@ const CarBookingCardSection = ({
               {loadingRate ? (
                 <span>...</span>
               ) : (
-                <span>{Math.round(dailyPrice * rentalDates.duration * 0.15).toLocaleString('vi-VN')}₫</span>
+                <span>{Math.round(calculateTotalPriceWithHolidays() * 0.15).toLocaleString('vi-VN')}₫</span>
               )}
             </span>
           </div>
@@ -226,7 +306,7 @@ const CarBookingCardSection = ({
               {loadingRate ? (
                 <span>...</span>
               ) : (
-                <span>{Math.round(dailyPrice * rentalDates.duration * 0.85).toLocaleString('vi-VN')}₫</span>
+                <span>{Math.round(calculateTotalPriceWithHolidays() * 0.85).toLocaleString('vi-VN')}₫</span>
               )}
             </span>
           </div>
@@ -236,7 +316,7 @@ const CarBookingCardSection = ({
             {loadingRate ? (
               <span className="text-gray-400">...</span>
             ) : (
-              <span>{Math.round(dailyPrice * rentalDates.duration * 0.15 + (deliveryLocation ? deliveryFee : 0)).toLocaleString('vi-VN')}₫</span>
+              <span>{Math.round(calculateTotalPriceWithHolidays() * 0.15 + (deliveryLocation ? deliveryFee : 0)).toLocaleString('vi-VN')}₫</span>
             )}
           </div>
           {/* Rent Button */}

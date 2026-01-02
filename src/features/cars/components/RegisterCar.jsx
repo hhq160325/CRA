@@ -51,7 +51,7 @@ const RegisterCar = () => {
         if (savedData) {
             const parsed = JSON.parse(savedData);
             setFormData(parsed);
-            
+
             // If manufacturer was saved, fetch its models
             if (parsed.manufacturerId) {
                 fetchModels(parsed.manufacturerId);
@@ -65,6 +65,8 @@ const RegisterCar = () => {
             setLoadingModels(true);
             const data = await getModelsByManufacturerId(manufacturerId);
             setModels(data);
+            // Save models to localStorage for use in step 2
+            // localStorage.setItem('carModels_' + manufacturerId, JSON.stringify(data));
         } catch (error) {
             console.error('Failed to fetch models:', error);
             setModels([]);
@@ -200,9 +202,8 @@ const RegisterCar = () => {
                             value={formData.licensePlate}
                             onChange={handleInputChange}
                             onBlur={handleLicensePlateBlur}
-                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                licensePlateError ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${licensePlateError ? 'border-red-500' : 'border-gray-300'
+                                }`}
                             placeholder={t('enterLicensePlate')}
                         />
                         {licensePlateError && (
@@ -229,8 +230,8 @@ const RegisterCar = () => {
                                 <DropdownTemplate
                                     value={formData.manufacturer}
                                     onChange={(option) => {
-                                        setFormData(prev => ({ 
-                                            ...prev, 
+                                        setFormData(prev => ({
+                                            ...prev,
                                             manufacturer: option.label,
                                             manufacturerId: option.id,
                                             model: '',
@@ -248,30 +249,43 @@ const RegisterCar = () => {
                                 />
                             </div>
 
-                            {/* Model */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    {t('model')} <span className="text-red-500">*</span>
-                                </label>
-                                <DropdownTemplate
-                                    value={formData.model}
-                                    onChange={(option) => {
-                                        const selectedModel = models.find(m => m.id === option.id);
-                                        setFormData(prev => ({ 
-                                            ...prev, 
-                                            model: option.label,
-                                            modelId: option.id,
-                                            yearOfManufacture: selectedModel?.yearOfManufacture?.toString() || prev.yearOfManufacture
-                                        }));
-                                    }}
-                                    options={models.map(m => ({
-                                        id: m.id,
-                                        value: m.model,
-                                        label: m.model
-                                    }))}
-                                    placeholder={loadingModels ? t('loading') || 'Loading...' : t('model')}
-                                    disabled={!formData.manufacturerId || loadingModels}
-                                />
+                            {/* Model and Type */}
+                            <div className='grid grid-cols-2 gap-x-1'>
+                                <div className="col-span-1">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        {t('model')} <span className="text-red-500">*</span>
+                                    </label>
+                                    <DropdownTemplate
+                                        value={formData.model}
+                                        onChange={(option) => {
+                                            const selectedModel = models.find(m => m.id === option.id);
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                model: option.label,
+                                                modelId: option.id,
+                                                yearOfManufacture: selectedModel?.yearOfManufacture?.toString() || prev.yearOfManufacture
+                                            }));
+                                        }}
+                                        options={models.map(m => ({
+                                            id: m.id,
+                                            value: m.model,
+                                            label: m.model
+                                        }))}
+                                        placeholder={loadingModels ? t('loading') || 'Loading...' : t('model')}
+                                        disabled={!formData.manufacturerId || loadingModels}
+                                    />
+                                </div>
+                                <div className="col-span-1">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Type <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="w-full px-4 py-2 border rounded-lg bg-gray-100 text-left transition-colors border-gray-300 text-gray-700">
+                                        {formData.modelId ? 
+                                            models.find(m => m.id === parseInt(formData.modelId))?.sizeClass || 'N/A'
+                                            : 'Type'
+                                        }
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

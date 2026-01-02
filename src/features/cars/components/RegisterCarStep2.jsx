@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { fetchParkLots } from '../carApi';
+import { calculateRecommendedPrice, formatPriceVN } from '../utils';
 
 const RegisterCarStep2 = () => {
     const { t } = useTranslation();
@@ -19,6 +20,8 @@ const RegisterCarStep2 = () => {
     const [filteredParkLots, setFilteredParkLots] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [carInfo, setCarInfo] = useState(null);
+    const [recommendedPriceRange, setRecommendedPriceRange] = useState(null);
     const searchInputRef = useRef(null);
 
     // Load saved data from localStorage on mount
@@ -31,6 +34,25 @@ const RegisterCarStep2 = () => {
                 parsedData.dailyPrice = parsedData.dailyPrice.toLocaleString('de-DE');
             }
             setFormData(parsedData);
+        }
+
+        // Load car info from step 1
+        const step1Data = localStorage.getItem('carRegistrationStep1');
+        if (step1Data) {
+            const carData = JSON.parse(step1Data);
+            setCarInfo(carData);
+            const priceRange = calculateRecommendedPrice(carData);
+            if (priceRange) {
+                setRecommendedPriceRange(priceRange);
+                
+                // Set the recommended price as default if no price is set
+                if (!formData.dailyPrice || formData.dailyPrice === '10.000') {
+                    setFormData(prev => ({
+                        ...prev,
+                        dailyPrice: formatPriceVN(priceRange.recommended)
+                    }));
+                }
+            }
         }
     }, []);
 
@@ -105,6 +127,15 @@ const RegisterCarStep2 = () => {
         setSearchQuery(e.target.value);
     };
 
+    const handleUseRecommendedPrice = () => {
+        if (recommendedPriceRange) {
+            setFormData(prev => ({
+                ...prev,
+                dailyPrice: formatPriceVN(recommendedPriceRange.recommended)
+            }));
+        }
+    };
+
     const handleReturn = () => {
         navigate('/owner/register_car');
     };
@@ -156,9 +187,42 @@ const RegisterCarStep2 = () => {
                         <label className="block text-sm font-medium text-gray-900 mb-2">
                             {t('defaultRentalPrice')}
                         </label>
-                        <p className="text-xs text-gray-500 mb-6">
+                        <p className="text-xs text-gray-500 mb-3">
                             {t('defaultRentalPriceDescription')}
                         </p>
+
+                        {/* Recommended Price Range */}
+                        {recommendedPriceRange && (
+                            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center">
+                                        <svg className="w-4 h-4 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span className="text-sm font-medium text-blue-900">Recommended Price Range</span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={handleUseRecommendedPrice}
+                                        className="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                                    >
+                                        Use Recommended
+                                    </button>
+                                </div>
+                                <div className="text-sm text-blue-800">
+                                    <p className="mb-1">
+                                        <span className="font-medium">Car Type:</span> {recommendedPriceRange.carType}
+                                        {carInfo && <span className="ml-2 text-blue-600">({carInfo.yearOfManufacture})</span>}
+                                    </p>
+                                    <p className="mb-1">
+                                        <span className="font-medium">Suggested Range:</span> {formatPriceVN(recommendedPriceRange.min)} - {formatPriceVN(recommendedPriceRange.max)} VND/day
+                                    </p>
+                                    <p>
+                                        <span className="font-medium">Recommended:</span> <span className="font-semibold text-blue-900">{formatPriceVN(recommendedPriceRange.recommended)} VND/day</span>
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                         
                         <div className="flex gap-4">
                             <div className="flex-1">
@@ -175,44 +239,6 @@ const RegisterCarStep2 = () => {
                                 <div className="w-full px-4 py-3 rounded-lg bg-white text-left flex items-center justify-between">
                                     VND
                                 </div>
-                                {/* <button
-                                    type="button"
-                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-left flex items-center justify-between"
-                                >
-                                    <span className="text-gray-900">{formData.currency}</span>
-                                    <svg 
-                                        className={`w-4 h-4 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} 
-                                        fill="none" 
-                                        stroke="currentColor" 
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </button>
-                                
-                                {isDropdownOpen && (
-                                    <>
-                                        <div 
-                                            className="fixed inset-0 z-10" 
-                                            onClick={() => setIsDropdownOpen(false)}
-                                        />
-                                        <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden">
-                                            {currencies.map((currency) => (
-                                                <button
-                                                    key={currency.value}
-                                                    type="button"
-                                                    onClick={() => handleCurrencySelect(currency.value)}
-                                                    className={`w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors ${
-                                                        formData.currency === currency.value ? 'bg-gray-50 text-gray-900 font-medium' : 'text-gray-700'
-                                                    }`}
-                                                >
-                                                    {currency.label}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </>
-                                )} */}
                             </div>
                         </div>
                     </div>

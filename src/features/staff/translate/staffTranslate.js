@@ -359,6 +359,26 @@ export const staffTranslate = {
       behaviourScore: "Behaviour Score",
       tryAdjustingFilters: "Try Adjusting Filters",
       noCustomersFound: "No Customers Found",
+      
+      // View Reports functionality
+      viewReports: "View Reports",
+      userReports: "User Reports",
+      customerInformation: "Customer Information",
+      loadingReports: "Loading reports...",
+      failedToLoadReports: "Failed to load reports",
+      noReportsFound: "No reports found",
+      thisUserHasNoReports: "This user has no reports filed against them.",
+      reportHistory: "Report History",
+      hideDetails: "Hide Details",
+      reporterId: "Reporter ID",
+      reportedUserId: "Reported User ID",
+      attachments: "Attachments",
+      clickToView: "Click to view",
+      created: "Created",
+      titleAndContentRequired: "Title and content are required",
+      userReportedSuccessfully: "User reported successfully!",
+      failedToCreateReport: "Failed to create report",
+      submitting: "Submitting...",
     }
   },
   vi: {
@@ -721,6 +741,26 @@ export const staffTranslate = {
       noDataToExport: "Không có dữ liệu để Export",
       exportSuccessful: "Export thành công",
       exportFailed: "Export thất bại",
+      
+      // View Reports functionality
+      viewReports: "Xem Báo Cáo",
+      userReports: "Báo Cáo Người Dùng",
+      customerInformation: "Thông Tin Khách Hàng",
+      loadingReports: "Đang tải báo cáo...",
+      failedToLoadReports: "Không thể tải báo cáo",
+      noReportsFound: "Không tìm thấy báo cáo",
+      thisUserHasNoReports: "Người dùng này không có báo cáo nào được gửi.",
+      reportHistory: "Lịch Sử Báo Cáo",
+      hideDetails: "Ẩn Chi Tiết",
+      reporterId: "ID Người Báo Cáo",
+      reportedUserId: "ID Người Bị Báo Cáo",
+      attachments: "Tệp Đính Kèm",
+      clickToView: "Nhấp để xem",
+      created: "Đã Tạo",
+      titleAndContentRequired: "Tiêu đề và nội dung là bắt buộc",
+      userReportedSuccessfully: "Báo cáo người dùng thành công!",
+      failedToCreateReport: "Không thể tạo báo cáo",
+      submitting: "Đang gửi...",
     }
   }
 };

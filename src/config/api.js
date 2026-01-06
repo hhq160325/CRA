@@ -208,6 +208,7 @@ export const REPORT_CAR_ENDPOINTS = {
   CREATE_REPORT_CAR: `${API_CONFIG.BASE_URL}/Report/reportedCar`,
   GET_REPORT_CAR: `${API_CONFIG.BASE_URL}/Report`,
   CREATE_REPORT_USER: `${API_CONFIG.BASE_URL}/Report/reportedUser`,
+  GET_USER_REPORT_BY_ID: (userId) => `${API_CONFIG.BASE_URL}/Report/reportedUser/${userId}`
 };
 
 export const REPORT_CAR_API_CONFIG = {

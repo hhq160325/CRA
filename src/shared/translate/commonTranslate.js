@@ -197,6 +197,30 @@ export const commonTranslate = {
       "maintenanceModal.endDateAfterStart": "End date must be after start date",
       "maintenanceModal.schedulingError": "Failed to schedule maintenance. Please try again.",
       "maintenanceModal.required": "*",
+
+      // Top-up Modal
+      "topUpModal.title": "Top-up Car Balance",
+      "topUpModal.car": "Car",
+      "topUpModal.successMessage": "Top-up completed successfully!",
+      "topUpModal.amountLabel": "Amount",
+      "topUpModal.paymentMethodLabel": "Payment Method",
+      "topUpModal.noteLabel": "Note",
+      "topUpModal.notePlaceholder": "Additional notes or instructions...",
+      "topUpModal.cancel": "Cancel",
+      "topUpModal.processing": "Processing...",
+      "topUpModal.topUpButton": "Top-up",
+      "topUpModal.invalidAmount": "Please enter a valid amount greater than 0",
+      "topUpModal.topUpError": "Failed to process top-up. Please try again.",
+      "topUpModal.required": "*",
+      "topUpModal.creditCard": "Credit Card",
+      "topUpModal.debitCard": "Debit Card",
+      "topUpModal.bankTransfer": "Bank Transfer",
+      "topUpModal.paypal": "PayPal",
+      "topUpModal.placeholderTitle": "Development Notice",
+      "topUpModal.placeholderMessage": "This is a placeholder implementation. The actual top-up API is not yet complete.",
+
+      // Usage Tracking
+      "usageTracking.topUp": "Top-up",
     }
   },
   vi: {
@@ -403,6 +427,30 @@ export const commonTranslate = {
       "maintenanceModal.endDateAfterStart": "Ngày kết thúc phải sau ngày bắt đầu",
       "maintenanceModal.schedulingError": "Không thể lên lịch bảo dưỡng. Vui lòng thử lại.",
       "maintenanceModal.required": "*",
+
+      // Top-up Modal
+      "topUpModal.title": "Nạp tiền cho xe",
+      "topUpModal.car": "Xe",
+      "topUpModal.successMessage": "Nạp tiền thành công!",
+      "topUpModal.amountLabel": "Số tiền",
+      "topUpModal.paymentMethodLabel": "Phương thức thanh toán",
+      "topUpModal.noteLabel": "Ghi chú",
+      "topUpModal.notePlaceholder": "Ghi chú bổ sung hoặc hướng dẫn...",
+      "topUpModal.cancel": "Hủy",
+      "topUpModal.processing": "Đang xử lý...",
+      "topUpModal.topUpButton": "Nạp tiền",
+      "topUpModal.invalidAmount": "Vui lòng nhập số tiền hợp lệ lớn hơn 0",
+      "topUpModal.topUpError": "Không thể xử lý nạp tiền. Vui lòng thử lại.",
+      "topUpModal.required": "*",
+      "topUpModal.creditCard": "Thẻ tín dụng",
+      "topUpModal.debitCard": "Thẻ ghi nợ",
+      "topUpModal.bankTransfer": "Chuyển khoản ngân hàng",
+      "topUpModal.paypal": "PayPal",
+      "topUpModal.placeholderTitle": "Thông báo phát triển",
+      "topUpModal.placeholderMessage": "Đây là phiên bản thử nghiệm. API nạp tiền thực tế chưa hoàn thành.",
+
+      // Usage Tracking
+      "usageTracking.topUp": "Nạp tiền",
 
     }
   }

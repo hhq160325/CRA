@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Pagination from '../../../../../shared/components/Pagination';
 import ReportUserModal from './ReportUserModal';
+import ViewReportsModal from './ViewReportsModal';
 
 const CustomerTable = ({
   customers,
@@ -18,6 +19,7 @@ const CustomerTable = ({
 }) => {
   const { t } = useTranslation();
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isViewReportsModalOpen, setIsViewReportsModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   // Pagination calculations
@@ -29,6 +31,11 @@ const CustomerTable = ({
   const handleReportUser = (customer) => {
     setSelectedCustomer(customer);
     setIsReportModalOpen(true);
+  };
+
+  const handleViewReports = (customer) => {
+    setSelectedCustomer(customer);
+    setIsViewReportsModalOpen(true);
   };
 
   const handleReportSuccess = () => {
@@ -155,8 +162,11 @@ const CustomerTable = ({
                     >
                       {t('edit')}
                     </button> */}
-                    <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                      {t('message')}
+                    <button 
+                      onClick={() => handleViewReports(customer)}
+                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                    >
+                      {t('viewReports')}
                     </button>
                     <button
                       onClick={() => handleReportUser(customer)}
@@ -194,6 +204,13 @@ const CustomerTable = ({
         onClose={() => setIsReportModalOpen(false)}
         customer={selectedCustomer}
         onReportSuccess={handleReportSuccess}
+      />
+
+      {/* View Reports Modal */}
+      <ViewReportsModal
+        isOpen={isViewReportsModalOpen}
+        onClose={() => setIsViewReportsModalOpen(false)}
+        customer={selectedCustomer}
       />
     </div>
   );

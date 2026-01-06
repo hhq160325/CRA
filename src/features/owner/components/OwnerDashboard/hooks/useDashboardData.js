@@ -36,6 +36,7 @@ const generateBookingBreakdownData = (ownerBookings, period) => {
           }
           return false;
         });
+console.log("dayBookings",dayBookings);
 
         const statusCounts = {
           pending: 0,

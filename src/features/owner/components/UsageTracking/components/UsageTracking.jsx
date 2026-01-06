@@ -5,7 +5,7 @@ import Pagination from '../../../../../shared/components/Pagination';
 import { tokenUtils } from '../../../../auth/utils';
 import { filterCarUsageData } from '../../../utils/filterUtils';
 import { getAllCars, getCarBookings } from '../../../api/ownerApi';
-import { MaintenanceSchedulingModal, UsageDetailsModal } from '../../modal';
+import { MaintenanceSchedulingModal, TopUpModal, UsageDetailsModal } from '../../modal';
 
 const UsageTracking = () => {
   const { t } = useTranslation();
@@ -17,6 +17,7 @@ const UsageTracking = () => {
   const [selectedCar, setSelectedCar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
+  const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
   const [usageData, setUsageData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -157,6 +158,16 @@ const UsageTracking = () => {
 
   const closeMaintenanceModal = () => {
     setIsMaintenanceModalOpen(false);
+    setSelectedCar(null);
+  };
+
+  const openTopUpModal = (car) => {
+    setSelectedCar(car);
+    setIsTopUpModalOpen(true);
+  };
+
+  const closeTopUpModal = () => {
+    setIsTopUpModalOpen(false);
     setSelectedCar(null);
   };
 
@@ -411,6 +422,17 @@ const UsageTracking = () => {
                             >
                               {t('usageTracking.schedule')}
                             </button>
+                            <button
+                              onClick={() => openTopUpModal(car)}
+                              disabled={!(car.currentStatus === 'pending' || car.currentStatus === 'active')}
+                              className={`text-sm font-medium ${
+                                (car.currentStatus === 'pending' || car.currentStatus === 'active')
+                                  ? 'text-green-600 hover:text-green-700 cursor-pointer'
+                                  : 'text-gray-400 cursor-not-allowed'
+                              }`}
+                            >
+                              {t('usageTracking.topUp')}
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -443,6 +465,13 @@ const UsageTracking = () => {
       <MaintenanceSchedulingModal
         isOpen={isMaintenanceModalOpen}
         onClose={closeMaintenanceModal}
+        selectedCar={selectedCar}
+      />
+
+      {/* Top-up Modal */}
+      <TopUpModal
+        isOpen={isTopUpModalOpen}
+        onClose={closeTopUpModal}
         selectedCar={selectedCar}
       />
     </>

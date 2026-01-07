@@ -33,6 +33,7 @@ export const usageTrackingTranslate = {
       "usageTracking.unknown": "Unknown",
       "usageTracking.seats": "seats",
       "usageTracking.topUp": "Top Up",
+      "usageTracking.hasBalance": "Has Balance",
 
       // Top Up Modal
       "topUpModal.title": "Top Up Car Wallet",
@@ -84,6 +85,7 @@ export const usageTrackingTranslate = {
       "usageTracking.unknown": "không rõ",
       "usageTracking.seats": "chỗ",
       "usageTracking.topUp": "Nạp tiền",
+      "usageTracking.hasBalance": "Có số dư",
 
       // Top Up Modal
       "topUpModal.title": "Nạp tiền vào ví xe",

@@ -233,15 +233,15 @@ export const verifyResetPasswordOTP = async (verifyData) => {
     
     const urlWithParams = `${USER_ENDPOINTS.RESET_PASSWORD_VERIFY}?${queryParams.toString()}`;
 
-    console.log('RESET_PASSWORD_VERIFY - Input data:', verifyData);
-    console.log('RESET_PASSWORD_VERIFY - Query params:', queryParams.toString());
-    console.log('RESET_PASSWORD_VERIFY - Full URL:', urlWithParams);
+    // console.log('RESET_PASSWORD_VERIFY - Input data:', verifyData);
+    // console.log('RESET_PASSWORD_VERIFY - Query params:', queryParams.toString());
+    // console.log('RESET_PASSWORD_VERIFY - Full URL:', urlWithParams);
 
     const data = await authApiCall(urlWithParams, {
       method: 'POST', // Ensure POST method as shown in curl
     });
 
-    console.log('RESET_PASSWORD_VERIFY - Response data:', data);
+    // console.log('RESET_PASSWORD_VERIFY - Response data:', data);
     return data;
   } catch (error) {
     console.error('RESET_PASSWORD_VERIFY - Error:', error);

@@ -14,6 +14,7 @@ const UsageTracking = () => {
   const [brandFilter, setBrandFilter] = useState('all');
   const [modelFilter, setModelFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [balanceFilter, setBalanceFilter] = useState(false);
   const [selectedCar, setSelectedCar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
@@ -192,10 +193,19 @@ const UsageTracking = () => {
           brandFilter,
           modelFilter,
           statusFilter,
-        })
+        }) && (!balanceFilter || (car.balance && car.balance > 0))
       )
-      .sort((a, b) => a.carName.localeCompare(b.carName));
-  }, [usageData, searchTerm, brandFilter, modelFilter, statusFilter]);
+      .sort((a, b) => {
+        // Sort by balance first (highest to lowest)
+        const balanceA = a.balance || 0;
+        const balanceB = b.balance || 0;
+        if (balanceB !== balanceA) {
+          return balanceB - balanceA;
+        }
+        // If balance is the same, sort by car name
+        return a.carName.localeCompare(b.carName);
+      });
+  }, [usageData, searchTerm, brandFilter, modelFilter, statusFilter, balanceFilter]);
 
   // Get unique brands, models and statuses for filter dropdowns
   const uniqueBrands = [...new Set(usageData.map(car => car.brand))].sort();
@@ -250,7 +260,7 @@ const UsageTracking = () => {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, dateFilter, brandFilter, modelFilter, statusFilter]);
+  }, [searchTerm, dateFilter, brandFilter, modelFilter, statusFilter, balanceFilter]);
 
 
 
@@ -329,6 +339,19 @@ const UsageTracking = () => {
                   placeholder={t('usageTracking.allStatuses')}
                   searchable={false}
                 />
+              </div>
+
+              <div className="flex items-center">
+                <button
+                  onClick={() => setBalanceFilter(!balanceFilter)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    balanceFilter
+                      ? 'bg-green-100 text-green-800 border border-green-300'
+                      : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
+                  }`}
+                >
+                  {balanceFilter ? '✓ ' : ''}{t('usageTracking.hasBalance')}
+                </button>
               </div>
             </div>
 

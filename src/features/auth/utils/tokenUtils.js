@@ -5,9 +5,9 @@ export const tokenUtils = {
   // Store tokens in localStorage (excluding isVerified)
   storeTokens: (accessToken, refreshToken,jwtToken, user) => {
     if (typeof window === 'undefined') return;
-    localStorage.setItem("accessToken", accessToken);
+    // localStorage.setItem("accessToken", accessToken);
     // localStorage.setItem("refreshToken", refreshToken);
-    localStorage.setItem("jwtToken", jwtToken);
+    localStorage.setItem("jwtToken", accessToken);
     // Store user data excluding isVerified (keep isVerified only in Redux state)
     const { isVerified, ...userWithoutVerification } = user || {};
     localStorage.setItem("user", JSON.stringify(userWithoutVerification));
@@ -27,8 +27,8 @@ export const tokenUtils = {
   // Clear all auth data from localStorage
   clearTokens: () => {
     if (typeof window === 'undefined') return;
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+    // localStorage.removeItem("accessToken");
+    // localStorage.removeItem("refreshToken");
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("user");
     localStorage.removeItem("userAvatar");
@@ -51,7 +51,7 @@ export const tokenUtils = {
   isAuthenticated: () => {
     try {
       if (typeof window === 'undefined') return false;
-      const token = localStorage.getItem("accessToken");
+      const token = localStorage.getItem("jwtToken");
       return !!token;
     } catch (error) {
       return false;
@@ -61,7 +61,7 @@ export const tokenUtils = {
   // Get access token
   getAccessToken: () => {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem("accessToken");
+    return localStorage.getItem("jwtToken");
   },
 
   // Get refresh token

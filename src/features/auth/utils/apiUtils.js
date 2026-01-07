@@ -4,7 +4,7 @@ import axios from "axios";
 // Helper function to make auth API calls
 export const authApiCall = async (endpoint, options = {}) => {
   try {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("jwtToken");
 
     const config = {
       method: options.method || "POST",

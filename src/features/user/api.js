@@ -7,7 +7,7 @@ export { USER_ENDPOINTS, USER_API_CONFIG } from "../../config/api";
 
 // Helper function to get userId from token
 export const getUserIdFromToken = () => {
-  const token = localStorage.getItem("accessToken");
+  const token = localStorage.getItem("jwtToken");
   if (!token) return null;
 
   const decoded = decodeJWT(token);

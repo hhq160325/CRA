@@ -29,7 +29,7 @@ export const getCarRentalRate = async (carId) => {
 
 export const setCarRentalRate = async (carId, dailyRate) => {
     try {
-        const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+        const token = localStorage.getItem('jwtToken') || localStorage.getItem('token');
         
         const rentalRateData = {
             dailyRate: dailyRate,
@@ -64,7 +64,7 @@ export const registerCar = async (carData) => {
         const formData = new FormData();
         
         // Get user info from localStorage - correct keys
-        const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+        const token = localStorage.getItem('jwtToken') || localStorage.getItem('token');
         const userData = localStorage.getItem('user');
         const userInfo = userData ? JSON.parse(userData) : {};
         
@@ -170,7 +170,7 @@ export const getCarFeedback = async (carId) => {
 
 export const getBookingById = async (bookingId) => {
     try {
-        const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+        const token = localStorage.getItem('jwtToken') || localStorage.getItem('token');
         const response = await axios.get(BOOKING_ENDPOINTS.GET_BOOKING_BY_ID(bookingId), {
             headers: {
                 'Content-Type': 'application/json',
@@ -186,7 +186,7 @@ export const getBookingById = async (bookingId) => {
 
 export const getUserById = async (userId) => {
     try {
-        const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+        const token = localStorage.getItem('jwtToken') || localStorage.getItem('token');
         const response = await axios.get(USER_ENDPOINTS.GET_USER_BY_ID(userId), {
             headers: {
                 'Content-Type': 'application/json',
@@ -257,6 +257,50 @@ export const getManufacturersAndModels = async (manufacturerId) => {
         return { manufacturers, models };
     } catch (error) {
         console.error('Error fetching manufacturers and models:', error);
+        throw error;
+    }
+};
+
+export const createCarWallet = async (carId) => {
+    try {
+        const token = localStorage.getItem('jwtToken') || localStorage.getItem('token');
+        
+        console.log('Creating wallet for carId:', carId);
+
+        const response = await axios.post(CAR_ENDPOINTS.CREATE_CAR_WALLET(carId), {}, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        console.log('Car wallet created successfully:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error creating car wallet:', error);
+        console.error('Error response:', error.response?.data);
+        throw error;
+    }
+};
+
+export const getCarWalletByCarId = async (carId) => {
+    try {
+        const token = localStorage.getItem('jwtToken') || localStorage.getItem('token');
+        
+        console.log('Fetching wallet for carId:', carId);
+
+        const response = await axios.get(CAR_ENDPOINTS.GET_CAR_WALLET_BY_CAR_ID(carId), {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        console.log('Car wallet fetched successfully:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching car wallet:', error);
+        console.error('Error response:', error.response?.data);
         throw error;
     }
 };

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleFavorite, selectIsFavorite } from '../../../favorites/favoritesSlice';
 import { fetchCarById } from '../../carsSlice';
+import { getCarWalletByCarId } from '../../carApi';
 import SendInquiry from './SendInquiry';
 import MapModal from './MapModal';
 import { tokenUtils } from '../../../auth/utils';
@@ -36,6 +37,8 @@ const CarDetailSection = ({
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [showMapModal, setShowMapModal] = useState(false);
+  const [carWallet, setCarWallet] = useState(null);
+  const [loadingWallet, setLoadingWallet] = useState(false);
 
   // Get car data from Redux store
   const carFromStore = useSelector((state) => state.cars.currentCar);
@@ -49,6 +52,26 @@ const CarDetailSection = ({
   const carOwnerEmail = carFromStore?.owner.email
   const carOwnerPhoneNumber = carFromStore?.owner.phoneNumber
   // console.log("Nguoi nhan",carOwnerId);
+
+  // Fetch car wallet when component mounts or carId changes
+  useEffect(() => {
+    const fetchCarWallet = async () => {
+      if (!carId) return;
+      
+      setLoadingWallet(true);
+      try {
+        const walletData = await getCarWalletByCarId(carId);
+        setCarWallet(walletData);
+      } catch (error) {
+        console.error('Failed to fetch car wallet:', error);
+        setCarWallet(null);
+      } finally {
+        setLoadingWallet(false);
+      }
+    };
+
+    fetchCarWallet();
+  }, [carId]);
 
   const handleToggleFavorite = () => {
     if (!currentCar) return;
@@ -346,6 +369,27 @@ const CarDetailSection = ({
               <p className="font-regular"> Contact through email: {carOwnerEmail}</p><p className="font-regular"> Contact through phone number: {carOwnerPhoneNumber}</p>
             </div>
           </div>
+        </div>
+
+        {/* Car Wallet Balance */}
+        <div className="bg-white rounded-lg p-6">
+          <h2 className="text-lg font-semibold mb-4">{t('Car Wallet') || 'Ví xe'}</h2>
+          
+          {loadingWallet ? (
+            <div className="flex items-center gap-2 text-gray-600">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600"></div>
+              <span>{t('loadingWallet') || 'Đang tải...'}</span>
+            </div>
+          ) : carWallet ? (
+            <p className="text-xl font-bold text-green-600">
+              {new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+              }).format(carWallet.balance || 0)}
+            </p>
+          ) : (
+            <p className="text-gray-500">{t('walletNotFound') || 'Không tìm thấy ví'}</p>
+          )}
         </div>
         {/* Car location */}
         <div className="bg-white rounded-lg p-6">

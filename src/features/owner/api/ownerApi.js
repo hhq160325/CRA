@@ -1,10 +1,10 @@
 import { axiosInstance } from "../../../shared/utils/axiosInstance";
-import { 
-  CAR_ENDPOINTS, 
-  BOOKING_ENDPOINTS, 
-  INVOICE_ENDPOINTS, 
+import {
+  CAR_ENDPOINTS,
+  BOOKING_ENDPOINTS,
+  INVOICE_ENDPOINTS,
   USER_ENDPOINTS,
-  SCHEDULE_ENDPOINTS 
+  SCHEDULE_ENDPOINTS
 } from "../../../config/api";
 
 // ============================================
@@ -16,7 +16,7 @@ export const uploadCarRegistrationDocuments = async (carId, userId, files) => {
   const formData = new FormData();
   formData.append('CarId', carId);
   formData.append('UserId', userId);
-  
+
   Array.from(files).forEach((file) => {
     formData.append('images', file);
   });
@@ -26,14 +26,16 @@ export const uploadCarRegistrationDocuments = async (carId, userId, files) => {
       'Content-Type': 'multipart/form-data',
     },
   });
-  
+
   return response.data;
 };
 
 /* Get all cars */
 export const getAllCars = async () => {
   const response = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS);
+  console.log("getAllCars",response.data);
   return response.data;
+
 };
 
 /* Get all registration documents */
@@ -107,6 +109,36 @@ export const createCarSchedule = async (scheduleData) => {
 };
 
 // ============================================
+// WALLET API
+// ============================================
+
+/* Get all car wallets */
+export const getAllCarWallets = async () => {
+  try {
+    const response = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CAR_WALLET);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching car wallets:', error);
+    return [];
+  }
+};
+
+/* Add funds to car wallet */
+export const addFundToWallet = async (carId, amount) => {
+  const formData = new FormData();
+  formData.append('CarId', carId);
+  formData.append('Amount', amount);
+
+  const response = await axiosInstance.post(CAR_ENDPOINTS.ADD_FUND_TO_WALLET, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response.data;
+};
+
+// ============================================
 // COMBINED DATA FETCHING 
 // ============================================
 
@@ -118,7 +150,7 @@ export const fetchOwnerPaymentsData = async () => {
     axiosInstance.get(USER_ENDPOINTS.GET_ALL_USERS),
     axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS)
   ]);
-  
+
   return {
     invoices: invoicesResponse.data || [],
     payments: paymentsResponse.data || [],

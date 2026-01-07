@@ -6,7 +6,7 @@ import { convertToVietnamTime } from '../../shared/utils/CheckUTC';
 
 // Helper function to get user ID from token
 const getUserIdFromToken = () => {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem('jwtToken');
   if (!token) return null;
   
   const decoded = decodeJWT(token);

@@ -14,6 +14,8 @@ export const usageTrackingTranslate = {
       "usageTracking.carInfo": "Car Information",
       "usageTracking.rentals": "Rentals",
       "usageTracking.daysRented": "Days Rented",
+      "usageTracking.balance": "Balance",
+      "usageTracking.walletBalance": "wallet balance",
       "usageTracking.status": "Status",
       "usageTracking.actions": "Actions",
       "usageTracking.totalBookings": "Total bookings",
@@ -30,6 +32,24 @@ export const usageTrackingTranslate = {
       "usageTracking.unavailable": "Unavailable",
       "usageTracking.unknown": "Unknown",
       "usageTracking.seats": "seats",
+      "usageTracking.topUp": "Top Up",
+      "usageTracking.hasBalance": "Has Balance",
+
+      // Top Up Modal
+      "topUpModal.title": "Top Up Car Wallet",
+      "topUpModal.car": "Car",
+      "topUpModal.amountLabel": "Amount",
+      "topUpModal.required": "*",
+      "topUpModal.minimumAmount": "Minimum amount: 10,000 VND",
+      "topUpModal.invalidAmount": "Please enter a valid amount",
+      "topUpModal.minimumAmountError": "Minimum amount is 10,000 VND",
+      "topUpModal.successMessage": "Payment request created successfully!",
+      "topUpModal.paymentRedirectMessage": "You will be redirected to PayOS to complete the payment.",
+      "topUpModal.noPaymentUrlError": "Payment URL not received. Please try again.",
+      "topUpModal.topUpError": "Failed to process top-up. Please try again.",
+      "topUpModal.cancel": "Cancel",
+      "topUpModal.topUpButton": "Top Up",
+      "topUpModal.processing": "Processing...",
     }
   },
   vi: {
@@ -46,6 +66,8 @@ export const usageTrackingTranslate = {
       "usageTracking.carInfo": "Thông tin xe",
       "usageTracking.rentals": "Lượt thuê",
       "usageTracking.daysRented": "Số ngày thuê",
+      "usageTracking.balance": "Số dư",
+      "usageTracking.walletBalance": "số dư ví",
       "usageTracking.status": "Trạng thái",
       "usageTracking.actions": "Thao tác",
       "usageTracking.totalBookings": "Tổng đặt xe",
@@ -62,6 +84,24 @@ export const usageTrackingTranslate = {
       "usageTracking.unavailable": "Không khả dụng",
       "usageTracking.unknown": "không rõ",
       "usageTracking.seats": "chỗ",
+      "usageTracking.topUp": "Nạp tiền",
+      "usageTracking.hasBalance": "Có số dư",
+
+      // Top Up Modal
+      "topUpModal.title": "Nạp tiền vào ví xe",
+      "topUpModal.car": "Xe",
+      "topUpModal.amountLabel": "Số tiền",
+      "topUpModal.required": "*",
+      "topUpModal.minimumAmount": "Số tiền tối thiểu: 10.000 VND",
+      "topUpModal.invalidAmount": "Vui lòng nhập số tiền hợp lệ",
+      "topUpModal.minimumAmountError": "Số tiền tối thiểu là 10.000 VND",
+      "topUpModal.successMessage": "Tạo yêu cầu thanh toán thành công!",
+      "topUpModal.paymentRedirectMessage": "Bạn sẽ được chuyển hướng đến PayOS để hoàn tất thanh toán.",
+      "topUpModal.noPaymentUrlError": "Không nhận được URL thanh toán. Vui lòng thử lại.",
+      "topUpModal.topUpError": "Không thể nạp tiền. Vui lòng thử lại.",
+      "topUpModal.cancel": "Hủy",
+      "topUpModal.topUpButton": "Nạp tiền",
+      "topUpModal.processing": "Đang xử lý...",
     }
   }
 };

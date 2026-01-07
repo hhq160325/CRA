@@ -133,7 +133,7 @@ export const fetchBookingsWithReports = async () => {
   try {
     console.log('Fetching reports data using GET_REPORT_CAR API...');
     
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('jwtToken');
     
     // Fetch reports, users, and cars data in parallel
     const [reportsData, usersResponse, carsResponse] = await Promise.all([

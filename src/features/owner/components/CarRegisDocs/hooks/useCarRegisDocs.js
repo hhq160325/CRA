@@ -25,7 +25,7 @@ export const useCarRegisDocs = () => {
       setCars(userCars);
     } catch (err) {
       console.error('Error fetching cars:', err);
-      setError(t('carRegisDocs.loadingError'));
+      // setError(t('carRegisDocs.loadingError'));
     } finally {
       setLoading(false);
     }
@@ -53,7 +53,8 @@ export const useCarRegisDocs = () => {
       setUploadingCarId(null);
     }
   };
-
+  console.log("cars",cars);
+  
   const filteredCars = cars.filter(car => {
     if (filter === 'all') return true;
     if (filter === 'pending') return car.status === 'Pending';

@@ -8,6 +8,8 @@ const PaymentSuccess = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [paymentDetails, setPaymentDetails] = useState(null);
+  const [isWalletTopUp, setIsWalletTopUp] = useState(false);
+  const [walletTopUpData, setWalletTopUpData] = useState(null);
   
   // Extract URL parameters
   const orderCode = searchParams.get('orderCode');
@@ -25,6 +27,43 @@ const PaymentSuccess = () => {
   });
   
   useEffect(() => {
+    // Check if this is a wallet top-up payment
+    const isWallet = localStorage.getItem('isWallet');
+    const walletDataStr = localStorage.getItem('walletTopUpData');
+    
+    if (isWallet === 'true' && walletDataStr) {
+      try {
+        const walletData = JSON.parse(walletDataStr);
+        setIsWalletTopUp(true);
+        setWalletTopUpData(walletData);
+        
+        // Set wallet-specific payment details
+        const currentLocale = i18n.language === 'vi' ? 'vi-VN' : 'en-US';
+        const walletPaymentDetails = {
+          transactionId: orderCode || 'TXN' + Date.now(),
+          amount: walletData.amount,
+          paymentMethod: 'QR Payment',
+          paymentDate: new Date().toLocaleDateString(currentLocale, { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          paymentStatus: paymentStatus || 'PAID',
+          paymentId: paymentId,
+          carName: walletData.carName,
+          licensePlate: walletData.licensePlate,
+          carId: walletData.carId
+        };
+        
+        setPaymentDetails(walletPaymentDetails);
+        return;
+      } catch (error) {
+        console.error('PaymentSuccess - Error parsing wallet data:', error);
+      }
+    }
+
     const getDefaultPaymentDetails = () => {
       const currentLocale = i18n.language === 'vi' ? 'vi-VN' : 'en-US';
       return {
@@ -176,9 +215,16 @@ const PaymentSuccess = () => {
 
   // Function to clear localStorage and navigate
   const handleNavigation = (path) => {
-    localStorage.removeItem('pendingBooking');
-    localStorage.removeItem("totalPriceDelivery");
-    console.log('PaymentSuccess - Cleared pendingBooking from localStorage');
+    if (isWalletTopUp) {
+      // localStorage.removeItem('isWallet');
+      // localStorage.removeItem('walletTopUpData');
+      console.log('PaymentSuccess - Cleared wallet data from localStorage');
+    } else {
+      localStorage.removeItem('pendingBooking');
+      localStorage.removeItem("totalPriceDelivery");
+      localStorage.removeItem("selfpickupparklot");
+      console.log('PaymentSuccess - Cleared pendingBooking from localStorage');
+    }
     navigate(path);
   };
   
@@ -206,11 +252,11 @@ const PaymentSuccess = () => {
           </div>
           
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {t('paymentSuccessful')}
+            {isWalletTopUp ? t('walletTopUpSuccessful') : t('paymentSuccessful')}
           </h1>
           
           <p className="text-gray-600 mb-4">
-            {t('paymentSuccessMessage')}
+            {isWalletTopUp ? t('walletTopUpSuccessMessage') : t('paymentSuccessMessage')}
           </p>
           
           <div className="inline-block bg-green-50 border border-green-200 rounded-lg px-6 py-3">
@@ -219,157 +265,210 @@ const PaymentSuccess = () => {
           </div>
         </div>
 
-        {/* Payment Details */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('paymentDetails')}</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <p className="text-sm text-gray-500 mb-1">{t('amountPaidBookingFee')}</p>
-              <p className="text-2xl font-bold text-gray-900">{paymentDetails.amount.toLocaleString('vi-VN')} đ</p>
-              {/* {paymentDetails.rentalDays && paymentDetails.carRentPrice && (
-                <p className="text-xs text-gray-500 mt-1">
-                  {paymentDetails.bookingFee}% {t('of')} {paymentDetails.subtotal.toLocaleString('vi-VN')} đ ({paymentDetails.carRentPrice.toLocaleString('vi-VN')} đ/{t('day')} × {paymentDetails.rentalDays} {t('day')}{paymentDetails.rentalDays > 1 ? 's' : ''})
-                </p>
-              )} */}
-              {/* <p className="text-xs text-gray-600 mt-2 font-medium">
-                {t('remaining')}: {(paymentDetails.subtotal).toLocaleString('vi-VN')} đ ({t('payAtDropoff')})
-              </p> */}
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 mb-1">{t('paymentMethod')}</p>
-              <p className="text-lg font-semibold text-gray-900">{paymentDetails.paymentMethod}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 mb-1">{t('paymentDate')}</p>
-              <p className="text-lg font-semibold text-gray-900">{paymentDetails.paymentDate}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 mb-1">{t('status')}</p>
-              <span className="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                {t('confirmed')}
-              </span>
-            </div>
-          </div>
+        {/* Conditional Content Based on Payment Type */}
+        {isWalletTopUp ? (
+          /* Wallet Top-Up Success Content */
+          <>
+            {/* Wallet Top-Up Details */}
+            <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('walletTopUpDetails')}</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">{t('topUpAmount')}</p>
+                  <p className="text-2xl font-bold text-green-600">{paymentDetails.amount.toLocaleString('vi-VN')} đ</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">{t('paymentMethod')}</p>
+                  <p className="text-lg font-semibold text-gray-900">{paymentDetails.paymentMethod}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">{t('paymentDate')}</p>
+                  <p className="text-lg font-semibold text-gray-900">{paymentDetails.paymentDate}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">{t('status')}</p>
+                  <span className="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {t('paid')}
+                  </span>
+                </div>
+              </div>
 
-          <hr className="my-6" />
+              <hr className="my-6" />
 
-          {/* Car Details */}
-          <h3 className="text-xl font-bold text-gray-900 mb-4">{t('rentalDetails')}</h3>
-          <div className="flex items-center mb-6 p-4 bg-gray-50 rounded-lg">
-            <img
-              src={paymentDetails.carImage}
-              alt={paymentDetails.carName}
-              className="w-24 h-20 object-cover rounded-lg mr-4"
-            />
-            <div>
-              <h4 className="font-bold text-gray-900 text-lg">{paymentDetails.carName}</h4>
-              {paymentDetails.carRating && paymentDetails.carReviewCount ? (
-                <div className="flex items-center text-sm text-gray-500">
-                  <svg className="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              {/* Car Wallet Details */}
+              <h3 className="text-xl font-bold text-gray-900 mb-4">{t('carWalletDetails')}</h3>
+              <div className="flex items-center p-4 bg-blue-50 rounded-lg">
+                <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                   </svg>
-                  <span>{paymentDetails.carRating} ({paymentDetails.carReviewCount}+ {t('reviews')})</span>
-                </div>
-              ) : (
-                <p className="text-sm text-gray-500">{t('sportCar')}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Rental Schedule */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="p-4 bg-blue-50 rounded-lg">
-              <div className="flex items-center mb-3">
-                <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                <h4 className="font-bold text-gray-900">{t('pickUp')}</h4>
-              </div>
-              <div className="space-y-2">
-                <div>
-                  <p className="text-xs text-gray-500">{t('location')}</p>
-                  <p className="text-sm font-semibold text-gray-900">{paymentDetails.rentalInfo.pickUpLocation}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">{t('dateAndTime')}</p>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {paymentDetails.rentalInfo.pickUpDate} {t('at')} {paymentDetails.rentalInfo.pickUpTime}
-                  </p>
+                  <h4 className="font-bold text-gray-900 text-lg">{paymentDetails.carName}</h4>
+                  <p className="text-sm text-gray-500">{t('licensePlate')}: {paymentDetails.licensePlate}</p>
+                  <p className="text-sm text-green-600 font-medium">{t('walletTopUpComplete')}</p>
                 </div>
               </div>
             </div>
 
-            <div className="p-4 bg-red-50 rounded-lg">
-              <div className="flex items-center mb-3">
-                <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                <h4 className="font-bold text-gray-900">{t('dropOff')}</h4>
+            {/* Action Buttons for Wallet */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                  onClick={() => handleNavigation('/owner/usage')}
+                  className="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  {t('backToUsageTracking')}
+                </button>
+                
+                <button
+                  onClick={() => handleNavigation('/owner')}
+                  className="bg-gray-200 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                >
+                  {t('backToOwnerDashboard')}
+                </button>
               </div>
-              <div className="space-y-2">
+            </div>
+          </>
+        ) : (
+          /* Regular Booking Payment Success Content */
+          <>
+            {/* Payment Details */}
+            <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('paymentDetails')}</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                  <p className="text-xs text-gray-500">{t('location')}</p>
-                  <p className="text-sm font-semibold text-gray-900">{paymentDetails.rentalInfo.dropOffLocation}</p>
+                  <p className="text-sm text-gray-500 mb-1">{t('amountPaidBookingFee')}</p>
+                  <p className="text-2xl font-bold text-gray-900">{paymentDetails.amount.toLocaleString('vi-VN')} đ</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">{t('dateAndTime')}</p>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {paymentDetails.rentalInfo.dropOffDate} {t('at')} {paymentDetails.rentalInfo.dropOffTime}
-                  </p>
+                  <p className="text-sm text-gray-500 mb-1">{t('paymentMethod')}</p>
+                  <p className="text-lg font-semibold text-gray-900">{paymentDetails.paymentMethod}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">{t('paymentDate')}</p>
+                  <p className="text-lg font-semibold text-gray-900">{paymentDetails.paymentDate}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">{t('status')}</p>
+                  <span className="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {t('confirmed')}
+                  </span>
+                </div>
+              </div>
+
+              <hr className="my-6" />
+
+              {/* Car Details */}
+              <h3 className="text-xl font-bold text-gray-900 mb-4">{t('rentalDetails')}</h3>
+              <div className="flex items-center mb-6 p-4 bg-gray-50 rounded-lg">
+                <img
+                  src={paymentDetails.carImage}
+                  alt={paymentDetails.carName}
+                  className="w-24 h-20 object-cover rounded-lg mr-4"
+                />
+                <div>
+                  <h4 className="font-bold text-gray-900 text-lg">{paymentDetails.carName}</h4>
+                  {paymentDetails.carRating && paymentDetails.carReviewCount ? (
+                    <div className="flex items-center text-sm text-gray-500">
+                      <svg className="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      <span>{paymentDetails.carRating} ({paymentDetails.carReviewCount}+ {t('reviews')})</span>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500">{t('sportCar')}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Rental Schedule */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <div className="flex items-center mb-3">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                    <h4 className="font-bold text-gray-900">{t('pickUp')}</h4>
+                  </div>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-xs text-gray-500">{t('location')}</p>
+                      <p className="text-sm font-semibold text-gray-900">{paymentDetails.rentalInfo.pickUpLocation}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">{t('dateAndTime')}</p>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {paymentDetails.rentalInfo.pickUpDate} {t('at')} {paymentDetails.rentalInfo.pickUpTime}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-red-50 rounded-lg">
+                  <div className="flex items-center mb-3">
+                    <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                    <h4 className="font-bold text-gray-900">{t('dropOff')}</h4>
+                  </div>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-xs text-gray-500">{t('location')}</p>
+                      <p className="text-sm font-semibold text-gray-900">{paymentDetails.rentalInfo.dropOffLocation}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">{t('dateAndTime')}</p>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {paymentDetails.rentalInfo.dropOffDate} {t('at')} {paymentDetails.rentalInfo.dropOffTime}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <hr className="my-6" />
+
+              {/* Billing Information */}
+              <h3 className="text-xl font-bold text-gray-900 mb-4">{t('billingInformation')}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">{t('name')}</p>
+                  <p className="text-base font-semibold text-gray-900">{paymentDetails.billingInfo.name}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">{t('email')}</p>
+                  <p className="text-base font-semibold text-gray-900">{paymentDetails.billingInfo.email}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">{t('phone')}</p>
+                  <p className="text-base font-semibold text-gray-900">{paymentDetails.billingInfo.phone}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">{t('address')}</p>
+                  <p className="text-base font-semibold text-gray-900">{paymentDetails.billingInfo.address}</p>
                 </div>
               </div>
             </div>
-          </div>
 
-          <hr className="my-6" />
-
-          {/* Billing Information */}
-          <h3 className="text-xl font-bold text-gray-900 mb-4">{t('billingInformation')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-500 mb-1">{t('name')}</p>
-              <p className="text-base font-semibold text-gray-900">{paymentDetails.billingInfo.name}</p>
+            {/* Action Buttons for Regular Booking */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                  onClick={() => handleNavigation('/profile/rental_history')}
+                  className="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  {t('viewRentalHistory')}
+                </button>
+                
+                <button
+                  onClick={() => handleNavigation('/')}
+                  className="bg-gray-200 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                >
+                  {t('backToHome')}
+                </button>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-gray-500 mb-1">{t('email')}</p>
-              <p className="text-base font-semibold text-gray-900">{paymentDetails.billingInfo.email}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 mb-1">{t('phone')}</p>
-              <p className="text-base font-semibold text-gray-900">{paymentDetails.billingInfo.phone}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 mb-1">{t('address')}</p>
-              <p className="text-base font-semibold text-gray-900">{paymentDetails.billingInfo.address}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="grid grid-cols-1 md:grid-cols- gap-4">
-            {/* <button
-              onClick={() => window.print()}
-              className="flex items-center justify-center bg-gray-100 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-              </svg>
-              {t('printReceipt')}
-            </button> */}
-            
-            <button
-              onClick={() => handleNavigation('/profile/rental_history')}
-              className="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            >
-              {t('viewRentalHistory')}
-            </button>
-            
-            <button
-              onClick={() => handleNavigation('/')}
-              className="bg-gray-200 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors font-medium"
-            >
-              {t('backToHome')}
-            </button>
-          </div>
-        </div>
+          </>
+        )}
 
         {/* Additional Info */}
         <div className="mt-6 text-center">

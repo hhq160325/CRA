@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { addFundToWallet } from '../../api/ownerApi';
 
 const TopUpModal = ({ isOpen, onClose, selectedCar }) => {
   const { t } = useTranslation();
   const [topUpForm, setTopUpForm] = useState({
     amount: '',
-    paymentMethod: 'credit_card',
-    note: '',
   });
   const [topUpLoading, setTopUpLoading] = useState(false);
   const [topUpError, setTopUpError] = useState(null);
@@ -26,8 +25,15 @@ const TopUpModal = ({ isOpen, onClose, selectedCar }) => {
     if (!selectedCar) return;
 
     // Validation
-    if (!topUpForm.amount || parseFloat(topUpForm.amount) <= 0) {
+    const amount = parseFloat(topUpForm.amount);
+    if (!topUpForm.amount || amount <= 0) {
       setTopUpError(t('topUpModal.invalidAmount'));
+      return;
+    }
+
+    // Minimum amount validation (10,000 VND)
+    if (amount < 10000) {
+      setTopUpError(t('topUpModal.minimumAmountError'));
       return;
     }
 
@@ -35,27 +41,38 @@ const TopUpModal = ({ isOpen, onClose, selectedCar }) => {
       setTopUpLoading(true);
       setTopUpError(null);
 
-      // TODO: Replace with actual API call when available
-      const payload = {
-        carId: selectedCar.id,
-        amount: parseFloat(topUpForm.amount),
-        paymentMethod: topUpForm.paymentMethod,
-        note: topUpForm.note || '',
-      };
-
-      console.log('Top-up payload (placeholder):', payload);
+      // Call the actual API
+      const response = await addFundToWallet(selectedCar.carId || selectedCar.id, amount);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('Top-up API response:', response);
 
-      setTopUpSuccess(true);
-      setTimeout(() => {
-        handleClose();
-      }, 2000);
+      // Check if response contains payment URL
+      if (response && response.paymentUrl) {
+        // Save wallet top-up flag to localStorage
+        localStorage.setItem('isWallet', 'true');
+        localStorage.setItem('walletTopUpData', JSON.stringify({
+          carId: selectedCar.carId || selectedCar.id,
+          carName: selectedCar.carName,
+          licensePlate: selectedCar.licensePlate,
+          amount: amount,
+          timestamp: new Date().toISOString()
+        }));
+        
+        // Redirect to PayOS payment page
+        window.open(response.paymentUrl, '_blank');
+        
+        setTopUpSuccess(true);
+        setTimeout(() => {
+          handleClose();
+        }, 1500);
+      } else {
+        // Handle case where no payment URL is returned
+        setTopUpError(t('topUpModal.noPaymentUrlError'));
+      }
 
     } catch (err) {
       console.error('Error processing top-up:', err);
-      setTopUpError(err.response?.data?.message || t('topUpModal.topUpError'));
+      setTopUpError(err.response?.data?.message || err.message || t('topUpModal.topUpError'));
     } finally {
       setTopUpLoading(false);
     }
@@ -64,8 +81,6 @@ const TopUpModal = ({ isOpen, onClose, selectedCar }) => {
   const handleClose = () => {
     setTopUpForm({
       amount: '',
-      paymentMethod: 'credit_card',
-      note: '',
     });
     setTopUpError(null);
     setTopUpSuccess(false);
@@ -106,7 +121,10 @@ const TopUpModal = ({ isOpen, onClose, selectedCar }) => {
                 <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <p className="text-green-800 font-medium">{t('topUpModal.successMessage')}</p>
+                <div>
+                  <p className="text-green-800 font-medium">{t('topUpModal.successMessage')}</p>
+                  <p className="text-green-700 text-sm mt-1">{t('topUpModal.paymentRedirectMessage')}</p>
+                </div>
               </div>
             </div>
           )}
@@ -125,67 +143,21 @@ const TopUpModal = ({ isOpen, onClose, selectedCar }) => {
                 {t('topUpModal.amountLabel')} <span className="text-red-500">{t('topUpModal.required')}</span>
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">VND</span>
                 <input
                   type="number"
                   name="amount"
                   value={topUpForm.amount}
                   onChange={handleTopUpFormChange}
-                  placeholder="0.00"
+                  placeholder="0"
                   min="0"
-                  step="0.01"
-                  className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  step="1000"
+                  className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   required
                   disabled={topUpLoading || topUpSuccess}
                 />
               </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('topUpModal.paymentMethodLabel')} <span className="text-red-500">{t('topUpModal.required')}</span>
-              </label>
-              <select
-                name="paymentMethod"
-                value={topUpForm.paymentMethod}
-                onChange={handleTopUpFormChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                required
-                disabled={topUpLoading || topUpSuccess}
-              >
-                <option value="credit_card">{t('topUpModal.creditCard')}</option>
-                <option value="debit_card">{t('topUpModal.debitCard')}</option>
-                <option value="bank_transfer">{t('topUpModal.bankTransfer')}</option>
-                <option value="paypal">{t('topUpModal.paypal')}</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('topUpModal.noteLabel')}
-              </label>
-              <textarea
-                name="note"
-                value={topUpForm.note}
-                onChange={handleTopUpFormChange}
-                placeholder={t('topUpModal.notePlaceholder')}
-                rows="3"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
-                disabled={topUpLoading || topUpSuccess}
-              />
-            </div>
-          </div>
-
-          {/* Placeholder Notice */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <div className="flex items-start">
-              <svg className="w-5 h-5 text-yellow-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-              <div>
-                <p className="text-yellow-800 font-medium text-sm">{t('topUpModal.placeholderTitle')}</p>
-                <p className="text-yellow-700 text-sm mt-1">{t('topUpModal.placeholderMessage')}</p>
-              </div>
+              <p className="text-xs text-gray-500 mt-1">{t('topUpModal.minimumAmount')}</p>
             </div>
           </div>
 
@@ -201,9 +173,15 @@ const TopUpModal = ({ isOpen, onClose, selectedCar }) => {
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
               disabled={topUpLoading || topUpSuccess}
             >
+              {topUpLoading && (
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              )}
               {topUpLoading ? t('topUpModal.processing') : t('topUpModal.topUpButton')}
             </button>
           </div>

@@ -3,11 +3,11 @@ import { decodeJWT, getRoleFromToken, getUserIdFromToken, getIsVerifiedFromToken
 
 export const tokenUtils = {
   // Store tokens in localStorage (excluding isVerified)
-  storeTokens: (accessToken, refreshToken, user) => {
+  storeTokens: (accessToken, refreshToken,jwtToken, user) => {
     if (typeof window === 'undefined') return;
     localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
-    localStorage.setItem("jwtToken", accessToken);
+    // localStorage.setItem("refreshToken", refreshToken);
+    localStorage.setItem("jwtToken", jwtToken);
     // Store user data excluding isVerified (keep isVerified only in Redux state)
     const { isVerified, ...userWithoutVerification } = user || {};
     localStorage.setItem("user", JSON.stringify(userWithoutVerification));

@@ -18,7 +18,7 @@ const PaymentHistoryPage = () => {
         setLoading(true);
         
         // Get userId from JWT token
-        const token = localStorage.getItem('accessToken');
+        const token = localStorage.getItem('jwtToken');
         if (!token) {
           setError('User not logged in');
           setLoading(false);

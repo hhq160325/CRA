@@ -11,10 +11,9 @@ export const carRegisDocsService = {
       ]);
 
       console.log('RegDocs API Response:', regDocsResponse); // Debug log
-
+      console.log('allCars API Response:', allCars); // Debug log
       // Filter cars by current user
       const userCars = allCars.filter(car => car.owner?.id === currentUserId);
-
       // Extract registration documents array from response
       // The API response has a 'view' property containing the array
       const allRegDocs = regDocsResponse?.view || [];
@@ -30,7 +29,7 @@ export const carRegisDocsService = {
       // Merge car data with registration document status
       const carsWithRegStatus = userCars.map(car => {
         const regDoc = regDocsMap.get(car.id);
-        
+
         if (regDoc) {
           // Car has registration documents
           return {
@@ -51,9 +50,10 @@ export const carRegisDocsService = {
       });
 
       return carsWithRegStatus;
+      
     } catch (error) {
       console.error('Error fetching user cars with registration status:', error);
-      throw error;
+      // throw error;
     }
   },
 

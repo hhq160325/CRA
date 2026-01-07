@@ -40,6 +40,17 @@ export const paymentTranslate = {
       paymentCancelled: "Payment Cancelled",
       paymentCancelledMessage: "Your payment has been cancelled. No charges have been made to your account.",
       tryAgain: "Try Again",
+
+      // Wallet Top-Up Success
+      walletTopUpSuccessful: "Wallet Top-Up Successful!",
+      walletTopUpSuccessMessage: "Your car wallet has been topped up successfully.",
+      walletTopUpDetails: "Top-Up Details",
+      topUpAmount: "Top-Up Amount",
+      carWalletDetails: "Car Wallet Details",
+      licensePlate: "License Plate",
+      walletTopUpComplete: "Wallet top-up completed successfully",
+      backToUsageTracking: "Back to Usage Tracking",
+      backToOwnerDashboard: "Back to Owner Dashboard",
     }
   },
   vi: {
@@ -83,6 +94,17 @@ export const paymentTranslate = {
       paymentCancelled: "Thanh Toán Đã Hủy",
       paymentCancelledMessage: "Thanh toán của bạn đã bị hủy. Không có khoản phí nào được tính vào tài khoản của bạn.",
       tryAgain: "Thử Lại",
+
+      // Wallet Top-Up Success
+      walletTopUpSuccessful: "Nạp Ví Thành Công!",
+      walletTopUpSuccessMessage: "Ví xe của bạn đã được nạp tiền thành công.",
+      walletTopUpDetails: "Chi Tiết Nạp Tiền",
+      topUpAmount: "Số Tiền Nạp",
+      carWalletDetails: "Chi Tiết Ví Xe",
+      licensePlate: "Biển Số",
+      walletTopUpComplete: "Nạp ví thành công",
+      backToUsageTracking: "Quay Lại Theo Dõi Sử Dụng",
+      backToOwnerDashboard: "Quay Lại Bảng Điều Khiển",
     }
   }
 };

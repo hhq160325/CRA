@@ -50,7 +50,7 @@ const ExtendedBooking = ({ isOpen, rental, onClose, onSuccess }) => {
     setSuccess('');
 
     try {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem('jwtToken');
       
       // Step 1: Extend booking using the booking ID from props
       const extendBookingData = {

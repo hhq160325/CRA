@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import CarPhotoUpload from './CarPhotoUpload';
-import { registerCar, setCarRentalRate } from '../carApi';
+import { registerCar, setCarRentalRate, createCarWallet } from '../carApi';
 
 const RegisterCarStep3 = () => {
     const { t } = useTranslation();
@@ -84,6 +84,17 @@ const RegisterCarStep3 = () => {
                         // Just log the error
                     }
                 }
+
+                // Create wallet for the car
+                try {
+                    const walletResponse = await createCarWallet(carId);
+                    console.log('Car wallet created successfully!');
+                    console.log('Wallet response:', walletResponse);
+                } catch (walletError) {
+                    console.error('Error creating car wallet:', walletError);
+                    // Don't fail the whole registration if wallet creation fails
+                    // Just log the error
+                }
             } else {
                 console.warn('No car ID found in response. Full response:', response);
             }
@@ -93,7 +104,7 @@ const RegisterCarStep3 = () => {
             // Clear localStorage after successful registration
             localStorage.removeItem('carRegistrationStep1');
             localStorage.removeItem('carRegistrationStep2');
-
+            localStorage.removeItem('registeredCarId');
             setTimeout(() => {
                 // Navigate to success page or dashboard
                 navigate('/owner');

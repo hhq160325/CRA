@@ -4,7 +4,7 @@ import DropdownTemplate from '../../../../../shared/components/DropdownTemplate'
 import Pagination from '../../../../../shared/components/Pagination';
 import { tokenUtils } from '../../../../auth/utils';
 import { filterCarUsageData } from '../../../utils/filterUtils';
-import { getAllCars, getCarBookings } from '../../../api/ownerApi';
+import { getAllCars, getCarBookings, getAllCarWallets } from '../../../api/ownerApi';
 import { MaintenanceSchedulingModal, TopUpModal, UsageDetailsModal } from '../../modal';
 
 const UsageTracking = () => {
@@ -19,6 +19,7 @@ const UsageTracking = () => {
   const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
   const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
   const [usageData, setUsageData] = useState([]);
+  const [carWallets, setCarWallets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,7 +51,14 @@ const UsageTracking = () => {
           return;
         }
 
-        const allCars = await getAllCars();
+        // Fetch cars and wallets in parallel
+        const [allCars, allWallets] = await Promise.all([
+          getAllCars(),
+          getAllCarWallets()
+        ]);
+
+        // Store wallets for later use
+        setCarWallets(allWallets);
 
         // Filter cars by current owner ID and exclude Denied/Pending status
         const cars = allCars.filter(car => 
@@ -85,6 +93,10 @@ const UsageTracking = () => {
               ? new Date(sortedBookings[0].pickupTime).toLocaleDateString()
               : 'Không có';
 
+            // Find wallet balance for this car
+            const carWallet = allWallets.find(wallet => wallet.carId === car.id);
+            const balance = carWallet ? carWallet.balance : 0;
+
             return {
               id: car.id,
               carId: car.id,
@@ -100,6 +112,7 @@ const UsageTracking = () => {
               seats: car.seats,
               transmission: car.transmission,
               fuelType: car.fuelType,
+              balance, // Add balance to car data
               bookings, // Store bookings for modal
             };
           })
@@ -334,6 +347,7 @@ const UsageTracking = () => {
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('usageTracking.carInfo')}</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('usageTracking.rentals')}</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('usageTracking.daysRented')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('usageTracking.balance')}</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('usageTracking.status')}</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('usageTracking.actions')}</th>
                 </tr>
@@ -341,7 +355,7 @@ const UsageTracking = () => {
               <tbody className="divide-y divide-gray-100">
                 {paginatedUsage.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="py-8 text-center text-gray-500">
+                    <td colSpan="6" className="py-8 text-center text-gray-500">
                       {t('usageTracking.noCarsFound')}
                     </td>
                   </tr>
@@ -380,6 +394,12 @@ const UsageTracking = () => {
                         <td className="py-4 px-6">
                           <div className="text-sm text-gray-900">{car.totalDaysRented}</div>
                           <div className="text-xs text-gray-500">{t('usageTracking.days')}</div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="text-sm font-medium text-gray-900">
+                            {car.balance?.toLocaleString('vi-VN')} VND
+                          </div>
+                          <div className="text-xs text-gray-500">{t('usageTracking.walletBalance')}</div>
                         </td>
                         {/* <td className="py-4 px-6">
                         <div className="flex items-center space-x-2">

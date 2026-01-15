@@ -17,7 +17,7 @@ const EventModal = ({ selectedEvent, isEventModalOpen, onClose }) => {
     });
   };
 
-  console.log("selectedEvent", selectedEvent);
+  // console.log("selectedEvent", selectedEvent);
 
   // const formatCurrency = (amount) => {
   //   return new Intl.NumberFormat('en-US', {

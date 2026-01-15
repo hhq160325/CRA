@@ -27,7 +27,7 @@ const StaffManagement = () => {
 
   const handleExportData = () => {
     // TODO: Implement export functionality
-    console.log('Exporting staff data...');
+    // console.log('Exporting staff data...');
   };
 
   if (loading) {

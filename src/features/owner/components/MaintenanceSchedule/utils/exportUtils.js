@@ -186,7 +186,7 @@ export const exportSchedulesToCSV = (schedules, t, filename = null) => {
     const exportFilename = filename || generateFilename('maintenance-schedule-export');
     downloadCSV(csvContent, exportFilename);
     
-    console.log(`Successfully exported ${schedules.length} maintenance schedule records`);
+    // console.log(`Successfully exported ${schedules.length} maintenance schedule records`);
     return true;
   } catch (error) {
     console.error('Error exporting maintenance schedules to CSV:', error);

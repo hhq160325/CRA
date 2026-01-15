@@ -123,7 +123,8 @@ const UploadDriver = () => {
 
       // Get user email from current user data
       const userEmail = currentUser?.email;
-
+      // console.log("userEmail",userEmail);
+      
       if (!userId || !userEmail) {
         console.error('User ID or email not found');
         return;
@@ -224,7 +225,7 @@ const UploadDriver = () => {
     };
 
     const config = statusConfig[effectiveStatus] || statusConfig['Pending'];
-    console.log("effectiveStatus", effectiveStatus, "user.isVerified", user?.isVerified);
+    // console.log("effectiveStatus", effectiveStatus, "user.isVerified", user?.isVerified);
 
     return (
       <span className={`ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${config.bg} ${config.text}`}>
@@ -288,11 +289,11 @@ const UploadDriver = () => {
       formData.append('userId', userId);
 
       // Log the data being sent to server
-      console.log('Data being sent to server:', {
-        userId: userId,
-        frontFile: frontFile ? { name: frontFile.name, size: frontFile.size, type: frontFile.type } : null,
-        endpoint: USER_ENDPOINTS.UPLOAD_DRIVER_LICENSE
-      });
+      // console.log('Data being sent to server:', {
+      //   userId: userId,
+      //   frontFile: frontFile ? { name: frontFile.name, size: frontFile.size, type: frontFile.type } : null,
+      //   endpoint: USER_ENDPOINTS.UPLOAD_DRIVER_LICENSE
+      // });
 
       await axios.post(USER_ENDPOINTS.UPLOAD_DRIVER_LICENSE, formData, {
         headers: {

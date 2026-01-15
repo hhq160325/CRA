@@ -110,7 +110,7 @@ const RegisterCar = () => {
 
     const handleReturn = () => {
         // TODO: Implement navigation to previous page
-        console.log('Return button clicked - implement later');
+        // console.log('Return button clicked - implement later');
     };
 
     const handleNext = () => {

@@ -25,12 +25,12 @@ export const useOAuthMessageHandler = () => {
         return;
       }
 
-      console.log('Login: Received postMessage:', {
-        origin: event.origin,
-        data: data,
-        hasToken: !!(data.token || data.JwtToken),
-        dataKeys: Object.keys(data)
-      });
+      // console.log('Login: Received postMessage:', {
+      //   origin: event.origin,
+      //   data: data,
+      //   hasToken: !!(data.token || data.JwtToken),
+      //   dataKeys: Object.keys(data)
+      // });
 
       // Check if this is Google auth data
       const token = data.token || data.JwtToken;
@@ -43,7 +43,7 @@ export const useOAuthMessageHandler = () => {
           
           // If no token, this is a registration response - need to call google-callback to get token
           if (!token) {
-            console.log('Login: No token received, calling google-callback to get JWT...');
+            // console.log('Login: No token received, calling google-callback to get JWT...');
             
             try {
               // Import API config
@@ -61,13 +61,13 @@ export const useOAuthMessageHandler = () => {
               
               // Extract JWT from HTML response
               const html = await response.text();
-              console.log('google-callback response body:', html);
+              // console.log('google-callback response body:', html);
               
               // Extract JSON data from the postMessage script
               const jsonMatch = html.match(/window\.opener\.postMessage\((.*?),\s*'\*'\)/s);
               if (jsonMatch) {
                 const jsonData = JSON.parse(jsonMatch[1]);
-                console.log('Extracted token data:', jsonData);
+                // console.log('Extracted token data:', jsonData);
                 
                 // Trigger the message handler with the extracted data
                 window.postMessage(jsonData, window.location.origin);

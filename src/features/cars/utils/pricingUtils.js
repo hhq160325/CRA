@@ -12,10 +12,10 @@
  * @returns {Object|null} Price range object or null if insufficient data
  */
 export const calculateRecommendedPrice = (carData) => {
-    console.log('calculateRecommendedPrice called with:', carData);
+    // console.log('calculateRecommendedPrice called with:', carData);
     
     if (!carData || !carData.yearOfManufacture) {
-        console.log('Missing required data for pricing calculation');
+        // console.log('Missing required data for pricing calculation');
         return null;
     }
 
@@ -30,7 +30,7 @@ export const calculateRecommendedPrice = (carData) => {
     // Get sizeClass from the carData directly (it should be in the passed data)
     let sizeClass = carData.sizeClass || 'Standard'; // default
     
-    console.log('Using sizeClass:', sizeClass);
+    // console.log('Using sizeClass:', sizeClass);
 
     // If still no sizeClass found, use fallback mapping based on model name
     // if (sizeClass === 'Standard' && carData.model) {
@@ -64,11 +64,11 @@ export const calculateRecommendedPrice = (carData) => {
     const currentYear = new Date().getFullYear();
     const carYear = parseInt(carData.yearOfManufacture);
     
-    console.log('Base price:', basePrice, 'Car year:', carYear, 'Current year:', currentYear);
+    // console.log('Base price:', basePrice, 'Car year:', carYear, 'Current year:', currentYear);
     
     // Validate car year
     if (isNaN(carYear) || carYear < 1900 || carYear > currentYear + 1) {
-        console.log('Invalid car year:', carYear);
+        // console.log('Invalid car year:', carYear);
         return null;
     }
     
@@ -85,14 +85,14 @@ export const calculateRecommendedPrice = (carData) => {
     const minPrice = Math.round(recommendedPrice * 0.8);
     const maxPrice = Math.round(recommendedPrice * 1.2);
 
-    console.log('Final calculation:', {
-        basePrice,
-        yearFactor,
-        recommendedPrice,
-        minPrice,
-        maxPrice,
-        carType: sizeClass
-    });
+    // console.log('Final calculation:', {
+    //     basePrice,
+    //     yearFactor,
+    //     recommendedPrice,
+    //     minPrice,
+    //     maxPrice,
+    //     carType: sizeClass
+    // });
 
     return {
         min: minPrice,

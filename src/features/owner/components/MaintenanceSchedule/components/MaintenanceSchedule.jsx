@@ -48,14 +48,14 @@ const MaintenanceSchedule = () => {
       
       await markScheduleAsCompleted(scheduleId);
       
-      console.log('API call successful, refreshing data...');
+      // console.log('API call successful, refreshing data...');
       // Refresh the data after successful completion
       await refetch();
       
       // Close the modal
       handleCloseModal();
       
-      console.log('Maintenance marked as completed successfully');
+      // console.log('Maintenance marked as completed successfully');
     } catch (error) {
       // console.error('=== ERROR IN HANDLE MARK COMPLETED ===');
       // console.error('Error marking maintenance as completed:', error);

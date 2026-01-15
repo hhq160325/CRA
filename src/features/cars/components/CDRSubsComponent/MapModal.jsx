@@ -16,8 +16,8 @@ const MapModal = ({ isOpen, onClose, locationName, locationAddress, locationCity
     const defaultCoordinates = [106.6297, 10.8231];
     const mapCoordinates = coordinates && coordinates.length === 2 ? coordinates : defaultCoordinates;
     
-    console.log('MapModal coordinates:', coordinates);
-    console.log('Using map coordinates:', mapCoordinates);
+    // console.log('MapModal coordinates:', coordinates);
+    // console.log('Using map coordinates:', mapCoordinates);
 
 
     map.current = new trackasiagl.Map({
@@ -29,7 +29,7 @@ const MapModal = ({ isOpen, onClose, locationName, locationAddress, locationCity
     });
 
     map.current.on('load', () => {
-      console.log('Map loaded successfully in modal at coordinates:', mapCoordinates);
+      // console.log('Map loaded successfully in modal at coordinates:', mapCoordinates);
       
       // Add marker
       new trackasiagl.Marker({

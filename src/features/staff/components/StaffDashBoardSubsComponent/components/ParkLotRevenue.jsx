@@ -18,28 +18,28 @@ const ParkLotRevenue = () => {
   } = useParkLotRevenueData(selectedPeriod, selectedParkLot);
 
   // Log when park lot selection changes
-  useEffect(() => {
-    console.log('Park Lot Selection Changed:', {
-      selectedParkLot,
-      selectedParkLotName: getSelectedParkLotName(),
-      selectedPeriod,
-      timestamp: new Date().toISOString()
-    });
-  }, [selectedParkLot, selectedPeriod]);
+  // useEffect(() => {
+  //   console.log('Park Lot Selection Changed:', {
+  //     selectedParkLot,
+  //     selectedParkLotName: getSelectedParkLotName(),
+  //     selectedPeriod,
+  //     timestamp: new Date().toISOString()
+  //   });
+  // }, [selectedParkLot, selectedPeriod]);
 
   // Log revenue data changes
-  useEffect(() => {
-    if (!revenueLoading && revenueStats) {
-      console.log('Revenue Data Updated:', {
-        selectedParkLot,
-        selectedPeriod,
-        totalRevenue: revenueStats.totalRevenue,
-        chartDataPoints: chartData?.length || 0,
-        formattedRevenue: formatVND(revenueStats.totalRevenue),
-        timestamp: new Date().toISOString()
-      });
-    }
-  }, [revenueStats, chartData, revenueLoading, selectedParkLot, selectedPeriod]);
+  // useEffect(() => {
+  //   if (!revenueLoading && revenueStats) {
+  //     console.log('Revenue Data Updated:', {
+  //       selectedParkLot,
+  //       selectedPeriod,
+  //       totalRevenue: revenueStats.totalRevenue,
+  //       chartDataPoints: chartData?.length || 0,
+  //       formattedRevenue: formatVND(revenueStats.totalRevenue),
+  //       timestamp: new Date().toISOString()
+  //     });
+  //   }
+  // }, [revenueStats, chartData, revenueLoading, selectedParkLot, selectedPeriod]);
 
   const formatVND = (amount) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -155,12 +155,12 @@ const ParkLotRevenue = () => {
               value={selectedParkLot}
               onChange={(e) => {
                 const newParkLotId = e.target.value;
-                console.log('Park Lot Dropdown Changed:', {
-                  previousValue: selectedParkLot,
-                  newValue: newParkLotId,
-                  parkLotName: newParkLotId === 'all' ? 'All Park Lots' : parkLots.find(lot => lot.id === newParkLotId)?.name || 'Unknown',
-                  timestamp: new Date().toISOString()
-                });
+                // console.log('Park Lot Dropdown Changed:', {
+                //   previousValue: selectedParkLot,
+                //   newValue: newParkLotId,
+                //   parkLotName: newParkLotId === 'all' ? 'All Park Lots' : parkLots.find(lot => lot.id === newParkLotId)?.name || 'Unknown',
+                //   timestamp: new Date().toISOString()
+                // });
                 setSelectedParkLot(newParkLotId);
               }}
               className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -186,12 +186,12 @@ const ParkLotRevenue = () => {
               value={selectedPeriod}
               onChange={(e) => {
                 const newPeriod = e.target.value;
-                console.log('Period Selection Changed:', {
-                  previousValue: selectedPeriod,
-                  newValue: newPeriod,
-                  currentParkLot: selectedParkLot,
-                  timestamp: new Date().toISOString()
-                });
+                // console.log('Period Selection Changed:', {
+                //   previousValue: selectedPeriod,
+                //   newValue: newPeriod,
+                //   currentParkLot: selectedParkLot,
+                //   timestamp: new Date().toISOString()
+                // });
                 setSelectedPeriod(newPeriod);
               }}
               className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

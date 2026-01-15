@@ -52,7 +52,7 @@ const StatusOverview = () => {
             dropOff: booking.dropoffTime ? new Date(booking.dropoffTime).toLocaleString() : '-----',
           };
         });
-        console.log("combinedData", combinedData);
+        // console.log("combinedData", combinedData);
         setStatusData(combinedData);
         setError(null);
       } catch (err) {

@@ -19,20 +19,20 @@ export const useDeliveryLocation = (currentCar) => {
   useEffect(() => {
     const calculateDistance = async () => {
       if (!deliveryLocation || !currentCar?.preferredLot) {
-        console.log('Distance calculation skipped:', {
-          hasDeliveryLocation: !!deliveryLocation,
-          hasPreferredLot: !!currentCar?.preferredLot
-        });
+        // console.log('Distance calculation skipped:', {
+        //   hasDeliveryLocation: !!deliveryLocation,
+        //   hasPreferredLot: !!currentCar?.preferredLot
+        // });
         return;
       }
 
       setLoadingDistance(true);
       try {
         const sourceAddress = `${currentCar.preferredLot.address}, ${currentCar.preferredLot.city}`;
-        console.log('Calculating distance from:', sourceAddress, 'to:', deliveryLocation);
+        // console.log('Calculating distance from:', sourceAddress, 'to:', deliveryLocation);
 
         const distanceData = await getDistanceBetweenAddresses(sourceAddress, deliveryLocation);
-        console.log('Distance API response:', distanceData);
+        // console.log('Distance API response:', distanceData);
 
         // API returns distance in meters, convert to kilometers
         const distanceInMeters = distanceData?.distanceInMeters;
@@ -43,7 +43,7 @@ export const useDeliveryLocation = (currentCar) => {
           // Calculate delivery fee based on distance (20000 VND per km, minimum 60000 VND)
           const calculatedFee = Math.max(60000, Math.round(distanceInKm * 20000));
           setDeliveryFee(calculatedFee);
-          console.log('Distance calculated:', distanceInKm, 'km, Fee:', calculatedFee, 'VND');
+          // console.log('Distance calculated:', distanceInKm, 'km, Fee:', calculatedFee, 'VND');
         } else {
           console.warn('No distance found in response:', distanceData);
           setDeliveryDistance(null);

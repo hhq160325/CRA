@@ -31,7 +31,7 @@ export const transformBookingData = (bookingsArray, paymentMap) => {
     const bookingStatus = booking.status ? String(booking.status).toLowerCase() : 'pending';
     let paymentStatus = 'pending';
     let paidAmount = null;
-    console.log("bookingsArray", bookingsArray);
+    // console.log("bookingsArray", bookingsArray);
 
     if (booking.invoiceId && paymentMap[booking.invoiceId]) {
       const paymentData = paymentMap[booking.invoiceId];
@@ -40,7 +40,7 @@ export const transformBookingData = (bookingsArray, paymentMap) => {
       const payosStatus = paymentData.status ? String(paymentData.status).toLowerCase() : '';
 
       paidAmount = paymentData.paidAmount || paymentData.amount || paymentData.totalAmount || null;
-      console.log("paidAmount",paymentData);
+      // console.log("paidAmount",paymentData);
       
       paymentStatus = mapPaymentStatus(payosStatus);
     } else if (booking.paymentStatus) {
@@ -78,9 +78,9 @@ export const fetchBookingsWithPayments = async () => {
   let paymentsData = [];
   try {
     paymentsData = await getAllPayments();
-    console.log('Successfully fetched payments');
+    // console.log('Successfully fetched payments');
   } catch (paymentError) {
-    console.warn('Failed to fetch payments (continuing without payment data):', paymentError.message);
+    console.error('Failed to fetch payments (continuing without payment data):', paymentError.message);
   }
 
   const bookingsArray = Array.isArray(bookingsData) ? bookingsData : [];

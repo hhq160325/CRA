@@ -17,6 +17,7 @@ import { usageTrackingTranslate } from '../features/owner/components/UsageTracki
 import { regDocsApprovedTranslate } from '../features/staff/components/RegDocsApproved/translate/regDocsApprovedTranslate'
 import { driverLicenseApproveTranslate } from '../features/staff/components/DriverLicenseApprove/translate/driverLicenseApproveTranslate'
 import { paymentOwnerTranslate } from '../features/owner/components/Payment/translate/paymentOwnerTranslate'
+import { parkLotManagementTranslate } from '../features/owner/components/ParkLotManagement/translate/parkLotManagementTranslate'
 const resources = {
   en: {
     translation: {
@@ -50,12 +51,15 @@ const resources = {
       //Payment Translate
       ...paymentTranslate.en.translation,
 
+      // Parklot Management Translate Component
+      ...parkLotManagementTranslate.en.translation,
+
       // Usage Tracking Component
       ...usageTrackingTranslate.en.translation,
 
       // Rental History Component
       ...rentalHistoryTranslate.en.translation,
-      
+
       // Staff Rental History Component
       ...staffRentalHistoryTranslate.en.translation,
       // Inquiries Component
@@ -104,6 +108,9 @@ const resources = {
 
       //Payment Translate
       ...paymentTranslate.vi.translation,
+
+      // Parklot Management Translate Component
+      ...parkLotManagementTranslate.vi.translation,
 
       // Usage Tracking Component
       ...usageTrackingTranslate.vi.translation,

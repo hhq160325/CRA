@@ -10,10 +10,10 @@ const RentalHistoryHeader = ({ filteredRentals = [], totalRentals = 0 }) => {
       return;
     }
 
-    const success = exportRentalsToCSV(filteredRentals, t);
-    if (success) {
-      console.log(`Successfully exported ${filteredRentals.length} rental records`);
-    }
+    // const success = exportRentalsToCSV(filteredRentals, t);
+    // if (success) {
+    //   console.log(`Successfully exported ${filteredRentals.length} rental records`);
+    // }
   };
 
   const isExportDisabled = filteredRentals.length === 0;

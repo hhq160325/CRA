@@ -44,7 +44,7 @@ const TopUpModal = ({ isOpen, onClose, selectedCar }) => {
       // Call the actual API
       const response = await addFundToWallet(selectedCar.carId || selectedCar.id, amount);
       
-      console.log('Top-up API response:', response);
+      // console.log('Top-up API response:', response);
 
       // Check if response contains payment URL
       if (response && response.paymentUrl) {

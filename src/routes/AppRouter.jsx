@@ -5,7 +5,7 @@ import { ProfilePage } from '../features/user';
 import { PaymentPage, PaymentSuccess, PaymentCancel } from '../features/payment';
 import { AdminLayout, AdminDashboard, OperationsDashboard, TransactionMonitoring, StaffManagement, StaffLog, CarHandover, CreateStaffAcc } from '../features/admin';
 import { StaffLayout, StaffDashboard, CarOwnerManagement, CustomerManagement, BookingMonitoring, NotificationCenter, ParklotCreate, RegDocsApproved, DriverLicenseApprove, ReportCarMonitoring } from '../features/staff';
-import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments, CarRegisDocs, Maps, OwnerParkLotDashboard } from '../features/owner';
+import { OwnerLayout, OwnerDashboard, MaintenanceSchedule, UsageTracking, RentalHistory, CustomerFeedback, Inquiries, BookingManagement, Payments, CarRegisDocs, Maps, ParkLotManagement } from '../features/owner';
 import { AuthPage, GoogleCallback, ForgotPassword, ResetPassword } from '../features/auth';
 import SearchResult from '../features/search/components/SearchResult';
 import { HomePage } from '../features/homepage';
@@ -106,7 +106,7 @@ const AppRouter = () => {
         <Route path="register_car/step2" element={<RegisterCarStep2 />} />
         <Route path="register_car/step3" element={<RegisterCarStep3 />} />
         <Route path="report_car" element={<ReportCarMonitoring />} />
-        {/* <Route path="park_lot_dashboard" element={<OwnerParkLotDashboard />} /> */}
+        <Route path="park_lot_dashboard" element={<ParkLotManagement />} />
       </Route>
     </Routes>
   );

@@ -19,7 +19,7 @@ const EventCard = ({ event, compact = false, onClick, date }) => {
   // Use bookingStatus if available, otherwise fall back to status
   const displayStatus = event.bookingStatus || event.status;
   const statusColor = getStatusColor(displayStatus);
-  console.log(event);
+  // console.log(event);
   
   const formatTime = (date) => {
     if (!date) return '';

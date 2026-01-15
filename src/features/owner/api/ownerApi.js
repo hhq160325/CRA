@@ -4,7 +4,8 @@ import {
   BOOKING_ENDPOINTS,
   INVOICE_ENDPOINTS,
   USER_ENDPOINTS,
-  SCHEDULE_ENDPOINTS
+  SCHEDULE_ENDPOINTS,
+  PARKLOT_ENDPOINTS
 } from "../../../config/api";
 
 // ============================================
@@ -33,7 +34,7 @@ export const uploadCarRegistrationDocuments = async (carId, userId, files) => {
 /* Get all cars */
 export const getAllCars = async () => {
   const response = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS);
-  console.log("getAllCars",response.data);
+  // console.log("getAllCars",response.data);
   return response.data;
 
 };
@@ -119,6 +120,17 @@ export const getAllCarWallets = async () => {
     return response.data;
   } catch (error) {
     console.error('Error fetching car wallets:', error);
+    return [];
+  }
+};
+
+/* Get all park lots */
+export const getAllParkLots = async () => {
+  try {
+    const response = await axiosInstance.get(PARKLOT_ENDPOINTS.GET_ALL);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching park lots:', error);
     return [];
   }
 };

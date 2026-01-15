@@ -35,7 +35,7 @@ const ExtendedBooking = ({ isOpen, rental, onClose, onSuccess }) => {
       );
 
       const bookings = response.data || [];
-      console.log('Car bookings:', bookings);
+      // console.log('Car bookings:', bookings);
       
       // Find the active booking (confirmed or checkedIn status)
       const activeBooking = bookings.find(booking => 
@@ -44,7 +44,7 @@ const ExtendedBooking = ({ isOpen, rental, onClose, onSuccess }) => {
       
       if (activeBooking) {
         setActualBookingId(activeBooking.id);
-        console.log('Found active booking ID:', activeBooking.id);
+        // console.log('Found active booking ID:', activeBooking.id);
       } else {
         setError('Không tìm thấy booking đang hoạt động cho xe này');
       }
@@ -114,7 +114,7 @@ const ExtendedBooking = ({ isOpen, rental, onClose, onSuccess }) => {
         }
       );
 
-      console.log('Extend booking response:', extendResponse.data);
+      // console.log('Extend booking response:', extendResponse.data);
       setSuccess(`Đã gia hạn thành công ${formData.timeExtInDays} ngày cho booking ${actualBookingId}`);
       
       // Call success callback to refresh parent component

@@ -31,7 +31,7 @@ const CalendarView = () => {
   // Transform maintenance schedules to calendar events
   const transformToCalendarEvents = (schedules) => {
     return schedules.map(schedule => {
-      console.log("schedules",schedules);
+      // console.log("schedules",schedules);
       
       // Use the already formatted dates and times from the service
       let startDate, endDate;

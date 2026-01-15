@@ -49,7 +49,7 @@ const InquiryModal = ({ inquiry, isOpen, onClose, onUpdate }) => {
   };
 
   const handleMarkAsClosed = (inquiryId) => {
-    console.log(t('inquiries.markClosedMessage'), inquiryId);
+    // console.log(t('inquiries.markClosedMessage'), inquiryId);
     toast.info(t('inquiries.markClosedFeature'));
   };
 

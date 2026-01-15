@@ -20,13 +20,13 @@ const LocationPicker = ({ onLocationSelect, showAddress = true }) => {
   // Call parent callback when location is obtained
   React.useEffect(() => {
     if (location && onLocationSelect) {
-      console.log('=== LocationPicker - Sending data ===');
-      console.log('Latitude:', location.latitude);
-      console.log('Longitude:', location.longitude);
-      console.log('Accuracy:', location.accuracy);
-      console.log('address object:', address);
-      console.log('address.formattedAddress:', address?.formattedAddress);
-      console.log('====================================');
+      // console.log('=== LocationPicker - Sending data ===');
+      // console.log('Latitude:', location.latitude);
+      // console.log('Longitude:', location.longitude);
+      // console.log('Accuracy:', location.accuracy);
+      // console.log('address object:', address);
+      // console.log('address.formattedAddress:', address?.formattedAddress);
+      // console.log('====================================');
       
       onLocationSelect({
         latitude: location.latitude,

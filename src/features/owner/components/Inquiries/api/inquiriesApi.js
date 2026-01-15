@@ -84,7 +84,7 @@ export const getChatLogHistory = async (senderId, receiverId) => {
 export const closeInquiry = async (inquiryId) => {
   try {
     // TODO: Implement actual API call when endpoint is available
-    console.log('Closing inquiry:', inquiryId);
+    // console.log('Closing inquiry:', inquiryId);
     return { success: true, message: 'Inquiry marked as closed' };
   } catch (error) {
     throw new Error(error.response?.data?.message || error.message || 'Failed to close inquiry');

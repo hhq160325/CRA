@@ -15,17 +15,17 @@ const PaymentCancel = () => {
     if (pendingBookingStr) {
       try {
         const bookingData = JSON.parse(pendingBookingStr);
-        console.log('PaymentCancel - Retrieved booking data:', bookingData);
+        // console.log('PaymentCancel - Retrieved booking data:', bookingData);
         
         // Update booking status to "Cancelled" if bookingId exists
         if (bookingData.bookingId) {
           setIsUpdatingBooking(true);
           updateBooking(bookingData.bookingId, 'Cancelled')
             .then(() => {
-              console.log('PaymentCancel - Booking status updated to Cancelled');
+              // console.log('PaymentCancel - Booking status updated to Cancelled');
               // Clear the pending booking from localStorage after cancellation
               localStorage.removeItem('pendingBooking');
-              console.log('PaymentCancel - Cleared pendingBooking from localStorage');
+              // console.log('PaymentCancel - Cleared pendingBooking from localStorage');
             })
             .catch((error) => {
               console.error('PaymentCancel - Failed to update booking status:', error);

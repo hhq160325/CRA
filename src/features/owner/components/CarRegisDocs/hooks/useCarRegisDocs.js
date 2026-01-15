@@ -53,7 +53,7 @@ export const useCarRegisDocs = () => {
       setUploadingCarId(null);
     }
   };
-  console.log("cars",cars);
+  // console.log("cars",cars);
   
   const filteredCars = cars.filter(car => {
     if (filter === 'all') return true;

@@ -79,7 +79,7 @@ const Payments = () => {
 
       // Filter invoices for current vendor
       const vendorInvoices = allInvoices.filter(invoice => invoice.vendorId === currentUserId);
-      console.log('Vendor Invoices:', vendorInvoices);
+      // console.log('Vendor Invoices:', vendorInvoices);
 
       // Create a map of invoice IDs for quick lookup
       const vendorInvoiceMap = new Map(
@@ -140,7 +140,7 @@ const Payments = () => {
         };
       }), 'sortDate');
 
-      console.log('Filtered and Sorted Vendor Payments:', sortedVendorPayments);
+      // console.log('Filtered and Sorted Vendor Payments:', sortedVendorPayments);
       setPayments(sortedVendorPayments);
     } catch (err) {
       console.error('Error fetching payments:', err);

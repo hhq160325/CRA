@@ -48,7 +48,7 @@ const CarDetailSection = ({
   // console.log("Nguoi gui",currentUserId);
   // Get owner ID from Redux store or fallback to prop
   const carOwnerId = carFromStore?.owner.id;
-  console.log("carFromStore",carFromStore);
+  // console.log("carFromStore",carFromStore);
   const carOwnerEmail = carFromStore?.owner.email
   const carOwnerPhoneNumber = carFromStore?.owner.phoneNumber
   // console.log("Nguoi nhan",carOwnerId);

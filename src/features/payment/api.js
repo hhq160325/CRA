@@ -26,14 +26,14 @@ export const createBooking = async (bookingData) => {
 // Update booking status
 export const updateBooking = async (bookingId, status) => {
   try {
-    console.log('API - updateBooking called with:', { bookingId, status });
+    // console.log('API - updateBooking called with:', { bookingId, status });
     
     const response = await axiosInstance.patch(BOOKING_ENDPOINTS.UPDATE_BOOKING, {
       bookingId,
       status
     });
     
-    console.log('API - Update booking response:', response.data);
+    // console.log('API - Update booking response:', response.data);
     
     return response.data;
   } catch (error) {
@@ -46,7 +46,7 @@ export const updateBooking = async (bookingId, status) => {
 //Update Booking Payment Status
 export const updateBookingPayment = async (orderCode, status, method) => {
   try {
-    console.log('API - updateBooking called with:', { orderCode, status, method });
+    // console.log('API - updateBooking called with:', { orderCode, status, method });
     
     const response = await axiosInstance.patch(PAYMENT_ENDPOINTS.PATCH_BOOKING_PAYMENT_STATUS, {
       orderCode,
@@ -54,7 +54,7 @@ export const updateBookingPayment = async (orderCode, status, method) => {
       method,
     });
     
-    console.log('API - Update booking response:', response.data);
+    // console.log('API - Update booking response:', response.data);
     
     return response.data;
   } catch (error) {

@@ -3,7 +3,7 @@ import { formatPrice } from '../../../../../shared/utils/priceFormatter';
 
 const StatsCards = ({ stats, paymentStats }) => {
   const { t } = useTranslation();
-console.log("stats",stats);
+// console.log("stats",stats);
 
   const statsData = [
     {

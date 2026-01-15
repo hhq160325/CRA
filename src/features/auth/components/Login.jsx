@@ -36,18 +36,18 @@ const Login = ({ onSwitchToRegister }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login button clicked:', {
-      email: formData.email,
-      hasPassword: !!formData.password,
-      timestamp: new Date().toISOString()
-    });
+    // console.log('Login button clicked:', {
+    //   email: formData.email,
+    //   hasPassword: !!formData.password,
+    //   timestamp: new Date().toISOString()
+    // });
 
     try {
       const result = await dispatch(loginUser(formData)).unwrap();
-      console.log('Login successful:', {
-        hasAccessToken: !!result.accessToken,
-        timestamp: new Date().toISOString()
-      });
+      // console.log('Login successful:', {
+      //   hasAccessToken: !!result.accessToken,
+      //   timestamp: new Date().toISOString()
+      // });
 
       setFormData({ email: '', password: '' });
 
@@ -56,10 +56,10 @@ const Login = ({ onSwitchToRegister }) => {
       const roleId = getRoleFromToken(token);
       const redirectPath = getRedirectPathByRole(roleId);
 
-      console.log('Redirecting to:', redirectPath);
+      // console.log('Redirecting to:', redirectPath);
       navigate(redirectPath);
     } catch (error) {
-      console.error('Login failed:', error);
+      // console.error('Login failed:', error);
     }
   };
 
@@ -74,7 +74,7 @@ const Login = ({ onSwitchToRegister }) => {
         window.open(result.url, '_blank');
       }
     } catch (error) {
-      console.error('Google login error:', error);
+      // console.error('Google login error:', error);
     }
   };
 

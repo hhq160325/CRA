@@ -8,9 +8,11 @@ export const tokenUtils = {
     // localStorage.setItem("accessToken", accessToken);
     // localStorage.setItem("refreshToken", refreshToken);
     localStorage.setItem("jwtToken", accessToken);
-    // Store user data excluding isVerified (keep isVerified only in Redux state)
+    // Store user data excluding isVerified
     const { isVerified, ...userWithoutVerification } = user || {};
     localStorage.setItem("user", JSON.stringify(userWithoutVerification));
+    // console.log("userWithoutVerification",userWithoutVerification);
+    
   },
 
   // Update user data in localStorage (for avatar and username updates, excluding isVerified)

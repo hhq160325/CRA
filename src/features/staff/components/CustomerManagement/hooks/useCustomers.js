@@ -105,7 +105,7 @@ export const useCustomers = () => {
           }
         });
       }
-      console.log("bookingStatsMap",bookingStatsMap);
+      // console.log("bookingStatsMap",bookingStatsMap);
       
       // Filter users to only customers (roleId = 1) first
       const customerUsers = usersResponse.data.filter(user => user.roleId === 1);

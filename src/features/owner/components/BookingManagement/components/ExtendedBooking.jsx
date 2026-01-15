@@ -31,9 +31,9 @@ const ExtendedBooking = ({ isOpen, rental, onClose, onSuccess }) => {
   };
 
   const handleExtendBooking = async () => {
-    console.log('=== EXTEND BOOKING DEBUG ===');
-    console.log('Rental data received:', rental);
-    console.log('Form data:', formData);
+    // console.log('=== EXTEND BOOKING DEBUG ===');
+    // console.log('Rental data received:', rental);
+    // console.log('Form data:', formData);
     
     if (!formData.timeExtInDays || formData.timeExtInDays <= 0) {
       setError('Vui lòng nhập số ngày gia hạn hợp lệ');
@@ -60,12 +60,12 @@ const ExtendedBooking = ({ isOpen, rental, onClose, onSuccess }) => {
         note: "string"
       };
 
-      console.log('API Endpoint:', BOOKING_ENDPOINTS.EXTEND_BOOKING);
-      console.log('Request payload:', extendBookingData);
-      console.log('Request headers:', {
-        ...BOOKING_API_CONFIG.headers,
-        // Authorization: `Bearer ${token}`,
-      });
+      // console.log('API Endpoint:', BOOKING_ENDPOINTS.EXTEND_BOOKING);
+      // console.log('Request payload:', extendBookingData);
+      // console.log('Request headers:', {
+      //   ...BOOKING_API_CONFIG.headers,
+      //   // Authorization: `Bearer ${token}`,
+      // });
 
       const extendResponse = await axios.patch(
         BOOKING_ENDPOINTS.EXTEND_BOOKING,
@@ -78,10 +78,10 @@ const ExtendedBooking = ({ isOpen, rental, onClose, onSuccess }) => {
         }
       );
 
-      console.log('Extend booking response:', extendResponse.data);
-      console.log('Response status:', extendResponse.status);
-      console.log('Response headers:', extendResponse.headers);
-      console.log('=== END DEBUG ===');
+      // console.log('Extend booking response:', extendResponse.data);
+      // console.log('Response status:', extendResponse.status);
+      // console.log('Response headers:', extendResponse.headers);
+      // console.log('=== END DEBUG ===');
       
       setSuccess(`Đã gia hạn thành công ${formData.timeExtInDays} ngày cho booking ${rental.bookingId}`);
       

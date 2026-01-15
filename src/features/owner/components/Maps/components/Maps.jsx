@@ -18,9 +18,9 @@ const Maps = () => {
       setLoadingParkLots(true);
       const transformedData = await parkLotService.getParkLotsWithManagers();
       setParkLots(transformedData);
-      console.log('Fetched parking lots with managers:', transformedData);
+      // console.log('Fetched parking lots with managers:', transformedData);
     } catch (error) {
-      console.error('Failed to fetch parking lots:', error);
+      // console.error('Failed to fetch parking lots:', error);
     } finally {
       setLoadingParkLots(false);
     }
@@ -119,7 +119,7 @@ const Maps = () => {
     const initializeMap = async () => {
       try {
         setIsLoading(true);
-        console.log('Initializing TrackAsia map...');
+        // console.log('Initializing TrackAsia map...');
         
         const timeoutId = setTimeout(() => {
           if (isLoading) {
@@ -138,7 +138,7 @@ const Maps = () => {
         mapInstance.current = map;
 
         map.on('load', async () => {
-          console.log('Map loaded successfully');
+          // console.log('Map loaded successfully');
           clearTimeout(timeoutId);
           setIsLoading(false);
           setMapError(null); // Clear any errors

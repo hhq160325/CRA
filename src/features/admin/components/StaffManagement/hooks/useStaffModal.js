@@ -24,7 +24,7 @@ export const useStaffModal = () => {
   const handleStatusChange = (staffId, newStatus) => {
     // COMMENTED OUT: Redux action for updating car owner status
     // dispatch(updateCarOwnerStatus({ id: staffId, status: newStatus }));
-    console.log('Status change requested:', staffId, newStatus);
+    // console.log('Status change requested:', staffId, newStatus);
     // TODO: Implement staff status update API call
   };
 
@@ -37,7 +37,7 @@ export const useStaffModal = () => {
 
   const handleEdit = (formData) => {
     // Handle edit logic here
-    console.log('Editing staff:', selectedStaff.id, formData);
+    // console.log('Editing staff:', selectedStaff.id, formData);
     closeModal();
   };
 

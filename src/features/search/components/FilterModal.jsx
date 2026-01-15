@@ -34,7 +34,7 @@ const FilterModal = ({
       setLoadingManufacturers(true);
       try {
         const data = await getAllManufacturers();
-            console.log("data",data);
+            // console.log("data",data);
         setManufacturers(data || []);
       } catch (error) {
         console.error('Error fetching manufacturers:', error);

@@ -202,7 +202,7 @@ const CarDetailRev = () => {
               city: currentCar.preferredLot.city,
               fullAddress: `${currentCar.preferredLot.address}, ${currentCar.preferredLot.city}`
             };
-            console.log('Removing selfpickupparklot from localStorage');
+            // console.log('Removing selfpickupparklot from localStorage');
             localStorage.removeItem('selfpickupparklot');
             localStorage.setItem('carParkLot', JSON.stringify(carParkLot));
           }

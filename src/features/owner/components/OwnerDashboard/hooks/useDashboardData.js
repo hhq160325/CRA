@@ -15,7 +15,7 @@ const generateBookingBreakdownData = (ownerBookings, period) => {
   switch (period) {
     case '7days': {
       const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      
+
       for (let i = 6; i >= 0; i--) {
         const date = new Date();
         const vietnamNow = new Date(date.getTime() + (7 * 60 * 60 * 1000));
@@ -29,14 +29,14 @@ const generateBookingBreakdownData = (ownerBookings, period) => {
           } else {
             bookingDate = convertToVietnamTime(booking.createDate || booking.pickupTime);
           }
-          
+
           if (bookingDate) {
             bookingDate.setUTCHours(0, 0, 0, 0);
             return bookingDate.getTime() === vietnamNow.getTime();
           }
           return false;
         });
-console.log("dayBookings",dayBookings);
+        // console.log("dayBookings", dayBookings);
 
         const statusCounts = {
           pending: 0,
@@ -63,13 +63,13 @@ console.log("dayBookings",dayBookings);
       }
       break;
     }
-    
+
     case '7weeks': {
       for (let i = 6; i >= 0; i--) {
         const weekStart = new Date();
         weekStart.setDate(weekStart.getDate() - (i * 7) - weekStart.getDay() + 1); // Monday of the week
         weekStart.setHours(0, 0, 0, 0);
-        
+
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekEnd.getDate() + 6); // Sunday of the week
         weekEnd.setHours(23, 59, 59, 999);
@@ -81,7 +81,7 @@ console.log("dayBookings",dayBookings);
           } else {
             bookingDate = convertToVietnamTime(booking.createDate || booking.pickupTime);
           }
-          
+
           return bookingDate && bookingDate >= weekStart && bookingDate <= weekEnd;
         });
 
@@ -100,7 +100,7 @@ console.log("dayBookings",dayBookings);
         });
 
         const weekLabel = `W${Math.ceil((weekStart.getDate() + weekStart.getDay()) / 7)}`;
-        
+
         breakdown.push({
           day: weekLabel,
           date: `${weekStart.toLocaleDateString('en-GB')} - ${weekEnd.toLocaleDateString('en-GB')}`,
@@ -110,10 +110,10 @@ console.log("dayBookings",dayBookings);
       }
       break;
     }
-    
+
     case '7months': {
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      
+
       for (let i = 6; i >= 0; i--) {
         const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
         const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -126,7 +126,7 @@ console.log("dayBookings",dayBookings);
           } else {
             bookingDate = convertToVietnamTime(booking.createDate || booking.pickupTime);
           }
-          
+
           return bookingDate && bookingDate >= monthStart && bookingDate <= monthEnd;
         });
 
@@ -145,7 +145,7 @@ console.log("dayBookings",dayBookings);
         });
 
         const monthName = months[date.getMonth()];
-        
+
         breakdown.push({
           day: monthName,
           date: `${monthName} ${date.getFullYear()}`,
@@ -155,7 +155,7 @@ console.log("dayBookings",dayBookings);
       }
       break;
     }
-    
+
     default:
       return [];
   }
@@ -179,7 +179,7 @@ export const useDashboardData = () => {
 
   // Use the separate payment data hook
   const { paymentStats, dailyData, paymentLoading, refetchPaymentData } = useDashboardPaymentData();
-  
+
   // Use the separate car data hook
   const { carStats, carLoading, ownerCars, manufacturerMap, refetchCarData, updateTopManufacturers } = useDashboardCarData();
 
@@ -197,7 +197,7 @@ export const useDashboardData = () => {
         acc[user.id] = user.fullname || user.username || user.email || 'Unknown User';
         return acc;
       }, {});
-      
+
       // Create payment lookup map
       const paymentMap = payments.reduce((acc, payment) => {
         if (!acc[payment.invoiceId]) {
@@ -213,7 +213,7 @@ export const useDashboardData = () => {
 
       // Filter bookings for owner's cars - wait for ownerCars to be available
       const ownerCarIds = ownerCars.map(car => car.id);
-      const ownerBookings = ownerCarIds.length > 0 
+      const ownerBookings = ownerCarIds.length > 0
         ? allBookings.filter(booking => ownerCarIds.includes(booking.carId))
         : [];
 
@@ -296,7 +296,7 @@ export const useDashboardData = () => {
 
       // Generate booking data for default 7 days (for backward compatibility)
       const weeklyBookingData = generateBookingBreakdownData(ownerBookings, '7days');
-      console.log("weeklyBookingData", weeklyBookingData);
+      // console.log("weeklyBookingData", weeklyBookingData);
 
 
 
@@ -332,10 +332,10 @@ export const useDashboardData = () => {
     }
   }, [ownerCars, carLoading]);
 
-  return { 
-    stats: { ...stats, ...paymentStats, ...carStats, ownerCars }, 
+  return {
+    stats: { ...stats, ...paymentStats, ...carStats, ownerCars },
     dailyData,
-    loading: loading || paymentLoading || carLoading, 
+    loading: loading || paymentLoading || carLoading,
     refetch: () => {
       fetchDashboardData();
       refetchPaymentData();

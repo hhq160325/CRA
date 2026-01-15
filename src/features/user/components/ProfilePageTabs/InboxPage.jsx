@@ -94,7 +94,7 @@ const InboxPage = () => {
             mediaUrls: inquiry.mediaUrls || []
           };
         });
-        console.log(transformedMessages);
+        // console.log(transformedMessages);
 
         setMessages(transformedMessages);
       } catch (err) {

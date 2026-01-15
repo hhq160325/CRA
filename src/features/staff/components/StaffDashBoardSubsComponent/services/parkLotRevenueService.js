@@ -24,7 +24,7 @@ export const parkLotRevenueService = {
       // Handle case where API returns "No payments found" message
       if (typeof response.data === 'string' && 
           response.data.includes('No payments found for the specified parking ID')) {
-        console.log(`No payments found for park lot ${parkLotId}`);
+        // console.log(`No payments found for park lot ${parkLotId}`);
         return []; // Return empty array instead of error message
       }
       
@@ -42,10 +42,10 @@ export const parkLotRevenueService = {
     try {
       const payments = await parkLotRevenueService.getParkLotPayments(parkLotId);
       
-      console.log(`Processing revenue for park lot ${parkLotId}:`, {
-        paymentsFound: payments.length,
-        period
-      });
+      // console.log(`Processing revenue for park lot ${parkLotId}:`, {
+      //   paymentsFound: payments.length,
+      //   period
+      // });
       
       return parkLotRevenueService.processRevenueData(payments, period);
     } catch (error) {
@@ -66,7 +66,7 @@ export const parkLotRevenueService = {
       let parkLotsWithData = 0;
       let parkLotsWithoutData = 0;
 
-      console.log(`Processing revenue for ${parkLots.length} park lots`);
+      // console.log(`Processing revenue for ${parkLots.length} park lots`);
 
       // Fetch payments for all park lots
       for (const parkLot of parkLots) {
@@ -85,12 +85,12 @@ export const parkLotRevenueService = {
         }
       }
 
-      console.log(`Park lots summary:`, {
-        total: parkLots.length,
-        withData: parkLotsWithData,
-        withoutData: parkLotsWithoutData,
-        totalPayments: allPayments.length
-      });
+      // console.log(`Park lots summary:`, {
+      //   total: parkLots.length,
+      //   withData: parkLotsWithData,
+      //   withoutData: parkLotsWithoutData,
+      //   totalPayments: allPayments.length
+      // });
 
       return parkLotRevenueService.processRevenueData(allPayments, period);
     } catch (error) {
@@ -114,12 +114,12 @@ export const parkLotRevenueService = {
       return status === 'paid' || status === 'success';
     });
 
-    console.log('Payment Filtering:', {
-      totalPayments: payments.length,
-      successfulPayments: successfulPayments.length,
-      filteredOut: payments.length - successfulPayments.length,
-      period
-    });
+    // console.log('Payment Filtering:', {
+    //   totalPayments: payments.length,
+    //   successfulPayments: successfulPayments.length,
+    //   filteredOut: payments.length - successfulPayments.length,
+    //   period
+    // });
 
     // Calculate total revenue from successful payments only
     const totalRevenue = successfulPayments.reduce((sum, payment) => {

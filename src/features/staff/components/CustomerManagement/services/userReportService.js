@@ -31,13 +31,13 @@ export const createUserReport = async (reportData) => {
     formData.append('ReporterId', reporterId);
     formData.append('ReportedUserId', reportData.reportedUserId);
 
-    console.log('Creating user report with FormData:', {
-      Title: reportData.title.trim(),
-      Content: reportData.content.trim(),
-      deductedPoints: reportData.deductedPoints || 0,
-      ReporterId: reporterId,
-      ReportedUserId: reportData.reportedUserId
-    });
+    // console.log('Creating user report with FormData:', {
+    //   Title: reportData.title.trim(),
+    //   Content: reportData.content.trim(),
+    //   deductedPoints: reportData.deductedPoints || 0,
+    //   ReporterId: reporterId,
+    //   ReportedUserId: reportData.reportedUserId
+    // });
 
     const response = await axiosInstance.post(
       REPORT_CAR_ENDPOINTS.CREATE_REPORT_USER,

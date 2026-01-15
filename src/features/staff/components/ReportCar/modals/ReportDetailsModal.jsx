@@ -13,7 +13,7 @@ const ReportDetailsModal = ({
   const [isRecalling, setIsRecalling] = useState(false);
 
   // Log selectedReport to see its structure
-  console.log('selectedReport in ReportDetailsModal:', selectedReport);
+  // console.log('selectedReport in ReportDetailsModal:', selectedReport);
 
   if (!isOpen || !selectedReport) return null;
 
@@ -33,7 +33,7 @@ const ReportDetailsModal = ({
         isActive: false
       };
 
-      console.log('Recalling car with request:', requestBody);
+      // console.log('Recalling car with request:', requestBody);
 
       await axios.patch(CAR_ENDPOINTS.PATCH_CAR_ACTIVE_STATUS, requestBody, {
         headers: {

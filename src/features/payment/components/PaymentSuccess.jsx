@@ -18,13 +18,13 @@ const PaymentSuccess = () => {
   const code = searchParams.get('code');
   const cancel = searchParams.get('cancel');
   
-  console.log('PaymentSuccess - URL Parameters:', {
-    orderCode,
-    paymentStatus,
-    paymentId,
-    code,
-    cancel
-  });
+  // console.log('PaymentSuccess - URL Parameters:', {
+  //   orderCode,
+  //   paymentStatus,
+  //   paymentId,
+  //   code,
+  //   cancel
+  // });
   
   useEffect(() => {
     // Check if this is a wallet top-up payment
@@ -104,7 +104,7 @@ const PaymentSuccess = () => {
     if (pendingBookingStr) {
       try {
         const bookingData = JSON.parse(pendingBookingStr);
-        console.log('PaymentSuccess - Retrieved booking data:', bookingData);
+        // console.log('PaymentSuccess - Retrieved booking data:', bookingData);
         
         // Update booking status to "Confirmed" if bookingId exists
         // if (bookingData.bookingId) {
@@ -124,7 +124,7 @@ const PaymentSuccess = () => {
         if (orderCode && paymentStatus) {
           updateBookingPayment(orderCode, paymentStatus, 'PayOS')
             .then(() => {
-              console.log('PaymentSuccess - Booking payment status updated to:', paymentStatus);
+              // console.log('PaymentSuccess - Booking payment status updated to:', paymentStatus);
             })
             .catch((error) => {
               console.error('PaymentSuccess - Failed to update booking payment status:', error);
@@ -218,12 +218,12 @@ const PaymentSuccess = () => {
     if (isWalletTopUp) {
       // localStorage.removeItem('isWallet');
       // localStorage.removeItem('walletTopUpData');
-      console.log('PaymentSuccess - Cleared wallet data from localStorage');
+      // console.log('PaymentSuccess - Cleared wallet data from localStorage');
     } else {
       localStorage.removeItem('pendingBooking');
       localStorage.removeItem("totalPriceDelivery");
       localStorage.removeItem("selfpickupparklot");
-      console.log('PaymentSuccess - Cleared pendingBooking from localStorage');
+      // console.log('PaymentSuccess - Cleared pendingBooking from localStorage');
     }
     navigate(path);
   };

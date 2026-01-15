@@ -5,7 +5,7 @@ export const useReportModal = () => {
   const [selectedReport, setSelectedReport] = useState(null);
 
   const openModal = (report, modalType = 'view') => {
-    console.log('Opening modal with report:', report, 'modalType:', modalType);
+    // console.log('Opening modal with report:', report, 'modalType:', modalType);
     setSelectedReport(report);
     setIsModalOpen(true);
   };
@@ -17,7 +17,7 @@ export const useReportModal = () => {
 
   const handleRecallCar = (reportId, carId) => {
     // TODO: Implement API call to recall the car
-    console.log('Recalling car for report:', reportId, 'Car ID:', carId);
+    // console.log('Recalling car for report:', reportId, 'Car ID:', carId);
     // You can add API call here when the endpoint is available
     // Example: await recallCar(reportId, carId);
     

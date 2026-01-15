@@ -131,7 +131,7 @@ import { USER_ENDPOINTS, CAR_ENDPOINTS } from '../../../../../config/api';
 // Main function: Fetch reports data using GET_REPORT_CAR API with enriched user and car data
 export const fetchBookingsWithReports = async () => {
   try {
-    console.log('Fetching reports data using GET_REPORT_CAR API...');
+    // console.log('Fetching reports data using GET_REPORT_CAR API...');
     
     const token = localStorage.getItem('jwtToken');
     
@@ -156,9 +156,9 @@ export const fetchBookingsWithReports = async () => {
     const allUsers = usersResponse.data;
     const allCars = carsResponse.data;
     
-    console.log('Reports data fetched:', reportsArray.length, 'reports');
-    console.log('Users data fetched:', allUsers.length, 'users');
-    console.log('Cars data fetched:', allCars.length, 'cars');
+    // console.log('Reports data fetched:', reportsArray.length, 'reports');
+    // console.log('Users data fetched:', allUsers.length, 'users');
+    // console.log('Cars data fetched:', allCars.length, 'cars');
     
     // Create user map by id
     const userMap = {};
@@ -175,7 +175,7 @@ export const fetchBookingsWithReports = async () => {
     // Transform reports with enriched user and car data
     const transformedData = transformReportDataWithEnrichment(reportsArray, userMap, carMap);
     
-    console.log('Transformed report data:', transformedData);
+    // console.log('Transformed report data:', transformedData);
     
     // Sort reports by createDate (latest first)
     return sortByLatest(transformedData, 'createDate');
@@ -230,7 +230,7 @@ export const transformReportDataWithEnrichment = (reportsArray, userMap, carMap)
     const carOwner = car?.owner?.fullname || car?.owner?.username || 'N/A';
     const carEmail = car?.owner?.email || 'N/A';
     const carPhoneNumber = car?.owner?.phoneNumber || 'N/A';
-    console.log("car", car?.owner);
+    // console.log("car", car?.owner);
     
     return {
       id: report.id,

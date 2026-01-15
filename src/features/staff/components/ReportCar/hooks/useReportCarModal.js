@@ -39,7 +39,7 @@ export const useReportCarModal = () => {
   };
 
   const handleEdit = (formData) => {
-    console.log('Editing booking:', selectedBooking.id, formData);
+    // console.log('Editing booking:', selectedBooking.id, formData);
     closeModal();
   };
 

@@ -36,7 +36,7 @@ const BookingManagement = () => {
     const success = exportBookingsToCSV(filteredBookings, t);
     if (success) {
       // You could add a toast notification here if needed
-      console.log(`Successfully exported ${filteredBookings.length} bookings`);
+      // console.log(`Successfully exported ${filteredBookings.length} bookings`);
     } else {
       console.error('Failed to export bookings');
     }

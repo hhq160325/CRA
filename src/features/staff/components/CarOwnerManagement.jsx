@@ -144,7 +144,7 @@ const CarOwnerManagement = () => {
 
   const handleEdit = (formData) => {
     // Handle edit logic here
-    console.log('Editing owner:', selectedOwner.id, formData);
+    // console.log('Editing owner:', selectedOwner.id, formData);
     closeModal();
   };
 

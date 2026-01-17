@@ -46,6 +46,7 @@ const UploadDriver = () => {
     if (error === "Please upload a photo of your valid driver's license." || error === "Vui lòng tải ảnh bằng lái hợp lệ") {
       setError(t('invalidImg'));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [i18n.language, t]);
 
   // Update verification status when license status changes
@@ -61,6 +62,7 @@ const UploadDriver = () => {
       fetchDriverLicenseImages();
     }
     // For 'Pending' and 'NeedManualCheck' status, the verification status is not changed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [licenseStatus, dispatch]);
 
   const fetchDriverLicenseStatus = async () => {

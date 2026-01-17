@@ -52,6 +52,16 @@ export const bookingManagementTranslations = {
       "bookingManagement.pickedUp": "Picked up",
       "bookingManagement.returned": "Returned",
       
+      // Travel Log
+      "bookingManagement.travelLog": "Travel Log",
+      "bookingManagement.travelLogTitle": "Car Travel Log",
+      "bookingManagement.travelLogError": "Failed to load travel log",
+      "bookingManagement.travelDetails": "Travel Details",
+      "bookingManagement.noTravelLog": "No car travel logs found",
+      "bookingManagement.retry": "Retry",
+      "bookingManagement.close": "Close",
+      "bookingManagement.carName": "Car Name",
+      
       // Data Labels
       "bookingManagement.unknownCar": "Unknown Vehicle",
       "bookingManagement.unknownCustomer": "Unknown Customer",
@@ -113,6 +123,16 @@ export const bookingManagementTranslations = {
       "bookingManagement.return": "Trả xe",
       "bookingManagement.pickedUp": "Đã nhận xe",
       "bookingManagement.returned": "Đã trả xe",
+      
+      // Travel Log
+      "bookingManagement.travelLog": "Nhật ký di chuyển",
+      "bookingManagement.travelLogTitle": "Nhật ký di chuyển xe",
+      "bookingManagement.travelLogError": "Không thể tải nhật ký di chuyển",
+      "bookingManagement.travelDetails": "Chi tiết di chuyển",
+      "bookingManagement.noTravelLog": "Không tìm thấy nhật ký di chuyển xe",
+      "bookingManagement.retry": "Thử lại",
+      "bookingManagement.close": "Đóng",
+      "bookingManagement.carName": "Tên xe",
       
       // Data Labels
       "bookingManagement.unknownCar": "Xe không xác định",

@@ -3,4 +3,5 @@ export { default as MaintenanceSchedulingModal } from './MaintenanceSchedulingMo
 export { default as TopUpModal } from './TopUpModal';
 export { default as UsageDetailsModal } from './UsageDetailsModal';
 export { default as ParkLotDetailsModal } from './ParkLotDetailsModal';
+export { default as TravelLogModal } from './TravelLogModal';
 // export { default as ExtendedBooking } from '../RentalHistory/components/ExtendedBooking';

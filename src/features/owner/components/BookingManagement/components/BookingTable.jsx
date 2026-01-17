@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getStatusBadge } from '../utils/statusUtils';
 import ExtendedBooking from './ExtendedBooking';
+import TravelLogModal from './TravelLogModal';
 
 const BookingTable = ({ bookings, onBookingUpdate }) => {
   const { t } = useTranslation();
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [isExtendModalOpen, setIsExtendModalOpen] = useState(false);
+  const [isTravelLogModalOpen, setIsTravelLogModalOpen] = useState(false);
 
   const handleExtendRent = (booking) => {
     // Convert booking data to match ExtendedBooking component expectations
@@ -34,6 +36,16 @@ const BookingTable = ({ bookings, onBookingUpdate }) => {
 
   const handleExtendClose = () => {
     setIsExtendModalOpen(false);
+    setSelectedBooking(null);
+  };
+
+  const handleTravelLog = (booking) => {
+    setSelectedBooking(booking);
+    setIsTravelLogModalOpen(true);
+  };
+
+  const handleTravelLogClose = () => {
+    setIsTravelLogModalOpen(false);
     setSelectedBooking(null);
   };
 
@@ -123,12 +135,20 @@ const BookingTable = ({ bookings, onBookingUpdate }) => {
                 </td>
                 <td className="py-4 px-6">
                   {(booking.status === 'Confirmed' || booking.status === 'Completed') && (
-                    <button
-                      onClick={() => handleExtendRent(booking)}
-                      className="text-green-600 hover:text-green-700 text-sm font-medium"
-                    >
-                      {t('rentalHistory.extend')}
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleExtendRent(booking)}
+                        className="text-green-600 hover:text-green-700 text-sm font-medium"
+                      >
+                        {t('rentalHistory.extend')}
+                      </button>
+                      <button
+                        onClick={() => handleTravelLog(booking)}
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                      >
+                        {t('bookingManagement.travelLog')}
+                      </button>
+                    </div>
                   )}
                 </td>
               </tr>
@@ -143,6 +163,13 @@ const BookingTable = ({ bookings, onBookingUpdate }) => {
         rental={selectedBooking}
         onClose={handleExtendClose}
         onSuccess={handleExtendSuccess}
+      />
+
+      {/* Travel Log Modal */}
+      <TravelLogModal
+        isOpen={isTravelLogModalOpen}
+        booking={selectedBooking}
+        onClose={handleTravelLogClose}
       />
     </div>
   );

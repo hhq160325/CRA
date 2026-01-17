@@ -5,7 +5,7 @@ import Pagination from '../../../../../shared/components/Pagination';
 import { tokenUtils } from '../../../../auth/utils';
 import { filterCarUsageData } from '../../../utils/filterUtils';
 import { getAllCars, getCarBookings, getAllCarWallets } from '../../../api/ownerApi';
-import { MaintenanceSchedulingModal, TopUpModal, UsageDetailsModal } from '../../modal';
+import { MaintenanceSchedulingModal, TopUpModal, UsageDetailsModal, TravelLogModal } from '../../modal';
 
 const UsageTracking = () => {
   const { t } = useTranslation();
@@ -20,6 +20,7 @@ const UsageTracking = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
   const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
+  const [isTravelLogModalOpen, setIsTravelLogModalOpen] = useState(false);
   const [usageData, setUsageData] = useState([]);
   const [carWallets, setCarWallets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -189,6 +190,16 @@ const UsageTracking = () => {
 
   const closeTopUpModal = () => {
     setIsTopUpModalOpen(false);
+    setSelectedCar(null);
+  };
+
+  const openTravelLogModal = (car) => {
+    setSelectedCar(car);
+    setIsTravelLogModalOpen(true);
+  };
+
+  const closeTravelLogModal = () => {
+    setIsTravelLogModalOpen(false);
     setSelectedCar(null);
   };
 
@@ -507,12 +518,12 @@ const UsageTracking = () => {
                         </td>
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-2">
-                            {/* <button
-                              onClick={() => openModal(car)}
+                            <button
+                              onClick={() => openTravelLogModal(car)}
                               className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                             >
-                              {t('usageTracking.viewDetails')}
-                            </button> */}
+                              {t('usageTracking.viewTravelLog') || 'Travel Log'}
+                            </button>
                             <button
                               onClick={() => openMaintenanceModal(car)}
                               disabled={!(car.currentStatus === 'pending' || car.currentStatus === 'active')}
@@ -572,6 +583,13 @@ const UsageTracking = () => {
       <TopUpModal
         isOpen={isTopUpModalOpen}
         onClose={closeTopUpModal}
+        selectedCar={selectedCar}
+      />
+
+      {/* Travel Log Modal */}
+      <TravelLogModal
+        isOpen={isTravelLogModalOpen}
+        onClose={closeTravelLogModal}
         selectedCar={selectedCar}
       />
     </>

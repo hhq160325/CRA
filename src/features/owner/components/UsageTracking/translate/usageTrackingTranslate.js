@@ -38,6 +38,20 @@ export const usageTrackingTranslate = {
       "usageTracking.seats": "seats",
       "usageTracking.topUp": "Top Up",
       "usageTracking.hasBalance": "Has Balance",
+      "usageTracking.viewTravelLog": "Travel Log",
+
+      // Travel Log Modal
+      "travelLog.title": "Travel Log",
+      "travelLog.loading": "Loading travel logs...",
+      "travelLog.errorLoading": "Failed to load travel logs",
+      "travelLog.noLogs": "No travel logs found for this car",
+      "travelLog.totalTrips": "Total Trips",
+      "travelLog.totalCharges": "Total Charges",
+      "travelLog.uniqueTollBooths": "Unique Toll Booths",
+      "travelLog.travelDate": "Travel Date",
+      "travelLog.bookingNumber": "Booking Number",
+      "travelLog.tollBoothId": "Toll Booth",
+      "travelLog.chargeAmount": "Charge Amount",
 
       // Top Up Modal
       "topUpModal.title": "Top Up Car Wallet",
@@ -94,6 +108,20 @@ export const usageTrackingTranslate = {
       "usageTracking.seats": "chỗ",
       "usageTracking.topUp": "Nạp tiền",
       "usageTracking.hasBalance": "Có số dư",
+      "usageTracking.viewTravelLog": "Lịch sử di chuyển",
+
+      // Travel Log Modal
+      "travelLog.title": "Lịch sử di chuyển",
+      "travelLog.loading": "Đang tải lịch sử di chuyển...",
+      "travelLog.errorLoading": "Không thể tải lịch sử di chuyển",
+      "travelLog.noLogs": "Không có lịch sử di chuyển cho xe này",
+      "travelLog.totalTrips": "Tổng số chuyến",
+      "travelLog.totalCharges": "Tổng phí",
+      "travelLog.uniqueTollBooths": "Số trạm thu phí",
+      "travelLog.travelDate": "Ngày di chuyển",
+      "travelLog.bookingNumber": "Mã đặt xe",
+      "travelLog.tollBoothId": "Trạm thu phí",
+      "travelLog.chargeAmount": "Số tiền",
 
       // Top Up Modal
       "topUpModal.title": "Nạp tiền vào ví xe",

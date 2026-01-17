@@ -12,6 +12,9 @@ import OwnerBookingStatus from './OwnerBookingStatus';
 import LoadingSpinner from './LoadingSpinner';
 import TrendingCar from './TrendingCar';
 import CarBrandEarningSummary from './CarBrandEarningSummary';
+import ParkLotRevenue from '../../../../staff/components/StaffDashBoardSubsComponent/components/ParkLotRevenue';
+import ParklotCompare from '../../../../staff/components/StaffDashBoardSubsComponent/components/ParklotCompare';
+import ParklotRevenueSummaryStandalone from '../../../../staff/components/StaffDashBoardSubsComponent/components/ParklotRevenueSummaryStandalone';
 const OwnerDashboard = () => {
   const { t } = useTranslation();
   // const { stats, dailyData, loading } = useDashboardData();
@@ -59,8 +62,16 @@ const OwnerDashboard = () => {
       <div className="grid grid-cols-1 gap-6">
         <CarBrandEarningSummary />
       </div>
-
-      {/* Sixth Row - Recent Bookings */}
+      {/* Six Row - Booking Overview and Booking Status */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ParkLotRevenue />
+        <ParklotCompare />
+      </div>
+      {/* Seven Row - Booking Overview and Booking Status */}
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+        <ParklotRevenueSummaryStandalone />
+      </div>
+      {/* Eight Row - Recent Bookings */}
       <div className="grid grid-cols-1 gap-6">
         <RecentBookings bookings={stats.recentBookings} />
       </div>

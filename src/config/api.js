@@ -93,7 +93,7 @@ export const CAR_ENDPOINTS = {
   PATCH_CAR_ACTIVE_STATUS: `${API_CONFIG.BASE_URL}/Car/activeStatus/change`,
   GET_ALL_CAR_WALLET: `${API_CONFIG.BASE_URL}/CarWallet/All`,
   GET_CAR_WALLET_BY_CAR_ID: (carId) => `${API_CONFIG.ALTER_URL}/Car/${carId}`,
-  ADD_FUND_TO_WALLET:`${API_CONFIG.ALTER_URL}/PayOS/Add`,
+  ADD_FUND_TO_WALLET: `${API_CONFIG.ALTER_URL}/PayOS/Add`,
   CREATE_CAR_WALLET: (carId) => `${API_CONFIG.BASE_URL}/CarWallet?carId=${carId}`,
 };
 
@@ -247,6 +247,16 @@ export const NOTIFICATION_ENDPOINTS = {
 };
 
 export const NOTIFICATION_API_CONFIG = {
+  timeout: API_CONFIG.TIMEOUT,
+  headers: API_CONFIG.HEADERS,
+};
+// CarTravelLog
+export const CARTRAVELLOG_ENDPOINTS = {
+  GET_CARTRAVELLOG_BY_CAR_ID: (carId) => `${API_CONFIG.BASE_URL}/CarTravelLog/ByCar/${carId}`,
+  GET_CARTRAVELLOG_BY_CAR_ID_AND_BOOKING_ID: (carId, bookingId) => `${API_CONFIG.BASE_URL}/CarTravelLog/ByCarAndBooking?carId=${carId}&bookingId=${bookingId}`,
+};
+
+export const CARTRAVELLOG_API_CONFIG = {
   timeout: API_CONFIG.TIMEOUT,
   headers: API_CONFIG.HEADERS,
 };

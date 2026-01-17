@@ -215,7 +215,7 @@ const FilterModal = ({
                 type="text"
                 value={filterSeats}
                 onChange={handleSeatsChange}
-                placeholder={t('seatsRangePlaceholder') || 'e.g. 34 or 3 - 4'}
+                placeholder={t('Seats Range') || 'e.g. 34 or 3 - 4'}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               {/* <p className="text-xs text-gray-500 mt-1">

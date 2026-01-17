@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import DropdownTemplate from '../../../../../shared/components/DropdownTemplate';
 import Pagination from '../../../../../shared/components/Pagination';
 import { tokenUtils } from '../../../../auth/utils';
-import { getAllParkLots } from '../../../api/ownerApi';
+import { getAllParkLots, getAllCars } from '../../../api/ownerApi';
 import { ParkLotDetailsModal } from '../../modal';
 
 const ParkLotManagement = () => {
@@ -14,6 +14,7 @@ const ParkLotManagement = () => {
   const [selectedParkLot, setSelectedParkLot] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [parkLots, setParkLots] = useState([]);
+  const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,23 +27,28 @@ const ParkLotManagement = () => {
         setLoading(true);
 
         // Get current user ID from JWT token
-        const currentManagerId = tokenUtils.getUserId();
+        // const currentManagerId = tokenUtils.getUserId();
 
-        if (!currentManagerId) {
-          setError(t('parkLotManagement.cannotIdentifyUser') || 'Cannot identify current user');
-          setLoading(false);
-          return;
-        }
+        // if (!currentManagerId) {
+        //   setError(t('parkLotManagement.cannotIdentifyUser') || 'Cannot identify current user');
+        //   setLoading(false);
+        //   return;
+        // }
 
-        // Fetch all park lots
-        const allParkLots = await getAllParkLots();
+        // Fetch all park lots and cars in parallel
+        const [allParkLots, allCars] = await Promise.all([
+          getAllParkLots(),
+          getAllCars()
+        ]);
 
         // Filter park lots by current manager ID
-        const userParkLots = allParkLots.filter(parkLot => 
-          parkLot.managerId === currentManagerId
-        );
+        // const userParkLots = allParkLots.filter(parkLot => 
+        //   parkLot.managerId === currentManagerId
+        // );
 
-        setParkLots(userParkLots);
+        // TEMPORARY: Show all park lots without filtering by manager
+        setParkLots(allParkLots);
+        setCars(allCars);
         setError(null);
       } catch (err) {
         console.error('Error fetching park lots:', err);
@@ -69,6 +75,11 @@ const ParkLotManagement = () => {
       default:
         return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: t('parkLotManagement.unknown') || 'Unknown' };
     }
+  };
+
+  // Count cars for a specific park lot
+  const getCarCountForParkLot = (parkLotId) => {
+    return cars.filter(car => car.preferredLot?.id === parkLotId).length;
   };
 
   const openModal = (parkLot) => {
@@ -245,8 +256,11 @@ const ParkLotManagement = () => {
                           )}
                         </td>
                         <td className="py-4 px-6">
-                          <div className="text-sm text-gray-900">{parkLot.capacity}</div>
-                          <div className="text-xs text-gray-500">{t('parkLotManagement.spaces') || 'spaces'}</div>
+                          <div className="text-sm text-gray-900">
+                            <span className="font-semibold">{getCarCountForParkLot(parkLot.id)}</span>
+                            <span className="text-gray-500"> / {parkLot.capacity}</span>
+                          </div>
+                          <div className="text-xs text-gray-500">{t('parkLotManagement.currentCars') || 'Current cars in park lot'}</div>
                         </td>
                         <td className="py-4 px-6">
                           <div className="text-sm text-gray-900">{parkLot.contactNum}</div>

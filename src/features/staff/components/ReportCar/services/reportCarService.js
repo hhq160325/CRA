@@ -132,9 +132,9 @@ import { USER_ENDPOINTS, CAR_ENDPOINTS } from '../../../../../config/api';
 export const fetchBookingsWithReports = async () => {
   try {
     // console.log('Fetching reports data using GET_REPORT_CAR API...');
-    
+
     const token = localStorage.getItem('jwtToken');
-    
+
     // Fetch reports, users, and cars data in parallel
     const [reportsData, usersResponse, carsResponse] = await Promise.all([
       getAllReports(),
@@ -151,32 +151,32 @@ export const fetchBookingsWithReports = async () => {
         },
       })
     ]);
-    
+
     const reportsArray = Array.isArray(reportsData) ? reportsData : [];
     const allUsers = usersResponse.data;
     const allCars = carsResponse.data;
-    
+
     // console.log('Reports data fetched:', reportsArray.length, 'reports');
     // console.log('Users data fetched:', allUsers.length, 'users');
     // console.log('Cars data fetched:', allCars.length, 'cars');
-    
+
     // Create user map by id
     const userMap = {};
     allUsers.forEach(user => {
       userMap[user.id] = user;
     });
-    
+
     // Create car map by id
     const carMap = {};
     allCars.forEach(car => {
       carMap[car.id] = car;
     });
-    
+
     // Transform reports with enriched user and car data
     const transformedData = transformReportDataWithEnrichment(reportsArray, userMap, carMap);
-    
+
     // console.log('Transformed report data:', transformedData);
-    
+
     // Sort reports by createDate (latest first)
     return sortByLatest(transformedData, 'createDate');
   } catch (error) {
@@ -192,7 +192,9 @@ export const transformReportData = (reportsArray) => {
     reportNo: report.reportNo,
     title: report.title,
     content: report.content,
-    createDate: new Date(report.createDate).toLocaleString(),
+    // createDate: new Date(report.createDate).toLocaleString(),
+    createDate: report.createDate, // Keep original date for sorting
+    createDateFormatted: new Date(report.createDate).toLocaleString(),
     status: report.status,
     reportedCarId: report.reportedCarId,
     reporterId: report.reporterId,
@@ -204,7 +206,7 @@ export const transformReportDataWithEnrichment = (reportsArray, userMap, carMap)
   return reportsArray.map(report => {
     const user = userMap[report.reporterId];
     const car = carMap[report.reportedCarId];
-    
+
     // Get reporter name - prioritize full name over username over email
     let reporterName = 'N/A';
     if (user) {
@@ -221,7 +223,7 @@ export const transformReportDataWithEnrichment = (reportsArray, userMap, carMap)
     } else {
       reporterName = report.reporterId ? `User ${report.reporterId.slice(0, 8)}...` : 'Unknown User';
     }
-    
+
     // Get car information
     const carName = car ? `${car.manufacturer || ''} ${car.model || ''}`.trim() : 'N/A';
     const carModel = car?.model || 'N/A';
@@ -231,13 +233,15 @@ export const transformReportDataWithEnrichment = (reportsArray, userMap, carMap)
     const carEmail = car?.owner?.email || 'N/A';
     const carPhoneNumber = car?.owner?.phoneNumber || 'N/A';
     // console.log("car", car?.owner);
-    
+
     return {
       id: report.id,
       reportNo: report.reportNo,
       title: report.title,
       content: report.content,
-      createDate: new Date(report.createDate).toLocaleString(),
+      // createDate: new Date(report.createDate).toLocaleString(),
+      createDate: report.createDate, // Keep original date for sorting
+      createDateFormatted: new Date(report.createDate).toLocaleString(),
       status: report.status,
       reportedCarId: report.reportedCarId,
       reporterId: report.reporterId,
@@ -260,7 +264,7 @@ export const fetchReportsData = async () => {
   try {
     const reportsData = await getAllReports();
     const reportsArray = Array.isArray(reportsData) ? reportsData : [];
-    
+
     // Transform and sort reports by createDate (latest first)
     const transformedData = transformReportData(reportsArray);
     return sortByLatest(transformedData, 'createDate');

@@ -100,7 +100,7 @@ const ReportCarTable = ({
                 </td>
                 <td className="py-4 px-6">
                   <div className="font-medium text-gray-900 text-sm">
-                    {formatDateWithVietnamTime(reportCar.createDate) || reportCar.createDateFormatted}
+                    {reportCar.createDateFormatted}
                   </div>
                 </td>
                 {/* <td className="py-4 px-6">

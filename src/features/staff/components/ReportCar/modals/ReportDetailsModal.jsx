@@ -129,7 +129,7 @@ const ReportDetailsModal = ({
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Created Date</label>
-                  <p className="mt-1 text-sm text-gray-900">{selectedReport.createDate}</p>
+                  <p className="mt-1 text-sm text-gray-900">{selectedReport.createDateFormatted}</p>
                 </div>
               </div>
             </div>

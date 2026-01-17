@@ -91,6 +91,7 @@ export const useDashboardCarData = () => {
             acc.pending = (acc.pending || 0) + 1;
             break;
           case 'inactive':
+          case 'denied':
             acc.inactive = (acc.inactive || 0) + 1;
             break;
           case 'reserved':

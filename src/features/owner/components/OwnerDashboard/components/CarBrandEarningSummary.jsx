@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useDashboardPaymentData } from '../hooks/useDashboardPaymentData';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { useCarBrandRevenueData } from '../hooks/useCarBrandRevenueData';
 
-const PaymentSummary = () => {
+const CarBrandEarningSummary = () => {
   const { t } = useTranslation();
   const [selectedPeriod, setSelectedPeriod] = useState('7days');
   
-  // Use the hook with the selected period
-  const { paymentStats, chartData, paymentLoading } = useDashboardPaymentData(selectedPeriod);
-// console.log("paymentStats",paymentStats);
+  // Use the new hook to get car brand revenue data
+  const { brandRevenueData, totalRevenue, loading } = useCarBrandRevenueData(selectedPeriod);
   const formatVND = (amount) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -17,19 +16,8 @@ const PaymentSummary = () => {
     }).format(amount);
   };
 
-  // Get bar color based on period
-  const getBarColor = () => {
-    switch (selectedPeriod) {
-      case '7days':
-        return '#3b82f6'; // Blue
-      case '7months':
-        return '#10b981'; // Green
-      case '7years':
-        return '#f59e0b'; // Amber
-      default:
-        return '#3b82f6';
-    }
-  };
+  // Color palette for different brands
+  const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
 
   // Get period display text and Y-axis formatter
   const getPeriodConfig = () => {
@@ -46,22 +34,22 @@ const PaymentSummary = () => {
     switch (selectedPeriod) {
       case '7days':
         return {
-          title: 'Payment Overview (Last 7 Days)',
+          title: 'Revenue by Car Brand (Last 7 Days)',
           yAxisFormatter: formatYAxisValue
         };
       case '7months':
         return {
-          title: 'Payment Overview (Last 7 Months)',
+          title: 'Revenue by Car Brand (Last 7 Months)',
           yAxisFormatter: formatYAxisValue
         };
       case '7years':
         return {
-          title: 'Payment Overview (Last 7 Years)',
+          title: 'Revenue by Car Brand (Last 7 Years)',
           yAxisFormatter: formatYAxisValue
         };
       default:
         return {
-          title: 'Payment Overview',
+          title: 'Revenue by Car Brand',
           yAxisFormatter: formatYAxisValue
         };
     }
@@ -69,16 +57,35 @@ const PaymentSummary = () => {
 
   const periodConfig = getPeriodConfig();
 
+  // Prepare chart data from brand revenue data
+  const chartData = brandRevenueData.map(brand => ({
+    name: brand.manufacturer,
+    revenue: brand.revenue,
+    carCount: brand.carCount,
+    models: brand.models
+  }));
+
   // Custom tooltip formatter
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
-      // Get the date from the payload data
-      const date = payload[0].payload.date;
+      const data = payload[0].payload;
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="text-gray-700 font-medium">{date}</p>
-          <p className="text-blue-600 font-semibold">
-            {formatVND(payload[0].value)}
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg max-w-xs">
+          <p className="text-gray-700 font-medium mb-2">{data.name}</p>
+          <p className="text-blue-600 font-semibold mb-2">
+            Total: {formatVND(data.revenue)}
+          </p>
+          <div className="border-t border-gray-200 pt-2 mt-2">
+            <p className="text-xs text-gray-500 mb-1">Models:</p>
+            {data.models && data.models.map((model, index) => (
+              <div key={index} className="flex justify-between items-center text-sm mb-1">
+                <span className="text-gray-600">{model.name}</span>
+                <span className="text-gray-800 font-medium ml-2">{formatVND(model.revenue)}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-gray-500 text-xs mt-2 border-t border-gray-200 pt-2">
+            {data.carCount} {data.carCount === 1 ? 'car' : 'cars'}
           </p>
         </div>
       );
@@ -90,7 +97,7 @@ const PaymentSummary = () => {
     <div className="bg-white rounded-xl shadow-sm p-6 lg:col-span-1">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-1">{t('paymentSummary')}</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-1">{t('Car Brand Earning Summary')}</h2>
           <p className="text-sm text-gray-600">
             {selectedPeriod === '7days' && 'Last 7 days'}
             {selectedPeriod === '7months' && 'Last 7 months'}
@@ -99,11 +106,11 @@ const PaymentSummary = () => {
         </div>
         
         {/* Period Selection Dropdown */}
-        <div className="relative">
+        <div className="relative z-50">
           <select
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
           >
             <option value="7days">Last 7 Days</option>
             <option value="7months">Last 7 Months</option>
@@ -123,7 +130,7 @@ const PaymentSummary = () => {
           <div>
             <p className="text-sm font-medium text-green-800">{t('totalReceived')}</p>
             <p className="text-2xl font-bold text-green-900">
-              {paymentLoading ? 'Loading...' : formatVND(paymentStats.totalReceived)}
+              {loading ? 'Loading...' : formatVND(totalRevenue)}
             </p>
           </div>
           <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
@@ -137,9 +144,13 @@ const PaymentSummary = () => {
       <div className="mt-6">
         <h3 className="text-md font-medium text-gray-700 mb-4">{periodConfig.title}</h3>
         <div className="w-full h-64 min-h-[256px]">
-          {paymentLoading ? (
+          {loading ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-gray-500">Loading chart data...</div>
+            </div>
+          ) : chartData.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-gray-500">No revenue data available for this period</div>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={256}>
@@ -158,6 +169,9 @@ const PaymentSummary = () => {
                   tick={{ fontSize: 12 }}
                   axisLine={false}
                   tickLine={false}
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
                 />
                 <YAxis 
                   tick={{ fontSize: 12 }}
@@ -166,12 +180,15 @@ const PaymentSummary = () => {
                   tickLine={false}
                   domain={[0, (dataMax) => Math.max(dataMax * 1.3, 1000000)]}
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={<CustomTooltip />} cursor={false} wrapperStyle={{ zIndex: 10 }} />
                 <Bar 
-                  dataKey="amount" 
+                  dataKey="revenue" 
                   radius={[4, 4, 0, 0]}
-                  fill={getBarColor()}
-                />
+                >
+                  {chartData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -181,4 +198,4 @@ const PaymentSummary = () => {
   );
 };
 
-export default PaymentSummary;
+export default CarBrandEarningSummary;

@@ -8,3 +8,4 @@ export { default as TopManufacturers } from './TopManufacturers';
 export { default as OwnerBookingOverview } from './OwnerBookingOverview';
 export { default as OwnerBookingStatus } from './OwnerBookingStatus';
 export { default as LoadingSpinner } from './LoadingSpinner';
+export { default as CarBrandEarningSummary } from './CarBrandEarningSummary'

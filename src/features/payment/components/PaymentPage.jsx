@@ -591,9 +591,9 @@ const PaymentPage = () => {
 
                                 {paymentMethod === 'qr-payment' && (
                                     <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
-                                        <h4 className="text-lg font-semibold text-gray-900 mb-4">Quét mã QR để thanh toán</h4>
+                                        <h4 className="text-lg font-semibold text-gray-900 mb-4">Scan the QR code to pay.</h4>
                                         <p className="text-sm text-gray-600 mb-4">
-                                            Dùng ứng dụng ngân hàng hoặc ví điện tử để quét mã
+                                            Use your banking app or e-wallet to scan.
                                         </p>
                                     </div>
                                 )}

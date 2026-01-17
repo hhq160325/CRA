@@ -11,7 +11,7 @@ import OwnerBookingOverview from './OwnerBookingOverview';
 import OwnerBookingStatus from './OwnerBookingStatus';
 import LoadingSpinner from './LoadingSpinner';
 import TrendingCar from './TrendingCar';
-
+import CarBrandEarningSummary from './CarBrandEarningSummary';
 const OwnerDashboard = () => {
   const { t } = useTranslation();
   // const { stats, dailyData, loading } = useDashboardData();
@@ -49,14 +49,19 @@ const OwnerDashboard = () => {
         <RegDocStatusSummary regDocStatusData={stats.regDocStatusData} />
       </div>
 
-      {/* Fourth Row - Booking Overview and Top Manufacturers */}
+      {/* Fourth Row - Booking Overview and Booking Status */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <OwnerBookingOverview ownerCars={stats.ownerCars || []} />
         <OwnerBookingStatus bookingStatusChartData={bookingStatusChartData} />
-        {/* <TopManufacturers topManufacturers={stats.topManufacturers} /> */}
       </div>
-      {/* Fifth Row - RecentBookings */}
-      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+
+      {/* Fifth Row - Car Brand Revenue */}
+      <div className="grid grid-cols-1 gap-6">
+        <CarBrandEarningSummary />
+      </div>
+
+      {/* Sixth Row - Recent Bookings */}
+      <div className="grid grid-cols-1 gap-6">
         <RecentBookings bookings={stats.recentBookings} />
       </div>
     </div>

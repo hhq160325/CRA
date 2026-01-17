@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 // import { updateCarOwnerStatus } from '../../../../adminSlice';
 
 export const useStaffModal = () => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const [selectedStaff, setSelectedStaff] = useState(null);
   const [modalType, setModalType] = useState(null); // 'view', 'edit', 'suspend'
   const [isModalOpen, setIsModalOpen] = useState(false);

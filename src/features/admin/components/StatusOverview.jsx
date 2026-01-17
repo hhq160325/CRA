@@ -91,54 +91,54 @@ const StatusOverview = () => {
     return `${baseClasses} bg-gray-100 text-gray-800`;
   };
 
-  const getPaidStatus = (invoiceStatus) => {
-    const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
+  // const getPaidStatus = (invoiceStatus) => {
+  //   const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
 
-    switch (invoiceStatus) {
-      case 'Paid':
-        return (
-          <span className={`${baseClasses} bg-green-100 text-green-800`}>
-            {t('paid')}
-          </span>
-        );
-      case 'Success':
-        return (
-          <span className={`${baseClasses} bg-green-100 text-green-800`}>
-            {t('paid')}
-          </span>
-        );
-      case 'Pending':
-        return (
-          <span className={`${baseClasses} bg-yellow-100 text-yellow-800`}>
-            {t('pending')}
-          </span>
-        );
-      case 'Expired':
-        return (
-          <span className={`${baseClasses} bg-orange-100 text-orange-800`}>
-            {t('expired')}
-          </span>
-        );
-      case 'Cancelled':
-        return (
-          <span className={`${baseClasses} bg-red-100 text-red-800`}>
-            {t('cancelled')}
-          </span>
-        );
-      case 'Canceled':
-        return (
-          <span className={`${baseClasses} bg-red-100 text-red-800`}>
-            {t('cancelled')}
-          </span>
-        );
-      default:
-        return (
-          <span className={`${baseClasses} bg-gray-100 text-gray-800`}>
-            {invoiceStatus || t('unknown')}
-          </span>
-        );
-    }
-  };
+  //   switch (invoiceStatus) {
+  //     case 'Paid':
+  //       return (
+  //         <span className={`${baseClasses} bg-green-100 text-green-800`}>
+  //           {t('paid')}
+  //         </span>
+  //       );
+  //     case 'Success':
+  //       return (
+  //         <span className={`${baseClasses} bg-green-100 text-green-800`}>
+  //           {t('paid')}
+  //         </span>
+  //       );
+  //     case 'Pending':
+  //       return (
+  //         <span className={`${baseClasses} bg-yellow-100 text-yellow-800`}>
+  //           {t('pending')}
+  //         </span>
+  //       );
+  //     case 'Expired':
+  //       return (
+  //         <span className={`${baseClasses} bg-orange-100 text-orange-800`}>
+  //           {t('expired')}
+  //         </span>
+  //       );
+  //     case 'Cancelled':
+  //       return (
+  //         <span className={`${baseClasses} bg-red-100 text-red-800`}>
+  //           {t('cancelled')}
+  //         </span>
+  //       );
+  //     case 'Canceled':
+  //       return (
+  //         <span className={`${baseClasses} bg-red-100 text-red-800`}>
+  //           {t('cancelled')}
+  //         </span>
+  //       );
+  //     default:
+  //       return (
+  //         <span className={`${baseClasses} bg-gray-100 text-gray-800`}>
+  //           {invoiceStatus || t('unknown')}
+  //         </span>
+  //       );
+  //   }
+  // };
 
   const getTranslatedStatus = (bookingStatus, carStatus) => {
     if (bookingStatus === 'Confirmed') return t('confirmed');

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { getStatusBadge, getRoleBadge, formatDate } from '../utils/staffUtils';
+// import { getStatusBadge, getRoleBadge, formatDate } from '../utils/staffUtils';
+import { getStatusBadge, getRoleBadge} from '../utils/staffUtils';
 // COMMENTED OUT: Car owner related imports
 // import { formatPriceWithCurrency } from '../../../../../shared/utils/priceFormatter';
 import Pagination from '../../../../../shared/components/Pagination';
@@ -14,7 +15,7 @@ const StaffTable = ({
   const { t } = useTranslation();
 
   // Pagination calculations
-  const totalPages = Math.ceil(staffMembers.length / itemsPerPage);
+  // const totalPages = Math.ceil(staffMembers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentItems = staffMembers.slice(startIndex, endIndex);

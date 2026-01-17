@@ -114,7 +114,7 @@ const CreateStaffAcc = () => {
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
-      const result = await response.json();
+      // const result = await response.json();
       // console.log('API Response:', result);
 
       // Reset form on success

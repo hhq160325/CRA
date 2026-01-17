@@ -239,7 +239,7 @@ const ParklotCreate = () => {
         carOwnerId: formData.carOwnerId
       };
 
-      console.log('Creating parking lot with data:', requestBody);
+      // console.log('Creating parking lot with data:', requestBody);
 
       const response = await fetch(`${API_CONFIG.BASE_URL}/ParkLot`, {
         method: 'POST',

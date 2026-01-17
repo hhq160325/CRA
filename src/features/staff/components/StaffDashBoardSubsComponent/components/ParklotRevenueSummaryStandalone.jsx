@@ -14,7 +14,7 @@ const ParklotRevenueSummaryStandalone = () => {
         setLoading(true);
         setError(null);
 
-        console.log('Fetching park lots for summary:', { selectedPeriod });
+        // console.log('Fetching park lots for summary:', { selectedPeriod });
 
         // Get all park lots
         const parkLotsData = await parkLotRevenueService.getAllParkLots();
@@ -45,11 +45,11 @@ const ParklotRevenueSummaryStandalone = () => {
         // Sort by revenue (highest first)
         compareResults.sort((a, b) => b.totalRevenue - a.totalRevenue);
         
-        console.log('Park lot summary data:', {
-          totalParkLots: compareResults.length,
-          period: selectedPeriod,
-          data: compareResults
-        });
+        // console.log('Park lot summary data:', {
+        //   totalParkLots: compareResults.length,
+        //   period: selectedPeriod,
+        //   data: compareResults
+        // });
 
         setCompareData(compareResults);
       } catch (error) {
@@ -100,11 +100,11 @@ const ParklotRevenueSummaryStandalone = () => {
             value={selectedPeriod}
             onChange={(e) => {
               const newPeriod = e.target.value;
-              console.log('Period Selection Changed:', {
-                previousValue: selectedPeriod,
-                newValue: newPeriod,
-                timestamp: new Date().toISOString()
-              });
+              // console.log('Period Selection Changed:', {
+              //   previousValue: selectedPeriod,
+              //   newValue: newPeriod,
+              //   timestamp: new Date().toISOString()
+              // });
               setSelectedPeriod(newPeriod);
             }}
             className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

@@ -169,7 +169,7 @@ const CustomerFeedback = () => {
 
   const handleRespond = (feedbackId, response) => {
     // Handle response logic
-    console.log('Responding to feedback:', feedbackId, response);
+    // console.log('Responding to feedback:', feedbackId, response);
     closeModal();
   };
 

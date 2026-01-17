@@ -57,7 +57,7 @@ const CustomerManagement = () => {
   const handleReportUser = (customer) => {
     // This function can be used to refresh customer data after reporting
     // or perform any additional actions needed after a user is reported
-    console.log('User reported:', customer);
+    // console.log('User reported:', customer);
   };
 
   // Pagination

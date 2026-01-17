@@ -350,7 +350,7 @@ const MyProfile = () => {
         openDialog('email');
         break;
       default:
-        console.log(`Edit ${field}`);
+        // console.log(`Edit ${field}`);
     }
   };
 

@@ -38,12 +38,12 @@ export const getCurrentLocation = (options = {}) => {
           timestamp: position.timestamp
         };
         
-        console.log('Current Location:', {
-          latitude: locationData.latitude,
-          longitude: locationData.longitude,
-          accuracy: `${locationData.accuracy}m`,
-          timestamp: new Date(locationData.timestamp).toLocaleString()
-        });
+        // console.log('Current Location:', {
+        //   latitude: locationData.latitude,
+        //   longitude: locationData.longitude,
+        //   accuracy: `${locationData.accuracy}m`,
+        //   timestamp: new Date(locationData.timestamp).toLocaleString()
+        // });
         
         resolve(locationData);
       },

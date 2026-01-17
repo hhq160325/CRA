@@ -14,6 +14,7 @@ const UsageTracking = () => {
   const [brandFilter, setBrandFilter] = useState('all');
   const [modelFilter, setModelFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [parkLotFilter, setParkLotFilter] = useState('all');
   const [balanceFilter, setBalanceFilter] = useState(false);
   const [selectedCar, setSelectedCar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,11 +63,12 @@ const UsageTracking = () => {
         setCarWallets(allWallets);
 
         // Filter cars by current owner ID and exclude Denied/Pending status
-        const cars = allCars.filter(car => 
-          car.owner.id === currentOwnerId && 
-          car.status && 
-          car.status.toLowerCase() !== 'denied' && 
-          car.status.toLowerCase() !== 'pending'
+        const cars = allCars.filter(car =>
+          // car.owner.id === currentOwnerId && 
+          // car.status && 
+          // car.status.toLowerCase() !== 'denied' && 
+          // car.status.toLowerCase() !== 'pending'
+          car.owner.id === currentOwnerId
         );
 
         // Fetch bookings for each car in parallel
@@ -97,7 +99,7 @@ const UsageTracking = () => {
             // Find wallet balance for this car
             const carWallet = allWallets.find(wallet => wallet.carId === car.id);
             const balance = carWallet ? carWallet.balance : 0;
-
+            console.log("currentStatus", car.status?.toLowerCase());
             return {
               id: car.id,
               carId: car.id,
@@ -114,6 +116,9 @@ const UsageTracking = () => {
               transmission: car.transmission,
               fuelType: car.fuelType,
               balance, // Add balance to car data
+              parkLot: car.preferredLot || null, // Add park lot information
+              parkLotName: car.preferredLot?.name || 'N/A',
+              parkLotCity: car.preferredLot?.city || 'N/A',
               bookings, // Store bookings for modal
             };
           })
@@ -145,9 +150,11 @@ const UsageTracking = () => {
       case 'reserved':
         return { className: `${baseClasses} bg-gray-100 text-gray-800`, label: t('usageTracking.reserved') };
       case 'pending':
-        return { className: `${baseClasses} bg-green-100 text-green-800`, label: t('usageTracking.available') };
+        return { className: `${baseClasses} bg-yellow-100 text-yellow-800`, label: t('usageTracking.pending') };
       case 'inactive':
         return { className: `${baseClasses} bg-yellow-100 text-yellow-800`, label: t('usageTracking.maintenance') };
+      case 'denied':
+        return { className: `${baseClasses} bg-red-100 text-red-800`, label: t('usageTracking.denied') };
       case 'unavailable':
         return { className: `${baseClasses} bg-red-100 text-red-800`, label: t('usageTracking.unavailable') };
       default:
@@ -187,14 +194,17 @@ const UsageTracking = () => {
 
   const filteredUsage = useMemo(() => {
     return usageData
-      .filter(car =>
-        filterCarUsageData(car, {
+      .filter(car => {
+        const matchesParkLot = parkLotFilter === 'all' ||
+          car.parkLot?.id === parkLotFilter;
+
+        return filterCarUsageData(car, {
           searchTerm,
           brandFilter,
           modelFilter,
           statusFilter,
-        }) && (!balanceFilter || (car.balance && car.balance > 0))
-      )
+        }) && matchesParkLot && (!balanceFilter || (car.balance && car.balance > 0));
+      })
       .sort((a, b) => {
         // Sort by balance first (highest to lowest)
         const balanceA = a.balance || 0;
@@ -205,7 +215,7 @@ const UsageTracking = () => {
         // If balance is the same, sort by car name
         return a.carName.localeCompare(b.carName);
       });
-  }, [usageData, searchTerm, brandFilter, modelFilter, statusFilter, balanceFilter]);
+  }, [usageData, searchTerm, brandFilter, modelFilter, statusFilter, parkLotFilter, balanceFilter]);
 
   // Get unique brands, models and statuses for filter dropdowns
   const uniqueBrands = [...new Set(usageData.map(car => car.brand))].sort();
@@ -216,6 +226,15 @@ const UsageTracking = () => {
     : [...new Set(usageData.filter(car => car.brand === brandFilter).map(car => car.model))].sort();
 
   const uniqueStatuses = [...new Set(usageData.map(car => car.currentStatus))].sort();
+
+  // Get unique park lots for filter dropdown
+  const uniqueParkLots = usageData
+    .filter(car => car.parkLot)
+    .map(car => ({ id: car.parkLot.id, name: car.parkLot.name, city: car.parkLot.city }))
+    .filter((parkLot, index, self) =>
+      index === self.findIndex(p => p.id === parkLot.id)
+    )
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   // Reset model filter when brand changes
   useEffect(() => {
@@ -251,6 +270,15 @@ const UsageTracking = () => {
     })
   ];
 
+  const parkLotOptions = [
+    { id: 'all', value: 'all', label: t('usageTracking.allParkLots') || 'All Park Lots' },
+    ...uniqueParkLots.map(parkLot => ({
+      id: parkLot.id,
+      value: parkLot.id,
+      label: parkLot.name.split(' ').slice(0, 3).join(' ').replace(/-/g, '').trim()
+    }))
+  ];
+
   // Pagination calculations
   const totalPages = Math.ceil(filteredUsage.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -260,7 +288,7 @@ const UsageTracking = () => {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, dateFilter, brandFilter, modelFilter, statusFilter, balanceFilter]);
+  }, [searchTerm, dateFilter, brandFilter, modelFilter, statusFilter, parkLotFilter, balanceFilter]);
 
 
 
@@ -341,14 +369,24 @@ const UsageTracking = () => {
                 />
               </div>
 
+              <div className="w-full sm:w-48">
+                <DropdownTemplate
+                  value={parkLotFilter}
+                  onChange={(option) => setParkLotFilter(option.value)}
+                  options={parkLotOptions}
+                  placeholder={t('usageTracking.allParkLots') || 'All Park Lots'}
+                  searchable={true}
+                  searchPlaceholder={(t('usageTracking.allParkLots') || 'All Park Lots') + '...'}
+                />
+              </div>
+
               <div className="flex items-center">
                 <button
                   onClick={() => setBalanceFilter(!balanceFilter)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    balanceFilter
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${balanceFilter
                       ? 'bg-green-100 text-green-800 border border-green-300'
                       : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   {balanceFilter ? '✓ ' : ''}{t('usageTracking.hasBalance')}
                 </button>
@@ -368,6 +406,7 @@ const UsageTracking = () => {
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('usageTracking.carInfo')}</th>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('usageTracking.parkLot')}</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('usageTracking.rentals')}</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('usageTracking.daysRented')}</th>
                   <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">{t('usageTracking.balance')}</th>
@@ -378,7 +417,7 @@ const UsageTracking = () => {
               <tbody className="divide-y divide-gray-100">
                 {paginatedUsage.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="py-8 text-center text-gray-500">
+                    <td colSpan="7" className="py-8 text-center text-gray-500">
                       {t('usageTracking.noCarsFound')}
                     </td>
                   </tr>
@@ -390,6 +429,10 @@ const UsageTracking = () => {
                           <div className="font-medium text-gray-900 text-sm">{car.carName} • {car.licensePlate}</div>
                           {/* <div className="text-xs text-gray-500">{car.carModel} </div> */}
                           <div className="text-xs text-gray-400">{car.seats} {t('usageTracking.seats')} • {car.transmission} • {car.fuelType}</div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="text-sm text-gray-900">{car.parkLotName}</div>
+                          <div className="text-xs text-gray-500">{car.parkLotCity}</div>
                         </td>
                         {/* <td className="py-4 px-6">
                         <div className="text-sm font-medium text-gray-900">{car.totalMileage.toLocaleString()} km</div>
@@ -443,7 +486,23 @@ const UsageTracking = () => {
                         <td className="py-4 px-6">
                           {(() => {
                             const badge = getStatusBadge(car.currentStatus);
-                            return <span className={badge.className}>{badge.label}</span>;
+                            return (
+                              <div className="relative group inline-block">
+                                <span className={badge.className}>{badge.label}</span>
+                                {car.currentStatus === 'denied' && (
+                                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    Check RegDoc
+                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+                                  </div>
+                                )}
+                                {car.currentStatus === 'pending' && (
+                                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    Wait for RegDoc
+                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+                                  </div>
+                                )}
+                              </div>
+                            );
                           })()}
                         </td>
                         <td className="py-4 px-6">
@@ -457,22 +516,20 @@ const UsageTracking = () => {
                             <button
                               onClick={() => openMaintenanceModal(car)}
                               disabled={!(car.currentStatus === 'pending' || car.currentStatus === 'active')}
-                              className={`text-sm font-medium ${
-                                (car.currentStatus === 'pending' || car.currentStatus === 'active')
+                              className={`text-sm font-medium ${(car.currentStatus === 'pending' || car.currentStatus === 'active')
                                   ? 'text-orange-600 hover:text-orange-700 cursor-pointer'
                                   : 'text-gray-400 cursor-not-allowed'
-                              }`}
+                                }`}
                             >
                               {t('usageTracking.schedule')}
                             </button>
                             <button
                               onClick={() => openTopUpModal(car)}
                               disabled={!(car.currentStatus === 'pending' || car.currentStatus === 'active')}
-                              className={`text-sm font-medium ${
-                                (car.currentStatus === 'pending' || car.currentStatus === 'active')
+                              className={`text-sm font-medium ${(car.currentStatus === 'pending' || car.currentStatus === 'active')
                                   ? 'text-green-600 hover:text-green-700 cursor-pointer'
                                   : 'text-gray-400 cursor-not-allowed'
-                              }`}
+                                }`}
                             >
                               {t('usageTracking.topUp')}
                             </button>

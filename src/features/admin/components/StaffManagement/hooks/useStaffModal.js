@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 // import { updateCarOwnerStatus } from '../../../../adminSlice';
 
 export const useStaffModal = () => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const [selectedStaff, setSelectedStaff] = useState(null);
   const [modalType, setModalType] = useState(null); // 'view', 'edit', 'suspend'
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,7 +24,7 @@ export const useStaffModal = () => {
   const handleStatusChange = (staffId, newStatus) => {
     // COMMENTED OUT: Redux action for updating car owner status
     // dispatch(updateCarOwnerStatus({ id: staffId, status: newStatus }));
-    console.log('Status change requested:', staffId, newStatus);
+    // console.log('Status change requested:', staffId, newStatus);
     // TODO: Implement staff status update API call
   };
 
@@ -37,7 +37,7 @@ export const useStaffModal = () => {
 
   const handleEdit = (formData) => {
     // Handle edit logic here
-    console.log('Editing staff:', selectedStaff.id, formData);
+    // console.log('Editing staff:', selectedStaff.id, formData);
     closeModal();
   };
 

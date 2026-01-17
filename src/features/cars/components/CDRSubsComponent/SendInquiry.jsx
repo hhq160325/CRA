@@ -115,7 +115,7 @@ Extend Booking Days Prefer: ${extendDays || '[Not specified]'} days`;
                 }
             );
 
-            console.log('Inquiry sent successfully:', response.data);
+            // console.log('Inquiry sent successfully:', response.data);
             
             // Show success toast
             toast.success(t('inquirySentSuccessfully') || 'Inquiry sent successfully!');

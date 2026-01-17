@@ -21,56 +21,56 @@ export const fetchMaintenanceSchedules = createAsyncThunk(
   'calendar/fetchMaintenanceSchedules',
   async (_, { rejectWithValue }) => {
     try {
-      console.log('🔄 Starting fetchMaintenanceSchedules...');
+      // console.log('Starting fetchMaintenanceSchedules...');
       
       const userId = getUserIdFromToken();
-      console.log('👤 User ID:', userId);
+      // console.log('User ID:', userId);
       
       if (!userId) {
-        console.warn('❌ No user ID found in token');
+        // console.warn('No user ID found in token');
         return [];
       }
 
       // Fetch all cars
-      console.log('🚗 Fetching all cars...');
+      // console.log('Fetching all cars...');
       const carsResponse = await axiosInstance.get(CAR_ENDPOINTS.GET_ALL_CARS);
       const allCars = carsResponse.data || [];
-      console.log('🚗 All cars:', allCars.length);
+      // console.log('All cars:', allCars.length);
       
       // Filter cars owned by current user and with Inactive status (in maintenance)
       const inactiveCars = allCars.filter(car =>
         car.owner.id === userId && car.status?.toLowerCase() === 'inactive'
       );
-      console.log('🔧 Inactive cars for user:', inactiveCars.length);
+      // console.log('Inactive cars for user:', inactiveCars.length);
       
       if (inactiveCars.length === 0) {
-        console.log('❌ No inactive cars found');
+        // console.log('No inactive cars found');
         return [];
       }
 
       // Fetch schedules for all inactive cars
-      console.log('📅 Fetching schedules for inactive cars...');
+      // console.log('Fetching schedules for inactive cars...');
       const schedulePromises = inactiveCars.map(async (car) => {
         try {
           const response = await axiosInstance.get(SCHEDULE_ENDPOINTS.GET_CAR_SCHEDULES(car.id));
           const allSchedules = response.data || [];
-          console.log(`📅 Car ${car.id} schedules:`, allSchedules.length);
+          // console.log(`Car ${car.id} schedules:`, allSchedules.length);
           
           // Filter to show only maintenance schedules
           const maintenanceSchedules = allSchedules.filter(schedule => 
             schedule.scheduleType === "Maintenance"
           );
-          console.log(`🔧 Car ${car.id} maintenance schedules:`, maintenanceSchedules.length);
+          // console.log(`Car ${car.id} maintenance schedules:`, maintenanceSchedules.length);
           
           return { car, schedules: maintenanceSchedules };
         } catch (err) {
-          console.error(`❌ Error fetching schedule for car ${car.id}:`, err);
+          console.error(`Error fetching schedule for car ${car.id}:`, err);
           return { car, schedules: [] };
         }
       });
       
       const carSchedulesData = await Promise.all(schedulePromises);
-      console.log('📊 Car schedules data:', carSchedulesData);
+      // console.log('Car schedules data:', carSchedulesData);
       
       // Use the maintenanceScheduleService to format the data
       const t = (key) => {
@@ -82,11 +82,11 @@ export const fetchMaintenanceSchedules = createAsyncThunk(
       };
       
       const formattedSchedules = maintenanceScheduleService(carSchedulesData, t);
-      console.log('✅ Formatted schedules:', formattedSchedules);
+      // console.log('Formatted schedules:', formattedSchedules);
       
       return formattedSchedules;
     } catch (error) {
-      console.error('❌ Error fetching schedules:', error);
+      // console.error('Error fetching schedules:', error);
       if (error.response?.status === 404) {
         return [];
       }
@@ -198,12 +198,12 @@ const calendarSlice = createSlice({
             endDate = new Date();
           }
           
-          console.log('📅 Creating calendar event:', {
-            title: `${schedule.scheduleTitle || schedule.maintenanceType} - ${schedule.carName}`,
-            start: startDate,
-            end: endDate,
-            status: schedule.status
-          });
+          // console.log('Creating calendar event:', {
+          //   title: `${schedule.scheduleTitle || schedule.maintenanceType} - ${schedule.carName}`,
+          //   start: startDate,
+          //   end: endDate,
+          //   status: schedule.status
+          // });
           
           return {
             id: schedule.scheduleId || schedule.id,

@@ -48,7 +48,7 @@ const RegisterCarStep3 = () => {
                 photos: uploadedPhotos
             };
 
-            console.log('Combined car data:', carData);
+            // console.log('Combined car data:', carData);
 
             // Call the register car API
             const response = await registerCar(carData);
@@ -63,7 +63,7 @@ const RegisterCarStep3 = () => {
 
             if (carId) {
                 localStorage.setItem('registeredCarId', carId);
-                console.log('Car ID stored in localStorage:', carId);
+                // console.log('Car ID stored in localStorage:', carId);
 
                 // Set rental rate after car registration
                 const dailyPrice = step2Data.dailyPrice;
@@ -73,11 +73,11 @@ const RegisterCarStep3 = () => {
                         const priceNumber = typeof dailyPrice === 'string'
                             ? parseFloat(dailyPrice.replace(/[.,]/g, ''))
                             : dailyPrice;
-                        console.log('Setting rental rate with dailyPrice:', priceNumber);
+                        // console.log('Setting rental rate with dailyPrice:', priceNumber);
 
                         const rentalRateResponse = await setCarRentalRate(carId, priceNumber);
-                        console.log('Car rental price set successfully!');
-                        console.log('Rental rate response:', rentalRateResponse);
+                        // console.log('Car rental price set successfully!');
+                        // console.log('Rental rate response:', rentalRateResponse);
                     } catch (rentalRateError) {
                         console.error('Error setting rental rate:', rentalRateError);
                         // Don't fail the whole registration if rental rate fails
@@ -88,8 +88,8 @@ const RegisterCarStep3 = () => {
                 // Create wallet for the car
                 try {
                     const walletResponse = await createCarWallet(carId);
-                    console.log('Car wallet created successfully!');
-                    console.log('Wallet response:', walletResponse);
+                    // console.log('Car wallet created successfully!');
+                    // console.log('Wallet response:', walletResponse);
                 } catch (walletError) {
                     console.error('Error creating car wallet:', walletError);
                     // Don't fail the whole registration if wallet creation fails

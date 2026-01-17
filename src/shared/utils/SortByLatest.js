@@ -182,7 +182,7 @@ export const groupByDate = (data, dateField = 'createDate') => {
 };
 
 // Default export
-export default {
+const sortUtils = {
   sortByLatest,
   sortByOldest,
   sortByMultipleDates,
@@ -191,3 +191,5 @@ export default {
   getItemsWithinDays,
   groupByDate
 };
+
+export default sortUtils;

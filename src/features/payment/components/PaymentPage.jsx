@@ -138,11 +138,11 @@ const PaymentPage = () => {
     });
 
     // Log car data on component mount
-    useEffect(() => {
-        console.log('PaymentPage - Car Data from location.state:', location.state);
-        console.log('PaymentPage - Car ID:', carData.carId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    // useEffect(() => {
+    //     console.log('PaymentPage - Car Data from location.state:', location.state);
+    //     console.log('PaymentPage - Car ID:', carData.carId);
+    // // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, []);
 
     // Update localStorage when rental location changes
     useEffect(() => {
@@ -243,7 +243,7 @@ const PaymentPage = () => {
                 throw new Error('User not authenticated');
             }
 
-            console.log('PaymentPage - Creating booking with Car ID:', carData.carId);
+            // console.log('PaymentPage - Creating booking with Car ID:', carData.carId);
 
             // Parse date strings (format: "01/12" means December 1st, 2025)
             const [pickupDay, pickupMonth] = pickupDateStr.split('/').map(Number);
@@ -591,9 +591,9 @@ const PaymentPage = () => {
 
                                 {paymentMethod === 'qr-payment' && (
                                     <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
-                                        <h4 className="text-lg font-semibold text-gray-900 mb-4">Quét mã QR để thanh toán</h4>
+                                        <h4 className="text-lg font-semibold text-gray-900 mb-4">Scan the QR code to pay.</h4>
                                         <p className="text-sm text-gray-600 mb-4">
-                                            Dùng ứng dụng ngân hàng hoặc ví điện tử để quét mã
+                                            Use your banking app or e-wallet to scan.
                                         </p>
                                     </div>
                                 )}

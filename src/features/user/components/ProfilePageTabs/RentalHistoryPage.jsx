@@ -48,11 +48,11 @@ const RentalHistoryPage = () => {
         try {
           const bookingsResponse = await axiosInstance.get(BOOKING_ENDPOINTS.GET_CUSTOMER_BOOKINGS(userId));
           userBookings = bookingsResponse.data;
-          console.log(userBookings);
+          // console.log(userBookings);
         } catch (bookingError) {
           // If 404, it means no bookings exist for this user
           if (bookingError.response?.status === 404) {
-            console.log('No bookings found for user');
+            // console.log('No bookings found for user');
             setRentalHistory([]);
             setError(null);
             setLoading(false);
@@ -71,7 +71,7 @@ const RentalHistoryPage = () => {
         try {
           const paymentsResponse = await axiosInstance.get(PAYMENT_ENDPOINTS.GET_ALL_PAYMENTS);
           paymentsData = Array.isArray(paymentsResponse.data) ? paymentsResponse.data : [];
-          console.log('RentalHistory - Fetched payments:', paymentsData.length);
+          // console.log('RentalHistory - Fetched payments:', paymentsData.length);
         } catch (paymentError) {
           console.warn('Failed to fetch payments:', paymentError.message);
         }
@@ -216,7 +216,7 @@ const RentalHistoryPage = () => {
 
   const handleFeedbackSuccess = () => {
     // Optionally refresh the rental history or show a success message
-    console.log('Feedback submitted successfully');
+    // console.log('Feedback submitted successfully');
   };
 
   const handleOpenContact = (rental) => {

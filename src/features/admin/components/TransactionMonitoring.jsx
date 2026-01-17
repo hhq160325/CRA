@@ -75,7 +75,7 @@ const TransactionMonitoring = () => {
       const booking = adminData.bookings?.find(b => b.bookingId === invoice.bookingId);
       const user = adminData.users?.find(u => u.id === invoice.userId);
       const amount = parseFloat(invoice.totalAmount) || 0;
-      console.log(user);
+      // console.log(user);
 
       // Determine risk score based on amount
       let riskScore = 'low';

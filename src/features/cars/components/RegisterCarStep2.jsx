@@ -113,7 +113,7 @@ const RegisterCarStep2 = () => {
     };
 
     const handleParkLotSelect = (parkLot) => {
-        console.log('Selected parkLot:', parkLot);
+        // console.log('Selected parkLot:', parkLot);
         setFormData(prev => ({
             ...prev,
             address: parkLot.name,

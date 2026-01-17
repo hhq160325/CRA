@@ -9,7 +9,7 @@ const PaymentSummary = () => {
   
   // Use the hook with the selected period
   const { paymentStats, chartData, paymentLoading } = useDashboardPaymentData(selectedPeriod);
-console.log("paymentStats",paymentStats);
+// console.log("paymentStats",paymentStats);
   const formatVND = (amount) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -136,13 +136,13 @@ console.log("paymentStats",paymentStats);
       {/* Bar Chart */}
       <div className="mt-6">
         <h3 className="text-md font-medium text-gray-700 mb-4">{periodConfig.title}</h3>
-        <div className="h-64">
+        <div className="w-full h-64 min-h-[256px]">
           {paymentLoading ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-gray-500">Loading chart data...</div>
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={256}>
               <BarChart
                 data={chartData}
                 margin={{

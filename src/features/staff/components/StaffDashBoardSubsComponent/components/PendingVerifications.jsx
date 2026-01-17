@@ -61,7 +61,7 @@ const PendingVerifications = () => {
         // Get user and car details
         const user = usersMap.get(doc.userId);
         const car = carsMap.get(doc.carId);
-        console.log("doc",doc);
+        // console.log("doc",doc);
         
         return {
           ...doc,

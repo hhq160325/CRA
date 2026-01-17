@@ -60,7 +60,7 @@ export const maintenanceScheduleService = (carSchedulesData, t) => {
             priority = 'low';
           }
         }
-        console.log("carSchedulesData",carSchedulesData);
+        // console.log("carSchedulesData",carSchedulesData);
         
         formattedSchedules.push({
           id: idCounter++,

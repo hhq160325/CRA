@@ -28,7 +28,7 @@ const BookingHeader = ({ filteredBookings = [] }) => {
           t('exportSuccessful') || 
           `Successfully exported ${bookingsToExport.length} booking records`
         );
-        console.log(`Successfully exported ${bookingsToExport.length} booking records`);
+        // console.log(`Successfully exported ${bookingsToExport.length} booking records`);
       } else {
         toast.error(t('exportFailed') || 'Failed to export booking data');
       }

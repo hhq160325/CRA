@@ -15,8 +15,8 @@ const ReportCarMonitoring = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Log the data to see what we're getting
-  console.log('bookingActivities (actually reports):', bookingActivities);
-  console.log('loading:', loading);
+  // console.log('bookingActivities (actually reports):', bookingActivities);
+  // console.log('loading:', loading);
 
   // Initialize hooks
   useReportCarData();

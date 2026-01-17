@@ -13,7 +13,7 @@ const ReportCarViewModal = ({
   const [isRecalling, setIsRecalling] = useState(false);
 
   // Log selectedReport to see its structure
-  console.log('selectedReport:', selectedReport);
+  // console.log('selectedReport:', selectedReport);
 
   const handleRecallCar = async () => {
     if (!selectedReport?.reportedCarId || !selectedReport?.carLicensePlate) {

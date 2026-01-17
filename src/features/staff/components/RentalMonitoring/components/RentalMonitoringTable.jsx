@@ -26,7 +26,7 @@ const RentalHistoryTable = ({
     setExpandedAdditionalFees(newExpanded);
   };
   
-  console.log(paginatedRentals);
+  // console.log(paginatedRentals);
   
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100">

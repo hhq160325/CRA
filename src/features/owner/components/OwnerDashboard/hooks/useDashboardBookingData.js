@@ -86,7 +86,7 @@ const generateBookingBreakdownData = (ownerBookings = [], period = '7days') => {
         weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
         weekEnd.setUTCHours(23, 59, 59, 999);
 
-        console.log(`Week ${i}: ${weekStart.toISOString()} to ${weekEnd.toISOString()}`);
+        // console.log(`Week ${i}: ${weekStart.toISOString()} to ${weekEnd.toISOString()}`);
 
         const weekBookings = ownerBookings.filter(booking => {
           let bookingDate;
@@ -101,7 +101,7 @@ const generateBookingBreakdownData = (ownerBookings = [], period = '7days') => {
             const bookingUTC = new Date(bookingDate.getTime());
             const isInRange = bookingUTC >= weekStart && bookingUTC <= weekEnd;
             if (isInRange) {
-              console.log(`Booking found in week ${i}:`, booking, 'Date:', bookingDate.toISOString());
+              // console.log(`Booking found in week ${i}:`, booking, 'Date:', bookingDate.toISOString());
             }
             return isInRange;
           }
@@ -207,7 +207,7 @@ export const useDashboardBookingData = (ownerCars = [], period = '7days') => {
 
       // Generate booking data based on selected period
       const weeklyBookingData = generateBookingBreakdownData(ownerBookings, period);
-      console.log("weeklyBookingData", weeklyBookingData);
+      // console.log("weeklyBookingData", weeklyBookingData);
 
       setBookingData(weeklyBookingData);
     } catch (error) {

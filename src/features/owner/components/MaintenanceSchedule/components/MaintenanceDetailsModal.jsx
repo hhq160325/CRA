@@ -12,7 +12,7 @@ const MaintenanceDetailsModal = ({
   const { t } = useTranslation();
 
   if (!isOpen || !selectedCar) return null;
-  console.log("selectedCar", selectedCar);
+  // console.log("selectedCar", selectedCar);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

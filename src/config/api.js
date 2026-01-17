@@ -113,6 +113,7 @@ export const BOOKING_ENDPOINTS = {
   GET_CUSTOMER_BOOKINGS: (cusId) => `${API_CONFIG.BASE_URL}/Booking/GetBookingsFromCustomer/${cusId}`,
   GET_CAR_BOOKINGS: (carId) => `${API_CONFIG.BASE_URL}/Booking/GetBookingsForCar/${carId}`,
   GET_BOOKING_BY_ID: (bookingId) => `${API_CONFIG.BASE_URL}/Booking/GetBookingById/${bookingId}`,
+  GET_BOOKING_BY_INVOICE_ID: (invoiceId) => `${API_CONFIG.BASE_URL}/Booking/GetBookingsByInvoice/${invoiceId}`,
   EXTEND_BOOKING: `${API_CONFIG.BASE_URL}/Booking/Booking/ExtendBooking`
 };
 
@@ -156,6 +157,7 @@ export const PAYMENT_ENDPOINTS = {
   CREATE_ADDITIONAL_PAYMENT: `${API_CONFIG.ALTER_URL}/CreateAdditionalPayment`,
   PATCH_BOOKING_PAYMENT_STATUS: `${API_CONFIG.ALTER_URL}/UpdatePayment/Booking/WithoutBookingConfirmed`,
   GET_PAYMENT_BY_VENDOR_ID: (vendorId) => `${API_CONFIG.ALTER_URL}/Vendor/${vendorId}`,
+  GET_PAYMENT_BY_CAR_ID: (carId) => `${API_CONFIG.ALTER_URL}/Car/${carId}/Payments`,
 };
 
 export const PAYMENT_API_CONFIG = {

@@ -168,7 +168,7 @@ export const useDashboardPaymentData = (period = '7days') => {
       // Filter payments with "Success" or "Paid" status and within the time period for chart data
       const { completedInvoices } = getFilteredInvoices(vendorPayments, period);
 
-      console.log("completedInvoices", completedInvoices);
+      // console.log("completedInvoices", completedInvoices);
       
       // Calculate total received from ALL completed payments (all-time stats)
       const totalReceived = allCompletedInvoices.reduce((sum, invoice) => sum + (invoice.paidAmount || 0), 0);

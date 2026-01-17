@@ -44,8 +44,9 @@ export const login = async (credentials) => {
         email: credentials.email,
         roleId: roleId ? parseInt(roleId, 10) : null
       };
+      // console.log("user",user);
       
-      // Store tokens (without isVerified)
+      // Store tokens
       tokenUtils.storeTokens(data.token, data.token, user);
 
       // Fetch full user data to get avatar, username, and isVerified
@@ -57,6 +58,7 @@ export const login = async (credentials) => {
           // Update localStorage with avatar and username only (excluding isVerified)
           tokenUtils.updateUserData({
             username: userData.username,
+            email: userData.email,
             imageAvatar: userData.imageAvatar
           });
           
@@ -118,7 +120,7 @@ export const register = async (userData) => {
       body: requestBody,
     });
 
-    console.log('Registration response:', data);
+    // console.log('Registration response:', data);
 
     // Check if registration returned token and expiration (successful sign up)
     if (data.token && data.expiration) {
@@ -177,7 +179,7 @@ export const register = async (userData) => {
           password: userData.password
         });
         
-        console.log('Auto-login response:', loginResponse);
+        // console.log('Auto-login response:', loginResponse);
         
         // Return combined response with autoLogin disabled for OTP verification flow
         return {

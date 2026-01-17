@@ -11,7 +11,7 @@ export const useVerificationStatus = () => {
   
   // Get current verification status
   const isVerified = user?.isVerified;
-  console.log("Get current verification status STATE",isVerified);
+  // console.log("Get current verification status STATE",isVerified);
   
   // Fetch fresh verification status from API
   const refreshVerificationStatus = useCallback(() => {

@@ -42,7 +42,7 @@ const PaymentHistoryPage = () => {
         } catch (paymentError) {
           // If 404, it means no payments exist
           if (paymentError.response?.status === 404) {
-            console.log('No payments found');
+            // console.log('No payments found');
             setPaymentHistory([]);
             setError(null);
             setLoading(false);

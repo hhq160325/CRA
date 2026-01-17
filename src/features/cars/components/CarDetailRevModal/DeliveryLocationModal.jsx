@@ -117,8 +117,8 @@ const DeliveryLocationModal = ({
     setAirportLoading(true);
 
     try {
-      console.log('Calling API with address:', address);
-      console.log('Endpoint:', TRACKASIA_ENDPOINTS.GET_COORDINATE_FROM_ADDRESS);
+      // console.log('Calling API with address:', address);
+      // console.log('Endpoint:', TRACKASIA_ENDPOINTS.GET_COORDINATE_FROM_ADDRESS);
 
       const response = await fetch(TRACKASIA_ENDPOINTS.GET_COORDINATE_FROM_ADDRESS, {
         method: 'POST',
@@ -126,7 +126,7 @@ const DeliveryLocationModal = ({
         body: JSON.stringify(address)
       });
 
-      console.log('Response status:', response.status);
+      // console.log('Response status:', response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -135,12 +135,11 @@ const DeliveryLocationModal = ({
       }
 
       const data = await response.json();
-      console.log('Airport coordinates response:', data);
+      // console.log('Airport coordinates response:', data);
 
     } catch (err) {
-      console.error('Error getting airport coordinates:', err);
-      // Don't show alert, just log the error - the address is still set
-      console.warn('Failed to get coordinates, but address is still saved');
+      // console.error('Error getting airport coordinates:', err);
+      // console.warn('Failed to get coordinates, but address is still saved');
     } finally {
       setAirportLoading(false);
     }

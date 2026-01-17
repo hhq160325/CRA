@@ -98,6 +98,7 @@ const NavBar = () => {
     // Fetch notifications when user authentication status changes
     useEffect(() => {
         fetchNotifications();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthenticated]);
 
     const notificationRef = useRef(null);

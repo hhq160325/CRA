@@ -41,7 +41,7 @@ export const setCarRentalRate = async (carId, dailyRate) => {
             carId: carId
         };
 
-        console.log('Setting rental rate:', rentalRateData);
+        // console.log('Setting rental rate:', rentalRateData);
 
         const response = await axios.post(CAR_ENDPOINTS.SET_RENTAL_RATE, rentalRateData, {
             headers: {
@@ -50,11 +50,11 @@ export const setCarRentalRate = async (carId, dailyRate) => {
             }
         });
         
-        console.log('Rental rate set successfully:', response.data);
+        // console.log('Rental rate set successfully:', response.data);
         return response.data;
     } catch (error) {
-        console.error('Error setting rental rate:', error);
-        console.error('Error response:', error.response?.data);
+        // console.error('Error setting rental rate:', error);
+        // console.error('Error response:', error.response?.data);
         throw error;
     }
 };
@@ -69,9 +69,9 @@ export const registerCar = async (carData) => {
         const userInfo = userData ? JSON.parse(userData) : {};
         
         // Log the data being sent for debugging
-        console.log('Car data being sent:', carData);
-        console.log('User info:', userInfo);
-        console.log('Token:', token ? 'Present' : 'Missing');
+        // console.log('Car data being sent:', carData);
+        // console.log('User info:', userInfo);
+        // console.log('Token:', token ? 'Present' : 'Missing');
         
         // Add all car information fields - ensure no empty strings for required fields
         if (carData.licensePlate) formData.append('LicensePlate', carData.licensePlate);
@@ -86,14 +86,14 @@ export const registerCar = async (carData) => {
         
         // Add photos if available - extract File object from photo object
         if (carData.photos && carData.photos.length > 0) {
-            console.log('Photos array:', carData.photos);
+            // console.log('Photos array:', carData.photos);
             carData.photos.forEach((photo, index) => {
                 // Photo object has a 'file' property containing the actual File
                 const fileToUpload = photo.file || photo;
-                console.log(`Photo ${index}:`, fileToUpload instanceof File ? `File: ${fileToUpload.name}` : 'Not a File object', fileToUpload);
+                // console.log(`Photo ${index}:`, fileToUpload instanceof File ? `File: ${fileToUpload.name}` : 'Not a File object', fileToUpload);
                 formData.append('Medias', fileToUpload);
             });
-            console.log(`Adding ${carData.photos.length} photos`);
+            // console.log(`Adding ${carData.photos.length} photos`);
         }
         
         // Extract userId from JWT token
@@ -102,8 +102,8 @@ export const registerCar = async (carData) => {
             const decoded = decodeJWT(token);
             if (decoded) {
                 userId = decoded.sub || decoded.userId || decoded.id || decoded.nameid;
-                console.log('Decoded token:', decoded);
-                console.log('Extracted userId:', userId);
+                // console.log('Decoded token:', decoded);
+                // console.log('Extracted userId:', userId);
             }
         }
         
@@ -128,10 +128,10 @@ export const registerCar = async (carData) => {
         
 
         // Log FormData contents
-        console.log('FormData contents:');
-        for (let pair of formData.entries()) {
-            console.log(pair[0] + ': ' + (pair[1] instanceof File ? `File: ${pair[1].name}` : pair[1]));
-        }
+        // console.log('FormData contents:');
+        // for (let pair of formData.entries()) {
+        //     console.log(pair[0] + ': ' + (pair[1] instanceof File ? `File: ${pair[1].name}` : pair[1]));
+        // }
 
         const response = await axios.post(CAR_ENDPOINTS.REGISTER_CAR, formData, {
             headers: {
@@ -140,12 +140,12 @@ export const registerCar = async (carData) => {
             }
         });
         
-        console.log('Registration successful:', response.data);
+        // console.log('Registration successful:', response.data);
         return response.data;
     } catch (error) {
-        console.error('Error registering car:', error);
-        console.error('Error response:', error.response?.data);
-        console.error('Error status:', error.response?.status);
+        // console.error('Error registering car:', error);
+        // console.error('Error response:', error.response?.data);
+        // console.error('Error status:', error.response?.status);
         throw error;
     }
 };
@@ -265,7 +265,7 @@ export const createCarWallet = async (carId) => {
     try {
         const token = localStorage.getItem('jwtToken') || localStorage.getItem('token');
         
-        console.log('Creating wallet for carId:', carId);
+        // console.log('Creating wallet for carId:', carId);
 
         const response = await axios.post(CAR_ENDPOINTS.CREATE_CAR_WALLET(carId), {}, {
             headers: {
@@ -274,11 +274,11 @@ export const createCarWallet = async (carId) => {
             }
         });
         
-        console.log('Car wallet created successfully:', response.data);
+        // console.log('Car wallet created successfully:', response.data);
         return response.data;
     } catch (error) {
-        console.error('Error creating car wallet:', error);
-        console.error('Error response:', error.response?.data);
+        // console.error('Error creating car wallet:', error);
+        // console.error('Error response:', error.response?.data);
         throw error;
     }
 };
@@ -287,7 +287,7 @@ export const getCarWalletByCarId = async (carId) => {
     try {
         const token = localStorage.getItem('jwtToken') || localStorage.getItem('token');
         
-        console.log('Fetching wallet for carId:', carId);
+        // console.log('Fetching wallet for carId:', carId);
 
         const response = await axios.get(CAR_ENDPOINTS.GET_CAR_WALLET_BY_CAR_ID(carId), {
             headers: {
@@ -296,11 +296,11 @@ export const getCarWalletByCarId = async (carId) => {
             }
         });
         
-        console.log('Car wallet fetched successfully:', response.data);
+        // console.log('Car wallet fetched successfully:', response.data);
         return response.data;
     } catch (error) {
-        console.error('Error fetching car wallet:', error);
-        console.error('Error response:', error.response?.data);
+        // console.error('Error fetching car wallet:', error);
+        // console.error('Error response:', error.response?.data);
         throw error;
     }
 };

@@ -119,7 +119,6 @@ export const commonTranslate = {
       resettingPassword: "Resetting password...",
       passwordsDoNotMatch: "Passwords do not match",
       passwordTooShort: "Password must be at least 6 characters",
-      passwordRequirements: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
       emailRequired: "Email is required",
       passwordRequired: "Password is required",
       confirmPasswordRequired: "Please confirm your new password",
@@ -143,7 +142,7 @@ export const commonTranslate = {
       success: "Success",
       redirectingToHomepage: "Redirecting to homepage...",
       invalidEmailFormat: "Invalid Email Format",
-      passwordRequirements: "Invalid Password",
+      invalidPassword: "Invalid Password",
       invalidPhoneNumber: "Invalid Phone Number",
 
       // Footer
@@ -343,11 +342,9 @@ export const commonTranslate = {
       resettingPassword: "Đang đặt lại mật khẩu...",
       passwordsDoNotMatch: "Mật khẩu không khớp",
       passwordTooShort: "Mật khẩu phải có ít nhất 6 ký tự",
-      passwordRequirements: "Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường và một số",
       emailRequired: "Email là bắt buộc",
       passwordRequired: "Mật khẩu là bắt buộc",
       confirmPasswordRequired: "Vui lòng xác nhận mật khẩu mới",
-      invalidEmailFormat: "Sai format email",
 
       // Auth - Register
       alreadyHaveAccount: "Đã có tài khoản?",
@@ -367,7 +364,7 @@ export const commonTranslate = {
       success: "Thành công!",
       redirectingToHomepage: "Đang chuyển đến trang chủ...",
       invalidEmailFormat: "Sai format email",
-      passwordRequirements: "Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt",
+      invalidPassword: "Mật khẩu không hợp lệ",
       invalidPhoneNumber: "Số điện thoại không hợp lệ",
 
       // Footer

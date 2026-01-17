@@ -10,8 +10,8 @@ export const carRegisDocsService = {
         getAllRegDocs()
       ]);
 
-      console.log('RegDocs API Response:', regDocsResponse); // Debug log
-      console.log('allCars API Response:', allCars); // Debug log
+      // console.log('RegDocs API Response:', regDocsResponse); // Debug log
+      // console.log('allCars API Response:', allCars); // Debug log
       // Filter cars by current user
       const userCars = allCars.filter(car => car.owner?.id === currentUserId);
       // Extract registration documents array from response

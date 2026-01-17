@@ -17,7 +17,7 @@ export const fetchUserCars = async () => {
 export const fetchCarSchedules = async (carId) => {
   try {
     const response = await axiosInstance.get(SCHEDULE_ENDPOINTS.GET_CAR_SCHEDULES(carId));
-    console.log("fetchCarSchedules", response.data);
+    // console.log("fetchCarSchedules", response.data);
     const allSchedules = response.data || [];
     
     // Filter to show only maintenance schedules
@@ -44,28 +44,26 @@ export const fetchMultipleCarSchedules = async (cars) => {
 /* Mark a maintenance schedule as completed */
 export const markScheduleAsCompleted = async (scheduleId) => {
   try {
-    console.log('=== MARK AS COMPLETED API CALL ===');
-    console.log('Schedule ID:', scheduleId);
-    console.log('Schedule ID type:', typeof scheduleId);
+    // console.log('=== MARK AS COMPLETED API CALL ===');
+    // console.log('Schedule ID:', scheduleId);
+    // console.log('Schedule ID type:', typeof scheduleId);
     
     const endpoint = SCHEDULE_ENDPOINTS.PATCH_CAR_SCHEDULES(scheduleId);
-    console.log('API Endpoint:', endpoint);
+    // console.log('API Endpoint:', endpoint);
     
-    console.log('Making PATCH request to mark schedule as completed...');
+    // console.log('Making PATCH request to mark schedule as completed...');
     const response = await axiosInstance.patch(endpoint);
     
-    console.log('API Response Status:', response.status);
-    console.log('API Response Data:', response.data);
-    console.log('=== MARK AS COMPLETED SUCCESS ===');
+    // console.log('API Response Status:', response.status);
+    // console.log('API Response Data:', response.data);
+    // console.log('=== MARK AS COMPLETED SUCCESS ===');
     
     return response.data;
   } catch (err) {
-    console.error('=== MARK AS COMPLETED ERROR ===');
     console.error(`Error marking schedule ${scheduleId} as completed:`, err);
     console.error('Error response:', err.response?.data);
     console.error('Error status:', err.response?.status);
     console.error('Error message:', err.message);
-    console.error('=== END ERROR ===');
     throw err;
   }
 };

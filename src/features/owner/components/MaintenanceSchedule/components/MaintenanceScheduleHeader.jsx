@@ -13,7 +13,7 @@ const MaintenanceScheduleHeader = ({ filteredSchedules = [], totalSchedules = 0 
     try {
       const success = exportSchedulesToCSV(filteredSchedules, t);
       if (success) {
-        console.log(`Successfully exported ${filteredSchedules.length} maintenance schedule records`);
+        // console.log(`Successfully exported ${filteredSchedules.length} maintenance schedule records`);
       }
     } catch (error) {
       console.error('Error exporting maintenance schedules:', error);

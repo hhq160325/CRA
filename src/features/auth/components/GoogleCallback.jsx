@@ -15,12 +15,12 @@ const GoogleCallback = () => {
     const refreshToken = urlParams.get('refreshToken') || urlParams.get('RefreshToken');
     const errorMsg = urlParams.get('error');
 
-    console.log('GoogleCallback: Received data from backend', {
-      hasToken: !!token,
-      hasEmail: !!email,
-      hasError: !!errorMsg,
-      hasOpener: !!window.opener
-    });
+    // console.log('GoogleCallback: Received data from backend', {
+    //   hasToken: !!token,
+    //   hasEmail: !!email,
+    //   hasError: !!errorMsg,
+    //   hasOpener: !!window.opener
+    // });
 
     // Check if there's an error
     if (errorMsg) {
@@ -56,7 +56,7 @@ const GoogleCallback = () => {
       refreshToken: refreshToken || token
     };
 
-    console.log('GoogleCallback: Sending auth data to parent window');
+    // console.log('GoogleCallback: Sending auth data to parent window');
     
     // Send data back to the opener (parent window)
     if (window.opener) {

@@ -5,7 +5,8 @@ import {
   INVOICE_ENDPOINTS,
   USER_ENDPOINTS,
   SCHEDULE_ENDPOINTS,
-  PARKLOT_ENDPOINTS
+  PARKLOT_ENDPOINTS,
+  CARTRAVELLOG_ENDPOINTS
 } from "../../../config/api";
 
 // ============================================
@@ -148,6 +149,21 @@ export const addFundToWallet = async (carId, amount) => {
   });
 
   return response.data;
+};
+
+// ============================================
+// TRAVEL LOG API
+// ============================================
+
+/* Get car travel logs by car ID */
+export const getCarTravelLogs = async (carId) => {
+  try {
+    const response = await axiosInstance.get(CARTRAVELLOG_ENDPOINTS.GET_CARTRAVELLOG_BY_CAR_ID(carId));
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching travel logs for car ${carId}:`, error);
+    return [];
+  }
 };
 
 // ============================================

@@ -519,6 +519,12 @@ const UsageTracking = () => {
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-2">
                             <button
+                              onClick={() => openModal(car)}
+                              className="text-purple-600 hover:text-purple-700 text-sm font-medium"
+                            >
+                              {t('usageTracking.viewDetails') || 'View Details'}
+                            </button>
+                            <button
                               onClick={() => openTravelLogModal(car)}
                               className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                             >
@@ -565,12 +571,12 @@ const UsageTracking = () => {
       </div>
 
       {/* Usage Details Modal */}
-      {/* <UsageDetailsModal
+      <UsageDetailsModal
         isOpen={isModalOpen}
         onClose={closeModal}
         selectedCar={selectedCar}
         onScheduleMaintenance={openMaintenanceModal}
-      /> */}
+      />
 
       {/* Maintenance Scheduling Modal */}
       <MaintenanceSchedulingModal

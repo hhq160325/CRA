@@ -7,14 +7,34 @@ import { useDashboardCar } from '../hooks/useDashboardCar';
 const TrendingCar = ({ ownerCars = [] }) => {
   const { t } = useTranslation();
   const [selectedPeriod, setSelectedPeriod] = useState('7days');
+  const [selectedManufacturer, setSelectedManufacturer] = useState('all');
   
   // Use the car trending data hook
   const { trendingData, topModels, topManufacturers, trendingLoading } = useDashboardCar(ownerCars, false, selectedPeriod);
 
+  // Extract unique manufacturers from ownerCars
+  const manufacturers = React.useMemo(() => {
+    const uniqueManufacturers = [...new Set(ownerCars.map(car => car.manufacturer).filter(Boolean))];
+    return uniqueManufacturers.sort();
+  }, [ownerCars]);
+
   // Extract unique car models from the data
-  const carModels = trendingData.length > 0
+  const allCarModels = trendingData.length > 0
     ? Object.keys(trendingData[0]).filter(key => key !== 'date' && key !== 'day' && key !== 'weekEnd')
     : [];
+
+  // Filter car models based on selected manufacturer
+  const carModels = React.useMemo(() => {
+    if (selectedManufacturer === 'all') {
+      return allCarModels;
+    }
+    
+    // Filter allCarModels to only include models that start with the selected manufacturer
+    // This handles cases where the model name includes the manufacturer (e.g., "Acura TLX", "Honda Civic RS 2023")
+    return allCarModels.filter(model => 
+      model.toLowerCase().startsWith(selectedManufacturer.toLowerCase())
+    );
+  }, [allCarModels, selectedManufacturer]);
   
   // Process the data to format dates
   const processedData = trendingData.map(item => ({
@@ -119,21 +139,45 @@ const TrendingCar = ({ ownerCars = [] }) => {
             </p>
           </div>
           
-          {/* Period Selection Dropdown */}
-          <div className="relative">
-            <select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="7days">Last 7 Days</option>
-              <option value="7weeks">Last 7 Weeks</option>
-              <option value="7months">Last 7 Months</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-              </svg>
+          {/* Filter Controls */}
+          <div className="flex items-center gap-3">
+            {/* Manufacturer Filter Dropdown */}
+            <div className="relative">
+              <select
+                value={selectedManufacturer}
+                onChange={(e) => setSelectedManufacturer(e.target.value)}
+                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="all">{t('allManufacturers', 'All Manufacturers')}</option>
+                {manufacturers.map((manufacturer) => (
+                  <option key={manufacturer} value={manufacturer}>
+                    {manufacturer}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                </svg>
+              </div>
+            </div>
+
+            {/* Period Selection Dropdown */}
+            <div className="relative">
+              <select
+                value={selectedPeriod}
+                onChange={(e) => setSelectedPeriod(e.target.value)}
+                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="7days">{t('last7Days', 'Last 7 Days')}</option>
+                <option value="7weeks">{t('last7Weeks', 'Last 7 Weeks')}</option>
+                <option value="7months">{t('last7Months', 'Last 7 Months')}</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                </svg>
+              </div>
             </div>
           </div>
         </div>

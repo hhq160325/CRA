@@ -22,7 +22,7 @@ const PaymentCancel = () => {
           setIsUpdatingBooking(true);
           updateBooking(bookingData.bookingId, 'Cancelled')
             .then(() => {
-              // console.log('PaymentCancel - Booking status updated to Cancelled');
+              console.log('PaymentCancel - Booking status updated to Cancelled');
               // Clear the pending booking from localStorage after cancellation
               localStorage.removeItem('pendingBooking');
               // console.log('PaymentCancel - Cleared pendingBooking from localStorage');

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,7 @@ import { DeliveryLocationModal, DateAndTimePicker, CarGallery } from './CarDetai
 import CarBookingCardSection from './CDRSubsComponent/CarBookingCardSection';
 import CarDetailSection from './CDRSubsComponent/CarDetailSection';
 import { useCarDetail, useRentalDates, useDeliveryLocation } from '../hooks';
+import { getAllManufacturers, getModelsByManufacturerId } from '../carApi';
 
 const CarDetailRev = () => {
   const { t } = useTranslation();
@@ -20,6 +21,8 @@ const CarDetailRev = () => {
   const [selectedAirport, setSelectedAirport] = useState(null);
   const [showDateTimePicker, setShowDateTimePicker] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
+  const [carType, setCarType] = useState(null);
+  const [loadingCarType, setLoadingCarType] = useState(false);
 
   // Custom hooks
   const {
@@ -44,6 +47,74 @@ const CarDetailRev = () => {
     setDeliveryFee,
     loadingDistance
   } = useDeliveryLocation(currentCar);
+
+  // Fetch car type based on manufacturer and model
+  useEffect(() => {
+    const fetchCarType = async () => {
+      if (!currentCar?.manufacturer || !currentCar?.model) {
+        return;
+      }
+
+      setLoadingCarType(true);
+      try {
+        // Step 1: Get all manufacturers
+        const manufacturersData = await getAllManufacturers();
+        console.log("manufacturersData",manufacturersData);
+        
+        // Check if manufacturers data is valid
+        if (!manufacturersData || !Array.isArray(manufacturersData)) {
+          console.warn('Invalid manufacturers data received');
+          setCarType(null);
+          return;
+        }
+        
+        // Step 2: Find the manufacturer ID by matching the manufacturer field
+        const manufacturer = manufacturersData.find(
+          m => m && m.manufacturer && m.manufacturer.toLowerCase() === currentCar.manufacturer.toLowerCase()
+        );
+
+        if (!manufacturer) {
+          console.warn(`Manufacturer "${currentCar.manufacturer}" not found`);
+          setCarType(null);
+          return;
+        }
+
+        // Step 3: Get models by manufacturer ID
+        const modelsData = await getModelsByManufacturerId(manufacturer.id);
+        console.log("modelsData",modelsData);
+        console.log("Looking for model:", currentCar.model);
+        
+        // Check if models data is valid
+        if (!modelsData || !Array.isArray(modelsData)) {
+          console.warn('Invalid models data received');
+          setCarType(null);
+          return;
+        }
+        
+        // Step 4: Find the model and extract carType
+        const model = modelsData.find(
+          m => m && m.model && m.model.toLowerCase() === currentCar.model.toLowerCase()
+        );
+        
+        console.log("Found model:", model);
+
+        if (model && model.carType) {
+          setCarType(model.carType);
+          console.log('Car Type:', model.carType);
+        } else {
+          console.warn(`Model "${currentCar.model}" not found or has no carType`);
+          setCarType(null);
+        }
+      } catch (error) {
+        console.error('Error fetching car type:', error);
+        setCarType(null);
+      } finally {
+        setLoadingCarType(false);
+      }
+    };
+
+    fetchCarType();
+  }, [currentCar?.manufacturer, currentCar?.model]);
 
 
 
@@ -158,6 +229,8 @@ const CarDetailRev = () => {
             loadingFeedback={loadingFeedback}
             feedbackUsers={feedbackUsers}
             coordinates={currentCarLongtitude && currentCarLatitude ? [currentCarLongtitude, currentCarLatitude] : null}
+            carType={carType}
+            loadingCarType={loadingCarType}
           />
 
           {/* Right Column - Booking Card*/}

@@ -95,6 +95,7 @@ export const CAR_ENDPOINTS = {
   GET_CAR_WALLET_BY_CAR_ID: (carId) => `${API_CONFIG.ALTER_URL}/Car/${carId}`,
   ADD_FUND_TO_WALLET: `${API_CONFIG.ALTER_URL}/PayOS/Add`,
   CREATE_CAR_WALLET: (carId) => `${API_CONFIG.BASE_URL}/CarWallet?carId=${carId}`,
+  GET_RECOMMEND_RENNTAL_PRICES: (Manufacturer,Model,YearOfManufacture) => `${API_CONFIG.BASE_URL}/Car/recommendedPrice?Manufacturer=${Manufacturer}&Model=${Model}&YearOfManufacture=${YearOfManufacture}`
 };
 
 export const CAR_API_CONFIG = {
@@ -158,6 +159,7 @@ export const PAYMENT_ENDPOINTS = {
   PATCH_BOOKING_PAYMENT_STATUS: `${API_CONFIG.ALTER_URL}/UpdatePayment/Booking/WithoutBookingConfirmed`,
   GET_PAYMENT_BY_VENDOR_ID: (vendorId) => `${API_CONFIG.ALTER_URL}/Vendor/${vendorId}`,
   GET_PAYMENT_BY_CAR_ID: (carId) => `${API_CONFIG.ALTER_URL}/Car/${carId}/Payments`,
+  GET_PAYMENT_BY_CAR_TYPE: (vendorId, carType) => `${API_CONFIG.ALTER_URL}/CarType/${vendorId}?carType=${carType}`
 };
 
 export const PAYMENT_API_CONFIG = {

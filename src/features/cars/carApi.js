@@ -84,6 +84,7 @@ export const registerCar = async (carData) => {
         if (carData.fuelConsumption) formData.append('FuelConsumption', parseFloat(carData.fuelConsumption));
         if (carData.description) formData.append('Description', carData.description);
         
+        
         // Add photos if available - extract File object from photo object
         if (carData.photos && carData.photos.length > 0) {
             // console.log('Photos array:', carData.photos);
@@ -301,6 +302,23 @@ export const getCarWalletByCarId = async (carId) => {
     } catch (error) {
         // console.error('Error fetching car wallet:', error);
         // console.error('Error response:', error.response?.data);
+        throw error;
+    }
+};
+
+export const getRecommendedRentalPrices = async (manufacturer, model, yearOfManufacture) => {
+    try {
+        const response = await axios.get(
+            CAR_ENDPOINTS.GET_RECOMMEND_RENNTAL_PRICES(manufacturer, model, yearOfManufacture),
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching recommended rental prices:', error);
         throw error;
     }
 };

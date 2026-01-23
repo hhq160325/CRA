@@ -28,7 +28,9 @@ const CarDetailSection = ({
   feedbacks,
   loadingFeedback,
   feedbackUsers,
-  coordinates
+  coordinates,
+  carType,
+  loadingCarType
 }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -172,6 +174,21 @@ const CarDetailSection = ({
             <span>{t('plateNo')}: {licensePlate}</span>
             <span>•</span>
             <span>{t('yearOfManufacture')}: {yearOfManufacture}</span>
+            {loadingCarType && (
+              <>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-600"></div>
+                  {t('loadingCarType') || 'Loading type...'}
+                </span>
+              </>
+            )}
+            {!loadingCarType && carType && (
+              <>
+                <span>•</span>
+                <span>{t('Type') || 'carType'}: {carType}</span>
+              </>
+            )}
           </div>
         </div>
 

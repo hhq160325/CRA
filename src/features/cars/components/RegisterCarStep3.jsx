@@ -41,7 +41,8 @@ const RegisterCarStep3 = () => {
                 return;
             }
 
-            // Combine all data
+            // Combine all data including carType from step1Data
+            // carType should already be in step1Data if it was saved from RegisterCar component
             const carData = {
                 ...step1Data,
                 ...step2Data,

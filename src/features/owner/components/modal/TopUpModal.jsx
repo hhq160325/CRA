@@ -58,13 +58,8 @@ const TopUpModal = ({ isOpen, onClose, selectedCar }) => {
           timestamp: new Date().toISOString()
         }));
         
-        // Redirect to PayOS payment page
-        window.open(response.paymentUrl, '_blank');
-        
-        setTopUpSuccess(true);
-        setTimeout(() => {
-          handleClose();
-        }, 1500);
+        // Redirect to PayOS payment page in the same tab (like PaymentPage)
+        window.location.href = response.paymentUrl;
       } else {
         // Handle case where no payment URL is returned
         setTopUpError(t('topUpModal.noPaymentUrlError'));

@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { fetchParkLots } from '../carApi';
-import { calculateRecommendedPrice, formatPriceVN } from '../utils';
+import { fetchParkLots, getRecommendedRentalPrices } from '../carApi';
+import { formatPriceVN } from '../utils';
 
 const RegisterCarStep2 = () => {
     const { t } = useTranslation();
@@ -36,24 +36,47 @@ const RegisterCarStep2 = () => {
             setFormData(parsedData);
         }
 
-        // Load car info from step 1
-        const step1Data = localStorage.getItem('carRegistrationStep1');
-        if (step1Data) {
-            const carData = JSON.parse(step1Data);
-            setCarInfo(carData);
-            const priceRange = calculateRecommendedPrice(carData);
-            if (priceRange) {
-                setRecommendedPriceRange(priceRange);
+        // Load car info from step 1 and fetch recommended prices
+        const loadRecommendedPrices = async () => {
+            const step1Data = localStorage.getItem('carRegistrationStep1');
+            if (step1Data) {
+                const carData = JSON.parse(step1Data);
+                setCarInfo(carData);
                 
-                // Set the recommended price as default if no price is set
-                if (!formData.dailyPrice || formData.dailyPrice === '10.000') {
-                    setFormData(prev => ({
-                        ...prev,
-                        dailyPrice: formatPriceVN(priceRange.recommended)
-                    }));
+                // Fetch recommended prices from API
+                try {
+                    const priceData = await getRecommendedRentalPrices(
+                        carData.manufacturer,
+                        carData.model,
+                        carData.yearOfManufacture
+                    );
+                    
+                    if (priceData) {
+                        const priceRange = {
+                            recommended: priceData.recommendedPrice,
+                            min: priceData.recommendedMinPrice,
+                            max: priceData.recommendedMaxPrice,
+                            carType: `${carData.manufacturer} ${carData.model}`
+                        };
+                        
+                        setRecommendedPriceRange(priceRange);
+                        
+                        // Set the recommended price as default if no price is set
+                        if (!formData.dailyPrice || formData.dailyPrice === '10.000') {
+                            setFormData(prev => ({
+                                ...prev,
+                                dailyPrice: formatPriceVN(priceRange.recommended)
+                            }));
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching recommended prices:', error);
+                    // Continue without recommended prices if API fails
                 }
             }
-        }
+        };
+
+        loadRecommendedPrices();
     }, []);
 
     // const currencies = [

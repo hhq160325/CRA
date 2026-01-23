@@ -15,6 +15,7 @@ const RegisterCar = () => {
         manufacturerId: '',
         model: '',
         modelId: '',
+        carType: '',
         numberOfSeats: '',
         yearOfManufacture: '',
         transmission: '',
@@ -251,7 +252,7 @@ const RegisterCar = () => {
 
                             {/* Model and Type */}
                             <div className='grid grid-cols-2 gap-x-1'>
-                                <div className="col-span-1">
+                                <div className="col-span-2">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         {t('model')} <span className="text-red-500">*</span>
                                     </label>
@@ -263,6 +264,7 @@ const RegisterCar = () => {
                                                 ...prev,
                                                 model: option.label,
                                                 modelId: option.id,
+                                                carType: selectedModel?.carType || '',
                                                 yearOfManufacture: selectedModel?.yearOfManufacture?.toString() || prev.yearOfManufacture
                                             }));
                                         }}
@@ -275,20 +277,46 @@ const RegisterCar = () => {
                                         disabled={!formData.manufacturerId || loadingModels}
                                     />
                                 </div>
+                                {/* <div className="col-span-1">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Type <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="w-full px-4 py-2 border rounded-lg bg-gray-100 text-left transition-colors border-gray-300 text-gray-700">
+                                        {formData.modelId ?
+                                            models.find(m => m.id === parseInt(formData.modelId))?.sizeClass || 'N/A'
+                                            : 'Type'
+                                        }
+                                    </div>
+                                </div> */}
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-6 mb-6">
+                            {/* Car Type */}
                                 <div className="col-span-1">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Type <span className="text-red-500">*</span>
                                     </label>
                                     <div className="w-full px-4 py-2 border rounded-lg bg-gray-100 text-left transition-colors border-gray-300 text-gray-700">
-                                        {formData.modelId ? 
-                                            models.find(m => m.id === parseInt(formData.modelId))?.sizeClass || 'N/A'
+                                        {formData.modelId ?
+                                            models.find(m => m.id === parseInt(formData.modelId))?.carType || 'N/A'
                                             : 'Type'
                                         }
                                     </div>
                                 </div>
-                            </div>
-                        </div>
 
+                            {/* Car Class */}
+                                <div className="col-span-1">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Class <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="w-full px-4 py-2 border rounded-lg bg-gray-100 text-left transition-colors border-gray-300 text-gray-700">
+                                        {formData.modelId ?
+                                            models.find(m => m.id === parseInt(formData.modelId))?.sizeClass || 'N/A'
+                                            : 'Class'
+                                        }
+                                    </div>
+                                </div>
+                        </div>
                         <div className="grid grid-cols-2 gap-6 mb-6">
                             {/* Number of Seats */}
                             <div>

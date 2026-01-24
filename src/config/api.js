@@ -159,7 +159,7 @@ export const PAYMENT_ENDPOINTS = {
   PATCH_BOOKING_PAYMENT_STATUS: `${API_CONFIG.ALTER_URL}/UpdatePayment/Booking/WithoutBookingConfirmed`,
   GET_PAYMENT_BY_VENDOR_ID: (vendorId) => `${API_CONFIG.ALTER_URL}/Vendor/${vendorId}`,
   GET_PAYMENT_BY_CAR_ID: (carId) => `${API_CONFIG.ALTER_URL}/Car/${carId}/Payments`,
-  GET_PAYMENT_BY_CAR_TYPE: (vendorId, carType) => `${API_CONFIG.ALTER_URL}/CarType/${vendorId}?carType=${carType}`
+  GET_PAYMENT_BY_CAR_TYPE: (vendorId, carType) => `${API_CONFIG.ALTER_URL}/CarType?carType=${carType}`
 };
 
 export const PAYMENT_API_CONFIG = {
@@ -259,6 +259,16 @@ export const CARTRAVELLOG_ENDPOINTS = {
 };
 
 export const CARTRAVELLOG_API_CONFIG = {
+  timeout: API_CONFIG.TIMEOUT,
+  headers: API_CONFIG.HEADERS,
+};
+
+// CarTravelLog
+export const VIETHOLIDAY_ENDPOINTS = {
+GET_VIET_HOLIDAY: `${API_CONFIG.BASE_URL}/VietHoliday/Up to 2028`,
+};
+
+export const VIETHOLIDAY_API_CONFIG = {
   timeout: API_CONFIG.TIMEOUT,
   headers: API_CONFIG.HEADERS,
 };

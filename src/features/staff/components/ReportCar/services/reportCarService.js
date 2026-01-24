@@ -198,6 +198,7 @@ export const transformReportData = (reportsArray) => {
     status: report.status,
     reportedCarId: report.reportedCarId,
     reporterId: report.reporterId,
+    urls: report.urls || [] // Include image URLs from the report
   }));
 };
 
@@ -254,7 +255,8 @@ export const transformReportDataWithEnrichment = (reportsArray, userMap, carMap)
       carEmail: carEmail,
       carPhoneNumber: carPhoneNumber,
       carManufacturer: carManufacturer,
-      carLicensePlate: carLicensePlate
+      carLicensePlate: carLicensePlate,
+      urls: report.urls || [] // Include image URLs from the report
     };
   });
 };

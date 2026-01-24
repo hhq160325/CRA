@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { vietnamHolidays2026 } from '../../utils/vietnamHolidays2026';
+import { fetchVietnamHolidays } from '../../utils/vietnamHolidays2026';
 const RENTAL_DATES_KEY = 'rentalDates';
 
 // Custom Time Dropdown Component
@@ -118,6 +118,14 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm, dailyPrice = 0 }) => {
   const [selectedDropoffDate, setSelectedDropoffDate] = useState(null); // { day, month, year }
   const [pickupTime, setPickupTime] = useState('06:00');
   const [dropoffTime, setDropoffTime] = useState('23:00');
+  const [vietnamHolidays, setVietnamHolidays] = useState([]);
+
+  // Fetch Vietnam holidays on component mount
+  useEffect(() => {
+    fetchVietnamHolidays().then(holidays => {
+      setVietnamHolidays(holidays);
+    });
+  }, []);
 
   // Get next available pickup time for today
   const getNextAvailablePickupTime = (selectedDate) => {
@@ -363,13 +371,13 @@ const DateAndTimePicker = ({ isOpen, onClose, onConfirm, dailyPrice = 0 }) => {
   };
 
   const isVietnameseHoliday = (day, month, year) => {
-    return vietnamHolidays2026.some(holiday => 
+    return vietnamHolidays.some(holiday => 
       holiday.day === day && holiday.month === month && holiday.year === year
     );
   };
 
   const getHolidayName = (day, month, year) => {
-    const holiday = vietnamHolidays2026.find(holiday => 
+    const holiday = vietnamHolidays.find(holiday => 
       holiday.day === day && holiday.month === month && holiday.year === year
     );
     return holiday ? holiday.name : null;

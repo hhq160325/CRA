@@ -5,6 +5,7 @@ import { axiosInstance } from '../../../../shared/utils/axiosInstance';
 import { NOTIFICATION_ENDPOINTS } from '../../../../config/api';
 import { tokenUtils } from '../../../auth/utils';
 import DropdownTemplate from '../../../../shared/components/DropdownTemplate';
+import { formatPrice, formatPriceWithCurrency } from '../../../../shared/utils/priceFormatter';
 
 const formatDateTime = (iso) => new Date(iso).toLocaleString();
 
@@ -45,6 +46,24 @@ const Notification = () => {
     return content.length > 50 ? content.substring(0, 50) + '...' : content;
   };
 
+  // Helper function to format prices in notification content
+  const formatNotificationContent = (content) => {
+    // First, match patterns with currency symbols like ¤150,000.00 or ₫150,000.00
+    let formattedContent = content.replace(/[¤₫]([\d,]+\.?\d*)/g, (match, priceStr) => {
+      const numericPrice = parseFloat(priceStr.replace(/,/g, ''));
+      return formatPriceWithCurrency(numericPrice);
+    });
+    
+    // Then, match standalone numbers that look like prices (e.g., "0.00" or "150,000.00")
+    // This pattern looks for numbers with optional commas and decimals that are likely prices
+    formattedContent = formattedContent.replace(/\b([\d,]+\.\d{2})\b/g, (match, priceStr) => {
+      const numericPrice = parseFloat(priceStr.replace(/,/g, ''));
+      return formatPriceWithCurrency(numericPrice);
+    });
+    
+    return formattedContent;
+  };
+
   // Fetch notifications on component mount
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -74,13 +93,13 @@ const Notification = () => {
         // Transform the data (only show notifications for current user)
         const transformedNotifications = userNotifications.map(notification => ({
           id: notification.id,
-          content: notification.content,
+          content: formatNotificationContent(notification.content),
           date: notification.createDate.toLocaleString('vi-VN'),
           read: notification.isViewed,
           userId: notification.userId,
           // Determine notification type based on content
           tag: getNotificationTag(notification.content),
-          subject: getNotificationSubject(notification.content)
+          subject: getNotificationSubject(formatNotificationContent(notification.content))
         }));
 
         setNotifications(transformedNotifications);
